@@ -1,0 +1,35 @@
+name: Frontend CI
+
+on:
+    workflow_dispatch:
+    push:
+        branches: main
+    pull_request:
+        branches: main
+
+permissions:
+    contents: read
+
+jobs:
+    frontend-ci:
+        name: Frontend CI
+        runs-on: ubuntu-latest
+        defaults:
+            run:
+                working-directory: ./frontend
+        steps:
+            - uses: actions/checkout@v4
+
+            - name: Install Bun
+              uses: oven-sh/setup-bun@v2
+              with:
+                  bun-version: latest
+
+            - name: Install dependencies
+              run: bun install
+
+            - name: Check TypeScript types
+              run: bun run check-types
+
+            - name: Lint
+              run: bun run lint
