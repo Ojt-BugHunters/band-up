@@ -1,6 +1,7 @@
 'use client';
 
 import { Geist, Geist_Mono } from 'next/font/google';
+import { ThemeProvider } from 'next-themes';
 import './globals.css';
 
 const geistSans = Geist({
@@ -23,7 +24,16 @@ export default function ClientLayout({
             lang="en"
             className={`${geistSans.variable} ${geistMono.variable} antialiased`}
         >
-            <body>{children}</body>
+            <body>
+                <ThemeProvider
+                    attribute="class"
+                    defaultTheme="system"
+                    enableSystem
+                    disableTransitionOnChange
+                >
+                    {children}
+                </ThemeProvider>
+            </body>
         </html>
     );
 }
