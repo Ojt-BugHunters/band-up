@@ -33,7 +33,7 @@ export function Header() {
                         className="flex items-start gap-3 rounded-md p-3 hover:bg-neutral-100 dark:hover:bg-neutral-800"
                     >
                         <Image
-                            src="/band-up-logo.png"
+                            src="/test.png"
                             alt="Storage"
                             width={30}
                             height={30}
@@ -51,7 +51,7 @@ export function Header() {
                         className="flex items-start gap-3 rounded-md p-3 hover:bg-neutral-100 dark:hover:bg-neutral-800"
                     >
                         <Image
-                            src="/band-up-logo.png"
+                            src="/dictation.png"
                             alt="Dictation"
                             width={30}
                             height={30}
@@ -69,7 +69,7 @@ export function Header() {
                         className="flex items-start gap-3 rounded-md p-3 hover:bg-neutral-100 dark:hover:bg-neutral-800"
                     >
                         <Image
-                            src="/band-up-logo.png"
+                            src="/speaking.png"
                             alt="Speaking"
                             width={30}
                             height={30}
@@ -87,7 +87,7 @@ export function Header() {
                         className="flex items-start gap-3 rounded-md p-3 hover:bg-neutral-100 dark:hover:bg-neutral-800"
                     >
                         <Image
-                            src="/band-up-logo.png"
+                            src="/writing.png"
                             alt="Writing"
                             width={30}
                             height={30}
@@ -113,7 +113,7 @@ export function Header() {
                         className="flex items-start gap-3 rounded-md p-3 hover:bg-neutral-100 dark:hover:bg-neutral-800"
                     >
                         <Image
-                            src="/band-up-logo.png"
+                            src="/flash-card.png"
                             alt="Learn"
                             width={30}
                             height={30}
@@ -131,7 +131,7 @@ export function Header() {
                         className="flex items-start gap-3 rounded-md p-3 hover:bg-neutral-100 dark:hover:bg-neutral-800"
                     >
                         <Image
-                            src="/band-up-logo.png"
+                            src="/create.png"
                             alt="Create"
                             width={30}
                             height={30}
