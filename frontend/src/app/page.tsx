@@ -1,10 +1,12 @@
 'use client';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
+import { ContainerScroll } from '@/components/ui/container-scroll-animation';
 import { Highlight } from '@/components/ui/highlight';
 import { LayoutTextFlip } from '@/components/ui/layout-text-flip';
 import { motion } from 'framer-motion';
 import { ArrowRight, ChevronRight } from 'lucide-react';
+import Image from 'next/image';
 import Link from 'next/link';
 
 export default function HomePage() {
@@ -46,6 +48,18 @@ export default function HomePage() {
                     Take a Free Practice Test
                     <ArrowRight className="h-4 w-4" />
                 </Button>
+            </div>
+            <div className="flex flex-col overflow-hidden">
+                <ContainerScroll>
+                    <Image
+                        src="/hero-writing.jpg"
+                        alt="hero"
+                        height={720}
+                        width={1400}
+                        className="mx-auto h-full rounded-2xl object-cover object-left-top"
+                        draggable={false}
+                    />
+                </ContainerScroll>
             </div>
         </div>
     );
