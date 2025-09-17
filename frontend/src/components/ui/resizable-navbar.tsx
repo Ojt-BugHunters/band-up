@@ -125,7 +125,7 @@ export const NavItems = ({ items, className, onItemClick }: NavItemsProps) => {
                 setActive(null);
             }}
             className={cn(
-                'absolute inset-0 hidden flex-1 flex-row items-center justify-center space-x-2 text-sm font-medium text-zinc-600 transition duration-200 hover:text-zinc-800 lg:flex lg:space-x-2',
+                'absolute inset-0 hidden flex-1 flex-row items-center justify-center space-x-8 text-base font-medium text-neutral-600 transition-colors duration-200 hover:text-neutral-900 lg:flex dark:text-neutral-300 dark:hover:text-white',
                 className,
             )}
         >
@@ -143,7 +143,7 @@ export const NavItems = ({ items, className, onItemClick }: NavItemsProps) => {
                     <a
                         onMouseEnter={() => setHovered(idx)}
                         onClick={onItemClick}
-                        className="relative px-4 py-2 text-neutral-600 dark:text-neutral-300"
+                        className="relative px-4 py-2 text-neutral-600 transition-colors duration-200 hover:text-neutral-900 dark:text-neutral-300 dark:hover:text-white"
                         key={`link-${idx}`}
                         href={item.link}
                     >
@@ -239,9 +239,12 @@ export const MobileNavToggle = ({
     onClick: () => void;
 }) => {
     return isOpen ? (
-        <IconX className="text-black dark:text-white" onClick={onClick} />
+        <IconX className="text-neutral-900 dark:text-white" onClick={onClick} />
     ) : (
-        <IconMenu2 className="text-black dark:text-white" onClick={onClick} />
+        <IconMenu2
+            className="text-neutral-900 dark:text-white"
+            onClick={onClick}
+        />
     );
 };
 
@@ -249,7 +252,7 @@ export const NavbarLogo = () => {
     return (
         <a
             href="#"
-            className="relative z-20 mr-4 flex items-center space-x-2 px-2 py-1 text-sm font-normal text-black"
+            className="relative z-20 mr-4 flex items-center space-x-2 px-2 py-1 text-sm font-normal"
         >
             <Image
                 src="/band-up-logo.png"
@@ -257,7 +260,7 @@ export const NavbarLogo = () => {
                 width={45}
                 height={45}
             />
-            <span className="text-lg font-bold text-black dark:text-white">
+            <span className="text-lg font-bold text-neutral-900 dark:text-white">
                 BandUp
             </span>
         </a>
@@ -282,12 +285,13 @@ export const NavbarButton = ({
     | React.ComponentPropsWithoutRef<'button'>
 )) => {
     const baseStyles =
-        'px-4 py-2 rounded-md bg-white button bg-white text-black text-sm font-bold relative cursor-pointer hover:-translate-y-0.5 transition duration-200 inline-block text-center';
+        'px-4 py-2 rounded-md text-sm font-bold relative cursor-pointer hover:-translate-y-0.5 transition duration-200 inline-block text-center';
 
     const variantStyles = {
         primary:
-            'shadow-[0_0_24px_rgba(34,_42,_53,_0.06),_0_1px_1px_rgba(0,_0,_0,_0.05),_0_0_0_1px_rgba(34,_42,_53,_0.04),_0_0_4px_rgba(34,_42,_53,_0.08),_0_16px_68px_rgba(47,_48,_55,_0.05),_0_1px_0_rgba(255,_255,_255,_0.1)_inset]',
-        secondary: 'bg-transparent shadow-none dark:text-white',
+            'bg-white text-neutral-900 shadow-[0_0_24px_rgba(34,_42,_53,_0.06),_0_1px_1px_rgba(0,_0,_0,_0.05),_0_0_0_1px_rgba(34,_42,_53,_0.04),_0_0_4px_rgba(34,_42,_53,_0.08),_0_16px_68px_rgba(47,_48,_55,_0.05),_0_1px_0_rgba(255,_255,_255,_0.1)_inset]',
+        secondary:
+            'bg-transparent shadow-none text-neutral-600 dark:text-neutral-300',
         dark: 'bg-black text-white shadow-[0_0_24px_rgba(34,_42,_53,_0.06),_0_1px_1px_rgba(0,_0,_0,_0.05),_0_0_0_1px_rgba(34,_42,_53,_0.04),_0_0_4px_rgba(34,_42,_53,_0.08),_0_16px_68px_rgba(47,_48,_55,_0.05),_0_1px_0_rgba(255,_255,_255,_0.1)_inset]',
         gradient:
             'bg-gradient-to-b from-blue-500 to-blue-700 text-white shadow-[0px_2px_0px_0px_rgba(255,255,255,0.3)_inset]',
