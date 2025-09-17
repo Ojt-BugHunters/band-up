@@ -88,6 +88,7 @@ function LoginForm({ className, ...props }: React.ComponentProps<'div'>) {
                                                                 : 'password'
                                                         }
                                                         {...field}
+                                                        placeholder="Password"
                                                         className="pr-10"
                                                     />
                                                     <button
@@ -130,9 +131,7 @@ function LoginForm({ className, ...props }: React.ComponentProps<'div'>) {
                                         className="w-full cursor-pointer"
                                     >
                                         <FaGoogle className="text-red-500" />
-                                        <span className="sr-only">
-                                            Login with Google
-                                        </span>
+                                        Google
                                     </Button>
                                     <Button
                                         variant="outline"
@@ -140,15 +139,13 @@ function LoginForm({ className, ...props }: React.ComponentProps<'div'>) {
                                         className="w-full cursor-pointer"
                                     >
                                         <FaFacebook className="text-2xl text-blue-600" />
-                                        <span className="sr-only">
-                                            Login with Meta
-                                        </span>
+                                        Facebook
                                     </Button>
                                 </div>
                                 <div className="text-center text-sm">
                                     Don&apos;t have an account?{' '}
                                     <a
-                                        href="#"
+                                        href="/auth/register"
                                         className="underline underline-offset-4"
                                     >
                                         Sign up
