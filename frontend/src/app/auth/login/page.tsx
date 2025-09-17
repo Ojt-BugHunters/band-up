@@ -113,6 +113,32 @@ function LoginForm({ className, ...props }: React.ComponentProps<'div'>) {
                                         </FormItem>
                                     )}
                                 />
+                                <FormField
+                                    control={form.control}
+                                    name="remember"
+                                    render={({ field }) => (
+                                        <FormItem className="flex items-center space-x-2">
+                                            <FormControl>
+                                                <input
+                                                    id="remember"
+                                                    type="checkbox"
+                                                    onChange={field.onChange}
+                                                    onBlur={field.onBlur}
+                                                    name={field.name}
+                                                    ref={field.ref}
+                                                    checked={!!field.value}
+                                                    className="border-input text-primary focus:ring-ring h-4 w-4"
+                                                />
+                                            </FormControl>
+                                            <FormLabel
+                                                htmlFor="remember"
+                                                className="mb-0"
+                                            >
+                                                Remember me
+                                            </FormLabel>
+                                        </FormItem>
+                                    )}
+                                />
                                 <Button
                                     type="submit"
                                     className="w-full cursor-pointer"

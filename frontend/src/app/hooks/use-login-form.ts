@@ -9,6 +9,7 @@ export const schema = z.object({
   password: z.string().nonempty({
     message: 'Password must not be empty',
   }),
+  remember: z.boolean().optional(),
 });
 
 export const useLoginForm = () => {
@@ -17,6 +18,7 @@ export const useLoginForm = () => {
     defaultValues: {
       email: '',
       password: '',
+      remember: false,
     },
   });
 
