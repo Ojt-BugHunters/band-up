@@ -134,7 +134,7 @@ function LoginForm({ className, ...props }: React.ComponentProps<'div'>) {
                                                 htmlFor="remember"
                                                 className="mb-0"
                                             >
-                                                Remember you
+                                                Remember me
                                             </FormLabel>
                                         </FormItem>
                                     )}
