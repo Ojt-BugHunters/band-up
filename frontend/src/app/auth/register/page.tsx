@@ -3,7 +3,6 @@
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
 import { FaFacebook, FaGoogle } from 'react-icons/fa';
 import {
     Form,
@@ -55,113 +54,116 @@ export function LoginForm({
                         </div>
                     </div>
                     <Form {...form}>
-                        <FormField
-                            control={form.control}
-                            name="email"
-                            render={({ field }) => (
-                                <FormItem className="grid gap-2">
-                                    <FormLabel>Email</FormLabel>
-                                    <FormControl>
-                                        <Input
-                                            {...field}
-                                            required
-                                            placeholder="johndoe@example.com"
-                                        />
-                                    </FormControl>
-                                    <FormMessage />
-                                </FormItem>
-                            )}
-                        />
-                        <FormField
-                            control={form.control}
-                            name="password"
-                            render={({ field }) => (
-                                <FormItem className="grid gap-3">
-                                    <div className="flex items-center">
-                                        <FormLabel htmlFor="password">
-                                            Password
-                                        </FormLabel>
-                                    </div>
-                                    <FormControl>
-                                        <div className="relative">
+                        <form className="p-6 md:p-8" onSubmit={onSubmit}>
+                            <FormField
+                                control={form.control}
+                                name="email"
+                                render={({ field }) => (
+                                    <FormItem className="grid gap-2">
+                                        <FormLabel>Email</FormLabel>
+                                        <FormControl>
                                             <Input
-                                                id="password"
-                                                type={
-                                                    showPassword
-                                                        ? 'text'
-                                                        : 'password'
-                                                }
                                                 {...field}
-                                                placeholder="Password"
-                                                className="pr-10"
+                                                required
+                                                placeholder="johndoe@example.com"
                                             />
-                                            <button
-                                                type="button"
-                                                onClick={() =>
-                                                    setShowPassword(
-                                                        (prev) => !prev,
-                                                    )
-                                                }
-                                                className="text-muted-foreground absolute top-1/2 right-2 -translate-y-1/2"
-                                                tabIndex={-1}
-                                            >
-                                                {showPassword ? (
-                                                    <FiEyeOff className="h-5 w-5" />
-                                                ) : (
-                                                    <FiEye className="h-5 w-5" />
-                                                )}
-                                            </button>
+                                        </FormControl>
+                                        <FormMessage />
+                                    </FormItem>
+                                )}
+                            />
+                            <FormField
+                                control={form.control}
+                                name="password"
+                                render={({ field }) => (
+                                    <FormItem className="grid gap-3">
+                                        <div className="flex items-center">
+                                            <FormLabel htmlFor="password">
+                                                Password
+                                            </FormLabel>
                                         </div>
-                                    </FormControl>
-                                    <FormMessage />
-                                </FormItem>
-                            )}
-                        />
-                        <FormField
-                            control={form.control}
-                            name="confirmPassword" // 👈 PHẢI khác với "password"
-                            render={({ field }) => (
-                                <FormItem className="grid gap-3">
-                                    <div className="flex items-center">
-                                        <FormLabel htmlFor="confirmpassword">
-                                            Confirm Password
-                                        </FormLabel>
-                                    </div>
-                                    <FormControl>
-                                        <div className="relative">
-                                            <Input
-                                                id="confirmpassword"
-                                                type={
-                                                    showConfirmPassword
-                                                        ? 'text'
-                                                        : 'password'
-                                                }
-                                                {...field}
-                                                placeholder="Password"
-                                                className="pr-10"
-                                            />
-                                            <button
-                                                type="button"
-                                                onClick={() =>
-                                                    setShowConfirmPassword(
-                                                        (prev) => !prev,
-                                                    )
-                                                }
-                                                className="text-muted-foreground absolute top-1/2 right-2 -translate-y-1/2"
-                                                tabIndex={-1}
-                                            >
-                                                {showConfirmPassword ? (
-                                                    <FiEyeOff className="h-5 w-5" />
-                                                ) : (
-                                                    <FiEye className="h-5 w-5" />
-                                                )}
-                                            </button>
+                                        <FormControl>
+                                            <div className="relative">
+                                                <Input
+                                                    id="password"
+                                                    type={
+                                                        showPassword
+                                                            ? 'text'
+                                                            : 'password'
+                                                    }
+                                                    {...field}
+                                                    placeholder="Password"
+                                                    className="pr-10"
+                                                />
+                                                <button
+                                                    type="button"
+                                                    onClick={() =>
+                                                        setShowPassword(
+                                                            (prev) => !prev,
+                                                        )
+                                                    }
+                                                    className="text-muted-foreground absolute top-1/2 right-2 -translate-y-1/2"
+                                                    tabIndex={-1}
+                                                >
+                                                    {showPassword ? (
+                                                        <FiEyeOff className="h-5 w-5" />
+                                                    ) : (
+                                                        <FiEye className="h-5 w-5" />
+                                                    )}
+                                                </button>
+                                            </div>
+                                        </FormControl>
+                                        <FormMessage />
+                                    </FormItem>
+                                )}
+                            />
+                            <FormField
+                                control={form.control}
+                                name="confirmPassword" // 👈 PHẢI khác với "password"
+                                render={({ field }) => (
+                                    <FormItem className="grid gap-3">
+                                        <div className="flex items-center">
+                                            <FormLabel htmlFor="confirmpassword">
+                                                Confirm Password
+                                            </FormLabel>
                                         </div>
-                                    </FormControl>
-                                    <FormMessage />
-                                </FormItem>
-                            )}
-                        />
+                                        <FormControl>
+                                            <div className="relative">
+                                                <Input
+                                                    id="confirmpassword"
+                                                    type={
+                                                        showConfirmPassword
+                                                            ? 'text'
+                                                            : 'password'
+                                                    }
+                                                    {...field}
+                                                    placeholder="Password"
+                                                    className="pr-10"
+                                                />
+                                                <button
+                                                    type="button"
+                                                    onClick={() =>
+                                                        setShowConfirmPassword(
+                                                            (prev) => !prev,
+                                                        )
+                                                    }
+                                                    className="text-muted-foreground absolute top-1/2 right-2 -translate-y-1/2"
+                                                    tabIndex={-1}
+                                                >
+                                                    {showConfirmPassword ? (
+                                                        <FiEyeOff className="h-5 w-5" />
+                                                    ) : (
+                                                        <FiEye className="h-5 w-5" />
+                                                    )}
+                                                </button>
+                                            </div>
+                                        </FormControl>
+                                        <FormMessage />
+                                    </FormItem>
+                                )}
+                            />
+                        </form>
+
                         <Button type="submit" className="w-full cursor-pointer">
                             Sign Up
                         </Button>
