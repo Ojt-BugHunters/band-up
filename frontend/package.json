@@ -12,6 +12,7 @@
     "lint:fix": "next lint --fix"
   },
   "dependencies": {
+    "@hookform/resolvers": "^5.2.2",
     "@radix-ui/react-label": "^2.1.7",
     "@radix-ui/react-slot": "^1.2.3",
     "@tanstack/react-query": "^5.87.4",
@@ -21,8 +22,9 @@
     "next": "15.5.3",
     "react": "19.1.0",
     "react-dom": "19.1.0",
+    "react-hook-form": "^7.62.0",
     "tailwind-merge": "^3.3.1",
-    "zod": "^4.1.8"
+    "zod": "^4.1.9"
   },
   "devDependencies": {
     "@eslint/eslintrc": "^3",
