@@ -18,10 +18,12 @@ export default function ClientLayout({
 }: {
     children: React.ReactNode;
 }) {
-    <html
-        lang="en"
-        className={`${geistSans.variable} ${geistMono.variable} antialiased`}
-    >
-        <body>{children}</body>
-    </html>;
+    return (
+        <html
+            lang="en"
+            className={`${geistSans.variable} ${geistMono.variable} antialiased`}
+        >
+            <body>{children}</body>
+        </html>
+    );
 }
