@@ -212,6 +212,7 @@ export function Header() {
     );
 }
 
+// Just a fake content to test navbar resizable when scroll. I will delete it when doing homepage
 const DummyContent = () => {
     return (
         <div className="container mx-auto p-8 pt-24">

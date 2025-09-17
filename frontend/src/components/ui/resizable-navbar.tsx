@@ -125,7 +125,7 @@ export const NavItems = ({ items, className, onItemClick }: NavItemsProps) => {
                 setActive(null);
             }}
             className={cn(
-                'absolute inset-0 hidden flex-1 flex-row items-center justify-center space-x-8 text-base font-medium text-neutral-600 transition-colors duration-200 hover:text-neutral-900 lg:flex dark:text-neutral-300 dark:hover:text-white',
+                'absolute inset-0 hidden flex-1 flex-row items-center justify-center space-x-6 text-base font-medium text-neutral-600 transition-colors duration-200 hover:text-neutral-900 lg:flex dark:text-neutral-300 dark:hover:text-white',
                 className,
             )}
         >
