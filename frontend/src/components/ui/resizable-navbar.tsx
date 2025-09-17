@@ -254,7 +254,7 @@ export const NavbarLogo = () => {
             href="#"
             className="relative z-20 mr-4 flex items-center space-x-2 px-2 py-1 text-sm font-normal"
         >
-            <Image src="/logo2.png" alt="BandUp Logo" width={45} height={45} />
+            <Image src="/logo.png" alt="BandUp Logo" width={45} height={45} />
             <span className="text-lg font-bold text-neutral-900 dark:text-white">
                 BandUp
             </span>
