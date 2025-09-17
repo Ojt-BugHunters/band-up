@@ -148,7 +148,7 @@ function LoginForm({ className, ...props }: React.ComponentProps<'div'>) {
                                         href="/auth/register"
                                         className="underline underline-offset-4"
                                     >
-                                        Sign up
+                                        Sign Up
                                     </a>
                                 </div>
                             </div>

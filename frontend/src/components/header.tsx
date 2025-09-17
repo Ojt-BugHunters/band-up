@@ -159,13 +159,13 @@ export function Header() {
                     <NavbarLogo />
                     <NavItems items={navItems} />
                     <div className="flex items-center gap-4">
-                        <Link href={'/auth/login'}>
-                            <NavbarButton variant="secondary">
+                        <Link href="/auth/login">
+                            <NavbarButton as="div" variant="secondary">
                                 Login
                             </NavbarButton>
                         </Link>
                         <Link href={'/auth/register'}>
-                            <NavbarButton variant="primary">
+                            <NavbarButton as="div" variant="primary">
                                 Sign Up
                             </NavbarButton>
                         </Link>
