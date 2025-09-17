@@ -1,6 +1,7 @@
 import type { Metadata } from 'next';
 import './globals.css';
 import ClientLayout from './client-layout';
+import { Header } from '@/components/header';
 
 export const metadata: Metadata = {
     title: 'BandUp',
@@ -12,5 +13,10 @@ export default function RootLayout({
 }: {
     children: React.ReactNode;
 }) {
-    return <ClientLayout>{children}</ClientLayout>;
+    return (
+        <ClientLayout>
+            <Header />
+            {children}
+        </ClientLayout>
+    );
 }
