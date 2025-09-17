@@ -1,9 +1,10 @@
 'use client';
 import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
 import { Highlight } from '@/components/ui/highlight';
 import { LayoutTextFlip } from '@/components/ui/layout-text-flip';
 import { motion } from 'framer-motion';
-import { ChevronRight } from 'lucide-react';
+import { ArrowRight, ChevronRight } from 'lucide-react';
 import Link from 'next/link';
 
 export default function HomePage() {
@@ -33,6 +34,19 @@ export default function HomePage() {
                     step by step toward IELTS success.
                 </Highlight>
             </p>
+            <div className="mt-8 flex justify-center gap-4">
+                <Button size="sm" className="rounded-full px-5 py-2 text-lg">
+                    Get Started
+                </Button>
+                <Button
+                    size="sm"
+                    variant="outline"
+                    className="rounded-lg px-5 py-2 text-lg"
+                >
+                    Take a Free Practice Test
+                    <ArrowRight className="h-4 w-4" />
+                </Button>
+            </div>
         </div>
     );
 }
