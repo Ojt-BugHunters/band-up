@@ -4,6 +4,7 @@ import { Button } from '@/components/ui/button';
 import { ContainerScroll } from '@/components/ui/container-scroll-animation';
 import { Highlight } from '@/components/ui/highlight';
 import { LayoutTextFlip } from '@/components/ui/layout-text-flip';
+import { PointerHighlight } from '@/components/ui/pointer-highlight';
 import { Tabs } from '@/components/ui/tabs';
 import { motion } from 'framer-motion';
 import { ArrowRight, ChevronRight } from 'lucide-react';
@@ -14,7 +15,7 @@ const BlogContent = () => {
     return (
         <div className="relative h-full w-full overflow-hidden rounded-2xl bg-black p-0">
             <Image
-                src="/hero-writing.jpg"
+                src="/web-intro-blog.jpg"
                 alt="Review Image"
                 width={1000}
                 height={500}
@@ -28,7 +29,7 @@ const RoomContent = () => {
     return (
         <div className="relative h-full w-full overflow-hidden rounded-2xl bg-black p-0">
             <Image
-                src="/hero-writing.jpg"
+                src="/web-intro-room.jpg"
                 alt="Review Image"
                 width="1000"
                 height="500"
@@ -42,7 +43,7 @@ const FlashCardContent = () => {
     return (
         <div className="relative h-full w-full overflow-hidden rounded-2xl bg-black p-0">
             <Image
-                src="/hero-writing.jpg"
+                src="/web-intro-flashcard.jpg"
                 alt="Review Image"
                 width="1000"
                 height="500"
@@ -71,7 +72,7 @@ const tabs = [
         title: 'Blog',
         value: 'Blog',
         content: (
-            <div className="relative h-full w-full overflow-hidden rounded-2xl bg-blue-500 p-6 text-xl font-bold text-white md:text-4xl">
+            <div className="relative h-full w-full overflow-hidden rounded-2xl bg-gradient-to-r from-blue-500 via-indigo-500 to-purple-500 p-6 text-xl font-bold text-white md:text-4xl">
                 <BlogContent />
             </div>
         ),
@@ -80,7 +81,7 @@ const tabs = [
         title: 'Room',
         value: 'Room',
         content: (
-            <div className="relative h-full w-full overflow-hidden rounded-2xl bg-blue-500 p-6 text-xl font-bold text-white md:text-4xl">
+            <div className="relative h-full w-full overflow-hidden rounded-2xl bg-gradient-to-r from-blue-500 via-indigo-500 to-purple-500 p-6 text-xl font-bold text-white md:text-4xl">
                 <RoomContent />
             </div>
         ),
@@ -89,7 +90,7 @@ const tabs = [
         title: 'Test',
         value: 'Test',
         content: (
-            <div className="relative h-full w-full overflow-hidden rounded-2xl bg-blue-500 p-6 text-xl font-bold text-white md:text-4xl">
+            <div className="relative h-full w-full overflow-hidden rounded-2xl bg-gradient-to-r from-blue-500 via-indigo-500 to-purple-500 p-6 text-xl font-bold text-white md:text-4xl">
                 <TestContent />
             </div>
         ),
@@ -98,7 +99,7 @@ const tabs = [
         title: 'FlashCard',
         value: 'FlashCard',
         content: (
-            <div className="relative h-full w-full overflow-hidden rounded-2xl bg-blue-500 p-6 text-xl font-bold text-white md:text-4xl">
+            <div className="relative h-full w-full overflow-hidden rounded-2xl bg-gradient-to-r from-blue-500 via-indigo-500 to-purple-500 p-6 text-xl font-bold text-white md:text-4xl">
                 <FlashCardContent />
             </div>
         ),
@@ -159,7 +160,16 @@ export default function HomePage() {
             </div>
             <div className="mt-20 text-center">
                 <h2 className="text-3xl font-bold sm:text-4xl">
-                    A web app tool with everything you need
+                    A web app tool with
+                    <PointerHighlight
+                        rectangleClassName="bg-blue-400 dark:bg-rose-700 border-neutral-300 dark:border-neutral-600 leading-loose"
+                        pointerClassName="text-yellow-500 h-3 w-3"
+                        containerClassName="inline-block ml-1"
+                    >
+                        <span className="relative z-10">
+                            everything you need
+                        </span>
+                    </PointerHighlight>
                 </h2>
                 <p className="mx-auto mt-4 max-w-2xl text-lg text-neutral-600 dark:text-neutral-400">
                     From learning with your friends, IELTS Trial Test, Speaking
