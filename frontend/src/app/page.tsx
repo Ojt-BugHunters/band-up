@@ -1,4 +1,5 @@
 'use client';
+
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { ContainerScroll } from '@/components/ui/container-scroll-animation';
@@ -6,10 +7,115 @@ import { Highlight } from '@/components/ui/highlight';
 import { LayoutTextFlip } from '@/components/ui/layout-text-flip';
 import { PointerHighlight } from '@/components/ui/pointer-highlight';
 import { Tabs } from '@/components/ui/tabs';
+import { cn } from '@/lib/utils';
 import { motion } from 'framer-motion';
-import { ArrowRight, ChevronRight } from 'lucide-react';
+import {
+    ArrowRight,
+    BookOpen,
+    Brain,
+    ChevronRight,
+    GraduationCap,
+    Layers,
+    MessageSquare,
+    Trophy,
+    User,
+    Video,
+} from 'lucide-react';
 import Image from 'next/image';
 import Link from 'next/link';
+
+const Feature = ({
+    title,
+    description,
+    icon,
+    index,
+}: {
+    title: string;
+    description: string;
+    icon: React.ReactNode;
+    index: number;
+}) => {
+    return (
+        <div
+            className={cn(
+                'group/feature relative flex flex-col py-10 lg:border-r dark:border-neutral-800',
+                (index === 0 || index === 4) &&
+                    'lg:border-l dark:border-neutral-800',
+                index < 4 && 'lg:border-b dark:border-neutral-800',
+            )}
+        >
+            {index < 4 && (
+                <div className="pointer-events-none absolute inset-0 h-full w-full bg-gradient-to-t from-neutral-100 to-transparent opacity-0 transition duration-200 group-hover/feature:opacity-100 dark:from-neutral-800" />
+            )}
+            {index >= 4 && (
+                <div className="pointer-events-none absolute inset-0 h-full w-full bg-gradient-to-b from-neutral-100 to-transparent opacity-0 transition duration-200 group-hover/feature:opacity-100 dark:from-neutral-800" />
+            )}
+            <div className="relative z-10 mb-4 px-10 text-neutral-600 dark:text-neutral-400">
+                {icon}
+            </div>
+            <div className="relative z-10 mb-2 px-10 text-lg font-bold">
+                <div className="absolute inset-y-0 left-0 h-6 w-1 origin-center rounded-tr-full rounded-br-full bg-neutral-300 transition-all duration-200 group-hover/feature:h-8 group-hover/feature:bg-blue-500 dark:bg-neutral-700" />
+                <span className="inline-block text-neutral-800 transition duration-200 group-hover/feature:translate-x-2 dark:text-neutral-100">
+                    {title}
+                </span>
+            </div>
+            <p className="relative z-10 max-w-xs px-10 text-sm text-neutral-600 dark:text-neutral-300">
+                {description}
+            </p>
+        </div>
+    );
+};
+
+const features = [
+    {
+        title: 'User Management',
+        description:
+            'Register, login, reset password, social login (Google/Facebook), profile page, and role-based access (Guest, Member, Premium, Admin).',
+        icon: <User />,
+    },
+    {
+        title: 'Blogs & Community',
+        description:
+            'Create, update, and explore blogs with genres and tags. Search, filter, comment, favorite, and report inappropriate content.',
+        icon: <BookOpen />,
+    },
+    {
+        title: 'Messaging & Social',
+        description:
+            'Connect with other learners via direct messaging, group discussions, and community interaction features.',
+        icon: <MessageSquare />,
+    },
+    {
+        title: 'Study Rooms',
+        description:
+            'Join or create study rooms with voice/video calls, Pomodoro timers, background music, and built-in translation and vocabulary tools.',
+        icon: <Video />,
+    },
+    {
+        title: 'IELTS Mock Tests',
+        description:
+            'Practice Reading, Listening, Speaking, and Writing. AI grading for Speaking & Writing, dictation mode, solo challenges, and vocabulary import.',
+        icon: <GraduationCap />,
+    },
+    {
+        title: 'Ranking & Progress',
+        description:
+            'Track learning progress with rankings by study hours, mock test scores, completed tests, and a leveling system.',
+        icon: <Trophy />,
+    },
+    {
+        title: 'Quizlet & Revision',
+        description:
+            'Create and share quizlet cards, study in multiple modes, auto-generate vocab from texts, and AI-powered practice questions.',
+        icon: <Layers />,
+    },
+    {
+        title: 'AI Learning Support',
+        description:
+            'Leverage AI for contextual translations, smart question generation, and personalized study recommendations.',
+        icon: <Brain />,
+    },
+];
 
 const BlogContent = () => {
     return (
@@ -179,6 +285,11 @@ export default function HomePage() {
             </div>
             <div className="relative mx-auto my-8 flex w-full max-w-5xl flex-col items-start justify-start [perspective:1000px] md:h-[40rem]">
                 <Tabs tabs={tabs} />
+            </div>
+            <div className="relative z-10 mx-auto mt-20 grid max-w-7xl grid-cols-1 py-10 md:grid-cols-2 lg:grid-cols-4">
+                {features.map((feature, index) => (
+                    <Feature key={feature.title} {...feature} index={index} />
+                ))}
             </div>
         </div>
     );
