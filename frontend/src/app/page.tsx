@@ -4,10 +4,106 @@ import { Button } from '@/components/ui/button';
 import { ContainerScroll } from '@/components/ui/container-scroll-animation';
 import { Highlight } from '@/components/ui/highlight';
 import { LayoutTextFlip } from '@/components/ui/layout-text-flip';
+import { Tabs } from '@/components/ui/tabs';
 import { motion } from 'framer-motion';
 import { ArrowRight, ChevronRight } from 'lucide-react';
 import Image from 'next/image';
 import Link from 'next/link';
+
+const BlogContent = () => {
+    return (
+        <div className="relative h-full w-full overflow-hidden rounded-2xl bg-black p-0">
+            <Image
+                src="/hero-writing.jpg"
+                alt="Review Image"
+                width={1000}
+                height={500}
+                className="h-full w-full rounded-xl object-cover object-center"
+            />
+        </div>
+    );
+};
+
+const RoomContent = () => {
+    return (
+        <div className="relative h-full w-full overflow-hidden rounded-2xl bg-black p-0">
+            <Image
+                src="/hero-writing.jpg"
+                alt="Review Image"
+                width="1000"
+                height="500"
+                className="h-full w-full rounded-xl object-cover object-center"
+            />
+        </div>
+    );
+};
+
+const FlashCardContent = () => {
+    return (
+        <div className="relative h-full w-full overflow-hidden rounded-2xl bg-black p-0">
+            <Image
+                src="/hero-writing.jpg"
+                alt="Review Image"
+                width="1000"
+                height="500"
+                className="h-full w-full rounded-xl object-cover object-center"
+            />
+        </div>
+    );
+};
+
+const TestContent = () => {
+    return (
+        <div className="relative h-full w-full overflow-hidden rounded-2xl bg-black p-0">
+            <Image
+                src="/hero-writing.jpg"
+                alt="Review Image"
+                width="1000"
+                height="500"
+                className="h-full w-full rounded-xl object-cover object-center"
+            />
+        </div>
+    );
+};
+
+const tabs = [
+    {
+        title: 'Blog',
+        value: 'Blog',
+        content: (
+            <div className="relative h-full w-full overflow-hidden rounded-2xl bg-blue-500 p-6 text-xl font-bold text-white md:text-4xl">
+                <BlogContent />
+            </div>
+        ),
+    },
+    {
+        title: 'Room',
+        value: 'Room',
+        content: (
+            <div className="relative h-full w-full overflow-hidden rounded-2xl bg-blue-500 p-6 text-xl font-bold text-white md:text-4xl">
+                <RoomContent />
+            </div>
+        ),
+    },
+    {
+        title: 'Test',
+        value: 'Test',
+        content: (
+            <div className="relative h-full w-full overflow-hidden rounded-2xl bg-blue-500 p-6 text-xl font-bold text-white md:text-4xl">
+                <TestContent />
+            </div>
+        ),
+    },
+    {
+        title: 'FlashCard',
+        value: 'FlashCard',
+        content: (
+            <div className="relative h-full w-full overflow-hidden rounded-2xl bg-blue-500 p-6 text-xl font-bold text-white md:text-4xl">
+                <FlashCardContent />
+            </div>
+        ),
+    },
+];
 
 export default function HomePage() {
     return (
@@ -60,6 +156,19 @@ export default function HomePage() {
                         draggable={false}
                     />
                 </ContainerScroll>
+            </div>
+            <div className="mt-20 text-center">
+                <h2 className="text-3xl font-bold sm:text-4xl">
+                    A web app tool with everything you need
+                </h2>
+                <p className="mx-auto mt-4 max-w-2xl text-lg text-neutral-600 dark:text-neutral-400">
+                    From learning with your friends, IELTS Trial Test, Speaking
+                    and Writing automation feedback to Ranking, Flashcards. Try
+                    us out on this site!
+                </p>
+            </div>
+            <div className="relative mx-auto my-8 flex w-full max-w-5xl flex-col items-start justify-start [perspective:1000px] md:h-[40rem]">
+                <Tabs tabs={tabs} />
             </div>
         </div>
     );
