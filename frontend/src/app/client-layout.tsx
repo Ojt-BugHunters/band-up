@@ -26,10 +26,10 @@ export default function ClientLayout({
         >
             <body>
                 <ThemeProvider
-{/*                     attribute="class"
+                    attribute="class"
                     defaultTheme="system"
                     enableSystem
-                    disableTransitionOnChange */}
+                    disableTransitionOnChange
                 >
                     {children}
                 </ThemeProvider>
