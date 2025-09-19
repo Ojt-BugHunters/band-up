@@ -9,6 +9,7 @@ import {
     FormControl,
     FormField,
     FormItem,
+    FormLabel,
     FormMessage,
 } from '@/components/ui/form';
 import { FiEye, FiEyeOff } from 'react-icons/fi';
@@ -61,11 +62,12 @@ const RegisterForm = ({ className, ...props }: React.ComponentProps<'div'>) => {
                             name="email"
                             render={({ field }) => (
                                 <FormItem className="grid gap-2">
+                                    <FormLabel>Email</FormLabel>
                                     <FormControl>
                                         <Input
                                             {...field}
                                             required
-                                            placeholder="Email"
+                                            placeholder="johndoe@example.com"
                                         />
                                     </FormControl>
                                     <FormMessage />
@@ -78,6 +80,7 @@ const RegisterForm = ({ className, ...props }: React.ComponentProps<'div'>) => {
                             render={({ field }) => (
                                 <FormItem className="grid gap-3">
                                     <div className="flex items-center"></div>
+                                    <FormLabel>Password</FormLabel>
                                     <FormControl>
                                         <div className="relative">
                                             <Input
@@ -88,7 +91,7 @@ const RegisterForm = ({ className, ...props }: React.ComponentProps<'div'>) => {
                                                         : 'password'
                                                 }
                                                 {...field}
-                                                placeholder="Password"
+                                                placeholder="Johndoe123"
                                                 className="pr-10"
                                             />
                                             <button
@@ -119,6 +122,7 @@ const RegisterForm = ({ className, ...props }: React.ComponentProps<'div'>) => {
                             render={({ field }) => (
                                 <FormItem className="grid gap-3">
                                     <div className="flex items-center"></div>
+                                    <FormLabel>Confirm Password</FormLabel>
                                     <FormControl>
                                         <div className="relative">
                                             <Input
@@ -129,7 +133,7 @@ const RegisterForm = ({ className, ...props }: React.ComponentProps<'div'>) => {
                                                         : 'password'
                                                 }
                                                 {...field}
-                                                placeholder="Confirm Password"
+                                                placeholder="Johndoe123"
                                                 className="pr-10"
                                             />
                                             <button
