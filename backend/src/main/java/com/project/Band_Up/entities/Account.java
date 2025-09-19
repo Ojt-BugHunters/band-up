@@ -1,9 +1,11 @@
 package com.project.Band_Up.entities;
 
 import com.project.Band_Up.enums.Gender;
+import com.project.Band_Up.enums.Role;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 import lombok.*;
+import org.hibernate.annotations.GenericGenerator;
 import org.springframework.format.annotation.DateTimeFormat;
 
 import java.time.LocalDate;
@@ -20,11 +22,11 @@ import java.util.UUID;
 public class Account {
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
+    @GenericGenerator(name = "UUID", strategy = "org.hibernate.id.UUIDGenerator")
     private UUID id;
 
-    @ManyToOne
-    @JoinColumn(name = "role_id", nullable = false)
-    private Role role;
+    @Enumerated(EnumType.STRING)
+    private Role role = Role.Member;
 
     @NotNull
     private String email;
