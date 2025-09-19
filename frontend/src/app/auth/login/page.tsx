@@ -13,9 +13,13 @@ import {
     FormLabel,
     FormMessage,
 } from '@/components/ui/form';
-import { useLoginForm } from '@/app/hooks/use-login-form';
-import { FaFacebook, FaGoogle } from 'react-icons/fa';
+import { useLoginForm } from '@/hooks/use-login-form';
+import { FaFacebook } from 'react-icons/fa';
 import { useState } from 'react';
+import Link from 'next/link';
+import { FcGoogle } from 'react-icons/fc';
+import { Checkbox } from '@/components/ui/checkbox';
+import { Label } from '@/components/ui/label';
 
 export default function LoginPage() {
     return (
@@ -27,7 +31,7 @@ export default function LoginPage() {
     );
 }
 
-function LoginForm({ className, ...props }: React.ComponentProps<'div'>) {
+const LoginForm = ({ className, ...props }: React.ComponentProps<'div'>) => {
     const { form, onSubmit } = useLoginForm();
     const [showPassword, setShowPassword] = useState(false);
     return (
@@ -113,6 +117,10 @@ function LoginForm({ className, ...props }: React.ComponentProps<'div'>) {
                                         </FormItem>
                                     )}
                                 />
+                                <div className="flex items-center gap-3">
+                                    <Checkbox id="terms" />
+                                    <Label htmlFor="terms">Remember me</Label>
+                                </div>
                                 <Button
                                     type="submit"
                                     className="w-full cursor-pointer"
@@ -130,7 +138,7 @@ function LoginForm({ className, ...props }: React.ComponentProps<'div'>) {
                                         type="button"
                                         className="w-full cursor-pointer"
                                     >
-                                        <FaGoogle className="text-red-500" />
+                                        <FcGoogle />
                                         Google
                                     </Button>
                                     <Button
@@ -144,12 +152,12 @@ function LoginForm({ className, ...props }: React.ComponentProps<'div'>) {
                                 </div>
                                 <div className="text-center text-sm">
                                     Don&apos;t have an account?{' '}
-                                    <a
+                                    <Link
                                         href="/auth/register"
                                         className="underline underline-offset-4"
                                     >
-                                        Sign up
-                                    </a>
+                                        Sign Up
+                                    </Link>
                                 </div>
                             </div>
                         </form>
@@ -171,4 +179,4 @@ function LoginForm({ className, ...props }: React.ComponentProps<'div'>) {
             </div>
         </div>
     );
-}
+};

@@ -11,6 +11,7 @@ import {
     MobileNavMenu,
 } from '@/components/ui/resizable-navbar';
 import Image from 'next/image';
+import Link from 'next/link';
 import { useState } from 'react';
 
 export function Header() {
@@ -158,8 +159,16 @@ export function Header() {
                     <NavbarLogo />
                     <NavItems items={navItems} />
                     <div className="flex items-center gap-4">
-                        <NavbarButton variant="secondary">Login</NavbarButton>
-                        <NavbarButton variant="primary">Sign Up</NavbarButton>
+                        <Link href="/auth/login">
+                            <NavbarButton as="div" variant="secondary">
+                                Login
+                            </NavbarButton>
+                        </Link>
+                        <Link href={'/auth/register'}>
+                            <NavbarButton as="div" variant="primary">
+                                Sign Up
+                            </NavbarButton>
+                        </Link>
                     </div>
                 </NavBody>
 
