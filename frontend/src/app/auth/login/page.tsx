@@ -14,9 +14,10 @@ import {
     FormMessage,
 } from '@/components/ui/form';
 import { useLoginForm } from '@/app/hooks/use-login-form';
-import { FaFacebook, FaGoogle } from 'react-icons/fa';
+import { FaFacebook } from 'react-icons/fa';
 import { useState } from 'react';
 import Link from 'next/link';
+import { FcGoogle } from 'react-icons/fc';
 
 export default function LoginPage() {
     return (
@@ -157,7 +158,7 @@ const LoginForm = ({ className, ...props }: React.ComponentProps<'div'>) => {
                                         type="button"
                                         className="w-full cursor-pointer"
                                     >
-                                        <FaGoogle className="text-red-500" />
+                                        <FcGoogle />
                                         Google
                                     </Button>
                                     <Button

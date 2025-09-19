@@ -2,7 +2,7 @@
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { FaFacebook, FaGoogle } from 'react-icons/fa';
+import { FaFacebook } from 'react-icons/fa';
 import Image from 'next/image';
 import {
     Form,
@@ -16,6 +16,7 @@ import { FiEye, FiEyeOff } from 'react-icons/fi';
 import { useState } from 'react';
 import { useRegisterForm } from '@/app/hooks/use-register-form';
 import Link from 'next/link';
+import { FcGoogle } from 'react-icons/fc';
 
 export default function RegisterPage() {
     return (
@@ -178,7 +179,7 @@ const RegisterForm = ({ className, ...props }: React.ComponentProps<'div'>) => {
                         type="button"
                         className="w-full cursor-pointer"
                     >
-                        <FaGoogle className="text-red-500" />
+                        <FcGoogle />
                         Google
                     </Button>
                     <Button
