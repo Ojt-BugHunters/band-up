@@ -11,9 +11,9 @@ services:
   server:
     image: hoangworthy/band_up_backend:latest
     build:
-      context:
+      context: .
     ports:
-      - 2024:2024
+      - 2024:8080
     env_file:
       - .env
 
