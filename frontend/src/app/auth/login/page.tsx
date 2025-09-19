@@ -16,6 +16,7 @@ import {
 import { useLoginForm } from '@/app/hooks/use-login-form';
 import { FaFacebook, FaGoogle } from 'react-icons/fa';
 import { useState } from 'react';
+import Link from 'next/link';
 
 export default function LoginPage() {
     return (
@@ -27,7 +28,7 @@ export default function LoginPage() {
     );
 }
 
-function LoginForm({ className, ...props }: React.ComponentProps<'div'>) {
+const LoginForm = ({ className, ...props }: React.ComponentProps<'div'>) => {
     const { form, onSubmit } = useLoginForm();
     const [showPassword, setShowPassword] = useState(false);
     return (
@@ -170,12 +171,12 @@ function LoginForm({ className, ...props }: React.ComponentProps<'div'>) {
                                 </div>
                                 <div className="text-center text-sm">
                                     Don&apos;t have an account?{' '}
-                                    <a
+                                    <Link
                                         href="/auth/register"
                                         className="underline underline-offset-4"
                                     >
                                         Sign Up
-                                    </a>
+                                    </Link>
                                 </div>
                             </div>
                         </form>
@@ -197,4 +198,4 @@ function LoginForm({ className, ...props }: React.ComponentProps<'div'>) {
             </div>
         </div>
     );
-}
+};

@@ -14,21 +14,19 @@ import {
 import { FiEye, FiEyeOff } from 'react-icons/fi';
 import { useState } from 'react';
 import { useRegisterForm } from '@/app/hooks/use-register-form';
+import Link from 'next/link';
 
-export default function LoginPage() {
+export default function RegisterPage() {
     return (
         <div className="bg-background flex min-h-svh flex-col items-center justify-center gap-6 p-6 md:p-10">
             <div className="w-full max-w-sm">
-                <LoginForm />
+                <RegisterForm />
             </div>
         </div>
     );
 }
 
-export function LoginForm({
-    className,
-    ...props
-}: React.ComponentProps<'div'>) {
+const RegisterForm = ({ className, ...props }: React.ComponentProps<'div'>) => {
     const [showPassword, setShowPassword] = useState(false);
     const [showConfirmPassword, setShowConfirmPassword] = useState(false);
     const { form, onSubmit } = useRegisterForm();
@@ -40,20 +38,20 @@ export function LoginForm({
                     <Image
                         src="/logo.png"
                         alt="BandUp Logo"
-                        width={45}
-                        height={45}
+                        width={65}
+                        height={65}
                     />
                     <h1 className="text-xl font-bold">
                         Start Your Journey with BandUp
                     </h1>
                     <div className="text-center text-sm">
                         Already have an account?{' '}
-                        <a
+                        <Link
                             href="/auth/login"
                             className="underline underline-offset-4"
                         >
                             Log in
-                        </a>
+                        </Link>
                     </div>
                 </div>
                 <Form {...form}>
@@ -196,4 +194,4 @@ export function LoginForm({
             </div>
         </div>
     );
-}
+};
