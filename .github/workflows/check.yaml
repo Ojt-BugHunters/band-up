@@ -53,7 +53,7 @@ jobs:
             - name: Build and Push Docker Image
               uses: docker/build-push-action@v4
               with:
-                  context: .
+                  context: ./backend
                   file: ./backend/Dockerfile
                   push: true
                   tags: hoangworthy/brand_up_backend:latest
