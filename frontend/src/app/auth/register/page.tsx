@@ -3,6 +3,7 @@ import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { FaFacebook, FaGoogle } from 'react-icons/fa';
+import Image from 'next/image';
 import {
     Form,
     FormControl,
@@ -36,7 +37,12 @@ export function LoginForm({
         <div className={cn('flex flex-col gap-6', className)} {...props}>
             <div className="flex flex-col gap-6">
                 <div className="flex flex-col items-center gap-2">
-                    <img src="/logo.png" alt="Logo" width={65} />
+                    <Image
+                        src="/logo.png"
+                        alt="BandUp Logo"
+                        width={45}
+                        height={45}
+                    />
                     <h1 className="text-xl font-bold">
                         Start Your Journey with BandUp
                     </h1>
