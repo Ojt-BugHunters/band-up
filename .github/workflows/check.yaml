@@ -56,7 +56,7 @@ jobs:
                   context: ./backend
                   file: ./backend/Dockerfile
                   push: true
-                  tags: hoangworthy/brand_up_backend:latest
+                  tags: hoangworthy/band_up_backend:latest
             
             - name: Deploy to On-Prem Server
               uses: appleboy/ssh-action@v0.1.7
