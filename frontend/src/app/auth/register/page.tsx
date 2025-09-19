@@ -92,7 +92,7 @@ const RegisterForm = ({ className, ...props }: React.ComponentProps<'div'>) => {
                                                         : 'password'
                                                 }
                                                 {...field}
-                                                placeholder="Johndoe123"
+                                                placeholder="Johndoe123@"
                                                 className="pr-10"
                                             />
                                             <button
@@ -134,7 +134,7 @@ const RegisterForm = ({ className, ...props }: React.ComponentProps<'div'>) => {
                                                         : 'password'
                                                 }
                                                 {...field}
-                                                placeholder="Johndoe123"
+                                                placeholder="Johndoe123@"
                                                 className="pr-10"
                                             />
                                             <button
