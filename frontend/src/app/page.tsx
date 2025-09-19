@@ -12,7 +12,8 @@ import { motion } from 'framer-motion';
 import { ArrowRight, ChevronRight } from 'lucide-react';
 import Image from 'next/image';
 import Link from 'next/link';
-import { features, tabs } from './page.data';
+import { features, tabs, testimonials } from './page.data';
+import { AnimatedTestimonials } from '@/components/ui/animated-testimonials';
 
 const Feature = ({
     title,
@@ -135,6 +136,26 @@ export default function HomePage() {
                     <Feature key={feature.title} {...feature} index={index} />
                 ))}
             </div>
+            <div className="mt-20 text-center">
+                <h2 className="text-3xl font-bold sm:text-4xl">
+                    A web app tool with
+                    <PointerHighlight
+                        rectangleClassName="bg-blue-400 dark:bg-rose-700 border-neutral-300 dark:border-neutral-600 leading-loose"
+                        pointerClassName="text-yellow-500 h-3 w-3"
+                        containerClassName="inline-block ml-1"
+                    >
+                        <span className="relative z-10">
+                            everything you need
+                        </span>
+                    </PointerHighlight>
+                </h2>
+                <p className="mx-auto mt-4 max-w-2xl text-lg text-neutral-600 dark:text-neutral-400">
+                    From learning with your friends, IELTS Trial Test, Speaking
+                    and Writing automation feedback to Ranking, Flashcards. Try
+                    us out on this site!
+                </p>
+            </div>
+            <AnimatedTestimonials testimonials={testimonials} />
         </div>
     );
 }
