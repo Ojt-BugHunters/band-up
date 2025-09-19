@@ -14,7 +14,7 @@ import {
 } from '@/components/ui/form';
 import { FiEye, FiEyeOff } from 'react-icons/fi';
 import { useState } from 'react';
-import { useRegisterForm } from '@/app/hooks/use-register-form';
+import { useRegisterForm } from '@/hooks/use-register-form';
 import Link from 'next/link';
 import { FcGoogle } from 'react-icons/fc';
 

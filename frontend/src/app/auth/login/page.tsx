@@ -13,11 +13,13 @@ import {
     FormLabel,
     FormMessage,
 } from '@/components/ui/form';
-import { useLoginForm } from '@/app/hooks/use-login-form';
+import { useLoginForm } from '@/hooks/use-login-form';
 import { FaFacebook } from 'react-icons/fa';
 import { useState } from 'react';
 import Link from 'next/link';
 import { FcGoogle } from 'react-icons/fc';
+import { Checkbox } from '@/components/ui/checkbox';
+import { Label } from '@/components/ui/label';
 
 export default function LoginPage() {
     return (
@@ -115,32 +117,10 @@ const LoginForm = ({ className, ...props }: React.ComponentProps<'div'>) => {
                                         </FormItem>
                                     )}
                                 />
-                                <FormField
-                                    control={form.control}
-                                    name="remember"
-                                    render={({ field }) => (
-                                        <FormItem className="flex items-center space-x-2">
-                                            <FormControl>
-                                                <input
-                                                    id="remember"
-                                                    type="checkbox"
-                                                    onChange={field.onChange}
-                                                    onBlur={field.onBlur}
-                                                    name={field.name}
-                                                    ref={field.ref}
-                                                    checked={!!field.value}
-                                                    className="border-input text-primary focus:ring-ring h-4 w-4"
-                                                />
-                                            </FormControl>
-                                            <FormLabel
-                                                htmlFor="remember"
-                                                className="mb-0"
-                                            >
-                                                Remember me
-                                            </FormLabel>
-                                        </FormItem>
-                                    )}
-                                />
+                                <div className="flex items-center gap-3">
+                                    <Checkbox id="terms" />
+                                    <Label htmlFor="terms">Remember me</Label>
+                                </div>
                                 <Button
                                     type="submit"
                                     className="w-full cursor-pointer"
