@@ -9,6 +9,7 @@
 # https://github.com/docker/awesome-compose
 services:
   server:
+    image: hoangworthy/band_up_backend:latest
     build:
       context: .
     ports:
