@@ -1,9 +1,13 @@
-name: Deploy Docker Image
+name: Containerized FE
 
 on:
     push:
         branches:
             - main
+
+permissions:
+    contents: read
+    packages: write
 
 jobs:
     docker:
