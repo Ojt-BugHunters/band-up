@@ -14,6 +14,7 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { features, tabs, testimonials } from './page.data';
 import { AnimatedTestimonials } from '@/components/ui/animated-testimonials';
+import Component from '@/components/ui/pricing-section-1';
 
 const Feature = ({
     title,
@@ -29,7 +30,7 @@ const Feature = ({
     return (
         <div
             className={cn(
-                'group/feature relative flex flex-col py-10 lg:border-r dark:border-neutral-800',
+                'group/feature relative flex flex-col py-8 lg:border-r dark:border-neutral-800',
                 (index === 0 || index === 4) &&
                     'lg:border-l dark:border-neutral-800',
                 index < 4 && 'lg:border-b dark:border-neutral-800',
@@ -138,24 +139,15 @@ export default function HomePage() {
             </div>
             <div className="mt-20 text-center">
                 <h2 className="text-3xl font-bold sm:text-4xl">
-                    A web app tool with
-                    <PointerHighlight
-                        rectangleClassName="bg-blue-400 dark:bg-rose-700 border-neutral-300 dark:border-neutral-600 leading-loose"
-                        pointerClassName="text-yellow-500 h-3 w-3"
-                        containerClassName="inline-block ml-1"
-                    >
-                        <span className="relative z-10">
-                            everything you need
-                        </span>
-                    </PointerHighlight>
+                    Love from all over the universe
                 </h2>
                 <p className="mx-auto mt-4 max-w-2xl text-lg text-neutral-600 dark:text-neutral-400">
-                    From learning with your friends, IELTS Trial Test, Speaking
-                    and Writing automation feedback to Ranking, Flashcards. Try
-                    us out on this site!
+                    BandUp IELTS has just released, and we are sure future
+                    feedback will be just as amazing as the placeholders below!
                 </p>
             </div>
             <AnimatedTestimonials testimonials={testimonials} />
+            <Component />
         </div>
     );
 }
