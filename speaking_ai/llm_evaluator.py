@@ -584,7 +584,15 @@ Respond in JSON format:
             print(f"🧠 Thinking content length: {len(thinking_content)} chars")
             print(f"💬 Response content length: {len(content)} chars")
             
-            return content if content else thinking_content
+            # Always return the content (after thinking), not the thinking process
+            if content and len(content.strip()) > 10:
+                return content
+            else:
+                # If no content after thinking, return the full response without thinking tags
+                full_response = self.tokenizer.decode(output_ids, skip_special_tokens=True).strip("\n")
+                # Remove thinking tags if present
+                full_response = full_response.replace("<think>", "").replace("</think>", "").strip()
+                return full_response if full_response else "Unable to generate response"
             
         except Exception as e:
             print(f"❌ Error in Qwen3 generation: {e}")

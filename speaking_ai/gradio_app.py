@@ -40,13 +40,456 @@ class GradioIELTSApp:
         except Exception as e:
             return f"❌ Error loading model: {str(e)}"
     
+    def generate_learning_guide(self, result):
+        """Generate a personalized learning guide using LLM based on the user's actual speech"""
+        if not result or "error" in result:
+            return "❌ No evaluation data available for learning guide"
+        
+        try:
+            # Extract data
+            fluency = result["fluency_analysis"]
+            lexical = result["lexical_analysis"]
+            grammatical = result["grammatical_analysis"]
+            evaluation = result["evaluation"]
+            transcript = fluency['transcript']
+            
+            # Extract detailed feedback from evaluation
+            fluency_feedback = evaluation.get('fluency_coherence', {}) if isinstance(evaluation, dict) else {}
+            lexical_feedback = evaluation.get('lexical_resource', {}) if isinstance(evaluation, dict) else {}
+            grammar_feedback = evaluation.get('grammatical_range_accuracy', {}) if isinstance(evaluation, dict) else {}
+            
+            # Create a comprehensive prompt for LLM to generate personalized learning guide
+            learning_prompt = f"""You are an expert IELTS speaking coach. Create a personalized learning guide for this student based on their actual speech performance and detailed feedback.
+
+STUDENT'S SPEECH DATA:
+- **Transcript**: "{transcript}"
+- **Overall Band Score**: {evaluation.get('overall_band', 'N/A') if isinstance(evaluation, dict) else 'N/A'}
+
+PERFORMANCE METRICS:
+- **Speech Rate**: {fluency['speech_rate_wpm']:.1f} WPM (Target: 120-180 WPM)
+- **Duration**: {fluency['duration']:.1f} seconds
+- **Word Count**: {fluency['word_count']} words
+- **Filled Pauses**: {fluency['filled_pauses']} (Target: <3)
+- **Pause Count**: {fluency['pause_count']} (Target: <5)
+- **Repetitions**: {fluency['repetitions']}
+- **Self-corrections**: {fluency['self_corrections']}
+- **Vocabulary Size**: {lexical['vocabulary_size']} unique words
+- **Academic Words**: {lexical['academic_word_count']}
+- **Sentence Count**: {grammatical['sentence_count']}
+- **Average Sentence Length**: {grammatical['avg_sentence_length']:.1f} words
+- **Complex Sentences**: {grammatical['complex_sentence_count']} ({grammatical['complexity_ratio']:.1%})
+- **Grammar Errors**: {grammatical['error_count']}
+- **Detected Errors**: {grammatical.get('detected_errors', [])}
+
+DETAILED FEEDBACK FROM EVALUATION:
+**Fluency & Coherence**: {fluency_feedback.get('feedback', 'No specific feedback available')}
+- Strengths: {', '.join(fluency_feedback.get('strengths', []))}
+- Weaknesses: {', '.join(fluency_feedback.get('weaknesses', []))}
+- Improvements: {', '.join(fluency_feedback.get('improvements', []))}
+
+**Lexical Resource**: {lexical_feedback.get('feedback', 'No specific feedback available')}
+- Strengths: {', '.join(lexical_feedback.get('strengths', []))}
+- Weaknesses: {', '.join(lexical_feedback.get('weaknesses', []))}
+- Improvements: {', '.join(lexical_feedback.get('improvements', []))}
+
+**Grammar**: {grammar_feedback.get('feedback', 'No specific feedback available')}
+- Strengths: {', '.join(grammar_feedback.get('strengths', []))}
+- Weaknesses: {', '.join(grammar_feedback.get('weaknesses', []))}
+- Improvements: {', '.join(grammar_feedback.get('improvements', []))}
+
+TASK: Create a personalized learning guide that combines the transcript analysis with the detailed feedback above.
+
+IMPORTANT: Start your response with "# 🎓 **Personalized Learning Guide**" and create sections:
+
+1. **🎯 Priority Focus Areas** (identify their top 2-3 weaknesses from the feedback above)
+2. **🔧 Vocabulary Improvements** (analyze their actual words from the transcript and suggest specific replacements)
+3. **📚 Grammar Enhancements** (based on their sentence structure and the grammar feedback)
+4. **🗣️ Fluency Development** (targeted advice based on the fluency feedback and metrics)
+5. **📋 Improved Version** (rewrite their transcript with better vocabulary and grammar)
+6. **🎯 Personalized Action Plan** (weekly goals based on their specific weaknesses)
+
+Requirements:
+- Start with "# 🎓 **Personalized Learning Guide**"
+- Use the detailed feedback above to guide your recommendations
+- Be encouraging but honest about their current level
+- Focus on their biggest weaknesses first (from the feedback)
+- Provide specific, actionable advice
+- Use their actual words from the transcript and suggest better alternatives
+- Create realistic weekly goals
+- Make it personal to their speech, not generic advice
+- Keep the tone supportive and motivating
+- Use markdown formatting with emojis
+
+Format the response in clear sections with emojis and markdown formatting."""
+
+            # Use LLM to generate personalized learning guide
+            if self.evaluator and self.evaluator.llm_evaluator:
+                try:
+                    print("🤖 Generating personalized learning guide with LLM...")
+                    
+                    # Generate personalized learning guide using LLM
+                    # For learning guide, we want direct response without thinking mode
+                    personalized_guide = self._generate_learning_guide_response(learning_prompt)
+                    
+                    # Debug: Print the actual LLM response
+                    print(f"🔍 DEBUG: LLM raw response length: {len(personalized_guide) if personalized_guide else 0}")
+                    print(f"🔍 DEBUG: LLM response preview: {personalized_guide[:300] if personalized_guide else 'None'}...")
+                    
+                    # If LLM generation fails or is too short, fall back to rule-based approach
+                    if not personalized_guide or len(personalized_guide.strip()) < 200:
+                        print("⚠️ LLM learning guide generation failed (too short), using fallback...")
+                        return self._generate_fallback_learning_guide(result)
+                    
+                    print(f"✅ LLM learning guide generated successfully ({len(personalized_guide)} chars)")
+                    return personalized_guide
+                    
+                except Exception as e:
+                    print(f"⚠️ Error in LLM learning guide generation: {e}")
+                    return self._generate_fallback_learning_guide(result)
+            else:
+                print("⚠️ LLM evaluator not available, using fallback...")
+                return self._generate_fallback_learning_guide(result)
+            
+        except Exception as e:
+            return f"❌ Error generating learning guide: {str(e)}"
+    
+    def _generate_learning_guide_response(self, prompt: str) -> str:
+        """Generate learning guide response using Qwen3 without thinking mode"""
+        try:
+            if not self.evaluator or not self.evaluator.llm_evaluator:
+                return "❌ LLM evaluator not available"
+            
+            # Use Qwen3 model directly without thinking mode for cleaner output
+            if "Qwen3" in self.evaluator.llm_evaluator.model_name:
+                return self._generate_qwen3_learning_guide(prompt)
+            else:
+                # Fallback to regular generation
+                return self.evaluator.llm_evaluator._generate_qwen3_response(prompt)
+                
+        except Exception as e:
+            print(f"❌ Error in learning guide generation: {e}")
+            return f"❌ Error generating learning guide: {str(e)}"
+    
+    def _generate_qwen3_learning_guide(self, prompt: str) -> str:
+        """Generate learning guide using Qwen3 without thinking mode"""
+        try:
+            import torch
+            
+            # Prepare the model input using chat template WITHOUT thinking mode
+            messages = [
+                {"role": "user", "content": prompt}
+            ]
+            
+            # Apply chat template WITHOUT thinking mode for cleaner output
+            text = self.evaluator.llm_evaluator.tokenizer.apply_chat_template(
+                messages,
+                tokenize=False,
+                add_generation_prompt=True,
+                enable_thinking=False  # Disable thinking mode for learning guide
+            )
+            
+            # Tokenize input
+            model_inputs = self.evaluator.llm_evaluator.tokenizer([text], return_tensors="pt").to(self.evaluator.llm_evaluator.model.device)
+            
+            print(f"🔧 Learning guide input length: {model_inputs.input_ids.shape[1]} tokens")
+            
+            # Generate response with parameters optimized for learning guide
+            with torch.no_grad():
+                generated_ids = self.evaluator.llm_evaluator.model.generate(
+                    **model_inputs,
+                    max_new_tokens=512,  # Longer for learning guide
+                    temperature=0.8,  # Slightly lower for more focused output
+                    top_p=0.9,
+                    do_sample=True,
+                    pad_token_id=self.evaluator.llm_evaluator.tokenizer.eos_token_id,
+                    eos_token_id=self.evaluator.llm_evaluator.tokenizer.eos_token_id,
+                    repetition_penalty=1.1,  # Higher to avoid repetition
+                    no_repeat_ngram_size=3,
+                    early_stopping=True,
+                    use_cache=True
+                )
+            
+            # Extract only the new tokens
+            output_ids = generated_ids[0][len(model_inputs.input_ids[0]):].tolist()
+            
+            # Decode the response
+            response = self.evaluator.llm_evaluator.tokenizer.decode(output_ids, skip_special_tokens=True).strip()
+            
+            print(f"💬 Learning guide response length: {len(response)} chars")
+            
+            return response if response else "Unable to generate learning guide"
+            
+        except Exception as e:
+            print(f"❌ Error in Qwen3 learning guide generation: {e}")
+            return f"❌ Error generating learning guide: {str(e)}"
+    
+    def _generate_fallback_learning_guide(self, result):
+        """Fallback learning guide if LLM generation fails"""
+        try:
+            # Extract data
+            fluency = result["fluency_analysis"]
+            lexical = result["lexical_analysis"]
+            grammatical = result["grammatical_analysis"]
+            evaluation = result["evaluation"]
+            transcript = fluency['transcript']
+            
+            # Determine user level for personalization
+            overall_band = evaluation.get('overall_band', 5.0) if isinstance(evaluation, dict) else 5.0
+            if overall_band >= 7.0:
+                level = "advanced"
+                tone = "You're already performing well! Let's refine your skills further."
+            elif overall_band >= 6.0:
+                level = "intermediate"
+                tone = "You're making good progress! Let's focus on key improvements."
+            else:
+                level = "beginner"
+                tone = "Great start! Let's build a strong foundation step by step."
+            
+            # Personalized learning guide based on level
+            learning_guide = f"""
+# 🎓 **Your Personal IELTS Speaking Improvement Plan**
+
+## 📝 **Your Speech Analysis**
+{tone}
+
+**Your Performance:**
+- **Band Score**: {overall_band}
+- **Speech**: "{transcript}"
+- **Duration**: {fluency['duration']:.1f} seconds
+- **Speech Rate**: {fluency['speech_rate_wpm']:.1f} WPM
+
+---
+
+## 🎯 **Your Priority Focus Areas**
+
+"""
+            
+            # Identify top priorities based on performance
+            priorities = []
+            if fluency['filled_pauses'] > 3:
+                priorities.append("Reduce filled pauses (um, uh, er)")
+            if fluency['speech_rate_wpm'] < 120:
+                priorities.append("Increase speech rate")
+            elif fluency['speech_rate_wpm'] > 180:
+                priorities.append("Slow down for clarity")
+            if lexical['vocabulary_size'] < 60:
+                priorities.append("Expand vocabulary range")
+            if grammatical['complexity_ratio'] < 0.3:
+                priorities.append("Add complex sentences")
+            if grammatical['error_count'] > 2:
+                priorities.append("Improve grammar accuracy")
+            
+            for i, priority in enumerate(priorities[:3], 1):
+                learning_guide += f"{i}. **{priority}**\n"
+            
+            learning_guide += f"""
+
+---
+
+## 🔧 **1. Vocabulary Enhancement**
+
+### **Your Current Vocabulary:**
+- **Unique Words**: {lexical['vocabulary_size']}
+- **Academic Words**: {lexical['academic_word_count']}
+
+"""
+            
+            # Level-appropriate vocabulary suggestions
+            if level == "beginner":
+                learning_guide += """
+**For Your Level - Focus on:**
+- **Basic → Intermediate words**: good → excellent, big → significant
+- **Common academic words**: important, different, various, several
+- **Simple connectors**: because, so, but, also, first, second
+"""
+            elif level == "intermediate":
+                learning_guide += """
+**For Your Level - Focus on:**
+- **Intermediate → Advanced words**: very → extremely, think → consider
+- **Academic vocabulary**: analyze, demonstrate, indicate, significant
+- **Complex connectors**: however, therefore, furthermore, nevertheless
+"""
+            else:  # advanced
+                learning_guide += """
+**For Your Level - Focus on:**
+- **Sophisticated vocabulary**: remarkable, substantial, comprehensive
+- **Advanced academic words**: consequently, furthermore, nevertheless
+- **Nuanced expressions**: from my perspective, it's worth noting that
+"""
+            
+            learning_guide += f"""
+
+---
+
+## 📚 **2. Grammar & Structure**
+
+### **Your Current Grammar:**
+- **Sentences**: {grammatical['sentence_count']}
+- **Average Length**: {grammatical['avg_sentence_length']:.1f} words
+- **Complex Sentences**: {grammatical['complex_sentence_count']} ({grammatical['complexity_ratio']:.1%})
+- **Errors**: {grammatical['error_count']}
+
+"""
+            
+            if level == "beginner":
+                learning_guide += """
+**Focus on:**
+- **Simple + compound sentences**: "I like my hometown and it has many parks."
+- **Basic connectors**: because, so, but, and
+- **Present/past tense accuracy**
+"""
+            elif level == "intermediate":
+                learning_guide += """
+**Focus on:**
+- **Complex sentences**: "I like my hometown because it has many cultural attractions."
+- **Relative clauses**: "I have a friend who lives abroad."
+- **Conditional sentences**: "If I had more time, I would travel more."
+"""
+            else:  # advanced
+                learning_guide += """
+**Focus on:**
+- **Advanced complex structures**: "Not only does my hometown offer cultural attractions, but it also provides excellent educational opportunities."
+- **Subjunctive mood**: "If I were to choose, I would prefer..."
+- **Passive voice**: "It is widely believed that..."
+"""
+            
+            learning_guide += f"""
+
+---
+
+## 🗣️ **3. Fluency & Coherence**
+
+### **Your Current Fluency:**
+- **Speech Rate**: {fluency['speech_rate_wpm']:.1f} WPM
+- **Filled Pauses**: {fluency['filled_pauses']}
+- **Pauses**: {fluency['pause_count']}
+
+"""
+            
+            # Personalized fluency advice
+            if fluency['speech_rate_wpm'] < 120:
+                learning_guide += """
+**Your Challenge**: Speaking too slowly
+**Solution**: Practice reading aloud at 150 WPM. Use a metronome app.
+"""
+            elif fluency['speech_rate_wpm'] > 180:
+                learning_guide += """
+**Your Challenge**: Speaking too fast
+**Solution**: Take deeper breaths. Pause after key points for emphasis.
+"""
+            else:
+                learning_guide += """
+**Your Strength**: Good speech rate! Keep it up.
+**Enhancement**: Add more natural pauses for emphasis.
+"""
+            
+            if fluency['filled_pauses'] > 3:
+                learning_guide += """
+**Your Challenge**: Too many "um", "uh", "er"
+**Solution**: Practice silent pauses. Use transition phrases like "Let me think about that..."
+"""
+            
+            learning_guide += f"""
+
+---
+
+## 📋 **4. Your Enhanced Version**
+
+### **Practice this improved version:**
+
+"""
+            
+            # Create improved version
+            improved_transcript = self._create_improved_transcript(transcript, lexical, grammatical)
+            learning_guide += f'> "{improved_transcript}"\n\n'
+            
+            learning_guide += f"""
+
+---
+
+## 🎯 **5. Your Personal Action Plan**
+
+### **This Week:**
+1. **Practice the improved version** 3 times daily
+2. **Record yourself** and compare with original
+3. **Focus on your top priority**: {priorities[0] if priorities else "general fluency"}
+4. **Add 2-3 complex sentences** to your practice
+
+### **This Month:**
+1. **Expand vocabulary** by learning 5 new words daily
+2. **Practice with different topics** using the same structure
+3. **Join speaking clubs** or find conversation partners
+4. **Take mock IELTS tests** to track progress
+
+---
+
+## 🏆 **Your Progress Tracking**
+
+**Current Band**: {overall_band}
+**Target Band**: [Set your goal - suggest {overall_band + 0.5}]
+**Timeline**: [Set your timeline]
+
+**Focus Areas:**
+1. **Priority 1**: {priorities[0] if priorities else "General improvement"}
+2. **Priority 2**: {priorities[1] if len(priorities) > 1 else "Vocabulary expansion"}
+3. **Maintain**: [Your strengths]
+
+*Remember: Consistent practice is key to improvement!* 🚀
+"""
+            
+            return learning_guide
+            
+        except Exception as e:
+            return f"❌ Error generating fallback learning guide: {str(e)}"
+    
+    
+    def _create_improved_transcript(self, transcript, lexical_data, grammatical_data):
+        """Create an improved version of the user's transcript"""
+        # Simple improvements - in a real system, this would use NLP
+        improvements = {
+            'good': 'excellent',
+            'bad': 'poor',
+            'big': 'significant',
+            'small': 'limited',
+            'very': 'extremely',
+            'really': 'genuinely',
+            'thing': 'aspect',
+            'stuff': 'elements',
+            'get': 'obtain',
+            'make': 'create',
+            'do': 'perform',
+            'have': 'possess',
+            'go': 'proceed',
+            'come': 'arrive',
+            'see': 'observe',
+            'know': 'understand',
+            'think': 'consider',
+            'want': 'desire'
+        }
+        
+        improved = transcript
+        for basic, advanced in improvements.items():
+            improved = improved.replace(f' {basic} ', f' {advanced} ')
+            improved = improved.replace(f' {basic}.', f' {advanced}.')
+            improved = improved.replace(f' {basic},', f' {advanced},')
+        
+        # Add some academic connectors if missing
+        if 'however' not in improved.lower() and 'but' in improved.lower():
+            improved = improved.replace(' but ', ' however, ')
+        if 'therefore' not in improved.lower() and 'so' in improved.lower():
+            improved = improved.replace(' so ', ' therefore, ')
+        if 'furthermore' not in improved.lower() and 'also' in improved.lower():
+            improved = improved.replace(' also ', ' furthermore, ')
+        
+        return improved
+
     def evaluate_audio(self, audio_file, question, show_details):
         """Evaluate the uploaded audio file"""
         if self.evaluator is None:
-            return "❌ Please load a model first!", "", ""
+            return "❌ Please load a model first!", "", "", ""
         
         if audio_file is None:
-            return "❌ Please record or upload an audio file!", "", ""
+            return "❌ Please record or upload an audio file!", "", "", ""
         
         try:
             # Evaluate the audio
@@ -56,7 +499,7 @@ class GradioIELTSApp:
             )
             
             if "error" in result:
-                return f"❌ Error: {result['error']}", "", ""
+                return f"❌ Error: {result['error']}", "", "", ""
             
             # Extract results
             evaluation = result["evaluation"]
@@ -158,13 +601,27 @@ class GradioIELTSApp:
 {chr(10).join(['• ' + i for i in pron.get('improvements', ['No suggestions available'])])}
 """
             
+            # Generate learning guide
+            learning_guide = self.generate_learning_guide(result)
+            
+            # Debug: Print learning guide info
+            print(f"🔍 DEBUG: Learning guide generated: {len(learning_guide)} chars")
+            print(f"🔍 DEBUG: Learning guide preview: {learning_guide[:200]}...")
+            
+            # Ensure learning guide is not empty
+            if not learning_guide or learning_guide.strip() == "":
+                learning_guide = "❌ Learning guide generation failed. Please try again."
+                print("⚠️ WARNING: Learning guide is empty!")
+            else:
+                print(f"✅ Learning guide ready for display: {len(learning_guide)} characters")
+            
             # Create JSON output for developers
             json_output = json.dumps(result, indent=2)
             
-            return summary, detailed_feedback, json_output
+            return summary, detailed_feedback, learning_guide, json_output
             
         except Exception as e:
-            return f"❌ Error during evaluation: {str(e)}", "", ""
+            return f"❌ Error during evaluation: {str(e)}", "", "", ""
     
     def create_interface(self):
         """Create the Gradio interface"""
@@ -202,7 +659,7 @@ class GradioIELTSApp:
             gr.HTML("""
             <div class="main-header">
                 <h1>🎯 IELTS Speaking AI Assessment</h1>
-                <p>Record your speaking sample and get instant IELTS band scores with detailed feedback</p>
+                <p>Record your speaking sample and get instant IELTS band scores with detailed feedback and personalized learning guide</p>
             </div>
             """)
             
@@ -271,13 +728,16 @@ class GradioIELTSApp:
             gr.Markdown("## 📊 Evaluation Results")
             
             with gr.Tabs():
-                with gr.Tab("Summary"):
+                with gr.Tab("📊 Summary"):
                     summary_output = gr.Markdown(label="Evaluation Summary")
                 
-                with gr.Tab("Detailed Feedback"):
+                with gr.Tab("📝 Detailed Feedback"):
                     detailed_output = gr.Markdown(label="Detailed Analysis")
                 
-                with gr.Tab("Raw Data (JSON)"):
+                with gr.Tab("🎓 Learning Guide"):
+                    learning_guide_output = gr.Markdown(label="Personalized Learning Guide")
+                
+                with gr.Tab("🔧 Raw Data (JSON)"):
                     json_output = gr.Code(
                         label="Raw Evaluation Data",
                         language="json",
@@ -294,7 +754,7 @@ class GradioIELTSApp:
             evaluate_btn.click(
                 fn=self.evaluate_audio,
                 inputs=[audio_input, question_input, show_details],
-                outputs=[summary_output, detailed_output, json_output]
+                outputs=[summary_output, detailed_output, learning_guide_output, json_output]
             )
             
             # Auto-load qwen3_light model on startup (best for laptops)
@@ -349,7 +809,7 @@ def main():
     # Create and launch the app
     app = GradioIELTSApp()
     app.launch(
-        share=True,
+        share=args.share,
         server_name=args.host,
         server_port=args.port
     )
