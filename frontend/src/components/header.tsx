@@ -13,6 +13,7 @@ import {
 import Image from 'next/image';
 import Link from 'next/link';
 import { useState } from 'react';
+import { ThemeToggleButton } from './toggle-theme-button';
 
 export function Header() {
     const navItems = [
