@@ -1,0 +1,35 @@
+# Core dependencies for IELTS Speaking AI
+torch>=2.0.0
+transformers>=4.44.0  # Updated for Whisper Large-v3-turbo compatibility
+librosa>=0.10.0
+numpy>=1.24.0
+soundfile>=0.12.0
+
+# Optional: For better audio processing
+scipy>=1.11.0
+scikit-learn>=1.3.0
+
+# For open-source LLM integration
+transformers>=4.35.0  # Already included above
+torch>=2.0.0  # Already included above
+accelerate>=0.24.0  # For model loading optimization
+bitsandbytes>=0.41.0  # For quantization (optional)
+
+# For API integration (optional - for production)
+openai>=1.0.0  # For OpenAI API
+anthropic>=0.7.0  # For Anthropic Claude API
+
+# For web interface (optional)
+fastapi>=0.104.0
+uvicorn>=0.24.0
+python-multipart>=0.0.6
+
+# For Gradio UI
+gradio>=4.0.0
+
+# For data handling
+pandas>=2.0.0
+pydantic>=2.0.0
+
+# For testing and sample datasets
+datasets>=2.14.0
