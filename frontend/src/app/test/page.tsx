@@ -12,7 +12,16 @@ import {
     StatsLabel,
     StatsValue,
 } from '@/components/stats';
-import { Droplet, Droplets, User, UserSearch } from 'lucide-react';
+import {
+    CheckCircle,
+    Clock,
+    Droplet,
+    Droplets,
+    FileText,
+    Loader2,
+    User,
+    UserSearch,
+} from 'lucide-react';
 
 export default function TestListPage() {
     return (
@@ -29,41 +38,42 @@ export default function TestListPage() {
 
             <StatsGrid>
                 <Stats>
-                    <StatsIcon className="bg-rose-50 text-rose-600">
-                        <Droplets />
+                    <StatsIcon className="bg-indigo-50 text-indigo-600">
+                        <FileText />
                     </StatsIcon>
-                    <StatsValue>100</StatsValue>
-                    <StatsLabel>Blood Requests</StatsLabel>
-                    <StatsDescription>Number of blood request</StatsDescription>
-                </Stats>
-                <Stats>
-                    <StatsIcon className="bg-rose-50 text-rose-600">
-                        <Droplet />
-                    </StatsIcon>
-                    <StatsValue>199</StatsValue>
-                    <StatsLabel>Urgent Requests</StatsLabel>
+                    <StatsValue>150</StatsValue>
+                    <StatsLabel>Total Tests</StatsLabel>
                     <StatsDescription>
-                        Number of urgent blood request
+                        Tổng số lượng test trong hệ thống
                     </StatsDescription>
                 </Stats>
+
                 <Stats>
-                    <StatsIcon className="bg-blue-50 text-blue-600">
-                        <User />
+                    <StatsIcon className="bg-green-50 text-green-600">
+                        <CheckCircle />
                     </StatsIcon>
-                    <StatsValue>299</StatsValue>
-                    <StatsLabel>Donors Needed</StatsLabel>
-                    <StatsDescription>
-                        Number of donors need across all request
-                    </StatsDescription>
+                    <StatsValue>92</StatsValue>
+                    <StatsLabel>Completed Tests</StatsLabel>
+                    <StatsDescription>Số test đã hoàn thành</StatsDescription>
                 </Stats>
+
                 <Stats>
-                    <StatsIcon className="bg-emerald-50 text-emerald-600">
-                        <UserSearch />
+                    <StatsIcon className="bg-rose-50 text-rose-600">
+                        <Clock />
                     </StatsIcon>
-                    <StatsValue>88</StatsValue>
-                    <StatsLabel>Recommended Requests</StatsLabel>
+                    <StatsValue>48</StatsValue>
+                    <StatsLabel>Pending Tests</StatsLabel>
+                    <StatsDescription>Số test chưa thực hiện</StatsDescription>
+                </Stats>
+
+                <Stats>
+                    <StatsIcon className="bg-yellow-50 text-yellow-600">
+                        <Loader2 />
+                    </StatsIcon>
+                    <StatsValue>10</StatsValue>
+                    <StatsLabel>In-progress Tests</StatsLabel>
                     <StatsDescription>
-                        Number of recommended request for you
+                        Số test đang được làm dở
                     </StatsDescription>
                 </Stats>
             </StatsGrid>
