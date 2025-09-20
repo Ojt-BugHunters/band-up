@@ -12,8 +12,7 @@ import { motion } from 'framer-motion';
 import { ArrowRight, ChevronRight } from 'lucide-react';
 import Image from 'next/image';
 import Link from 'next/link';
-import { features, tabs, testimonials } from './page.data';
-import { AnimatedTestimonials } from '@/components/ui/animated-testimonials';
+import { features, tabs } from './page.data';
 import Component from '@/components/ui/pricing-section-1';
 
 const Feature = ({
@@ -146,7 +145,6 @@ export default function HomePage() {
                     feedback will be just as amazing as the placeholders below!
                 </p>
             </div>
-            <AnimatedTestimonials testimonials={testimonials} />
             <Component />
         </div>
     );
