@@ -23,7 +23,7 @@ public class AuthenticationController {
         ResponseCookie responseCookie = JwtUtil.getCookie(accountDtoResponse.getEmail());
         return ResponseEntity.ok()
                 .header("Cookie", responseCookie.toString())
-                .build();
+                .body(accountDtoResponse);
     }
 
     @PostMapping("/login")
@@ -32,6 +32,6 @@ public class AuthenticationController {
         ResponseCookie responseCookie = JwtUtil.getCookie(accountDtoResponse.getEmail());
         return ResponseEntity.ok()
                 .header("Cookie", responseCookie.toString())
-                .build();
+                .body(accountDtoResponse);
     }
 }
