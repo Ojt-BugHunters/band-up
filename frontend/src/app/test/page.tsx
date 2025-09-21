@@ -27,7 +27,6 @@ import {
     Clock,
     FileText,
     Filter,
-    Loader2,
     Search,
     SortDesc,
     User,
@@ -84,10 +83,10 @@ export default function TestListPage() {
                     <StatsIcon className="bg-rose-50 text-rose-600">
                         <Clock />
                     </StatsIcon>
-                    <StatsValue>48</StatsValue>
-                    <StatsLabel>Pending Tests</StatsLabel>
+                    <StatsValue>40</StatsValue>
+                    <StatsLabel>mins Taken</StatsLabel>
                     <StatsDescription>
-                        Number of tests not yet taken
+                        Avarage time taken for one test to complete
                     </StatsDescription>
                 </Stats>
                 <Stats>
