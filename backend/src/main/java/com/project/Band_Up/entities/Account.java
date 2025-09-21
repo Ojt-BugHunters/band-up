@@ -10,6 +10,7 @@ import org.springframework.format.annotation.DateTimeFormat;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.UUID;
 
 @AllArgsConstructor
@@ -49,4 +50,8 @@ public class Account {
     private boolean isActive;
 
     private LocalDateTime createdAt;
+
+    @OneToMany(fetch = FetchType.LAZY)
+    @JoinColumn(name = "deck")
+    private List<Deck> decks;
 }
