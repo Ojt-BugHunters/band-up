@@ -1,4 +1,29 @@
+import { cn } from '@/lib/utils';
 import { PropsWithChildren } from 'react';
+
+const colorMap = {
+    rose: 'bg-rose-50 text-rose-600',
+    blue: 'bg-blue-50 text-blue-600',
+    green: 'bg-green-50 text-green-600',
+    yellow: 'bg-yellow-50 text-yellow-600',
+    indigo: 'bg-indigo-50 text-indigo-600',
+} as const;
+
+export const HeroSummary = ({
+    color,
+    children,
+}: PropsWithChildren<{ color: keyof typeof colorMap }>) => {
+    return (
+        <div
+            className={cn(
+                'mb-6 inline-flex items-center rounded-full px-4 py-2 text-sm font-medium',
+                colorMap[color],
+            )}
+        >
+            {children}
+        </div>
+    );
+};
 
 export const HeroKeyword = ({
     color,
