@@ -1,10 +1,4 @@
-export const skills = [
-    'All skills',
-    'Reading',
-    'Listening',
-    'Writing',
-    'Speaking',
-];
+export const skills = ['Reading', 'Listening', 'Writing', 'Speaking'];
 
 export interface Test {
     id: number;

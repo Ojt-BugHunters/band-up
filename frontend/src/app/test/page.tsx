@@ -54,7 +54,8 @@ export default function TestListPage() {
                 ? test.title.toLowerCase().includes(search.toLowerCase())
                 : true;
 
-            const matchesSkill = skill ? test.skill === skill : true;
+            const matchesSkill =
+                skill && skill !== 'all' ? test.skill === skill : true;
 
             return matchesSearch && matchesSkill;
         });
@@ -159,20 +160,20 @@ export default function TestListPage() {
                         <Search className="absolute top-1/2 left-4 h-4 w-4 -translate-y-1/2 transform text-slate-400" />
                         <Input
                             value={search}
+                            onChange={(e) => setSearch(e.target.value)}
                             placeholder="Search by test title..."
                             className="mx-auto rounded-xl border-slate-200 pl-11 focus:border-rose-300 focus:ring-rose-200"
                         />
                     </div>
-                    <Select value={skill}>
-                        <SelectTrigger
-                            onReset={() => setSkill(undefined)}
-                            value={skill}
-                            className="w-fit border-slate-200"
-                        >
+                    <Select value={skill} onValueChange={setSkill}>
+                        <SelectTrigger className="w-fit border-slate-200">
                             <Filter className="mr-2 h-4 w-4" />
                             <SelectValue placeholder="Filter by skill" />
                         </SelectTrigger>
                         <SelectContent>
+                            <SelectItem key="all" value="all">
+                                All Skills
+                            </SelectItem>
                             {skills.map((skill) => (
                                 <SelectItem key={skill} value={skill}>
                                     {skill}
