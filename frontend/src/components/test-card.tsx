@@ -1,7 +1,14 @@
 import { Test } from '@/lib/api/dto/test';
 import { Card, CardContent, CardHeader, CardTitle } from './ui/card';
 import { Badge } from './ui/badge';
-import { BookOpen, Calendar, Clock, MessageSquare, Play } from 'lucide-react';
+import {
+    BookOpen,
+    Calendar,
+    Clock,
+    MessageSquare,
+    Play,
+    Users,
+} from 'lucide-react';
 import { Button } from './ui/button';
 
 const getCardGradient = (skill: string) => {
@@ -45,9 +52,9 @@ const formatDate = (dateString: string) => {
 export function TestCard({ test }: { test: Test }) {
     return (
         <Card
-            className={`${getCardGradient(test.skill)} group overflow-hidden border border-gray-200 shadow-md transition-all duration-300 hover:scale-[1.02] hover:border-gray-300 hover:shadow-xl`}
+            className={`${getCardGradient(test.skill)} group flex min-h-[220px] flex-col overflow-hidden border border-gray-200 shadow-md transition-all duration-300 hover:scale-[1.02] hover:border-gray-300 hover:shadow-xl`}
         >
-            <CardHeader className="pb-3">
+            <CardHeader className="flex-grow pb-3">
                 <div className="mb-3 flex items-start justify-between gap-4">
                     <CardTitle className="text-lg leading-tight font-semibold text-gray-900 transition-colors group-hover:text-gray-800">
                         {test.title}
@@ -59,24 +66,27 @@ export function TestCard({ test }: { test: Test }) {
                         {test.skill}
                     </Badge>
                 </div>
-                <div className="flex items-center justify-between text-sm text-gray-600">
+                <div className="grid grid-cols-2 gap-x-6 gap-y-2 text-sm text-gray-600">
                     <div className="flex items-center gap-1">
                         <Calendar className="h-4 w-4 text-gray-500" />
                         {formatDate(test.created_at)}
                     </div>
-                    <div className="flex items-center gap-4">
-                        <div className="flex items-center gap-1">
-                            <Clock className="h-4 w-4 text-gray-500" />
-                            {test.duration} min
-                        </div>
-                        <div className="flex items-center gap-1">
-                            <MessageSquare className="h-4 w-4 text-gray-500" />
-                            {test.comments}
-                        </div>
+                    <div className="flex items-center gap-1">
+                        <Clock className="h-4 w-4 text-gray-500" />
+                        {test.duration} min
+                    </div>
+                    <div className="flex items-center gap-1">
+                        <MessageSquare className="h-4 w-4 text-gray-500" />
+                        {test.comments}
+                    </div>
+                    <div className="flex items-center gap-1">
+                        <Users className="h-4 w-4 text-gray-500" />
+                        {test.number_participant}
                     </div>
                 </div>
             </CardHeader>
-            <CardContent className="pt-0">
+
+            <CardContent className="mt-auto pt-0">
                 <Button
                     size="sm"
                     className="w-full bg-gray-900 py-2.5 font-medium text-white transition-colors group-hover:bg-gray-800 hover:bg-gray-800"
