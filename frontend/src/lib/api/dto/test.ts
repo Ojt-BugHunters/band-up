@@ -5,3 +5,12 @@ export const skills = [
     'Writing',
     'Speaking',
 ];
+
+export interface Test {
+    id: number;
+    title: string;
+    created_at: string;
+    skill: string;
+    comments: number;
+    duration: number;
+}

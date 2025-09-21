@@ -32,8 +32,11 @@ import {
     SortDesc,
     User,
     BookOpenCheck,
+    BookOpen,
 } from 'lucide-react';
 import { useState } from 'react';
+import { mockTests } from '../../../constants/sample-data';
+import { TestCard } from '@/components/test-card';
 
 export default function TestListPage() {
     const [skill, setSkill] = useState<string | undefined>();
@@ -89,12 +92,12 @@ export default function TestListPage() {
                 </Stats>
                 <Stats>
                     <StatsIcon className="bg-yellow-50 text-yellow-600">
-                        <Loader2 />
+                        <BookOpen />
                     </StatsIcon>
-                    <StatsValue>10</StatsValue>
-                    <StatsLabel>In-progress Tests</StatsLabel>
+                    <StatsValue>4</StatsValue>
+                    <StatsLabel>Skills Coverd</StatsLabel>
                     <StatsDescription>
-                        Number of tests in progress
+                        Reading, Listening, Speaking, Writing
                     </StatsDescription>
                 </Stats>
             </StatsGrid>
@@ -142,6 +145,11 @@ export default function TestListPage() {
                         </SelectContent>
                     </Select>
                 </div>
+            </div>
+            <div className="mx-auto mb-12 grid max-w-7xl grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-4">
+                {mockTests.map((test) => (
+                    <TestCard key={test.id} test={test} />
+                ))}
             </div>
         </div>
     );
