@@ -13,7 +13,7 @@ import { ArrowRight, ChevronRight } from 'lucide-react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { features, tabs, testimonials } from './page.data';
-import { AnimatedTestimonials } from '@/components/ui/animated-testimonials';
+import { TestimonialsColumn } from '@/components/ui/testimonials-columns-1';
 import Component from '@/components/ui/pricing-section-1';
 
 const Feature = ({
@@ -59,6 +59,9 @@ const Feature = ({
 };
 
 export default function HomePage() {
+    const firstColumn = testimonials.slice(0, 3);
+    const secondColumn = testimonials.slice(3, 6);
+    const thirdColumn = testimonials.slice(6, 9);
     return (
         <div className="mx-auto max-w-6xl pt-30 text-center">
             <div className="mb-8 flex justify-center">
@@ -141,12 +144,34 @@ export default function HomePage() {
                 <h2 className="text-3xl font-bold sm:text-4xl">
                     Love from all over the universe
                 </h2>
-                <p className="mx-auto mt-4 max-w-2xl text-lg text-neutral-600 dark:text-neutral-400">
+                <p className="mx-auto mt-4 max-w-4xl text-lg text-neutral-600 dark:text-neutral-400">
                     BandUp IELTS has just released, and we are sure future
-                    feedback will be just as amazing as the placeholders below!
+                    <Highlight className="bg-rose-400 text-black dark:text-white">
+                        feedback will be just as amazing as
+                    </Highlight>
+                    the placeholders below!
                 </p>
             </div>
-            <AnimatedTestimonials testimonials={testimonials} />
+            <section className="bg-background relative my-20">
+                <div className="z-10 container mx-auto">
+                    <div className="mt-10 flex max-h-[740px] justify-center gap-6 overflow-hidden [mask-image:linear-gradient(to_bottom,transparent,black_25%,black_75%,transparent)]">
+                        <TestimonialsColumn
+                            testimonials={firstColumn}
+                            duration={15}
+                        />
+                        <TestimonialsColumn
+                            testimonials={secondColumn}
+                            className="hidden md:block"
+                            duration={19}
+                        />
+                        <TestimonialsColumn
+                            testimonials={thirdColumn}
+                            className="hidden lg:block"
+                            duration={17}
+                        />
+                    </div>
+                </div>
+            </section>
             <Component />
         </div>
     );
