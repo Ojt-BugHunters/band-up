@@ -5,11 +5,13 @@ import com.project.Band_Up.enums.Role;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 import lombok.*;
+import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.GenericGenerator;
 import org.springframework.format.annotation.DateTimeFormat;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.UUID;
 
 @AllArgsConstructor
@@ -46,7 +48,14 @@ public class Account {
     @DateTimeFormat(pattern = "dd-MM-yyyy")
     private LocalDate birthday;
 
+    @Column(name = "is_active", nullable = false, columnDefinition = "bit default 1")
     private boolean isActive;
 
+    @CreationTimestamp
+    @Column(updatable = false)
     private LocalDateTime createdAt;
+
+    @OneToMany(fetch = FetchType.LAZY)
+    @JoinColumn(name = "deck")
+    private List<Deck> decks;
 }
