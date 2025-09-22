@@ -23,6 +23,11 @@ public class Test {
     @UuidGenerator(style = UuidGenerator.Style.TIME)
     private UUID id;
 
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)  // Người dùng
+    @JoinColumn (name = "user_id", nullable = false,
+            foreignKey = @ForeignKey(name = "fk_test_user"))
+    private Account user ;
+
     @NotNull
     private String skillName;
 
