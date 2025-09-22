@@ -1,8 +1,9 @@
-import { Test } from '@/lib/api/dto/test';
+import { Comment } from '@/lib/api/dto/comment';
+import { Test, TestOverview } from '@/lib/api/dto/test';
 
-export const mockTests: Test[] = [
+export const mockTests: TestOverview[] = [
     {
-        id: 1,
+        id: '1',
         title: 'IELTS Academic Reading Practice Test 1',
         created_at: '2024-01-15T10:30:00Z',
         skill: 'Reading',
@@ -11,7 +12,7 @@ export const mockTests: Test[] = [
         duration: 60,
     },
     {
-        id: 2,
+        id: '2',
         title: 'IELTS General Writing Task 1 & 2',
         created_at: '2024-01-14T14:20:00Z',
         skill: 'Writing',
@@ -20,7 +21,7 @@ export const mockTests: Test[] = [
         duration: 60,
     },
     {
-        id: 3,
+        id: '3',
         title: 'IELTS Listening Mock Test - Academic',
         created_at: '2024-01-13T09:15:00Z',
         skill: 'Listening',
@@ -29,7 +30,7 @@ export const mockTests: Test[] = [
         duration: 30,
     },
     {
-        id: 4,
+        id: '4',
         title: 'IELTS Speaking Part 1, 2 & 3 Practice',
         created_at: '2024-01-12T16:45:00Z',
         skill: 'Speaking',
@@ -38,7 +39,7 @@ export const mockTests: Test[] = [
         duration: 15,
     },
     {
-        id: 5,
+        id: '5',
         title: 'IELTS Academic Writing Task 1 - Graphs',
         created_at: '2024-01-11T11:00:00Z',
         skill: 'Writing',
@@ -47,7 +48,7 @@ export const mockTests: Test[] = [
         duration: 20,
     },
     {
-        id: 6,
+        id: '6',
         title: 'IELTS Reading - True/False/Not Given Focus',
         created_at: '2024-01-10T13:30:00Z',
         skill: 'Reading',
@@ -56,7 +57,7 @@ export const mockTests: Test[] = [
         duration: 45,
     },
     ...Array.from({ length: 14 }).map((_, idx) => ({
-        id: idx + 7,
+        id: 'idx + 7',
         title: `Extra Mock Test ${idx + 7}`,
         created_at: '2024-01-09T10:00:00Z',
         skill: ['Reading', 'Writing', 'Listening', 'Speaking'][idx % 4],
@@ -64,4 +65,68 @@ export const mockTests: Test[] = [
         comments: Math.floor(Math.random() * 20),
         duration: [15, 30, 45, 60][idx % 4],
     })),
+];
+
+export const testData: Test = {
+    id: 'listening-test-001',
+    title: 'IELTS Listening Practice Test 1',
+    duration: 30,
+    skill: 'Listening',
+    number_sections: 4,
+    number_questions: 40,
+    number_participant: 1247,
+    section: [
+        {
+            id: 'section-1',
+            title: 'Section 1',
+            questions: 10,
+            description: 'Conversation in everyday social context',
+        },
+        {
+            id: 'section-2',
+            title: 'Section 2',
+            questions: 10,
+            description: 'Monologue in everyday social context',
+        },
+        {
+            id: 'section-3',
+            title: 'Section 3',
+            questions: 10,
+            description: 'Conversation in educational context',
+        },
+        {
+            id: 'section-4',
+            title: 'Section 4',
+            questions: 10,
+            description: 'Monologue on academic subject',
+        },
+    ],
+};
+
+export const comments: Comment[] = [
+    {
+        id: 'c1',
+        content: 'Bài viết này thực sự rất hữu ích. Cảm ơn tác giả!',
+        author_name: 'Nguyễn Văn A',
+        reply: [
+            {
+                id: 'r1',
+                content:
+                    'Cảm ơn bạn đã quan tâm, mình sẽ viết thêm nhiều chủ đề khác nữa.',
+                author_name: 'Tác giả',
+            },
+        ],
+    },
+    {
+        id: 'c2',
+        content: 'Mình thấy phần giải thích đoạn 3 hơi khó hiểu 😅',
+        author_name: 'Trần Thị B',
+        reply: [
+            {
+                id: 'r2',
+                content: 'Cảm ơn bạn góp ý, mình sẽ chỉnh sửa để dễ hiểu hơn!',
+                author_name: 'Tác giả',
+            },
+        ],
+    },
 ];

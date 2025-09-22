@@ -1,4 +1,4 @@
-import { Test } from '@/lib/api/dto/test';
+import { TestOverview } from '@/lib/api/dto/test';
 import { Card, CardContent, CardHeader, CardTitle } from './ui/card';
 import { Badge } from './ui/badge';
 import {
@@ -49,7 +49,7 @@ const formatDate = (dateString: string) => {
     });
 };
 
-export function TestCard({ test }: { test: Test }) {
+export function TestCard({ test }: { test: TestOverview }) {
     return (
         <Card
             className={`${getCardGradient(test.skill)} group flex min-h-[220px] flex-col overflow-hidden border border-gray-200 shadow-md transition-all duration-300 hover:scale-[1.02] hover:border-gray-300 hover:shadow-xl`}
