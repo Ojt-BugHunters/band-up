@@ -6,6 +6,7 @@ import com.project.Band_Up.entities.Account;
 import com.project.Band_Up.exceptions.AuthenticationFailedException;
 import com.project.Band_Up.exceptions.EmailAlreadyExistedException;
 import com.project.Band_Up.repositories.AccountRepository;
+import com.project.Band_Up.utils.JwtUtil;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;

@@ -6,6 +6,7 @@ import com.project.Band_Up.entities.RefreshToken;
 import com.project.Band_Up.exceptions.ResourceNotFoundException;
 import com.project.Band_Up.repositories.AccountRepository;
 import com.project.Band_Up.repositories.RefreshTokenRepository;
+import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.security.Keys;
 import org.modelmapper.ModelMapper;
@@ -60,13 +61,21 @@ public class JwtUtil {
         return rawToken;
     }
 
-    public String extractBody(String token) {
+    public void deleteRefreshToken(String refreshToken) {
+        if(refreshTokenRepository.existsByToken(refreshToken))
+            refreshTokenRepository.deleteByToken(refreshToken);
+    }
+
+    public Claims extractClaims(String token) {
         return Jwts.parser()
                 .verifyWith(SECRET_KEY)
                 .build()
                 .parseSignedClaims(token)
-                .getPayload()
-                .getSubject();
+                .getPayload();
+    }
+
+    public String extractSubject(Claims claims) {
+        return claims.getSubject();
     }
 
     public ResponseCookie getAccessTokenCookie(UUID id) {
@@ -88,6 +97,25 @@ public class JwtUtil {
                 .path("/")
                 .sameSite("None")
                 .maxAge((int) TimeUnit.DAYS.toSeconds(7)) // 7 days
+                .build();
+        return cookie;
+    }public ResponseCookie deleteAccessTokenCookie() {
+        ResponseCookie cookie = ResponseCookie.from("AccessToken", "")
+                .httpOnly(true)
+                .secure(true)
+                .path("/")
+                .sameSite("None")
+                .maxAge(0) // 15 minutes
+                .build();
+        return cookie;
+    }
+    public ResponseCookie deleteRefreshTokenCookie() {
+        ResponseCookie cookie = ResponseCookie.from("RefreshToken", "")
+                .httpOnly(true)
+                .secure(true)
+                .path("/")
+                .sameSite("None")
+                .maxAge(0) // 7 days
                 .build();
         return cookie;
     }
