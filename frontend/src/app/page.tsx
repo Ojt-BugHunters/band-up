@@ -6,7 +6,7 @@ import { ContainerScroll } from '@/components/ui/container-scroll-animation';
 import { Highlight } from '@/components/ui/highlight';
 import { LayoutTextFlip } from '@/components/ui/layout-text-flip';
 import { PointerHighlight } from '@/components/ui/pointer-highlight';
-import { Tabs } from '@/components/ui/tabs';
+import { Tabs } from '@/components/ui/tabs-animation';
 import { cn } from '@/lib/utils';
 import { motion } from 'framer-motion';
 import { ArrowRight, ChevronRight } from 'lucide-react';
