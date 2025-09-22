@@ -105,18 +105,28 @@ export const testData: Test = {
 
 export const comments: Comment[] = [
     {
-        id: '1',
-        content: 'I will contact with 6.0 people',
-        author_name: 'FPT',
+        id: 'c1',
+        content: 'Bài viết này thực sự rất hữu ích. Cảm ơn tác giả!',
+        author_name: 'Nguyễn Văn A',
+        reply: [
+            {
+                id: 'r1',
+                content:
+                    'Cảm ơn bạn đã quan tâm, mình sẽ viết thêm nhiều chủ đề khác nữa.',
+                author_name: 'Tác giả',
+            },
+        ],
     },
     {
-        id: '2',
-        content: '10/40. I love IELTS',
-        author_name: 'Harry Potter',
-    },
-    {
-        id: '3',
-        content: 'The most difficult test',
-        author_name: 'Emma Wilson',
+        id: 'c2',
+        content: 'Mình thấy phần giải thích đoạn 3 hơi khó hiểu 😅',
+        author_name: 'Trần Thị B',
+        reply: [
+            {
+                id: 'r2',
+                content: 'Cảm ơn bạn góp ý, mình sẽ chỉnh sửa để dễ hiểu hơn!',
+                author_name: 'Tác giả',
+            },
+        ],
     },
 ];

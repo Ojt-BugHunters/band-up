@@ -7,6 +7,7 @@ import {
     LayoutPanelTop,
     MessageCircle,
     Play,
+    ReplyIcon,
     Send,
     User,
 } from 'lucide-react';
@@ -36,6 +37,7 @@ import { Separator } from '@/components/ui/separator';
 import { Content } from '@tiptap/react';
 import { MinimalTiptapEditor } from '@/components/ui/minimal-tiptap';
 import { TooltipProvider } from '@/components/ui/tooltip';
+import { AccountPicture } from '@/components/ui/account-picture';
 
 export default function TestOverview() {
     const [value, setValue] = useState<Content>('');
@@ -311,6 +313,62 @@ export default function TestOverview() {
                                 </div>
                             </div>
                         </div>
+                    </div>
+                    <Separator className="my-8" />
+                    <div className="space-y-6">
+                        {comments.map((comment) => (
+                            <div
+                                key={comment.id}
+                                className="rounded-xl border border-slate-200 bg-white p-5 shadow-md transition hover:shadow-lg"
+                            >
+                                <div className="flex items-start gap-3">
+                                    <div className="h-10 w-10">
+                                        <AccountPicture
+                                            name={comment.author_name}
+                                        />
+                                    </div>
+
+                                    <div className="flex-1">
+                                        <h4 className="flex items-center gap-2 font-semibold text-slate-900">
+                                            {comment.author_name}
+                                            <MessageCircle className="h-4 w-4 text-rose-500" />
+                                        </h4>
+                                        <p className="mt-1 leading-relaxed text-slate-700">
+                                            {comment.content}
+                                        </p>
+                                        {comment.reply?.length > 0 && (
+                                            <div className="mt-4 rounded-lg border border-zinc-100 bg-zinc-50/80 p-3">
+                                                {comment.reply.map((reply) => (
+                                                    <div
+                                                        key={reply.id}
+                                                        className="flex items-start gap-3"
+                                                    >
+                                                        <div className="h-9 w-9">
+                                                            <AccountPicture
+                                                                name={
+                                                                    reply.author_name
+                                                                }
+                                                            />
+                                                        </div>
+                                                        <div className="flex-1">
+                                                            <h5 className="flex items-center gap-2 font-medium text-zinc-700">
+                                                                {
+                                                                    reply.author_name
+                                                                }
+                                                                <ReplyIcon className="h-4 w-4 text-zinc-500" />
+                                                            </h5>
+                                                            <p className="mt-1 leading-relaxed text-zinc-900">
+                                                                {reply.content}
+                                                            </p>
+                                                        </div>
+                                                    </div>
+                                                ))}
+                                            </div>
+                                        )}
+                                    </div>
+                                </div>
+                            </div>
+                        ))}
                     </div>
                 </div>
             </div>
