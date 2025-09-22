@@ -1,3 +1,4 @@
+import { Comment } from '@/lib/api/dto/comment';
 import { Test, TestOverview } from '@/lib/api/dto/test';
 
 export const mockTests: TestOverview[] = [
@@ -70,6 +71,7 @@ export const testData: Test = {
     id: 'listening-test-001',
     title: 'IELTS Listening Practice Test 1',
     duration: 30,
+    skill: 'Listening',
     number_sections: 4,
     number_questions: 40,
     number_participant: 1247,
@@ -100,3 +102,21 @@ export const testData: Test = {
         },
     ],
 };
+
+export const comments: Comment[] = [
+    {
+        id: '1',
+        content: 'I will contact with 6.0 people',
+        author_name: 'FPT',
+    },
+    {
+        id: '2',
+        content: '10/40. I love IELTS',
+        author_name: 'Harry Potter',
+    },
+    {
+        id: '3',
+        content: 'The most difficult test',
+        author_name: 'Emma Wilson',
+    },
+];

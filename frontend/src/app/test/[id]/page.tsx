@@ -5,10 +5,11 @@ import {
     FileText,
     Headphones,
     LayoutPanelTop,
+    MessageCircle,
     Play,
     User,
 } from 'lucide-react';
-import { testData } from '../../../../constants/sample-data';
+import { testData, comments } from '../../../../constants/sample-data';
 import {
     Card,
     CardContent,
@@ -30,6 +31,7 @@ import { Checkbox } from '@/components/ui/checkbox';
 import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { testInstructions } from '../../../../constants/instruction';
+import { Separator } from '@/components/ui/separator';
 
 export default function TestOverview() {
     const [selectedSections, setSelectedSections] = useState<string[]>([]);
@@ -256,6 +258,15 @@ export default function TestOverview() {
                         </Card>
                     </TabsContent>
                 </Tabs>
+
+                <Separator className="my-8" />
+
+                <section className="mb-8">
+                    <h2 className="text-foreground mb-6 flex items-center space-x-2 text-2xl font-bold">
+                        <MessageCircle className="h-6 w-6" />
+                        <span>Comments ({comments.length})</span>
+                    </h2>
+                </section>
             </div>
         </div>
     );
