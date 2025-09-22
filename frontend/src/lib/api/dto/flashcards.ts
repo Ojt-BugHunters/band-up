@@ -1,17 +1,9 @@
-export type Flashcard = {
+export interface Flashcard {
     id: string;
     title: string;
-    term: string;
-    definition: string;
-    skill: string;
-    created_at: string;
-};
-
-export const skills = [
-    'Reading',
-    'Listening',
-    'Speaking',
-    'Writing',
-    'Vocabulary',
-    'Grammar',
-];
+    description: string;
+    author_name: string;
+    number_learner: number;
+    created_at: Date | string;
+    is_public: boolean;
+}
