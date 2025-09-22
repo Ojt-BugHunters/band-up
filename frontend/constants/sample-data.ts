@@ -1,4 +1,104 @@
+import type { Flashcard } from '@/lib/api/dto/flashcards';
 import { Test } from '@/lib/api/dto/test';
+
+export const mockFlashcards: Flashcard[] = [
+  {
+    id: '1',
+    title: 'IELTS Vocabulary - Technology',
+    term: 'Artificial Intelligence',
+    definition: 'The simulation of human intelligence processes by machines.',
+    skill: 'Vocabulary',
+    created_at: '2025-09-18T10:30:00Z',
+  },
+  {
+    id: '2',
+    title: 'IELTS Reading - Skimming Technique',
+    term: 'Skimming',
+    definition: 'Reading rapidly to get a general overview of the material.',
+    skill: 'Reading',
+    created_at: '2025-09-19T14:00:00Z',
+  },
+  {
+    id: '3',
+    title: 'IELTS Grammar - Conditionals',
+    term: 'Second Conditional',
+    definition: 'Used to talk about hypothetical or unlikely situations.',
+    skill: 'Grammar',
+    created_at: '2025-09-20T08:45:00Z',
+  },
+  {
+    id: '4',
+    title: 'IELTS Speaking - Linking Words',
+    term: 'Moreover',
+    definition: 'Used to add information or support an argument.',
+    skill: 'Speaking',
+    created_at: '2025-09-21T09:15:00Z',
+  },
+  {
+    id: '5',
+    title: 'IELTS Listening - Instructions',
+    term: 'Circle the correct answer',
+    definition: 'A common instruction asking test-takers to mark the right option.',
+    skill: 'Listening',
+    created_at: '2025-09-21T17:00:00Z',
+  },
+  {
+    id: '6',
+    title: 'IELTS Writing - Task 2 Opinion Essay',
+    term: 'Thesis Statement',
+    definition: 'A sentence that clearly expresses your main opinion for the essay.',
+    skill: 'Writing',
+    created_at: '2025-09-22T08:00:00Z',
+  },
+  {
+    id: '7',
+    title: 'IELTS Vocabulary - Environment',
+    term: 'Carbon Footprint',
+    definition: 'The total amount of greenhouse gases produced directly and indirectly by human activities.',
+    skill: 'Vocabulary',
+    created_at: '2025-09-22T12:45:00Z',
+  },
+  {
+    id: '8',
+    title: 'IELTS Grammar - Complex Sentences',
+    term: 'Relative Clause',
+    definition: 'A clause that begins with a relative pronoun and describes the noun before it.',
+    skill: 'Grammar',
+    created_at: '2025-09-23T09:30:00Z',
+  },
+  {
+    id: '9',
+    title: 'IELTS Reading - Matching Headings',
+    term: 'Topic Sentence',
+    definition: 'The sentence that expresses the main idea of a paragraph.',
+    skill: 'Reading',
+    created_at: '2025-09-24T07:50:00Z',
+  },
+  {
+    id: '10',
+    title: 'IELTS Listening - Multiple Choice',
+    term: 'Distractor',
+    definition: 'A wrong answer option designed to mislead test takers.',
+    skill: 'Listening',
+    created_at: '2025-09-24T11:15:00Z',
+  },
+  {
+    id: '11',
+    title: 'IELTS Writing - Task 1 Overview',
+    term: 'Overview Statement',
+    definition: 'A summary sentence highlighting the key trends of a chart or graph.',
+    skill: 'Writing',
+    created_at: '2025-09-25T09:05:00Z',
+  },
+  {
+    id: '12',
+    title: 'IELTS Speaking - Part 2 Cue Card',
+    term: 'Signposting Language',
+    definition: 'Phrases that help structure responses, such as “Firstly” or “To sum up.”',
+    skill: 'Speaking',
+    created_at: '2025-09-25T14:40:00Z',
+  },
+];
 
 export const mockTests: Test[] = [
     {
