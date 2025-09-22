@@ -7,6 +7,7 @@ import com.project.Band_Up.utils.JwtUtil;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
@@ -55,5 +56,15 @@ public class AuthenticationController {
                 .header(HttpHeaders.SET_COOKIE, accessToken.toString())
                 .header(HttpHeaders.SET_COOKIE, refreshToken.toString())
                 .body(accountDtoResponse);
+    }
+
+    @PostMapping("/logout")
+    public ResponseEntity<?> logout(@CookieValue(name = "RefreshToken", required = false) String refreshToken,
+                                   @CookieValue(name = "AccessToken", required = false) String accessToken) {
+        jwtUtil.deleteRefreshToken(refreshToken);
+        return ResponseEntity.ok()
+                .header(HttpHeaders.SET_COOKIE, jwtUtil.deleteRefreshTokenCookie().toString())
+                .header(HttpHeaders.SET_COOKIE, jwtUtil.deleteAccessTokenCookie().toString())
+                .build();
     }
 }
