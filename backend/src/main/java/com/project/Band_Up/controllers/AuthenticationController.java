@@ -20,6 +20,8 @@ public class AuthenticationController {
 
     @Autowired
     private AccountService accountService;
+    @Autowired
+    private JwtUtil jwtUtil;
 
     @PostMapping("/register")
     @Operation(summary = "Register a new account by email", description = "Creates a new user account and returns account details with JWT cookie.")
@@ -30,9 +32,11 @@ public class AuthenticationController {
     })
     public ResponseEntity<?> registerByEmail(@Valid @RequestBody AccountDto account) {
         AccountDtoResponse accountDtoResponse = accountService.registerByEmail(account);
-        ResponseCookie responseCookie = JwtUtil.getCookie(accountDtoResponse.getEmail());
+        ResponseCookie refreshToken = jwtUtil.getRefreshTokenCookie(accountDtoResponse.getId());
+        ResponseCookie accessToken = jwtUtil.getAccessTokenCookie(accountDtoResponse.getId());
         return ResponseEntity.ok()
-                .header(HttpHeaders.SET_COOKIE, responseCookie.toString())
+                .header(HttpHeaders.SET_COOKIE, accessToken.toString())
+                .header(HttpHeaders.SET_COOKIE, refreshToken.toString())
                 .body(accountDtoResponse);
     }
 
@@ -45,9 +49,11 @@ public class AuthenticationController {
     })
     public ResponseEntity<?> loginByEmail(@Valid @RequestBody AccountDto account) {
         AccountDtoResponse accountDtoResponse = accountService.loginByEmail(account);
-        ResponseCookie responseCookie = JwtUtil.getCookie(accountDtoResponse.getEmail());
+        ResponseCookie refreshToken = jwtUtil.getRefreshTokenCookie(accountDtoResponse.getId());
+        ResponseCookie accessToken = jwtUtil.getAccessTokenCookie(accountDtoResponse.getId());
         return ResponseEntity.ok()
-                .header(HttpHeaders.SET_COOKIE, responseCookie.toString())
+                .header(HttpHeaders.SET_COOKIE, accessToken.toString())
+                .header(HttpHeaders.SET_COOKIE, refreshToken.toString())
                 .body(accountDtoResponse);
     }
 }
