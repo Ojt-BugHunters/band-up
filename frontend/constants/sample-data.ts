@@ -1,5 +1,4 @@
 import { Test, TestOverview } from '@/lib/api/dto/test';
-import { BookOpen, Headphones, Mic, PenTool } from 'lucide-react';
 
 export const mockTests: TestOverview[] = [
     {
@@ -67,120 +66,37 @@ export const mockTests: TestOverview[] = [
     })),
 ];
 
-export const testData = {
-    title: 'IELTS Academic Practice Test 2024',
-    timeToComplete: '2 hours 45 minutes',
-    numberOfSections: 4,
-    numberOfQuestions: 40,
-    numberOfParticipants: 1247,
-    skills: [
+export const testData: Test = {
+    id: 'listening-test-001',
+    title: 'IELTS Listening Practice Test 1',
+    duration: 30,
+    number_sections: 4,
+    number_questions: 40,
+    number_participant: 1247,
+    section: [
         {
-            id: 'listening',
-            name: 'Test Listening',
-            duration: '30 minutes',
-            totalQuestions: 40,
-            icon: Headphones,
-            sections: [
-                {
-                    id: 'listening-1',
-                    name: 'Section 1',
-                    questions: 10,
-                    description: 'Conversation in everyday social context',
-                },
-                {
-                    id: 'listening-2',
-                    name: 'Section 2',
-                    questions: 10,
-                    description: 'Monologue in everyday social context',
-                },
-                {
-                    id: 'listening-3',
-                    name: 'Section 3',
-                    questions: 10,
-                    description: 'Conversation in educational context',
-                },
-                {
-                    id: 'listening-4',
-                    name: 'Section 4',
-                    questions: 10,
-                    description: 'Monologue on academic subject',
-                },
-            ],
+            id: 'section-1',
+            title: 'Section 1',
+            questions: 10,
+            description: 'Conversation in everyday social context',
         },
         {
-            id: 'reading',
-            name: 'Test Reading',
-            duration: '60 minutes',
-            totalQuestions: 40,
-            icon: BookOpen,
-            sections: [
-                {
-                    id: 'reading-1',
-                    name: 'Section 1',
-                    questions: 13,
-                    description: 'Passage 1 - General interest topics',
-                },
-                {
-                    id: 'reading-2',
-                    name: 'Section 2',
-                    questions: 13,
-                    description: 'Passage 2 - Work-related topics',
-                },
-                {
-                    id: 'reading-3',
-                    name: 'Section 3',
-                    questions: 14,
-                    description: 'Passage 3 - Academic topics',
-                },
-            ],
+            id: 'section-2',
+            title: 'Section 2',
+            questions: 10,
+            description: 'Monologue in everyday social context',
         },
         {
-            id: 'writing',
-            name: 'Test Writing',
-            duration: '60 minutes',
-            totalQuestions: 2,
-            icon: PenTool,
-            sections: [
-                {
-                    id: 'writing-1',
-                    name: 'Task 1',
-                    questions: 1,
-                    description: 'Describe visual information (150 words)',
-                },
-                {
-                    id: 'writing-2',
-                    name: 'Task 2',
-                    questions: 1,
-                    description: 'Essay response to argument (250 words)',
-                },
-            ],
+            id: 'section-3',
+            title: 'Section 3',
+            questions: 10,
+            description: 'Conversation in educational context',
         },
         {
-            id: 'speaking',
-            name: 'Test Speaking',
-            duration: '11-14 minutes',
-            totalQuestions: 3,
-            icon: Mic,
-            sections: [
-                {
-                    id: 'speaking-1',
-                    name: 'Part 1',
-                    questions: 1,
-                    description: 'Introduction and interview (4-5 min)',
-                },
-                {
-                    id: 'speaking-2',
-                    name: 'Part 2',
-                    questions: 1,
-                    description: 'Long turn with preparation (3-4 min)',
-                },
-                {
-                    id: 'speaking-3',
-                    name: 'Part 3',
-                    questions: 1,
-                    description: 'Discussion (4-5 min)',
-                },
-            ],
+            id: 'section-4',
+            title: 'Section 4',
+            questions: 10,
+            description: 'Monologue on academic subject',
         },
     ],
 };
