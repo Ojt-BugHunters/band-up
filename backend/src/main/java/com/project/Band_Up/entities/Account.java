@@ -48,14 +48,13 @@ public class Account {
     @DateTimeFormat(pattern = "dd-MM-yyyy")
     private LocalDate birthday;
 
-    @Column(name = "is_active", nullable = false, columnDefinition = "bit default 1")
-    private boolean isActive;
+    @Column(name = "is_active", nullable = false)
+    private boolean isActive = true;
 
     @CreationTimestamp
     @Column(updatable = false)
     private LocalDateTime createdAt;
 
-    @OneToMany(fetch = FetchType.LAZY)
-    @JoinColumn(name = "deck")
+    @OneToMany(fetch = FetchType.LAZY, mappedBy = "account", cascade = CascadeType.ALL)
     private List<Deck> decks;
 }
