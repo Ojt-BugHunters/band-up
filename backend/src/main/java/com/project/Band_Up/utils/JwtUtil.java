@@ -74,8 +74,8 @@ public class JwtUtil {
                 .getPayload();
     }
 
-    public String extractSubject(Claims claims) {
-        return claims.getSubject();
+    public String extractSubject(String token) {
+        return extractClaims(token).getSubject();
     }
 
     public ResponseCookie getAccessTokenCookie(UUID id) {
