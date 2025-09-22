@@ -48,6 +48,7 @@ public class Account {
     @DateTimeFormat(pattern = "dd-MM-yyyy")
     private LocalDate birthday;
 
+    @Column(name = "is_active", nullable = false, columnDefinition = "bit default 1")
     private boolean isActive;
 
     @CreationTimestamp
