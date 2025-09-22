@@ -3,6 +3,7 @@ import './globals.css';
 import ClientLayout from './client-layout';
 import { Header } from '@/components/header';
 import { Footer } from '@/components/footer';
+import QueryProvider from './query-provider';
 
 export const metadata: Metadata = {
     title: 'BandUp',
@@ -15,10 +16,12 @@ export default function RootLayout({
     children: React.ReactNode;
 }) {
     return (
-        <ClientLayout>
-            <Header />
-            {children}
-            <Footer />
-        </ClientLayout>
+        <QueryProvider>
+            <ClientLayout>
+                <Header />
+                {children}
+                <Footer />
+            </ClientLayout>
+        </QueryProvider>
     );
 }
