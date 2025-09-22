@@ -7,6 +7,7 @@ import {
     LayoutPanelTop,
     MessageCircle,
     Play,
+    Send,
     User,
 } from 'lucide-react';
 import { testData, comments } from '../../../../constants/sample-data';
@@ -32,8 +33,11 @@ import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { testInstructions } from '../../../../constants/instruction';
 import { Separator } from '@/components/ui/separator';
+import { Content } from '@tiptap/react';
+import { MinimalTiptapEditor } from '@/components/ui/minimal-tiptap';
 
 export default function TestOverview() {
+    const [value, setValue] = useState<Content>('');
     const [selectedSections, setSelectedSections] = useState<string[]>([]);
     const handleSectionToggle = (sectionId: string) => {
         setSelectedSections((prev) =>
@@ -262,11 +266,37 @@ export default function TestOverview() {
                 <Separator className="my-8" />
 
                 <section className="mb-8">
-                    <h2 className="text-foreground mb-6 flex items-center space-x-2 text-2xl font-bold">
+                    <h2 className="text-foreground mb-6 flex items-center space-x-2 text-xl font-semibold">
                         <MessageCircle className="h-6 w-6" />
                         <span>Comments ({comments.length})</span>
                     </h2>
                 </section>
+                <div className="space-y-4">
+                    <div className="flex items-start gap-3">
+                        <div className="flex-1 space-y-3">
+                            <MinimalTiptapEditor
+                                value={value}
+                                onChange={setValue}
+                                className="h-full min-h-40 w-full"
+                                output="html"
+                                placeholder="What do you feel about the test..."
+                                autofocus={false}
+                                editable={true}
+                                editorContentClassName="p-5 min-h-40 cursor-text"
+                                editorClassName="focus:outline-hidden min-h-40"
+                            />
+                            <div className="flex justify-end">
+                                <Button
+                                    size="sm"
+                                    className="rounded-lg bg-zinc-800 hover:bg-zinc-900"
+                                >
+                                    <Send className="mr-2 h-4 w-4" />
+                                    Post comment
+                                </Button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
     );
