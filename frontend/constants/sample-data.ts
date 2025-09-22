@@ -1,8 +1,9 @@
-import { Test } from '@/lib/api/dto/test';
+import { Test, TestOverview } from '@/lib/api/dto/test';
+import { BookOpen, Headphones, Mic, PenTool } from 'lucide-react';
 
-export const mockTests: Test[] = [
+export const mockTests: TestOverview[] = [
     {
-        id: 1,
+        id: '1',
         title: 'IELTS Academic Reading Practice Test 1',
         created_at: '2024-01-15T10:30:00Z',
         skill: 'Reading',
@@ -11,7 +12,7 @@ export const mockTests: Test[] = [
         duration: 60,
     },
     {
-        id: 2,
+        id: '2',
         title: 'IELTS General Writing Task 1 & 2',
         created_at: '2024-01-14T14:20:00Z',
         skill: 'Writing',
@@ -20,7 +21,7 @@ export const mockTests: Test[] = [
         duration: 60,
     },
     {
-        id: 3,
+        id: '3',
         title: 'IELTS Listening Mock Test - Academic',
         created_at: '2024-01-13T09:15:00Z',
         skill: 'Listening',
@@ -29,7 +30,7 @@ export const mockTests: Test[] = [
         duration: 30,
     },
     {
-        id: 4,
+        id: '4',
         title: 'IELTS Speaking Part 1, 2 & 3 Practice',
         created_at: '2024-01-12T16:45:00Z',
         skill: 'Speaking',
@@ -38,7 +39,7 @@ export const mockTests: Test[] = [
         duration: 15,
     },
     {
-        id: 5,
+        id: '5',
         title: 'IELTS Academic Writing Task 1 - Graphs',
         created_at: '2024-01-11T11:00:00Z',
         skill: 'Writing',
@@ -47,7 +48,7 @@ export const mockTests: Test[] = [
         duration: 20,
     },
     {
-        id: 6,
+        id: '6',
         title: 'IELTS Reading - True/False/Not Given Focus',
         created_at: '2024-01-10T13:30:00Z',
         skill: 'Reading',
@@ -56,7 +57,7 @@ export const mockTests: Test[] = [
         duration: 45,
     },
     ...Array.from({ length: 14 }).map((_, idx) => ({
-        id: idx + 7,
+        id: 'idx + 7',
         title: `Extra Mock Test ${idx + 7}`,
         created_at: '2024-01-09T10:00:00Z',
         skill: ['Reading', 'Writing', 'Listening', 'Speaking'][idx % 4],
@@ -65,3 +66,121 @@ export const mockTests: Test[] = [
         duration: [15, 30, 45, 60][idx % 4],
     })),
 ];
+
+export const testData = {
+    title: 'IELTS Academic Practice Test 2024',
+    timeToComplete: '2 hours 45 minutes',
+    numberOfSections: 4,
+    numberOfQuestions: 40,
+    numberOfParticipants: 1247,
+    skills: [
+        {
+            id: 'listening',
+            name: 'Test Listening',
+            duration: '30 minutes',
+            totalQuestions: 40,
+            icon: Headphones,
+            sections: [
+                {
+                    id: 'listening-1',
+                    name: 'Section 1',
+                    questions: 10,
+                    description: 'Conversation in everyday social context',
+                },
+                {
+                    id: 'listening-2',
+                    name: 'Section 2',
+                    questions: 10,
+                    description: 'Monologue in everyday social context',
+                },
+                {
+                    id: 'listening-3',
+                    name: 'Section 3',
+                    questions: 10,
+                    description: 'Conversation in educational context',
+                },
+                {
+                    id: 'listening-4',
+                    name: 'Section 4',
+                    questions: 10,
+                    description: 'Monologue on academic subject',
+                },
+            ],
+        },
+        {
+            id: 'reading',
+            name: 'Test Reading',
+            duration: '60 minutes',
+            totalQuestions: 40,
+            icon: BookOpen,
+            sections: [
+                {
+                    id: 'reading-1',
+                    name: 'Section 1',
+                    questions: 13,
+                    description: 'Passage 1 - General interest topics',
+                },
+                {
+                    id: 'reading-2',
+                    name: 'Section 2',
+                    questions: 13,
+                    description: 'Passage 2 - Work-related topics',
+                },
+                {
+                    id: 'reading-3',
+                    name: 'Section 3',
+                    questions: 14,
+                    description: 'Passage 3 - Academic topics',
+                },
+            ],
+        },
+        {
+            id: 'writing',
+            name: 'Test Writing',
+            duration: '60 minutes',
+            totalQuestions: 2,
+            icon: PenTool,
+            sections: [
+                {
+                    id: 'writing-1',
+                    name: 'Task 1',
+                    questions: 1,
+                    description: 'Describe visual information (150 words)',
+                },
+                {
+                    id: 'writing-2',
+                    name: 'Task 2',
+                    questions: 1,
+                    description: 'Essay response to argument (250 words)',
+                },
+            ],
+        },
+        {
+            id: 'speaking',
+            name: 'Test Speaking',
+            duration: '11-14 minutes',
+            totalQuestions: 3,
+            icon: Mic,
+            sections: [
+                {
+                    id: 'speaking-1',
+                    name: 'Part 1',
+                    questions: 1,
+                    description: 'Introduction and interview (4-5 min)',
+                },
+                {
+                    id: 'speaking-2',
+                    name: 'Part 2',
+                    questions: 1,
+                    description: 'Long turn with preparation (3-4 min)',
+                },
+                {
+                    id: 'speaking-3',
+                    name: 'Part 3',
+                    questions: 1,
+                    description: 'Discussion (4-5 min)',
+                },
+            ],
+        },
+    ],
+};
