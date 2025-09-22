@@ -2,6 +2,7 @@ import { Section } from './section';
 
 export const skills = ['Reading', 'Listening', 'Writing', 'Speaking'];
 
+export type Skill = (typeof skills)[number];
 export interface TestOverview {
     id: string;
     title: string;
@@ -15,6 +16,7 @@ export interface TestOverview {
 export interface Test {
     id: string;
     title: string;
+    skill: Skill;
     duration: number;
     number_sections: number;
     number_questions: number;
