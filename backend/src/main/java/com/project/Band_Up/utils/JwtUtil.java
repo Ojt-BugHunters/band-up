@@ -73,7 +73,7 @@ public class JwtUtil {
         String token = generateAccessToken(id);
         ResponseCookie cookie = ResponseCookie.from("AccessToken", token)
                 .httpOnly(true)
-                .secure(false)
+                .secure(true)
                 .path("/")
                 .sameSite("Strict")
                 .maxAge(15 * 60) // 15 minutes
@@ -84,9 +84,9 @@ public class JwtUtil {
         String token = generateRefreshToken(id);
         ResponseCookie cookie = ResponseCookie.from("RefreshToken", token)
                 .httpOnly(true)
-                .secure(false)
+                .secure(true)
                 .path("/")
-                .sameSite("Strict")
+                .sameSite("None")
                 .maxAge((int) TimeUnit.DAYS.toSeconds(7)) // 7 days
                 .build();
         return cookie;
