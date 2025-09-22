@@ -16,7 +16,7 @@ public class TestResponse {
     private UUID id;
     private String title;
     private String skillName;
-    private Integer number_of_people;
-    private BigInteger duration_seconds;
+    private Integer numberOfPeople;
+    private BigInteger durationSeconds;
     private LocalDateTime createAt;
 }

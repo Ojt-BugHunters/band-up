@@ -8,9 +8,9 @@ import com.project.Band_Up.entities.Test;
 import com.project.Band_Up.repositories.AccountRepository;
 import com.project.Band_Up.repositories.TestRepository;
 import lombok.RequiredArgsConstructor;
+import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Service;
 
-import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
@@ -21,51 +21,49 @@ public class TestServiceImpl implements TestService {
 
     private final TestRepository testRepository;
     private final AccountRepository accountRepository;
+    private final ModelMapper modelMapper;
 
     // ----------------- CREATE -----------------
     @Override
     public TestResponse createTest(TestCreateRequest request) {
         Account user = accountRepository.findById(UUID.fromString(request.getUserId()))
                 .orElseThrow(() -> new RuntimeException("User not found"));
-        Test test = Test.builder()
-                .user(user)
-                .skillName(request.getSkillName())
-                .title(request.getTitle())
-                .number_of_people(request.getNumberOfPeople())
-                .duration_seconds(request.getDurationSeconds())
-                .createAt(LocalDateTime.now())
-                .build();
-
+        Test test = modelMapper.map(request, Test.class);
+        test.setUser(user);
         Test saved = testRepository.save(test);
-        return mapToResponse(saved);
+        return toResponse(saved);
     }
 
     // ----------------- READ -----------------
     @Override
     public List<TestResponse> getAllTests() {
         return testRepository.findAll()
-                .stream().map(this::mapToResponse)
+                .stream()
+                .map(this::toResponse)
                 .collect(Collectors.toList());
     }
 
     @Override
     public List<TestResponse> getAllTestsSortedByCreateAt() {
         return testRepository.findAllByOrderByCreateAtDesc()
-                .stream().map(this::mapToResponse)
+                .stream()
+                .map(this::toResponse)
                 .collect(Collectors.toList());
     }
 
     @Override
     public List<TestResponse> getTestsBySkillName(String skillName) {
         return testRepository.findBySkillName(skillName)
-                .stream().map(this::mapToResponse)
+                .stream()
+                .map(this::toResponse)
                 .collect(Collectors.toList());
     }
 
     @Override
     public List<TestResponse> searchTestsByTitle(String keyword) {
         return testRepository.findByTitleContainingIgnoreCase(keyword)
-                .stream().map(this::mapToResponse)
+                .stream()
+                .map(this::toResponse)
                 .collect(Collectors.toList());
     }
 
@@ -77,11 +75,11 @@ public class TestServiceImpl implements TestService {
 
         if (request.getSkillName() != null) test.setSkillName(request.getSkillName());
         if (request.getTitle() != null) test.setTitle(request.getTitle());
-        if (request.getNumberOfPeople() != null) test.setNumber_of_people(request.getNumberOfPeople());
-        if (request.getDurationSeconds() != null) test.setDuration_seconds(request.getDurationSeconds());
+        if (request.getNumberOfPeople() != null) test.setNumberOfPeople(request.getNumberOfPeople());
+        if (request.getDurationSeconds() != null) test.setDurationSeconds(request.getDurationSeconds());
 
         Test updated = testRepository.save(test);
-        return mapToResponse(updated);
+        return toResponse(updated);
     }
 
     // ----------------- DELETE -----------------
@@ -94,15 +92,11 @@ public class TestServiceImpl implements TestService {
     }
 
     // ----------------- HELPER -----------------
-    private TestResponse mapToResponse(Test test) {
-        return TestResponse.builder()
-                .id(test.getId())
-                .userId(test.getUser().getId())
-                .title(test.getTitle())
-                .skillName(test.getSkillName())
-                .number_of_people(test.getNumber_of_people())
-                .duration_seconds(test.getDuration_seconds())
-                .createAt(test.getCreateAt())
-                .build();
+    private TestResponse toResponse(Test test) {
+        TestResponse response = modelMapper.map(test, TestResponse.class);
+        if (test.getUser() != null) {
+            response.setUserId(test.getUser().getId());
+        }
+        return response;
     }
 }

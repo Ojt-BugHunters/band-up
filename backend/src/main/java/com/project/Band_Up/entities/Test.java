@@ -34,10 +34,10 @@ public class Test {
     @NotNull
     private String title;
 
-    private Integer number_of_people;
+    private Integer numberOfPeople;
 
     @NotNull
-    private BigInteger duration_seconds; // in seconds
+    private BigInteger durationSeconds; // in seconds
 
     @CreationTimestamp
     @Column(name = "create_at", nullable = false, updatable = false)

@@ -3,7 +3,9 @@ package com.project.Band_Up.entities;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 import lombok.*;
+import org.hibernate.annotations.JdbcTypeCode;
 import org.hibernate.annotations.UuidGenerator;
+import org.hibernate.type.SqlTypes;
 
 import java.util.Map;
 import java.util.UUID;
@@ -32,6 +34,7 @@ public class Section {
     private Integer oderInDex;
 
     // JSON metadata
-    @Column(columnDefinition = "jsonb")
+    @Column(columnDefinition = "jsonb") // nếu PostgreSQL và bạn muốn jsonb
+    @JdbcTypeCode(SqlTypes.JSON)
     private Map<String, Object> metadata;
 }
