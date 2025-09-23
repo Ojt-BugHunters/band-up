@@ -4,7 +4,7 @@ import { useCallback, useEffect, useMemo, useState } from 'react';
 import { ArrowLeft, ArrowRight, Rotate3D } from 'lucide-react';
 import { AnimatePresence, motion } from 'framer-motion';
 
-import type { Flashcard } from '@/lib/api/dto/flashcards';
+import type { FlashcardItem } from '@/lib/api/dto/flashcarditem';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { getFlashcardStyle } from '@/lib/flashcard-style';
@@ -24,7 +24,7 @@ const slideVariants = {
 };
 
 type FlashcardPlayerProps = {
-    cards: Flashcard[];
+    cards: FlashcardItem[];
 };
 
 export default function FlashcardPlayer({ cards }: FlashcardPlayerProps) {
@@ -93,29 +93,21 @@ export default function FlashcardPlayer({ cards }: FlashcardPlayerProps) {
         );
     }
 
-    const createdAt = currentCard?.created_at
-        ? new Date(currentCard.created_at)
-        : undefined;
-    const createdLabel =
-        createdAt && !Number.isNaN(createdAt.getTime())
-            ? createdAt.toLocaleDateString(undefined, {
-                  year: 'numeric',
-                  month: 'short',
-                  day: 'numeric',
-              })
-            : 'Unknown date';
-
     const transitionDirection = direction;
-    const styles = getFlashcardStyle(currentCard?.author_name);
+    const styles = getFlashcardStyle(currentCard?.flashcard_id);
 
     return (
         <div className="flex flex-col items-center gap-6">
             <div className="flex w-full items-center justify-between text-xs text-slate-500">
                 <div className="flex items-center gap-2">
                     <Badge className={cn('uppercase', styles.badge)}>
-                        {currentCard?.title}
+                        Flashcard {index + 1}
                     </Badge>
-                    <span>{createdLabel}</span>
+                    {currentCard?.flashcard_id && (
+                        <span className="text-slate-400">
+                            Bộ {currentCard.flashcard_id}
+                        </span>
+                    )}
                 </div>
                 <div className="flex items-center gap-3">
                     <div className="flex items-center gap-1 text-slate-400">
@@ -181,7 +173,7 @@ export default function FlashcardPlayer({ cards }: FlashcardPlayerProps) {
                             >
                                 Thuật ngữ
                             </span>
-                            <span>{currentCard?.title}</span>
+                            <span>{currentCard?.front}</span>
                         </div>
                         <div
                             className="absolute inset-0 flex flex-col items-center justify-center gap-8 text-center text-xl text-slate-700"
@@ -200,8 +192,13 @@ export default function FlashcardPlayer({ cards }: FlashcardPlayerProps) {
                                 Định nghĩa
                             </span>
                             <span className="max-w-2xl leading-relaxed text-balance">
-                                {currentCard?.description}
+                                {currentCard?.back}
                             </span>
+                            {currentCard?.example && (
+                                <span className="max-w-2xl text-base italic text-slate-500">
+                                    Ví dụ: {currentCard.example}
+                                </span>
+                            )}
                         </div>
                     </motion.div>
                 </AnimatePresence>

@@ -2,7 +2,10 @@
 'use client';
 
 import { notFound } from 'next/navigation';
-import { mockFlashcards } from '../../../../constants/sample-data';
+import {
+    flashcardItemsForSet1,
+    mockFlashcards,
+} from '../../../../constants/sample-data';
 import FlashcardPlayer from '@/components/flashcard-player';
 import {
     Hero,
@@ -30,6 +33,12 @@ export default function FlashcardDetailPage({
               day: 'numeric',
           })
         : 'Unknown date';
+
+    const itemsByDeck: Record<string, typeof flashcardItemsForSet1> = {
+        '1': flashcardItemsForSet1,
+    };
+
+    const items = itemsByDeck[flashcard.id] ?? [];
 
     return (
         <div className="flex-1 space-y-6 p-6">
@@ -59,7 +68,7 @@ export default function FlashcardDetailPage({
             </Hero>
 
             <div className="mx-auto max-w-7xl space-y-6">
-                <FlashcardPlayer cards={[flashcard]} />
+                <FlashcardPlayer cards={items} />
             </div>
         </div>
     );
