@@ -2,10 +2,10 @@
 
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useForm } from 'react-hook-form';
-import { passwordSchema } from './use-register-form';
+import { passwordSchema } from './use-register';
 import z from 'zod';
 import { useRouter } from 'next/navigation';
-import { useMutation } from '@tanstack/react-query';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { fetchWrapper, throwIfError } from '@/lib/api';
 import { toast } from 'sonner';
 
@@ -16,6 +16,7 @@ export const schema = z.object({
 
 export const useLoginForm = () => {
     const router = useRouter();
+    const queryClient = useQueryClient();
 
     const mutation = useMutation({
         mutationFn: async (values: z.infer<typeof schema>) => {
@@ -27,12 +28,19 @@ export const useLoginForm = () => {
                 },
                 body: JSON.stringify(values),
             });
+
             await throwIfError(response);
+            return response.json();
         },
         onError: (error) => {
             toast.error(error.message);
         },
-        onSuccess: () => router.push('/'),
+        onSuccess: (data) => {
+            queryClient.setQueryData(['user'], data.user);
+            console.log('saved user', queryClient.getQueryData(['user'])); // check xem có dữ liệu chưa
+            toast.success('Login Successfully');
+            router.push('/');
+        },
     });
 
     const form = useForm<z.infer<typeof schema>>({

@@ -15,6 +15,7 @@ import Link from 'next/link';
 import { features, tabs, testimonials } from './page.data';
 import { TestimonialsColumn } from '@/components/ui/testimonials-columns-1';
 import Component from '@/components/ui/pricing-section-1';
+import { useUser } from '@/hooks/use-user';
 
 const Feature = ({
     title,
@@ -59,6 +60,8 @@ const Feature = ({
 };
 
 export default function HomePage() {
+    const user = useUser();
+    console.log(user);
     const firstColumn = testimonials.slice(0, 3);
     const secondColumn = testimonials.slice(3, 6);
     const thirdColumn = testimonials.slice(6, 9);
