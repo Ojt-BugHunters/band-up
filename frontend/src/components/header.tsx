@@ -143,7 +143,7 @@ export function Header() {
                             </p>
                         </div>
                     </Link>
-                    <a
+                    <Link
                         href="/flashcard/new"
                         className="flex items-start gap-3 rounded-md p-3 hover:bg-neutral-100 dark:hover:bg-neutral-800"
                     >
@@ -160,7 +160,7 @@ export function Header() {
                                 Make your own flashcards
                             </p>
                         </div>
-                    </a>
+                    </Link>
                 </div>
             ),
         },
@@ -172,9 +172,7 @@ export function Header() {
         <div className="relative w-full">
             <Navbar>
                 <NavBody>
-                    <Link href="/">
-                        <NavbarLogo />
-                    </Link>
+                    <NavbarLogo />
                     <NavItems items={navItems} />
                     {!isMember ? (
                         <div className="flex items-center gap-4">
