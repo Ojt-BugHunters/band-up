@@ -4,6 +4,7 @@ import com.project.Band_Up.dtos.test.TestCreateRequest;
 import com.project.Band_Up.dtos.test.TestResponse;
 import com.project.Band_Up.dtos.test.TestUpdateRequest;
 import com.project.Band_Up.services.test.TestService;
+import com.project.Band_Up.utils.JwtUtil;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -25,14 +26,14 @@ import java.util.UUID;
 
 @RestController
 @RequestMapping(value = "/api/tests", produces = MediaType.APPLICATION_JSON_VALUE)
-@Tag(name = "Test API", description = "Các endpoint để quản lý Test (tạo, đọc, cập nhật, xóa). FE dùng các API này để tương tác với Test entity.")
+@Tag(name = "Test API", description = "Các endpoint để quản lý Test (tạo, đọc, cập nhật, xóa).")
 @RequiredArgsConstructor
 @Validated
 @CrossOrigin
 public class TestController {
 
     private final TestService testService;
-
+    private final JwtUtil jwtUtil;
     @Operation(
             summary = "Tạo Test mới",
             description = "Tạo một Test mới. Trường `userId` là bắt buộc (UUID dạng chuỗi) để liên kết Test với Account. " +
@@ -45,22 +46,20 @@ public class TestController {
     })
     @PostMapping(consumes = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<TestResponse> createTest(
-            @io.swagger.v3.oas.annotations.parameters.RequestBody(
-                    description = "TestCreateRequest JSON. Ví dụ: { \"userId\":\"<uuid>\", \"skillName\":\"Guitar\", \"title\":\"Test demo\", \"numberOfPeople\":3, \"durationSeconds\":120 }",
-                    required = true
-            )
-            @Valid @RequestBody TestCreateRequest request) {
+            @Valid @RequestBody TestCreateRequest request,
+            @CookieValue(name = "AccessToken", required = true) String accessToken) {
 
-        TestResponse created = testService.createTest(request);
+        // Lấy accountId từ JWT
+        String accountId = jwtUtil.extractSubject(accessToken);
+
+        // Gọi service để tạo test
+        TestResponse created = testService.createTest(UUID.fromString(accountId), request);
 
         // Build Location header: /api/tests/{id}
         URI location = ServletUriComponentsBuilder.fromCurrentRequest()
                 .path("/{id}")
                 .buildAndExpand(created.getId())
                 .toUri();
-
-        HttpHeaders headers = new HttpHeaders();
-        headers.setLocation(location);
 
         return ResponseEntity.created(location).body(created);
     }

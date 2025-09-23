@@ -13,16 +13,12 @@ import java.math.BigInteger;
 @AllArgsConstructor
 @Builder
 public class TestCreateRequest {
-    @NotNull
-    private String userId;
 
     @NotNull
     private String skillName;
 
     @NotNull
     private String title;
-
-    private Integer numberOfPeople;
 
     @NotNull
     private BigInteger durationSeconds;

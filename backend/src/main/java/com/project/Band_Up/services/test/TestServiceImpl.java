@@ -25,8 +25,9 @@ public class TestServiceImpl implements TestService {
 
     // ----------------- CREATE -----------------
     @Override
-    public TestResponse createTest(TestCreateRequest request) {
-        Account user = accountRepository.findById(UUID.fromString(request.getUserId()))
+    public TestResponse createTest(UUID accountId, TestCreateRequest request) {
+        // Tìm user trong DB bằng accountId lấy từ JWT
+        Account user = accountRepository.findById(accountId)
                 .orElseThrow(() -> new RuntimeException("User not found"));
         Test test = modelMapper.map(request, Test.class);
         test.setUser(user);

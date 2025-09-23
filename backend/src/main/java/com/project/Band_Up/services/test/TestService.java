@@ -10,7 +10,8 @@ import java.util.UUID;
 public interface TestService {
 
     //  Tạo mới Test
-    TestResponse createTest(TestCreateRequest request);
+    TestResponse createTest(UUID accountId, TestCreateRequest request);
+
 
     //  Lấy tất cả Test
     List<TestResponse> getAllTests();
