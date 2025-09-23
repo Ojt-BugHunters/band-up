@@ -44,4 +44,10 @@ public class DeckController {
         return ResponseEntity.ok()
                 .body(deckService.getDecks(pageNo, pageSize, sortBy, ascending));
     }
+
+    @DeleteMapping("/deck/{deckId}/delete")
+    public ResponseEntity<?> deleteDeck(@PathVariable(name = "deckId") UUID deckId) {
+
+    }
+
 }

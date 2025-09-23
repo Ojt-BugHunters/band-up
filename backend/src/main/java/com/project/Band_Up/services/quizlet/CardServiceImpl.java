@@ -23,25 +23,25 @@ public class CardServiceImpl implements CardService {
     private ModelMapper modelMapper;
 
     @Override
-    public List<CardDto> createCard(List<CardDto> cardDtos, String deckId) {
+    public List<CardDto> createCard(List<CardDto> cardDtos, UUID deckId) {
         List<Card> cards = cardDtos.stream()
                 .map(cardDto -> modelMapper.map(cardDto, Card.class)).toList();
-        if (deckRepository.existsById(UUID.fromString(deckId))) {
-            Deck deck = deckRepository.findDeckById((UUID.fromString(deckId)));
+        if (deckRepository.existsById(deckId)) {
+            Deck deck = deckRepository.findDeckById(deckId);
             cards.forEach(card -> card.setDeck(deck));
-        } else throw new ResourceNotFoundException(deckId);
+        } else throw new ResourceNotFoundException(deckId.toString());
         cardRepository.saveAll(cards);
         return cards.stream()
                 .map(card -> modelMapper.map(card, CardDto.class)).toList();
     }
 
-    public List<CardDto> getCards(String deckId){
-        if (deckRepository.existsById(UUID.fromString(deckId))){
-            Deck deck = deckRepository.findDeckById((UUID.fromString(deckId)));
+    public List<CardDto> getCards(UUID deckId){
+        if (deckRepository.existsById(deckId)){
+            Deck deck = deckRepository.findDeckById(deckId);
             return cardRepository.findByDeck(deck)
                     .stream()
                     .map(card -> modelMapper.map(card, CardDto.class))
                     .toList();
-        } else throw new ResourceNotFoundException(deckId);
+        } else throw new ResourceNotFoundException(deckId.toString());
     }
 }

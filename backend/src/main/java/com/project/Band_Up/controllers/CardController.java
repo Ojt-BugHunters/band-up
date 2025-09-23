@@ -7,6 +7,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.UUID;
 
 @RestController
 @RequestMapping("/quizlet")
@@ -15,15 +16,15 @@ public class CardController {
     @Autowired
     private CardService cardService;
 
-    @PostMapping("/{deckId}/card/create")
+    @PostMapping("/deck/{deckId}/card/create")
     public ResponseEntity<?> createCard(@RequestBody List<CardDto> cards,
-                                        @PathVariable String deckId) {
+                                        @PathVariable UUID deckId) {
         List<CardDto> cardDtos = cardService.createCard(cards, deckId);
         return ResponseEntity.ok().body(cardDtos);
     }
 
-    @GetMapping("/{deckId}/card")
-    public ResponseEntity<?> getCards(@PathVariable String deckId) {
+    @GetMapping("/deck/{deckId}/card")
+    public ResponseEntity<?> getCards(@PathVariable UUID deckId) {
         List<CardDto> cardDtos = cardService.getCards(deckId);
         return ResponseEntity.ok().body(cardDtos);
     }
