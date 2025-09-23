@@ -49,13 +49,8 @@ public class TestController {
             @Valid @RequestBody TestCreateRequest request,
             @CookieValue(name = "AccessToken", required = true) String accessToken) {
 
-        // Lấy accountId từ JWT
         String accountId = jwtUtil.extractSubject(accessToken);
-
-        // Gọi service để tạo test
         TestResponse created = testService.createTest(UUID.fromString(accountId), request);
-
-        // Build Location header: /api/tests/{id}
         URI location = ServletUriComponentsBuilder.fromCurrentRequest()
                 .path("/{id}")
                 .buildAndExpand(created.getId())
