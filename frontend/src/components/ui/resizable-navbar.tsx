@@ -141,19 +141,27 @@ export const NavItems = ({ items, className, onItemClick }: NavItemsProps) => {
                     </MenuItem>
                 ) : (
                     <a
-                        onMouseEnter={() => setHovered(idx)}
+                        onMouseEnter={() => {
+                            setHovered(idx);
+                            setActive(null);
+                        }}
                         onClick={onItemClick}
-                        className="relative px-4 py-2 text-neutral-600 transition-colors duration-200 hover:text-neutral-900 dark:text-neutral-300 dark:hover:text-white"
                         key={`link-${idx}`}
                         href={item.link}
+                        className="relative px-4 py-2"
                     >
-                        {hovered === idx && (
-                            <motion.div
-                                layoutId="hovered"
-                                className="absolute inset-0 h-full w-full rounded-full bg-gray-100 dark:bg-neutral-800"
-                            />
-                        )}
-                        <span className="relative z-20">{item.name}</span>
+                        <div className="absolute inset-0 flex items-center justify-center">
+                            {hovered === idx && (
+                                <motion.div
+                                    layoutId="hovered"
+                                    className="z-0 h-full w-full rounded-full bg-gray-100 dark:bg-neutral-800"
+                                />
+                            )}
+                        </div>
+
+                        <span className="relative z-10 text-neutral-600 transition-colors duration-200 hover:text-neutral-900 dark:text-neutral-300 dark:hover:text-white">
+                            {item.name}
+                        </span>
                     </a>
                 ),
             )}

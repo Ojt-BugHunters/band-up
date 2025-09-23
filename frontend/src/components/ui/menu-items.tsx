@@ -27,33 +27,45 @@ export const MenuItem = ({
     item: string;
     children?: React.ReactNode;
 }) => {
+    const isActive = active === item;
+
     return (
-        <div onMouseEnter={() => setActive(item)} className="relative">
+        <div
+            onMouseEnter={() => setActive(item)}
+            className="relative px-4 py-2"
+        >
+            {isActive && (
+                <motion.div
+                    layoutId="hovered"
+                    transition={{ type: 'spring', stiffness: 300, damping: 40 }}
+                    className="absolute inset-0 z-0 h-full w-full rounded-full bg-gray-100 dark:bg-neutral-800"
+                />
+            )}
+
             <motion.p
                 transition={{ duration: 0.3 }}
-                className="cursor-pointer text-neutral-700 hover:text-black dark:text-neutral-200 dark:hover:text-white"
+                className="relative z-10 cursor-pointer text-neutral-700 hover:text-black dark:text-neutral-200 dark:hover:text-white"
             >
                 {item}
             </motion.p>
-            {active !== null && (
+
+            {isActive && (
                 <motion.div
                     initial={{ opacity: 0, scale: 0.85, y: 10 }}
                     animate={{ opacity: 1, scale: 1, y: 0 }}
                     transition={transition}
                 >
-                    {active === item && (
-                        <div className="absolute top-[calc(100%_+_1.2rem)] left-1/2 -translate-x-1/2 transform pt-4">
-                            <motion.div
-                                transition={transition}
-                                layoutId="active"
-                                className="overflow-hidden rounded-2xl border border-black/[0.2] bg-white shadow-xl backdrop-blur-sm dark:border-white/[0.2] dark:bg-black"
-                            >
-                                <motion.div layout className="h-full w-max p-4">
-                                    {children}
-                                </motion.div>
+                    <div className="absolute top-[calc(100%_+_1.2rem)] left-1/2 -translate-x-1/2 transform pt-4">
+                        <motion.div
+                            transition={transition}
+                            layoutId="active"
+                            className="overflow-hidden rounded-2xl border border-black/[0.2] bg-white shadow-xl backdrop-blur-sm dark:border-white/[0.2] dark:bg-black"
+                        >
+                            <motion.div layout className="h-full w-max p-4">
+                                {children}
                             </motion.div>
-                        </div>
-                    )}
+                        </motion.div>
+                    </div>
                 </motion.div>
             )}
         </div>
