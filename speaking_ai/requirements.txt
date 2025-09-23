@@ -18,6 +18,8 @@ bitsandbytes>=0.41.0  # For quantization (optional)
 # For API integration (optional - for production)
 openai>=1.0.0  # For OpenAI API
 anthropic>=0.7.0  # For Anthropic Claude API
+requests>=2.31.0  # For Gemini API
+python-dotenv>=1.0.0  # For environment variables
 
 # For web interface (optional)
 fastapi>=0.104.0

@@ -15,18 +15,20 @@ import json
 from llm_evaluator import OpenSourceLLMEvaluator, RECOMMENDED_MODELS
 
 class IELTSSpeakingEvaluator:
-    def __init__(self, llm_model: str = "development"):
+    def __init__(self, llm_model: str = "gemini_api", api_key: str = None):
         """
         Initialize the IELTS Speaking Evaluation System
         
         Args:
             llm_model: LLM model to use. Options:
+                - "gemini_api": Gemini API (recommended for production)
                 - "development": Qwen2.5-7B (recommended for dev)
                 - "production": Qwen2.5-14B (higher quality)
                 - "low_memory": DialoGPT-medium (minimal memory)
                 - "high_quality": Llama-3.1-70B (best quality)
                 - "fast": Mistral-7B (fast inference)
                 - Or specify a Hugging Face model name directly
+            api_key: API key for Gemini (required if using gemini_api)
         """
         self.device = "cuda:0" if torch.cuda.is_available() else "cpu"
         self.torch_dtype = torch.float16 if torch.cuda.is_available() else torch.float32
@@ -37,11 +39,12 @@ class IELTSSpeakingEvaluator:
         self.asr_processor = None
         self.asr_pipeline = None
         
-        # Initialize Open-source LLM
+        # Initialize Open-source LLM or Gemini API
         self.llm_model_name = RECOMMENDED_MODELS.get(llm_model, llm_model)
         self.llm_evaluator = OpenSourceLLMEvaluator(
             model_name=self.llm_model_name,
-            use_quantization=True  # Use quantization for memory efficiency
+            use_quantization=True,  # Use quantization for memory efficiency
+            api_key=api_key
         )
         
     def load_models(self):

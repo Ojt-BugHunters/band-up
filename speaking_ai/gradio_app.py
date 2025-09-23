@@ -17,7 +17,7 @@ class GradioIELTSApp:
     def __init__(self):
         """Initialize the Gradio app"""
         self.evaluator = None
-        self.current_model = "qwen3_light"  # Changed to Qwen3 light for laptop compatibility
+        self.current_model = "gemini_api"  # Changed to Gemini API for production
         self.model_info = {}
         
     def load_model(self, model_choice):
@@ -25,20 +25,54 @@ class GradioIELTSApp:
         try:
             print(f"Loading model: {model_choice}")
             self.current_model = model_choice
-            self.evaluator = IELTSSpeakingEvaluator(llm_model=model_choice)
+            
+            # Handle Gemini API key
+            api_key = None
+            if model_choice == "gemini_api":
+                api_key = self._get_gemini_api_key()
+                if not api_key:
+                    return "❌ Gemini API key not found. Please set GOOGLE_AI_API_KEY environment variable or create .env file."
+            
+            self.evaluator = IELTSSpeakingEvaluator(llm_model=model_choice, api_key=api_key)
             self.evaluator.load_models()
             
             # Get model info
             self.model_info = self.evaluator.get_model_info()
             
-            return f"✅ Model loaded successfully!\n\n" \
-                   f"ASR: {self.model_info['asr_model']['name']}\n" \
-                   f"LLM: {self.model_info['llm_model']['model_name']}\n" \
-                   f"Device: {self.model_info['asr_model']['device']}\n" \
-                   f"Quantization: {self.model_info['llm_model']['quantization']}"
-                   
+            if model_choice == "gemini_api":
+                return f"✅ Gemini API loaded successfully!\n\n" \
+                        f"ASR: {self.model_info['asr_model']['name']}\n" \
+                        f"LLM: {self.model_info['llm_model']['model_name']}\n" \
+                        f"API Type: {self.model_info['llm_model']['api_type']}\n" \
+                        f"Device: {self.model_info['asr_model']['device']}"
+            else:
+                return f"✅ Model loaded successfully!\n\n" \
+                        f"ASR: {self.model_info['asr_model']['name']}\n" \
+                        f"LLM: {self.model_info['llm_model']['model_name']}\n" \
+                        f"Device: {self.model_info['asr_model']['device']}\n" \
+                        f"Quantization: {self.model_info['llm_model']['quantization']}"
+                    
         except Exception as e:
             return f"❌ Error loading model: {str(e)}"
+    
+    def _get_gemini_api_key(self):
+        """Get Gemini API key from environment or .env file"""
+        import os
+        from dotenv import load_dotenv
+        
+        # Try to load from .env file
+        load_dotenv()
+        
+        # Get from environment variable
+        api_key = os.getenv('GOOGLE_AI_API_KEY')
+        
+        if not api_key:
+            print("⚠️ GOOGLE_AI_API_KEY not found in environment variables")
+            print("Please set your Gemini API key:")
+            print("1. Set environment variable: export GOOGLE_AI_API_KEY='your_api_key'")
+            print("2. Or create .env file with: GOOGLE_AI_API_KEY=your_api_key")
+        
+        return api_key
     
     def generate_learning_guide(self, result):
         """Generate a personalized learning guide using LLM based on the user's actual speech"""
@@ -127,9 +161,13 @@ Format the response in clear sections with emojis and markdown formatting."""
                 try:
                     print("🤖 Generating personalized learning guide with LLM...")
                     
-                    # Generate personalized learning guide using LLM
-                    # For learning guide, we want direct response without thinking mode
-                    personalized_guide = self._generate_learning_guide_response(learning_prompt)
+                    # Use Gemini API if available
+                    if self.evaluator.llm_evaluator.model_name == "gemini":
+                        personalized_guide = self.evaluator.llm_evaluator.gemini_evaluator.generate_learning_guide(learning_prompt)
+                    else:
+                        # Generate personalized learning guide using local LLM
+                        # For learning guide, we want direct response without thinking mode
+                        personalized_guide = self._generate_learning_guide_response(learning_prompt)
                     
                     # Debug: Print the actual LLM response
                     print(f"🔍 DEBUG: LLM raw response length: {len(personalized_guide) if personalized_guide else 0}")
@@ -669,9 +707,9 @@ Format the response in clear sections with emojis and markdown formatting."""
                     gr.Markdown("## 🤖 Model Selection")
                     model_dropdown = gr.Dropdown(
                         choices=list(RECOMMENDED_MODELS.keys()),
-                        value="qwen3_light",
+                        value="gemini_api",
                         label="Choose Model",
-                        info="Select the LLM model for evaluation (qwen3_light recommended for laptops)"
+                        info="Select the LLM model for evaluation (gemini_api recommended for production)"
                     )
                     
                     load_model_btn = gr.Button("Load Model", variant="primary")
@@ -757,9 +795,9 @@ Format the response in clear sections with emojis and markdown formatting."""
                 outputs=[summary_output, detailed_output, learning_guide_output, json_output]
             )
             
-            # Auto-load qwen3_light model on startup (best for laptops)
+            # Auto-load gemini_api model on startup (best for production)
             interface.load(
-                fn=lambda: self.load_model("qwen3_light"),
+                fn=lambda: self.load_model("gemini_api"),
                 outputs=[model_status]
             )
             
@@ -767,7 +805,7 @@ Format the response in clear sections with emojis and markdown formatting."""
             gr.HTML("""
             <div style="text-align: center; margin-top: 30px; padding: 20px; background: #f8f9fa; border-radius: 8px;">
                 <p><strong>🎯 IELTS Speaking AI Assessment System</strong></p>
-                <p>Powered by Whisper Large-v3-turbo + Open-Source LLMs</p>
+                <p>Powered by Whisper Large-v3-turbo + Gemini API / Open-Source LLMs</p>
                 <p>🚀 Supports arbitrary length audio files</p>
                 <p>Built with ❤️ for IELTS learners worldwide</p>
             </div>

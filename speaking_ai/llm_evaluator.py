@@ -1,6 +1,6 @@
 """
 Open-source LLM evaluator for IELTS speaking assessment
-Supports Qwen, Llama, Mistral, and other open-source models
+Supports Qwen, Llama, Mistral, Gemini API, and other open-source models
 """
 
 import torch
@@ -15,19 +15,45 @@ import json
 import warnings
 warnings.filterwarnings("ignore")
 
+# Import Gemini client
+try:
+    from gemini_evaluator import GeminiIELTSEvaluator
+    GEMINI_AVAILABLE = True
+except ImportError:
+    GEMINI_AVAILABLE = False
+    print("⚠️ Gemini evaluator not available. Install requests and python-dotenv to use Gemini API.")
+
 class OpenSourceLLMEvaluator:
     """Open-source LLM evaluator for IELTS speaking assessment"""
     
-    def __init__(self, model_name: str = "Qwen/Qwen2.5-7B-Instruct", use_quantization: bool = True):
+    def __init__(self, model_name: str = "Qwen/Qwen2.5-7B-Instruct", use_quantization: bool = True, api_key: Optional[str] = None):
         """
         Initialize the open-source LLM evaluator
         
         Args:
-            model_name: Hugging Face model name
+            model_name: Hugging Face model name or "gemini" for Gemini API
             use_quantization: Whether to use 4-bit quantization for memory efficiency
+            api_key: API key for Gemini (required if model_name is "gemini")
         """
         self.model_name = model_name
         self.use_quantization = use_quantization
+        self.api_key = api_key
+        
+        # Check if using Gemini API
+        if model_name == "gemini":
+            if not GEMINI_AVAILABLE:
+                raise ImportError("Gemini evaluator not available. Install requests and python-dotenv to use Gemini API.")
+            if not api_key:
+                raise ValueError("API key is required for Gemini API")
+            
+            # Initialize Gemini evaluator
+            self.gemini_evaluator = GeminiIELTSEvaluator(api_key=api_key)
+            self.model = None
+            self.tokenizer = None
+            self.pipeline = None
+            self.device = "api"
+            print("✅ Using Gemini API for evaluation")
+            return
         
         # For DialoGPT, use CPU to avoid CUDA issues
         if "DialoGPT" in model_name:
@@ -39,6 +65,7 @@ class OpenSourceLLMEvaluator:
         self.model = None
         self.tokenizer = None
         self.pipeline = None
+        self.gemini_evaluator = None
         
         # Model configurations for different open-source models
         self.model_configs = {
@@ -118,6 +145,11 @@ class OpenSourceLLMEvaluator:
     
     def load_model(self):
         """Load the open-source LLM model"""
+        # If using Gemini API, no need to load model
+        if self.model_name == "gemini":
+            print("✅ Gemini API ready for use")
+            return
+        
         print(f"Loading {self.model_name}...")
         
         try:
@@ -224,7 +256,7 @@ class OpenSourceLLMEvaluator:
     
     def evaluate_speaking(self, fluency_data: Dict[str, Any], question: str = None) -> Dict[str, Any]:
         """
-        Evaluate speaking performance using open-source LLM
+        Evaluate speaking performance using open-source LLM or Gemini API
         
         Args:
             fluency_data: Fluency analysis data
@@ -233,6 +265,10 @@ class OpenSourceLLMEvaluator:
         Returns:
             Evaluation results with band scores and feedback
         """
+        # Use Gemini API if available
+        if self.model_name == "gemini":
+            return self.gemini_evaluator.evaluate_speaking(fluency_data, question)
+        
         if self.pipeline is None and not ("Qwen3" in self.model_name and self.model is not None):
             raise Exception("Model not loaded. Call load_model() first.")
         
@@ -617,6 +653,10 @@ Respond in JSON format:
         Returns:
             Enhanced evaluation results with expected structure
         """
+        # Use Gemini API if available
+        if self.model_name == "gemini":
+            return self.gemini_evaluator.evaluate_speaking_enhanced(prompt, fluency_data, lexical_data, grammatical_data)
+        
         if self.pipeline is None and not ("Qwen3" in self.model_name and self.model is not None):
             raise Exception("Model not loaded. Call load_model() first.")
         
@@ -981,6 +1021,9 @@ Respond in JSON format:
     
     def get_model_info(self) -> Dict[str, Any]:
         """Get information about the loaded model"""
+        if self.model_name == "gemini":
+            return self.gemini_evaluator.get_model_info()
+        
         return {
             "model_name": self.model_name,
             "device": self.device,
@@ -991,6 +1034,7 @@ Respond in JSON format:
 
 # Recommended models for different use cases
 RECOMMENDED_MODELS = {
+    "gemini_api": "gemini",  # Fast cloud-based evaluation with Gemini API
     "development": "Qwen/Qwen2.5-7B-Instruct",  # Good balance of quality and speed
     "production": "Qwen/Qwen2.5-14B-Instruct",  # Higher quality
     "low_memory": "microsoft/DialoGPT-medium",   # Minimal memory requirements
