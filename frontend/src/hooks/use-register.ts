@@ -51,7 +51,7 @@ export const useRegisterForm = () => {
 
         const mutation = useMutation({
         mutationFn: async (values: z.infer<typeof schema>) => {
-            const response = await fetchWrapper('/auth/login', {
+            const response = await fetchWrapper('/auth/register', {
                 method: 'POST',
                 headers: {
                     Accept: 'application/json',
@@ -70,8 +70,8 @@ export const useRegisterForm = () => {
             queryClient.setQueryData(['user'], data);
             localStorage.setItem('user', JSON.stringify(data));
             console.log('saved user', queryClient.getQueryData(['user']));
-            toast.success('Login Successfully');
-            router.push('/');
+            toast.success('Register Successfully');
+            router.push('/profile');
         },
     });
 
