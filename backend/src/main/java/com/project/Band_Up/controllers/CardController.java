@@ -2,6 +2,7 @@ package com.project.Band_Up.controllers;
 
 import com.project.Band_Up.dtos.quizlet.CardDto;
 import com.project.Band_Up.services.quizlet.CardService;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -11,6 +12,7 @@ import java.util.UUID;
 
 @RestController
 @RequestMapping("/quizlet")
+@Tag(name = "Card API", description = "Các endpoint để quản lý Card (tạo, đọc, cập nhật, xóa).")
 public class CardController {
 
     @Autowired
@@ -27,5 +29,10 @@ public class CardController {
     public ResponseEntity<?> getCards(@PathVariable UUID deckId) {
         List<CardDto> cardDtos = cardService.getCards(deckId);
         return ResponseEntity.ok().body(cardDtos);
+    }
+
+    @DeleteMapping("/deck/card/{cardId}")
+    public ResponseEntity<?> deleteCard(@PathVariable UUID cardId) {
+        return ResponseEntity.ok().body(cardService.deleteCard(cardId));
     }
 }

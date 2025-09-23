@@ -6,6 +6,7 @@ import com.project.Band_Up.entities.Deck;
 import com.project.Band_Up.exceptions.ResourceNotFoundException;
 import com.project.Band_Up.repositories.CardRepository;
 import com.project.Band_Up.repositories.DeckRepository;
+import jakarta.transaction.Transactional;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -43,5 +44,13 @@ public class CardServiceImpl implements CardService {
                     .map(card -> modelMapper.map(card, CardDto.class))
                     .toList();
         } else throw new ResourceNotFoundException(deckId.toString());
+    }
+
+    @Transactional
+    public CardDto deleteCard(UUID cardId) {
+        Card card = cardRepository.findById(cardId)
+                .orElseThrow(() -> new ResourceNotFoundException(cardId.toString()));
+        cardRepository.delete(card);
+        return modelMapper.map(card, CardDto.class);
     }
 }

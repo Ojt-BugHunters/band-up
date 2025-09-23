@@ -58,7 +58,9 @@ public class DeckServiceImpl implements DeckService {
 
 
     public DeckDtoResponse getDeck(UUID deckId) {
-        return modelMapper.map(deckRepository.findById(deckId), DeckDtoResponse.class);
+        Deck deck = deckRepository.findById(deckId)
+                .orElseThrow(() -> new ResourceNotFoundException(deckId.toString()));
+        return modelMapper.map(deck, DeckDtoResponse.class);
     }
 
     public List<DeckDtoResponse> getDecks(Integer pageNo, Integer pageSize, String sortBy, Boolean ascending) {
@@ -75,5 +77,13 @@ public class DeckServiceImpl implements DeckService {
         } else {
             return new ArrayList<DeckDtoResponse>();
         }
+    }
+
+    @Transactional
+    public DeckDto deleteDeck(UUID deckId) {
+        Deck deck = deckRepository.findById(deckId)
+                .orElseThrow(() -> new ResourceNotFoundException(deckId.toString()));
+        deckRepository.delete(deck);
+        return modelMapper.map(deck, DeckDto.class);
     }
 }

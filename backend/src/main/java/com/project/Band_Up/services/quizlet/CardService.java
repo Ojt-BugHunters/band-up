@@ -6,6 +6,10 @@ import java.util.List;
 import java.util.UUID;
 
 public interface CardService {
+
     public List<CardDto> createCard(List<CardDto> cardDtos, UUID deckId);
+
     public List<CardDto> getCards(UUID deckId);
+
+    public CardDto deleteCard(UUID cardId);
 }
