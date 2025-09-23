@@ -13,7 +13,7 @@ import {
     FormLabel,
     FormMessage,
 } from '@/components/ui/form';
-import { useLoginForm } from '@/hooks/use-login';
+import { useLogin } from '@/hooks/use-login';
 import { FaFacebook } from 'react-icons/fa';
 import { useState } from 'react';
 import Link from 'next/link';
@@ -34,7 +34,7 @@ export default function LoginPage() {
 }
 
 const LoginForm = ({ className, ...props }: React.ComponentProps<'div'>) => {
-    const { form, mutation } = useLoginForm();
+    const { form, mutation } = useLogin();
     const [showPassword, setShowPassword] = useState(false);
 
     return (

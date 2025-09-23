@@ -24,12 +24,12 @@ import { AccountPicture } from './ui/account-picture';
 import { ChevronDown, LogOut, User } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { AccountOverview } from './account-overview';
+import { useLogout } from '@/hooks/use-logout';
 
 export function Header() {
     const user = useUser();
     const isMember = user?.role === 'Member';
-    console.log(user);
-    console.log(isMember);
+    const logout = useLogout();
 
     const navItems = [
         {
@@ -229,7 +229,7 @@ export function Header() {
                                     </>
                                 )}
                                 <DropdownMenuItem
-                                    //onClick={() => logout.mutate()}
+                                    onClick={() => logout.mutate()}
                                     className="flex cursor-pointer items-center gap-3 rounded-xl px-3 py-2.5 text-red-600 transition-colors duration-200 hover:bg-red-50 focus:text-red-600"
                                 >
                                     <div className="rounded-lg bg-red-50 p-1.5">

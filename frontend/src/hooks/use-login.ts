@@ -14,7 +14,7 @@ export const schema = z.object({
     password: passwordSchema,
 });
 
-export const useLoginForm = () => {
+export const useLogin = () => {
     const router = useRouter();
     const queryClient = useQueryClient();
 
