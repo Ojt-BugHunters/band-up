@@ -37,6 +37,7 @@ export const useLoginForm = () => {
         },
         onSuccess: (data) => {
             queryClient.setQueryData(['user'], data);
+            localStorage.setItem('user', JSON.stringify(data));
             console.log('saved user', queryClient.getQueryData(['user']));
             toast.success('Login Successfully');
             router.push('/');
