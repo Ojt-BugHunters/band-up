@@ -10,6 +10,7 @@ import java.util.UUID;
 @NoArgsConstructor
 @Builder
 public class CardDto {
+    private UUID id;
     private String front;
     private String back;
 }

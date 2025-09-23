@@ -1,6 +1,7 @@
 package com.project.Band_Up.controllers;
 
 import com.project.Band_Up.dtos.quizlet.DeckDto;
+import com.project.Band_Up.dtos.quizlet.DeckDtoResponse;
 import com.project.Band_Up.services.quizlet.DeckService;
 import com.project.Band_Up.utils.JwtUtil;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -25,7 +26,7 @@ public class DeckController {
                                         @CookieValue(name = "AccessToken", required = true)
                                         String accessToken) {
         String accountId = jwtUtil.extractSubject(accessToken);
-        DeckDto deck = deckService.createDeck(UUID.fromString(accountId), deckDto);
+        DeckDtoResponse deck = deckService.createDeck(UUID.fromString(accountId), deckDto);
         return ResponseEntity.ok()
                 .body(deck);
     }
@@ -43,5 +44,17 @@ public class DeckController {
                                       @RequestParam(defaultValue = "true" ) Boolean ascending) {
         return ResponseEntity.ok()
                 .body(deckService.getDecks(pageNo, pageSize, sortBy, ascending));
+    }
+
+    @DeleteMapping("/deck/{deckId}/delete")
+    public ResponseEntity<?> deleteDeck(@PathVariable(name = "deckId") UUID deckId) {
+        return ResponseEntity.ok()
+                .body(deckService.deleteDeck(deckId));
+    }
+
+    @PutMapping("/deck/{deckId}/update")
+    public ResponseEntity<?> updateDeck(@PathVariable(name = "deckId") UUID deckId,
+                                        @RequestBody DeckDto deckDto) {
+        return ResponseEntity.ok().body(deckService.updateDeck(deckId,deckDto));
     }
 }

@@ -34,7 +34,7 @@ public class DeckServiceImpl implements DeckService {
 
     @Override
     @Transactional
-    public DeckDto createDeck(UUID account_id, DeckDto deckDto) {
+    public DeckDtoResponse createDeck(UUID account_id, DeckDto deckDto) {
         Account account = accountRepository.findById(account_id)
                 .orElseThrow(() -> new ResourceNotFoundException(account_id.toString()));
 
@@ -53,12 +53,16 @@ public class DeckServiceImpl implements DeckService {
 
         Deck savedDeck = deckRepository.save(deck);
 
-        return modelMapper.map(savedDeck, DeckDto.class);
+        DeckDtoResponse deckDtoResponse = modelMapper.map(savedDeck, DeckDtoResponse.class);
+        deckDtoResponse.setAuthorName(account.getName());
+        return deckDtoResponse;
     }
 
 
     public DeckDtoResponse getDeck(UUID deckId) {
-        return modelMapper.map(deckRepository.findById(deckId), DeckDtoResponse.class);
+        Deck deck = deckRepository.findById(deckId)
+                .orElseThrow(() -> new ResourceNotFoundException(deckId.toString()));
+        return modelMapper.map(deck, DeckDtoResponse.class);
     }
 
     public List<DeckDtoResponse> getDecks(Integer pageNo, Integer pageSize, String sortBy, Boolean ascending) {
@@ -75,5 +79,29 @@ public class DeckServiceImpl implements DeckService {
         } else {
             return new ArrayList<DeckDtoResponse>();
         }
+    }
+
+    @Transactional
+    public DeckDto deleteDeck(UUID deckId) {
+        Deck deck = deckRepository.findById(deckId)
+                .orElseThrow(() -> new ResourceNotFoundException(deckId.toString()));
+        deckRepository.delete(deck);
+        return modelMapper.map(deck, DeckDto.class);
+    }
+
+    @Transactional
+    public DeckDtoResponse updateDeck(UUID deckId, DeckDto deckDto) {
+        Deck deck = deckRepository.findById(deckId)
+                .orElseThrow(() -> new ResourceNotFoundException(deckId.toString()));
+        Deck updatedDeck = modelMapper.map(deckDto, Deck.class);
+        if(deckDto.getCards() != null)
+            deck.setCards(updatedDeck.getCards());
+        deck.setPublic(updatedDeck.isPublic());
+        deck.setTitle(updatedDeck.getTitle());
+        deck.setDescription(updatedDeck.getDescription());
+        deck = deckRepository.save(deck);
+        DeckDtoResponse dto = modelMapper.map(deck, DeckDtoResponse.class);
+        dto.setAuthorName(deck.getAccount().getName());
+        return dto;
     }
 }
