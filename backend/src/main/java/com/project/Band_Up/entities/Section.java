@@ -31,7 +31,7 @@ public class Section {
     private String title;
 
     @NotNull
-    private Integer oderInDex;
+    private Integer orderIndex;
 
     // JSON metadata
     @Column(columnDefinition = "jsonb") // nếu PostgreSQL và bạn muốn jsonb
