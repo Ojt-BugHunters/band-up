@@ -1,29 +1,32 @@
+'use client';
+
+import { useEffect } from 'react';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { User } from '@/lib/api/dto/account';
 
 export function useUser() {
     const queryClient = useQueryClient();
-    return useQuery<User | null>({
+
+    const { data: user } = useQuery<User | null>({
         queryKey: ['user'],
         queryFn: async () => {
-            let user = queryClient.getQueryData<User>(['user']);
-            if (!user) {
-                const stored = localStorage.getItem('user');
-                if (stored) {
-                    user = JSON.parse(stored);
-                    queryClient.setQueryData(['user'], user);
-                }
-            }
-            return user ?? null;
+            return queryClient.getQueryData<User>(['user']) ?? null;
         },
         staleTime: Infinity,
         initialData: () => {
-            return (
-                queryClient.getQueryData<User>(['user']) ??
-                (localStorage.getItem('user')
-                    ? JSON.parse(localStorage.getItem('user')!)
-                    : null)
-            );
+            return queryClient.getQueryData<User>(['user']) ?? null;
         },
-    }).data;
+    });
+
+    useEffect(() => {
+        if (!user && typeof window !== 'undefined') {
+            const stored = localStorage.getItem('user');
+            if (stored) {
+                const parsed: User = JSON.parse(stored);
+                queryClient.setQueryData(['user'], parsed);
+            }
+        }
+    }, [user, queryClient]);
+
+    return user;
 }
