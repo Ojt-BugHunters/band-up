@@ -1,8 +1,11 @@
-import { useQueryClient } from '@tanstack/react-query';
+import { useQuery } from '@tanstack/react-query';
 import { User } from '@/lib/api/dto/account';
 
 export function useUser() {
-    const queryClient = useQueryClient();
-    const user = queryClient.getQueryData(['user']);
-    return user as User;
+    return useQuery<User | null>({
+        queryKey: ['user'],
+        queryFn: async () => null,
+        staleTime: Infinity,
+        enabled: false,
+    }).data;
 }

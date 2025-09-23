@@ -15,7 +15,6 @@ import Link from 'next/link';
 import { features, tabs, testimonials } from './page.data';
 import { TestimonialsColumn } from '@/components/ui/testimonials-columns-1';
 import Component from '@/components/ui/pricing-section-1';
-import { useUser } from '@/hooks/use-user';
 
 const Feature = ({
     title,
@@ -90,17 +89,24 @@ export default function HomePage() {
                 </Highlight>
             </p>
             <div className="mt-8 flex justify-center gap-4">
-                <Button size="sm" className="rounded-full px-5 py-2 text-lg">
-                    Get Started
-                </Button>
-                <Button
-                    size="sm"
-                    variant="outline"
-                    className="rounded-lg px-5 py-2 text-lg"
-                >
-                    Take a Free Practice Test
-                    <ArrowRight className="h-4 w-4" />
-                </Button>
+                <Link href="/auth/login">
+                    <Button
+                        size="sm"
+                        className="rounded-full px-5 py-2 text-lg"
+                    >
+                        Get Started
+                    </Button>
+                </Link>
+                <Link href="/test">
+                    <Button
+                        size="sm"
+                        variant="outline"
+                        className="rounded-lg px-5 py-2 text-lg"
+                    >
+                        Take a Free Practice Test
+                        <ArrowRight className="h-4 w-4" />
+                    </Button>
+                </Link>
             </div>
             <div className="flex flex-col overflow-hidden">
                 <ContainerScroll>
