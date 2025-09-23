@@ -25,6 +25,7 @@ const slideVariants = {
 
 type FlashcardPlayerProps = {
     cards: FlashcardItem[];
+    variant?: 'default' | 'large';
 };
 
 export default function FlashcardPlayer({ cards }: FlashcardPlayerProps) {
@@ -195,7 +196,7 @@ export default function FlashcardPlayer({ cards }: FlashcardPlayerProps) {
                                 {currentCard?.back}
                             </span>
                             {currentCard?.example && (
-                                <span className="max-w-2xl text-base italic text-slate-500">
+                                <span className="max-w-2xl text-base text-slate-500 italic">
                                     Ví dụ: {currentCard.example}
                                 </span>
                             )}
