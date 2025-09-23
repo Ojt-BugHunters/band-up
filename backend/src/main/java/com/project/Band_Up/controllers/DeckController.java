@@ -3,6 +3,7 @@ package com.project.Band_Up.controllers;
 import com.project.Band_Up.dtos.quizlet.DeckDto;
 import com.project.Band_Up.services.quizlet.DeckService;
 import com.project.Band_Up.utils.JwtUtil;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -11,6 +12,7 @@ import java.util.UUID;
 
 @RestController
 @RequestMapping("/quizlet")
+@Tag(name = "Deck API", description = "Các endpoint để quản lý Deck (tạo, đọc, cập nhật, xóa).")
 public class DeckController {
 
     @Autowired
