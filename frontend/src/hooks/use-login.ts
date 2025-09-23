@@ -14,7 +14,7 @@ export const schema = z.object({
     password: passwordSchema,
 });
 
-export const useLoginForm = () => {
+export const useLogin = () => {
     const router = useRouter();
     const queryClient = useQueryClient();
 
@@ -36,8 +36,9 @@ export const useLoginForm = () => {
             toast.error(error.message);
         },
         onSuccess: (data) => {
-            queryClient.setQueryData(['user'], data.user);
-            console.log('saved user', queryClient.getQueryData(['user'])); // check xem có dữ liệu chưa
+            queryClient.setQueryData(['user'], data);
+            localStorage.setItem('user', JSON.stringify(data));
+            console.log('saved user', queryClient.getQueryData(['user']));
             toast.success('Login Successfully');
             router.push('/');
         },
