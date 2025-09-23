@@ -58,9 +58,10 @@ public class CardServiceImpl implements CardService {
     public CardDto updateCard(UUID cardId, CardDto cardDto) {
         Card card = cardRepository.findById(cardId)
                 .orElseThrow(() -> new ResourceNotFoundException(cardId.toString()));
-        Card updatedCard = modelMapper.map(card, Card.class);
+        Card updatedCard = modelMapper.map(cardDto, Card.class);
         card.setBack(updatedCard.getBack());
         card.setFront(updatedCard.getFront());
-        return modelMapper.map(updatedCard, CardDto.class);
+        card = cardRepository.saveAndFlush(card);
+        return modelMapper.map(card, CardDto.class);
     }
 }

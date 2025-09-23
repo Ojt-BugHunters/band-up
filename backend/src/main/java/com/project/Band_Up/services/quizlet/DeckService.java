@@ -9,7 +9,7 @@ import java.util.UUID;
 
 public interface DeckService {
 
-    public DeckDto createDeck(UUID account_id, DeckDto deckDto);
+    public DeckDtoResponse createDeck(UUID account_id, DeckDto deckDto);
 
     public List<DeckDtoResponse> getDecks(Integer pageNo, Integer pageSize, String sortBy, Boolean ascending);
 

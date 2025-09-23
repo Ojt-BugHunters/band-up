@@ -34,7 +34,7 @@ public class DeckServiceImpl implements DeckService {
 
     @Override
     @Transactional
-    public DeckDto createDeck(UUID account_id, DeckDto deckDto) {
+    public DeckDtoResponse createDeck(UUID account_id, DeckDto deckDto) {
         Account account = accountRepository.findById(account_id)
                 .orElseThrow(() -> new ResourceNotFoundException(account_id.toString()));
 
@@ -53,7 +53,9 @@ public class DeckServiceImpl implements DeckService {
 
         Deck savedDeck = deckRepository.save(deck);
 
-        return modelMapper.map(savedDeck, DeckDto.class);
+        DeckDtoResponse deckDtoResponse = modelMapper.map(savedDeck, DeckDtoResponse.class);
+        deckDtoResponse.setAuthorName(account.getName());
+        return deckDtoResponse;
     }
 
 
@@ -92,7 +94,8 @@ public class DeckServiceImpl implements DeckService {
         Deck deck = deckRepository.findById(deckId)
                 .orElseThrow(() -> new ResourceNotFoundException(deckId.toString()));
         Deck updatedDeck = modelMapper.map(deckDto, Deck.class);
-        deck.setCards(updatedDeck.getCards());
+        if(deckDto.getCards() != null)
+            deck.setCards(updatedDeck.getCards());
         deck.setPublic(updatedDeck.isPublic());
         deck.setTitle(updatedDeck.getTitle());
         deck.setDescription(updatedDeck.getDescription());
