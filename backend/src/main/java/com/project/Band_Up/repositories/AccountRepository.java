@@ -20,5 +20,6 @@ public interface AccountRepository extends JpaRepository<Account, UUID> {
 
     Account findFirstByEmail(String email);
 
+
     boolean existsByEmailAndPassword(@Email String email, @Min(6) @Max(200) @Pattern(regexp = "^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d)(?=.*[@$!%*?&])[A-Za-z\\d@$!%*?&]") String password);
 }
