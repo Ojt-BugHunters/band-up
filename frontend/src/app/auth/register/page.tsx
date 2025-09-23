@@ -31,7 +31,7 @@ export default function RegisterPage() {
 const RegisterForm = ({ className, ...props }: React.ComponentProps<'div'>) => {
     const [showPassword, setShowPassword] = useState(false);
     const [showConfirmPassword, setShowConfirmPassword] = useState(false);
-    const { form, onSubmit } = useRegisterForm();
+    const { form, mutation } = useRegisterForm();
 
     return (
         <div className={cn('flex flex-col gap-6', className)} {...props}>
@@ -57,7 +57,12 @@ const RegisterForm = ({ className, ...props }: React.ComponentProps<'div'>) => {
                     </div>
                 </div>
                 <Form {...form}>
-                    <form className="p-6 md:p-8" onSubmit={onSubmit}>
+                    <form
+                        className="p-6 md:p-8"
+                        onSubmit={form.handleSubmit((values) =>
+                            mutation.mutate(values),
+                        )}
+                    >
                         <FormField
                             control={form.control}
                             name="email"
