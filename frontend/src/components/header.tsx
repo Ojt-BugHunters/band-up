@@ -172,7 +172,9 @@ export function Header() {
         <div className="relative w-full">
             <Navbar>
                 <NavBody>
-                    <NavbarLogo />
+                    <Link href="/">
+                        <NavbarLogo />
+                    </Link>
                     <NavItems items={navItems} />
                     {!isMember ? (
                         <div className="flex items-center gap-4">

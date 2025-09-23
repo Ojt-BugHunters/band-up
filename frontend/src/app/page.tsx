@@ -92,7 +92,7 @@ export default function HomePage() {
                 <Link href="/auth/login">
                     <Button
                         size="sm"
-                        className="rounded-full px-5 py-2 text-lg"
+                        className="rounded-lg p-4 px-5 py-2 text-lg"
                     >
                         Get Started
                     </Button>
@@ -101,7 +101,7 @@ export default function HomePage() {
                     <Button
                         size="sm"
                         variant="outline"
-                        className="rounded-lg px-5 py-2 text-lg"
+                        className="rounded-lg p-4 text-lg"
                     >
                         Take a Free Practice Test
                         <ArrowRight className="h-4 w-4" />

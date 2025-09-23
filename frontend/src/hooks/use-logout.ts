@@ -1,6 +1,5 @@
 import { fetchWrapper, throwIfError } from '@/lib/api';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
-import { error } from 'console';
 import { useRouter } from 'next/navigation';
 import { toast } from 'sonner';
 
