@@ -60,8 +60,6 @@ const Feature = ({
 };
 
 export default function HomePage() {
-    const user = useUser();
-    console.log(user);
     const firstColumn = testimonials.slice(0, 3);
     const secondColumn = testimonials.slice(3, 6);
     const thirdColumn = testimonials.slice(6, 9);
