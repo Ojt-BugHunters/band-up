@@ -1,7 +1,11 @@
 'use client';
 
+import { fetchWrapper, throwIfError } from '@/lib/api';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { SubmitHandler, useForm } from 'react-hook-form';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { useRouter } from 'next/navigation';
+import { useForm } from 'react-hook-form';
+import { toast } from 'sonner';
 import z from 'zod';
 
 export const passwordSchema = z
@@ -34,6 +38,8 @@ export const schema = z
     });
 
 export const useRegisterForm = () => {
+    const router = useRouter();
+    const queryClient = useQueryClient();
     const form = useForm<z.infer<typeof schema>>({
         resolver: zodResolver(schema),
         defaultValues: {
@@ -43,12 +49,34 @@ export const useRegisterForm = () => {
         },
     });
 
-    const onSubmit: SubmitHandler<z.infer<typeof schema>> = (data) => {
-        console.log('Submitting register form', data);
-    };
+        const mutation = useMutation({
+        mutationFn: async (values: z.infer<typeof schema>) => {
+            const response = await fetchWrapper('/auth/login', {
+                method: 'POST',
+                headers: {
+                    Accept: 'application/json',
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(values),
+            });
+
+            await throwIfError(response);
+            return response.json();
+        },
+        onError: (error) => {
+            toast.error(error.message);
+        },
+        onSuccess: (data) => {
+            queryClient.setQueryData(['user'], data);
+            localStorage.setItem('user', JSON.stringify(data));
+            console.log('saved user', queryClient.getQueryData(['user']));
+            toast.success('Login Successfully');
+            router.push('/');
+        },
+    });
 
     return {
         form,
-        onSubmit: form.handleSubmit(onSubmit),
+        mutation,
     };
 };
