@@ -86,4 +86,19 @@ public class DeckServiceImpl implements DeckService {
         deckRepository.delete(deck);
         return modelMapper.map(deck, DeckDto.class);
     }
+
+    @Transactional
+    public DeckDtoResponse updateDeck(UUID deckId, DeckDto deckDto) {
+        Deck deck = deckRepository.findById(deckId)
+                .orElseThrow(() -> new ResourceNotFoundException(deckId.toString()));
+        Deck updatedDeck = modelMapper.map(deckDto, Deck.class);
+        deck.setCards(updatedDeck.getCards());
+        deck.setPublic(updatedDeck.isPublic());
+        deck.setTitle(updatedDeck.getTitle());
+        deck.setDescription(updatedDeck.getDescription());
+        deck = deckRepository.save(deck);
+        DeckDtoResponse dto = modelMapper.map(deck, DeckDtoResponse.class);
+        dto.setAuthorName(deck.getAccount().getName());
+        return dto;
+    }
 }

@@ -53,4 +53,14 @@ public class CardServiceImpl implements CardService {
         cardRepository.delete(card);
         return modelMapper.map(card, CardDto.class);
     }
+
+    @Transactional
+    public CardDto updateCard(UUID cardId, CardDto cardDto) {
+        Card card = cardRepository.findById(cardId)
+                .orElseThrow(() -> new ResourceNotFoundException(cardId.toString()));
+        Card updatedCard = modelMapper.map(card, Card.class);
+        card.setBack(updatedCard.getBack());
+        card.setFront(updatedCard.getFront());
+        return modelMapper.map(updatedCard, CardDto.class);
+    }
 }

@@ -35,4 +35,10 @@ public class CardController {
     public ResponseEntity<?> deleteCard(@PathVariable UUID cardId) {
         return ResponseEntity.ok().body(cardService.deleteCard(cardId));
     }
+
+    @PutMapping("/deck/card/{cardId}/update")
+    public ResponseEntity<?> updateCard(@PathVariable UUID cardId,
+                                        @RequestBody CardDto cardDto) {
+        return ResponseEntity.ok().body(cardService.updateCard(cardId, cardDto));
+    }
 }

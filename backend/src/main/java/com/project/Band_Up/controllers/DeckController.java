@@ -51,4 +51,9 @@ public class DeckController {
                 .body(deckService.deleteDeck(deckId));
     }
 
+    @PutMapping("/deck/{deckId}/update")
+    public ResponseEntity<?> updateDeck(@PathVariable(name = "deckId") UUID deckId,
+                                        @RequestBody DeckDto deckDto) {
+        return ResponseEntity.ok().body(deckService.updateDeck(deckId,deckDto));
+    }
 }
