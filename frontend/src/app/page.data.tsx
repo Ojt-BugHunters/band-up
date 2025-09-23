@@ -66,7 +66,7 @@ const BlogContent = () => {
         <div className="relative h-full w-full overflow-hidden rounded-2xl bg-black p-0">
             <Image
                 src="/web-intro-blog.jpg"
-                alt="Review Image"
+                alt="Blog Image"
                 width={1000}
                 height={500}
                 className="h-full w-full rounded-xl object-cover object-center"
@@ -80,7 +80,7 @@ const RoomContent = () => {
         <div className="relative h-full w-full overflow-hidden rounded-2xl bg-black p-0">
             <Image
                 src="/web-intro-room.jpg"
-                alt="Review Image"
+                alt="Room Image"
                 width="1000"
                 height="500"
                 className="h-full w-full rounded-xl object-cover object-center"
@@ -94,7 +94,7 @@ const FlashCardContent = () => {
         <div className="relative h-full w-full overflow-hidden rounded-2xl bg-black p-0">
             <Image
                 src="/web-intro-flashcard.jpg"
-                alt="Review Image"
+                alt="Flashcard Image"
                 width="1000"
                 height="500"
                 className="h-full w-full rounded-xl object-cover object-center"
@@ -107,8 +107,8 @@ const TestContent = () => {
     return (
         <div className="relative h-full w-full overflow-hidden rounded-2xl bg-black p-0">
             <Image
-                src="/hero-writing.jpg"
-                alt="Review Image"
+                src="/web-intro-test.jpg"
+                alt="Test Image"
                 width="1000"
                 height="500"
                 className="h-full w-full rounded-xl object-cover object-center"
