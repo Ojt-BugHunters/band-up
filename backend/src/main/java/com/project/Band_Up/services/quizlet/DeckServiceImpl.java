@@ -65,7 +65,11 @@ public class DeckServiceImpl implements DeckService {
         Pageable pageable = PageRequest.of(pageNo, pageSize,
                 ascending ? Sort.by(sortBy).ascending() : Sort.by(sortBy).descending());
         Page<DeckDtoResponse> page = deckRepository.findAll(pageable)
-                .map(deck -> modelMapper.map(deck, DeckDtoResponse.class));
+                .map(deck -> {
+                    DeckDtoResponse dto = modelMapper.map(deck, DeckDtoResponse.class);
+                    dto.setAuthorName(deck.getAccount().getName());
+                    return dto;
+                });
         if (page.hasContent()) {
             return page.getContent();
         } else {
