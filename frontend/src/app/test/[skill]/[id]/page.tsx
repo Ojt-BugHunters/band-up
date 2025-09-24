@@ -45,6 +45,7 @@ import { Content } from '@tiptap/react';
 import { MinimalTiptapEditor } from '@/components/ui/minimal-tiptap';
 import { TooltipProvider } from '@/components/ui/tooltip';
 import { AccountPicture } from '@/components/ui/account-picture';
+import Link from 'next/link';
 
 interface PageProps {
     params: {
@@ -77,7 +78,7 @@ const skillConfig = {
 };
 
 export default function TestOverview({ params }: PageProps) {
-    const { skill, id } = params;
+    const { skill } = params;
     const dataConfig = skillConfig[skill as keyof typeof skillConfig];
     const [value, setValue] = useState<Content>('');
     const [selectedSections, setSelectedSections] = useState<string[]>([]);
@@ -240,12 +241,17 @@ export default function TestOverview({ params }: PageProps) {
                                 </CardContent>
                                 <div className="pt-2">
                                     <Button
+                                        asChild
                                         className="ml-6 bg-gradient-to-r from-blue-600 to-indigo-500 shadow-lg transition-all duration-300 hover:from-blue-700 hover:to-purple-700 hover:shadow-xl"
                                         disabled={selectedSections.length === 0}
                                         size="lg"
                                     >
-                                        Start Selected Sections (
-                                        {selectedSections.length})
+                                        <Link
+                                            href={`/do?mode=single&skill=${skill}&section=${selectedSections.join(',')}`}
+                                        >
+                                            Start Selected Sections (
+                                            {selectedSections.length})
+                                        </Link>
                                     </Button>
                                 </div>
                             </Card>
@@ -305,9 +311,15 @@ export default function TestOverview({ params }: PageProps) {
                                         size="lg"
                                         className="w-full bg-gradient-to-r from-green-600 to-blue-600 shadow-lg transition-all duration-300 hover:from-green-700 hover:to-blue-700 hover:shadow-xl"
                                     >
-                                        <Play className="mr-2 h-4 w-4" />
-                                        Start Full Test ({test.duration}{' '}
-                                        minutes)
+                                        <Link
+                                            href={`/do?mode=full&skill=${skill}`}
+                                        >
+                                            <Play className="mr-2 h-4 w-4" />
+                                            Start Full Test ({
+                                                test.duration
+                                            }{' '}
+                                            minutes)
+                                        </Link>
                                     </Button>
                                 </CardContent>
                             </Card>
