@@ -6,15 +6,15 @@ import { ContainerScroll } from '@/components/ui/container-scroll-animation';
 import { Highlight } from '@/components/ui/highlight';
 import { LayoutTextFlip } from '@/components/ui/layout-text-flip';
 import { PointerHighlight } from '@/components/ui/pointer-highlight';
-import { Tabs } from '@/components/ui/tabs-animation';
 import { cn } from '@/lib/utils';
 import { motion } from 'framer-motion';
 import { ArrowRight, ChevronRight } from 'lucide-react';
 import Image from 'next/image';
 import Link from 'next/link';
-import { features, tabs, testimonials } from './page.data';
+import { features, testimonials, informationData } from './page.data';
 import { TestimonialsColumn } from '@/components/ui/testimonials-columns-1';
 import Component from '@/components/ui/pricing-section-1';
+import { Timeline } from '@/components/ui/timeline';
 
 const Feature = ({
     title,
@@ -139,8 +139,8 @@ export default function HomePage() {
                     us out on this site!
                 </p>
             </div>
-            <div className="relative mx-auto my-8 flex w-full max-w-5xl flex-col items-start justify-start [perspective:1000px] md:h-[40rem]">
-                <Tabs tabs={tabs} />
+            <div className="relative w-full overflow-clip">
+                <Timeline data={informationData} />
             </div>
             <div className="relative z-10 mx-auto mt-20 grid max-w-7xl grid-cols-1 py-10 md:grid-cols-2 lg:grid-cols-4">
                 {features.map((feature, index) => (
