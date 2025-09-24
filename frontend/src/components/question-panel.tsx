@@ -7,15 +7,7 @@ import { Label } from '@/components/ui/label';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
-
-export interface Question {
-    id: number;
-    type: 'multiple-choice' | 'short-answer' | 'true-false' | 'completion';
-    question: string;
-    options?: string[];
-    answer: string;
-}
-
+import { Question } from '@/lib/api/dto/question';
 interface QuestionPanelProps {
     questions: Question[];
     answers: Record<number, string>;

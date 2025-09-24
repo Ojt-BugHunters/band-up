@@ -11,6 +11,7 @@ import { Badge } from '@/components/ui/badge';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Eye, CheckCircle, AlertCircle } from 'lucide-react';
 import { useState } from 'react';
+import { useRouter } from 'next/navigation';
 
 interface Question {
     id: number;
@@ -32,7 +33,7 @@ export default function ProgressDialog({
     const [confirmType, setConfirmType] = useState<'quit' | 'submit' | null>(
         null,
     );
-
+    const router = useRouter();
     const progressPercentage = (answeredQuestions / totalQuestions) * 100;
 
     return (
@@ -56,7 +57,6 @@ export default function ProgressDialog({
                 </DialogHeader>
 
                 <div className="space-y-6">
-                    {/* Progress bar */}
                     <div className="space-y-3">
                         <div className="flex justify-between text-sm">
                             <span className="text-muted-foreground">
@@ -77,7 +77,6 @@ export default function ProgressDialog({
                         </div>
                     </div>
 
-                    {/* Answered vs Unanswered */}
                     <div className="grid grid-cols-2 gap-4">
                         <div className="bg-success/10 border-success/20 rounded-lg border p-3 text-center">
                             <div className="text-success text-2xl font-bold">
@@ -95,7 +94,6 @@ export default function ProgressDialog({
                         </div>
                     </div>
 
-                    {/* Unanswered list */}
                     {unansweredQuestions.length > 0 && (
                         <div className="space-y-3">
                             <div className="flex items-center gap-2">
@@ -131,7 +129,6 @@ export default function ProgressDialog({
                         </div>
                     )}
 
-                    {/* Status */}
                     <div className="bg-primary/10 border-primary/20 rounded-lg border p-3">
                         <div className="text-center text-sm">
                             {progressPercentage === 100 ? (
@@ -148,8 +145,7 @@ export default function ProgressDialog({
                         </div>
                     </div>
 
-                    {/* Actions */}
-                    <div className="flex justify-between gap-3 pt-4">
+                    <div className="flex justify-between gap-3">
                         <Button
                             variant="destructive"
                             className="flex-1"
@@ -200,6 +196,7 @@ export default function ProgressDialog({
                             }
                             onClick={() => {
                                 setConfirmType(null);
+                                router.push('/test');
                             }}
                         >
                             {confirmType === 'quit' ? 'Quit' : 'Submit'}
