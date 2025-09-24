@@ -56,9 +56,10 @@ export function TestCard({ test }: { test: TestOverview }) {
         >
             <CardHeader className="flex-grow pb-3">
                 <div className="mb-3 flex items-start justify-between gap-4">
-                    <CardTitle className="text-lg leading-tight font-semibold text-gray-900 transition-colors group-hover:text-gray-800">
+                    <CardTitle className="line-clamp-2 min-h-[4.5rem] text-lg leading-tight font-semibold text-gray-900 transition-colors group-hover:text-gray-800">
                         {test.title}
                     </CardTitle>
+
                     <Badge
                         className={`${getSkillColor(test.skill)} shrink-0 font-medium`}
                     >

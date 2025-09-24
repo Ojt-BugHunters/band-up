@@ -2,7 +2,10 @@
 
 import { Geist, Geist_Mono } from 'next/font/google';
 import { ThemeProvider } from 'next-themes';
-import './globals.css';
+import { usePathname } from 'next/navigation';
+import { Header } from '@/components/header';
+import { Footer } from '@/components/footer';
+import { Toaster } from 'sonner';
 
 const geistSans = Geist({
     variable: '--font-geist-sans',
@@ -19,19 +22,19 @@ export default function ClientLayout({
 }: {
     children: React.ReactNode;
 }) {
+    const pathname = usePathname();
+    const hideLayout = pathname.includes('/do');
     return (
         <html
             lang="en"
             className={`${geistSans.variable} ${geistMono.variable} antialiased`}
         >
             <body>
-                <ThemeProvider
-                // attribute="class"
-                // defaultTheme="system"
-                // enableSystem
-                // disableTransitionOnChange
-                >
+                <ThemeProvider>
+                    {!hideLayout && <Header />}
                     {children}
+                    {!hideLayout && <Footer />}
+                    <Toaster richColors />
                 </ThemeProvider>
             </body>
         </html>
