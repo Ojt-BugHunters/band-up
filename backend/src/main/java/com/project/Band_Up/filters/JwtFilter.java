@@ -50,7 +50,7 @@ public class JwtFilter extends OncePerRequestFilter {
             } else if (refreshToken != null) {
                 accountId = jwtUtil.validateRefreshToken(refreshToken);
 
-                ResponseCookie newAccessToken = jwtUtil.getAccessTokenCookie(accountId);
+                ResponseCookie newAccessToken = jwtUtil.getCookie(jwtUtil.generateAccessToken(accountId), "AccessToken");
 
                 response.addHeader("Set-Cookie", newAccessToken.toString());
             }
