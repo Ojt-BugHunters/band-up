@@ -128,7 +128,7 @@ export const mockFlashcards: Flashcard[] = [
 export const mockTests: TestOverview[] = [
     {
         id: '1',
-        title: 'IELTS Academic Reading Practice Test 1',
+        title: 'Cambridge 10 - Test 1 - Reading',
         created_at: '2024-01-15T10:30:00Z',
         skill: 'Reading',
         number_participant: 30,
@@ -137,7 +137,7 @@ export const mockTests: TestOverview[] = [
     },
     {
         id: '2',
-        title: 'IELTS General Writing Task 1 & 2',
+        title: 'Cambridge 10 - Test 2 - Writing',
         created_at: '2024-01-14T14:20:00Z',
         skill: 'Writing',
         number_participant: 70,
@@ -146,7 +146,7 @@ export const mockTests: TestOverview[] = [
     },
     {
         id: '3',
-        title: 'IELTS Listening Mock Test - Academic',
+        title: 'Cambridge 10 - Test 3 - Listening',
         created_at: '2024-01-13T09:15:00Z',
         skill: 'Listening',
         number_participant: 26,
@@ -155,40 +155,13 @@ export const mockTests: TestOverview[] = [
     },
     {
         id: '4',
-        title: 'IELTS Speaking Part 1, 2 & 3 Practice',
+        title: 'Cambridge 10 - Test 4 - Speaking',
         created_at: '2024-01-12T16:45:00Z',
         skill: 'Speaking',
         number_participant: 39,
         comments: 15,
         duration: 15,
     },
-    {
-        id: '5',
-        title: 'IELTS Academic Writing Task 1 - Graphs',
-        created_at: '2024-01-11T11:00:00Z',
-        skill: 'Writing',
-        number_participant: 40,
-        comments: 3,
-        duration: 20,
-    },
-    {
-        id: '6',
-        title: 'IELTS Reading - True/False/Not Given Focus',
-        created_at: '2024-01-10T13:30:00Z',
-        skill: 'Reading',
-        number_participant: 120,
-        comments: 10,
-        duration: 45,
-    },
-    ...Array.from({ length: 14 }).map((_, idx) => ({
-        id: 'idx + 7',
-        title: `Extra Mock Test ${idx + 7}`,
-        created_at: '2024-01-09T10:00:00Z',
-        skill: ['Reading', 'Writing', 'Listening', 'Speaking'][idx % 4],
-        number_participant: Math.floor(Math.random() * 150),
-        comments: Math.floor(Math.random() * 20),
-        duration: [15, 30, 45, 60][idx % 4],
-    })),
 ];
 
 export const testData: Test = {
