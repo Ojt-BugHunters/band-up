@@ -1,7 +1,7 @@
 import type { Flashcard } from '@/lib/api/dto/flashcards';
 import { Comment } from '@/lib/api/dto/comment';
 import { Test, TestOverview } from '@/lib/api/dto/test';
-import { Question } from '@/components/question-panel';
+import { Question } from '@/lib/api/dto/question';
 
 export const mockFlashcards: Flashcard[] = [
     {
@@ -338,6 +338,7 @@ The future of urban planning lies in adaptive strategies that can respond to cha
                     'Medieval Europe',
                 ],
                 answer: '',
+                image: '/loginimg.jpg',
             },
             {
                 id: 2,

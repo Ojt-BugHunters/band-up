@@ -8,6 +8,10 @@ import { ScrollArea } from '@/components/ui/scroll-area';
 import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
 import { Question } from '@/lib/api/dto/question';
+import Image from 'next/image';
+import { useState } from 'react';
+import { ZoomIn } from 'lucide-react';
+import { Dialog, DialogContent, DialogOverlay } from './ui/dialog';
 interface QuestionPanelProps {
     questions: Question[];
     answers: Record<number, string>;
@@ -21,6 +25,7 @@ export default function QuestionPanel({
     onAnswerChange,
     passageTitle,
 }: QuestionPanelProps) {
+    const [zoomedImage, setZoomedImage] = useState<string | null>(null);
     const getQuestionTypeLabel = (type: string) => {
         switch (type) {
             case 'multiple-choice':
@@ -84,6 +89,45 @@ export default function QuestionPanel({
                         <p className="text-sm leading-relaxed text-pretty">
                             {question.question}
                         </p>
+
+                        {question.image && (
+                            <div className="mb-4">
+                                <div
+                                    className="group relative cursor-pointer"
+                                    onClick={() =>
+                                        setZoomedImage(question.image!)
+                                    }
+                                >
+                                    <Image
+                                        src={question.image}
+                                        alt={`Question ${question.id}`}
+                                        width={350}
+                                        height={250}
+                                        className="border-border bg-background/50 w-full rounded-lg border object-contain"
+                                    />
+                                    <div className="absolute inset-0 flex items-center justify-center rounded-lg bg-black/0 opacity-0 transition-colors group-hover:bg-black/10 group-hover:opacity-100">
+                                        <ZoomIn className="h-6 w-6 text-white" />
+                                    </div>
+                                </div>
+                            </div>
+                        )}
+
+                        <Dialog
+                            open={!!zoomedImage}
+                            onOpenChange={() => setZoomedImage(null)}
+                        >
+                            <DialogContent className="max-w-3xl border-none bg-transparent p-2 shadow-none">
+                                {zoomedImage && (
+                                    <Image
+                                        src={zoomedImage}
+                                        alt="Zoomed Question"
+                                        width={800}
+                                        height={600}
+                                        className="h-auto w-full rounded-lg object-contain"
+                                    />
+                                )}
+                            </DialogContent>
+                        </Dialog>
                     </div>
                 </div>
 
