@@ -201,7 +201,10 @@ export default function TestListPage() {
             </div>
             <div className="mx-auto mb-12 grid max-w-7xl grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-4">
                 {paginatedTests.map((test) => (
-                    <Link key={test.id} href={`/test/${test.id}`}>
+                    <Link
+                        key={test.id}
+                        href={`/test/${test.skill.toLowerCase()}/${test.id}`}
+                    >
                         <TestCard test={test} />
                     </Link>
                 ))}

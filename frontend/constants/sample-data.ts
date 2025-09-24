@@ -164,9 +164,9 @@ export const mockTests: TestOverview[] = [
     },
 ];
 
-export const testData: Test = {
+export const listeningTest: Test = {
     id: 'listening-test-001',
-    title: 'IELTS Listening Practice Test 1',
+    title: 'Cambridge 10 - Test 3 - Listening',
     duration: 30,
     skill: 'Listening',
     number_sections: 4,
@@ -196,6 +196,84 @@ export const testData: Test = {
             title: 'Section 4',
             questions: 10,
             description: 'Monologue on academic subject',
+        },
+    ],
+};
+
+export const readingTest: Test = {
+    id: 'reading-test-001',
+    title: 'Cambridge 12 - Test 5 - Reading',
+    duration: 60,
+    skill: 'Reading',
+    number_sections: 3,
+    number_questions: 40,
+    number_participant: 987,
+    section: [
+        {
+            id: 'section-1',
+            title: 'Passage 1',
+            questions: 13,
+            description: 'Reading passage on everyday topic',
+        },
+        {
+            id: 'section-2',
+            title: 'Passage 2',
+            questions: 13,
+            description: 'Reading passage on social science',
+        },
+        {
+            id: 'section-3',
+            title: 'Passage 3',
+            questions: 14,
+            description: 'Reading passage on academic or scientific subject',
+        },
+    ],
+};
+
+export const writingTest: Test = {
+    id: 'writing-test-001',
+    title: 'Cambridge 11 - Writing Task 1 & 2',
+    duration: 60,
+    skill: 'Writing',
+    number_sections: 2,
+    number_questions: 2,
+    number_participant: 654,
+    section: [
+        {
+            id: 'task-1',
+            title: 'Task 1',
+            questions: 1,
+            description: 'Describe graph, chart, or diagram',
+        },
+        {
+            id: 'task-2',
+            title: 'Task 2',
+            questions: 1,
+            description: 'Essay on academic or general topic',
+        },
+    ],
+};
+
+export const speakingTest: Test = {
+    id: 'speaking-test-001',
+    title: 'IELTS Speaking Mock Test - Part 1 & Part 2-3',
+    duration: 15,
+    skill: 'Speaking',
+    number_sections: 2,
+    number_questions: 10,
+    number_participant: 432,
+    section: [
+        {
+            id: 'part-1',
+            title: 'Part 1',
+            questions: 4,
+            description: 'Introduction and interview questions',
+        },
+        {
+            id: 'part-2-3',
+            title: 'Part 2 & 3',
+            questions: 6,
+            description: 'Cue card long turn followed by discussion questions',
         },
     ],
 };
