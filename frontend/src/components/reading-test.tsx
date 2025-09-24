@@ -27,8 +27,9 @@ export function ReadingTest({
     const [currentPassage, setCurrentPassage] = useState(
         availablePassages[0]?.id ?? '',
     );
+    const timeLimit = availablePassages.length * 20 * 60;
     const [answers, setAnswers] = useState<Record<number, string>>({});
-    const [timeRemaining, setTimeRemaining] = useState(3600);
+    const [timeRemaining, setTimeRemaining] = useState(timeLimit);
     const [isTestStarted, setIsTestStarted] = useState(false);
 
     useEffect(() => {
@@ -140,8 +141,8 @@ export function ReadingTest({
             </header>
 
             <div className="container mx-auto px-4 py-6">
-                <div className="grid h-[calc(100vh-140px)] grid-cols-1 gap-6 lg:grid-cols-3">
-                    <div className="lg:col-span-2">
+                <div className="grid h-[calc(100vh-140px)] grid-cols-1 gap-6 lg:grid-cols-2">
+                    <div className="lg:col-span-1">
                         <Card className="h-full">
                             <CardHeader className="pb-4">
                                 <div className="flex items-center justify-between">

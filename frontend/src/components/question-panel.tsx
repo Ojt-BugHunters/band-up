@@ -11,7 +11,7 @@ import { Question } from '@/lib/api/dto/question';
 import Image from 'next/image';
 import { useState } from 'react';
 import { ZoomIn } from 'lucide-react';
-import { Dialog, DialogContent, DialogOverlay } from './ui/dialog';
+import { Dialog, DialogContent } from './ui/dialog';
 interface QuestionPanelProps {
     questions: Question[];
     answers: Record<number, string>;
