@@ -1,6 +1,5 @@
 package com.project.Band_Up.utils;
 
-import com.project.Band_Up.dtos.authentication.AccountDto;
 import com.project.Band_Up.entities.Account;
 import com.project.Band_Up.entities.RefreshToken;
 import com.project.Band_Up.exceptions.ResourceNotFoundException;
@@ -57,18 +56,16 @@ public class JwtUtil {
     }
 
     public String generateRefreshToken(UUID accountId) {
-        String tokenId = UUID.randomUUID().toString();
         String tokenSecret = UUID.randomUUID().toString();
 
         String hashedSecret = passwordEncoder.encode(tokenSecret);
-
-        refreshTokenRepository.save(RefreshToken.builder()
-                .id(UUID.fromString(tokenId))
+        RefreshToken refreshToken = refreshTokenRepository.save(RefreshToken.builder()
                 .account(getAccount(accountId))
                 .token(hashedSecret)
                 .expiredAt(new Date(System.currentTimeMillis() + REFRESH_TOKEN_AGE))
                 .build());
 
+        String tokenId = refreshToken.getId().toString();
         return tokenId + "." + tokenSecret;
     }
 
@@ -126,44 +123,23 @@ public class JwtUtil {
         return validateAccessToken(token).getSubject();
     }
 
-    public ResponseCookie getAccessTokenCookie(UUID id) {
-        String token = generateAccessToken(id);
-        ResponseCookie cookie = ResponseCookie.from("AccessToken", token)
+    public ResponseCookie getCookie(String token, String tokenType) {
+        ResponseCookie cookie = ResponseCookie.from(tokenType, token)
                 .httpOnly(true)
                 .secure(true)
                 .path("/")
                 .sameSite("None")
-                .maxAge(15 * 60) // 15 minutes
+                .maxAge(tokenType.equalsIgnoreCase("AccessToken")? 15 * 60 : (int) TimeUnit.DAYS.toSeconds(7)) // 15 minutes
                 .build();
         return cookie;
     }
-    public ResponseCookie getRefreshTokenCookie(UUID id) {
-        String token = generateRefreshToken(id);
-        ResponseCookie cookie = ResponseCookie.from("RefreshToken", token)
-                .httpOnly(true)
-                .secure(true)
-                .path("/")
-                .sameSite("None")
-                .maxAge((int) TimeUnit.DAYS.toSeconds(7)) // 7 days
-                .build();
-        return cookie;
-    }public ResponseCookie deleteAccessTokenCookie() {
-        ResponseCookie cookie = ResponseCookie.from("AccessToken", "")
+    public ResponseCookie deleteCookie(String tokenType) {
+        ResponseCookie cookie = ResponseCookie.from(tokenType, "")
                 .httpOnly(true)
                 .secure(true)
                 .path("/")
                 .sameSite("None")
                 .maxAge(0) // 15 minutes
-                .build();
-        return cookie;
-    }
-    public ResponseCookie deleteRefreshTokenCookie() {
-        ResponseCookie cookie = ResponseCookie.from("RefreshToken", "")
-                .httpOnly(true)
-                .secure(true)
-                .path("/")
-                .sameSite("None")
-                .maxAge(0) // 7 days
                 .build();
         return cookie;
     }
