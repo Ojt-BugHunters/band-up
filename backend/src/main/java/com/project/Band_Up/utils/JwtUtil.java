@@ -2,6 +2,7 @@ package com.project.Band_Up.utils;
 
 import com.project.Band_Up.entities.Account;
 import com.project.Band_Up.entities.RefreshToken;
+import com.project.Band_Up.exceptions.AuthenticationFailedException;
 import com.project.Band_Up.exceptions.ResourceNotFoundException;
 import com.project.Band_Up.repositories.AccountRepository;
 import com.project.Band_Up.repositories.RefreshTokenRepository;
@@ -72,21 +73,21 @@ public class JwtUtil {
     public UUID validateRefreshToken(String rawToken) {
         String[] parts = rawToken.split("\\.");
         if (parts.length != 2) {
-            throw new RuntimeException("Invalid refresh token format");
+            throw new AuthenticationFailedException("Invalid refresh token format");
         }
 
         String tokenId = parts[0];
         String tokenSecret = parts[1];
 
         RefreshToken entity = refreshTokenRepository.findById(UUID.fromString(tokenId))
-                .orElseThrow(() -> new RuntimeException("Refresh token not found"));
+                .orElseThrow(() -> new AuthenticationFailedException("Refresh token not found"));
 
         if (entity.getExpiredAt().before(new Date())) {
-            throw new RuntimeException("Refresh token expired");
+            throw new AuthenticationFailedException("Refresh token expired");
         }
 
         if (!passwordEncoder.matches(tokenSecret, entity.getToken())) {
-            throw new RuntimeException("Invalid refresh token");
+            throw new AuthenticationFailedException("Invalid refresh token");
         }
 
         return entity.getAccount().getId();
@@ -96,7 +97,7 @@ public class JwtUtil {
     public void deleteRefreshToken(String refreshToken) {
         String[] parts = refreshToken.split("\\.");
         if (parts.length != 2) {
-            throw new RuntimeException("Invalid refresh token format");
+            throw new AuthenticationFailedException("Invalid refresh token format");
         }
 
         String tokenId = parts[0];
@@ -113,9 +114,9 @@ public class JwtUtil {
                     .parseSignedClaims(token)
                     .getPayload();
         } catch (ExpiredJwtException e) {
-            throw new RuntimeException("Access token expired");
+            throw new AuthenticationFailedException("Access token expired");
         } catch (JwtException e) {
-            throw new RuntimeException("Invalid access token");
+            throw new AuthenticationFailedException("Invalid access token");
         }
 }
 

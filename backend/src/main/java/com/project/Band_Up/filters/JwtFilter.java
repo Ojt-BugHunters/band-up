@@ -44,25 +44,19 @@ public class JwtFilter extends OncePerRequestFilter {
                 }
             }
         }
-        try {
-            if (accessToken != null) {
-                accountId = UUID.fromString(jwtUtil.extractSubject(accessToken));
-            } else if (refreshToken != null) {
-                accountId = jwtUtil.validateRefreshToken(refreshToken);
+        if (accessToken != null) {
+            accountId = UUID.fromString(jwtUtil.extractSubject(accessToken));
+        } else if (refreshToken != null) {
+            accountId = jwtUtil.validateRefreshToken(refreshToken);
 
-                ResponseCookie newAccessToken = jwtUtil.getCookie(jwtUtil.generateAccessToken(accountId), "AccessToken");
+            ResponseCookie newAccessToken = jwtUtil.getCookie(jwtUtil.generateAccessToken(accountId), "AccessToken");
 
-                response.addHeader("Set-Cookie", newAccessToken.toString());
-            }
+            response.addHeader("Set-Cookie", newAccessToken.toString());
+        }
 
-            if (accountId != null) {
-                Authentication authentication = jwtUtil.getAuthentication(accountId);
-                SecurityContextHolder.getContext().setAuthentication(authentication);
-            }
-
-        } catch (JwtException ex) {
-            response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "Invalid or expired token");
-            return;
+        if (accountId != null) {
+            Authentication authentication = jwtUtil.getAuthentication(accountId);
+            SecurityContextHolder.getContext().setAuthentication(authentication);
         }
         filterChain.doFilter(request,response);
     }
