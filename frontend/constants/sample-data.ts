@@ -314,7 +314,7 @@ export const mockPassages: {
     questions: Question[];
 }[] = [
     {
-        id: 'passage1',
+        id: 'section-1',
         title: 'The History of Urban Planning',
         content: `Urban planning has evolved significantly over the centuries, transforming from simple village layouts to complex metropolitan designs. The earliest forms of urban planning can be traced back to ancient civilizations such as the Indus Valley, where cities like Harappa and Mohenjo-daro demonstrated sophisticated drainage systems and grid-like street patterns.
 
@@ -376,7 +376,7 @@ The future of urban planning lies in adaptive strategies that can respond to cha
         ],
     },
     {
-        id: 'passage2',
+        id: 'section-2',
         title: 'Marine Biodiversity and Conservation',
         content: `The world's oceans harbor an extraordinary diversity of life forms, from microscopic plankton to massive whales. Marine biodiversity encompasses all living organisms in saltwater environments, including coastal areas, open oceans, and deep-sea habitats. This biological richness is essential for maintaining healthy ocean ecosystems and supporting human livelihoods.
 
@@ -433,7 +433,7 @@ Recent technological advances offer new opportunities for marine conservation. S
         ],
     },
     {
-        id: 'passage3',
+        id: 'section-3',
         title: 'Artificial Intelligence in Healthcare',
         content: `Artificial Intelligence (AI) is revolutionizing healthcare by enhancing diagnostic accuracy, streamlining treatment processes, and improving patient outcomes. Machine learning algorithms can analyze vast amounts of medical data to identify patterns that might escape human observation, leading to earlier disease detection and more personalized treatment approaches.
 

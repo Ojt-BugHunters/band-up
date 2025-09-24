@@ -11,8 +11,22 @@ import QuestionPanel from '@/components/question-panel';
 import ReadingPassage from '@/components/reading-passage';
 import { mockPassages } from '../../constants/sample-data';
 
-export function ReadingTest() {
-    const [currentPassage, setCurrentPassage] = useState('passage1');
+type ReadingTestProps = {
+    mode?: string;
+    sections?: string[];
+};
+
+export function ReadingTest({
+    mode = 'full',
+    sections = [],
+}: ReadingTestProps) {
+    const availablePassages =
+        mode === 'full'
+            ? mockPassages
+            : mockPassages.filter((passage) => sections.includes(passage.id));
+    const [currentPassage, setCurrentPassage] = useState(
+        availablePassages[0]?.id ?? '',
+    );
     const [answers, setAnswers] = useState<Record<number, string>>({});
     const [timeRemaining, setTimeRemaining] = useState(3600);
     const [isTestStarted, setIsTestStarted] = useState(false);
@@ -45,7 +59,7 @@ export function ReadingTest() {
     };
 
     const getTotalQuestions = () => {
-        return mockPassages.reduce(
+        return availablePassages.reduce(
             (total, passage) => total + passage.questions.length,
             0,
         );
@@ -58,7 +72,7 @@ export function ReadingTest() {
     };
 
     const getUnansweredQuestions = () => {
-        const allQuestions = mockPassages.flatMap(
+        const allQuestions = availablePassages.flatMap(
             (passage) => passage.questions,
         );
         return allQuestions.filter(
@@ -66,9 +80,13 @@ export function ReadingTest() {
         );
     };
 
-    const currentPassageData = mockPassages.find(
+    const currentPassageData = availablePassages.find(
         (p) => p.id === currentPassage,
     );
+
+    if (availablePassages.length === 0) {
+        return <div>No passage available</div>;
+    }
 
     return (
         <div className="bg-background min-h-screen">
@@ -134,10 +152,10 @@ export function ReadingTest() {
                                         variant="outline"
                                         className="text-xs"
                                     >
-                                        {mockPassages.findIndex(
+                                        {availablePassages.findIndex(
                                             (p) => p.id === currentPassage,
                                         ) + 1}{' '}
-                                        of {mockPassages.length}
+                                        of {availablePassages.length}
                                     </Badge>
                                 </div>
 
@@ -146,17 +164,27 @@ export function ReadingTest() {
                                     onValueChange={setCurrentPassage}
                                     className="w-full"
                                 >
-                                    <TabsList className="bg-muted grid w-full grid-cols-3">
-                                        {mockPassages.map((passage, index) => (
-                                            <TabsTrigger
-                                                key={passage.id}
-                                                value={passage.id}
-                                                className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground text-sm"
-                                            >
-                                                Passage {index + 1}
-                                            </TabsTrigger>
-                                        ))}
-                                    </TabsList>
+                                    {availablePassages.length > 1 && (
+                                        <TabsList
+                                            className={`bg-muted grid w-full ${
+                                                availablePassages.length === 2
+                                                    ? 'grid-cols-2'
+                                                    : 'grid-cols-3'
+                                            }`}
+                                        >
+                                            {availablePassages.map(
+                                                (passage, index) => (
+                                                    <TabsTrigger
+                                                        key={passage.id}
+                                                        value={passage.id}
+                                                        className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground text-sm"
+                                                    >
+                                                        Passage {index + 1}
+                                                    </TabsTrigger>
+                                                ),
+                                            )}
+                                        </TabsList>
+                                    )}
                                 </Tabs>
                             </CardHeader>
 
@@ -171,7 +199,6 @@ export function ReadingTest() {
                         </Card>
                     </div>
 
-                    {/* Questions Panel */}
                     <div className="lg:col-span-1">
                         {currentPassageData && (
                             <QuestionPanel

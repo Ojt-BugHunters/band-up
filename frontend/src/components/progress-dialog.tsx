@@ -10,6 +10,7 @@ import { Progress } from '@/components/ui/progress';
 import { Badge } from '@/components/ui/badge';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Eye, CheckCircle, AlertCircle } from 'lucide-react';
+import { useState } from 'react';
 
 interface Question {
     id: number;
@@ -28,6 +29,10 @@ export default function ProgressDialog({
     answeredQuestions,
     unansweredQuestions,
 }: ProgressDialogProps) {
+    const [confirmType, setConfirmType] = useState<'quit' | 'submit' | null>(
+        null,
+    );
+
     const progressPercentage = (answeredQuestions / totalQuestions) * 100;
 
     return (
@@ -51,7 +56,7 @@ export default function ProgressDialog({
                 </DialogHeader>
 
                 <div className="space-y-6">
-                    {/* Overall Progress */}
+                    {/* Progress bar */}
                     <div className="space-y-3">
                         <div className="flex justify-between text-sm">
                             <span className="text-muted-foreground">
@@ -72,7 +77,7 @@ export default function ProgressDialog({
                         </div>
                     </div>
 
-                    {/* Statistics */}
+                    {/* Answered vs Unanswered */}
                     <div className="grid grid-cols-2 gap-4">
                         <div className="bg-success/10 border-success/20 rounded-lg border p-3 text-center">
                             <div className="text-success text-2xl font-bold">
@@ -90,7 +95,7 @@ export default function ProgressDialog({
                         </div>
                     </div>
 
-                    {/* Unanswered Questions */}
+                    {/* Unanswered list */}
                     {unansweredQuestions.length > 0 && (
                         <div className="space-y-3">
                             <div className="flex items-center gap-2">
@@ -126,7 +131,7 @@ export default function ProgressDialog({
                         </div>
                     )}
 
-                    {/* Completion Status */}
+                    {/* Status */}
                     <div className="bg-primary/10 border-primary/20 rounded-lg border p-3">
                         <div className="text-center text-sm">
                             {progressPercentage === 100 ? (
@@ -142,8 +147,66 @@ export default function ProgressDialog({
                             )}
                         </div>
                     </div>
+
+                    {/* Actions */}
+                    <div className="flex justify-between gap-3 pt-4">
+                        <Button
+                            variant="destructive"
+                            className="flex-1"
+                            onClick={() => setConfirmType('quit')}
+                        >
+                            Quit Test
+                        </Button>
+                        <Button
+                            variant="default"
+                            className="flex-1"
+                            onClick={() => setConfirmType('submit')}
+                        >
+                            Submit Test
+                        </Button>
+                    </div>
                 </div>
             </DialogContent>
+
+            <Dialog
+                open={!!confirmType}
+                onOpenChange={() => setConfirmType(null)}
+            >
+                <DialogContent className="max-w-sm">
+                    <DialogHeader>
+                        <DialogTitle>
+                            {confirmType === 'quit'
+                                ? 'Quit Test?'
+                                : 'Submit Test?'}
+                        </DialogTitle>
+                    </DialogHeader>
+                    <p className="text-muted-foreground text-sm">
+                        {confirmType === 'quit'
+                            ? 'Are you sure you want to quit?'
+                            : 'Are you sure you want to submit your answers? You won’t be able to change them'}
+                    </p>
+                    <div className="flex justify-end gap-3 pt-4">
+                        <Button
+                            variant="outline"
+                            onClick={() => setConfirmType(null)}
+                        >
+                            Cancel
+                        </Button>
+                        <Button
+                            variant={
+                                confirmType === 'quit'
+                                    ? 'destructive'
+                                    : 'default'
+                            }
+                            onClick={() => {
+                                setConfirmType(null);
+                            }}
+                        >
+                            {confirmType === 'quit' ? 'Quit' : 'Submit'}
+                        </Button>
+                    </div>
+                </DialogContent>
+            </Dialog>
         </Dialog>
     );
 }

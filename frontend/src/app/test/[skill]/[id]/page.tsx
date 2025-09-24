@@ -247,7 +247,7 @@ export default function TestOverview({ params }: PageProps) {
                                         size="lg"
                                     >
                                         <Link
-                                            href={`/do?mode=single&skill=${skill}&section=${selectedSections.join(',')}`}
+                                            href={`/test/${skill}/${test.id}/do?mode=single&skill=${skill}&section=${selectedSections.join(',')}`}
                                         >
                                             Start Selected Sections (
                                             {selectedSections.length})
@@ -306,21 +306,20 @@ export default function TestOverview({ params }: PageProps) {
                                             ))}
                                         </ul>
                                     </div>
-
-                                    <Button
-                                        size="lg"
-                                        className="w-full bg-gradient-to-r from-green-600 to-blue-600 shadow-lg transition-all duration-300 hover:from-green-700 hover:to-blue-700 hover:shadow-xl"
+                                    <Link
+                                        href={`/test/${skill}/${test.id}/do?mode=full&skill=${skill}`}
                                     >
-                                        <Link
-                                            href={`/do?mode=full&skill=${skill}`}
+                                        <Button
+                                            size="lg"
+                                            className="w-full bg-gradient-to-r from-green-600 to-blue-600 shadow-lg transition-all duration-300 hover:from-green-700 hover:to-blue-700 hover:shadow-xl"
                                         >
                                             <Play className="mr-2 h-4 w-4" />
                                             Start Full Test ({
                                                 test.duration
                                             }{' '}
                                             minutes)
-                                        </Link>
-                                    </Button>
+                                        </Button>
+                                    </Link>
                                 </CardContent>
                             </Card>
                         </TabsContent>

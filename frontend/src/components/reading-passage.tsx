@@ -12,7 +12,7 @@ export default function ReadingPassage({
     return (
         <div className="h-full">
             <div className="mb-4">
-                <h2 className="mb-2 text-xl font-semibold text-balance">
+                <h2 className="mb-2 text-2xl font-bold text-balance">
                     {title}
                 </h2>
             </div>
@@ -22,7 +22,7 @@ export default function ReadingPassage({
                     {content.split('\n\n').map((paragraph, index) => (
                         <p
                             key={index}
-                            className="mb-4 text-sm leading-relaxed text-pretty"
+                            className="mb-4 text-lg leading-relaxed text-pretty"
                         >
                             {paragraph}
                         </p>

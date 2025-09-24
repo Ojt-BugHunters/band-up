@@ -27,16 +27,16 @@ export default function DoTestPage({ searchParams }: DoTestProps) {
             Component = <ReadingTest mode={mode} sections={sections} />;
             break;
         case 'listening':
-            Component = <ListeningTest mode={mode} sections={sections} />;
+            Component = <ListeningTest />;
             break;
         case 'writing':
-            Component = <WritingTest mode={mode} />;
+            Component = <WritingTest />;
             break;
         case 'speaking':
-            Component = <SpeakingTest mode={mode} />;
+            Component = <SpeakingTest />;
             break;
         default:
-            Component = <div>Vui lòng chọn kỹ năng hợp lệ</div>;
+            Component = <div>Unavaible Test</div>;
     }
 
     return <main className="bg-background min-h-screen">{Component}</main>;
