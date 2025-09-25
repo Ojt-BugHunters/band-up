@@ -1,7 +1,7 @@
 import type { Flashcard } from '@/lib/api/dto/flashcards';
 import { Comment } from '@/lib/api/dto/comment';
 import { Test, TestOverview } from '@/lib/api/dto/test';
-import { Question } from '@/lib/api/dto/question';
+import { ListeningSection, Passage } from '@/lib/api/dto/question';
 
 export const mockFlashcards: Flashcard[] = [
     {
@@ -307,12 +307,7 @@ export const comments: Comment[] = [
     },
 ];
 
-export const mockPassages: {
-    id: string;
-    title: string;
-    content: string;
-    questions: Question[];
-}[] = [
+export const mockPassages: Passage[] = [
     {
         id: 'section-1',
         title: 'The History of Urban Planning',
@@ -492,6 +487,178 @@ Despite these advances, AI implementation in healthcare faces several challenges
                     'Limited technology',
                 ],
                 answer: '',
+            },
+        ],
+    },
+];
+
+export const mockListeningSections: ListeningSection[] = [
+    {
+        id: 'section1',
+        title: 'Section 1: Everyday Social Conversation',
+        audioUrl: '/audio/example.mp3',
+        duration: 300,
+        question: [
+            {
+                id: 1,
+                type: 'completion',
+                question: 'The caller wants to book a table for _____ people.',
+                option: undefined,
+                image: undefined,
+            },
+            {
+                id: 2,
+                type: 'multiple-choice',
+                question: 'What time does the restaurant close on Sundays?',
+                option: ['8:00 PM', '9:00 PM', '10:00 PM', '11:00 PM'],
+                image: undefined,
+            },
+            {
+                id: 3,
+                type: 'completion',
+                question: 'The restaurant is located on _____ Street.',
+                option: undefined,
+                image: undefined,
+            },
+            {
+                id: 4,
+                type: 'completion',
+                question: 'What is the phone number for reservations?',
+                option: undefined,
+                image: undefined,
+            },
+        ],
+    },
+    {
+        id: 'section2',
+        title: 'Section 2: Monologue on General Interest',
+        audioUrl: '/audio/example.mp3',
+        duration: 360,
+        question: [
+            {
+                id: 5,
+                type: 'multiple-choice',
+                question: 'The main purpose of the talk is to:',
+                option: [
+                    'Introduce new museum exhibits',
+                    'Explain museum opening hours',
+                    'Describe the museum layout',
+                    'Announce special events',
+                ],
+                image: undefined,
+            },
+            {
+                id: 6,
+                type: 'completion',
+                question: 'The museum was built in _____.',
+                option: undefined,
+                image: undefined,
+            },
+            {
+                id: 7,
+                type: 'true-false',
+                question: 'Photography is allowed in all areas of the museum.',
+                option: undefined,
+                image: undefined,
+            },
+            {
+                id: 8,
+                type: 'completion',
+                question: 'Match the floor with its main attraction:',
+                option: [
+                    'Ground Floor - Gift Shop',
+                    'First Floor - Ancient History',
+                    'Second Floor - Modern Art',
+                ],
+                image: undefined,
+            },
+        ],
+    },
+    {
+        id: 'section3',
+        title: 'Section 3: Academic Discussion',
+        audioUrl: '/audio/example.mp3',
+        duration: 420,
+        question: [
+            {
+                id: 9,
+                type: 'multiple-choice',
+                question: 'What is the main topic of the discussion?',
+                option: [
+                    'Climate change research',
+                    'Renewable energy sources',
+                    'Environmental policies',
+                    'Sustainable development',
+                ],
+                image: undefined,
+            },
+            {
+                id: 10,
+                type: 'completion',
+                question: 'The research project will last for _____ months.',
+                option: undefined,
+                image: undefined,
+            },
+            {
+                id: 11,
+                type: 'completion',
+                question:
+                    'Which country will they visit for their field study?',
+                option: undefined,
+                image: undefined,
+            },
+            {
+                id: 12,
+                type: 'true-false',
+                question:
+                    'The students need to submit their proposal by next Friday.',
+                option: undefined,
+                image: undefined,
+            },
+        ],
+    },
+    {
+        id: 'section4',
+        title: 'Section 4: Academic Lecture',
+        audioUrl: '/audio/example.mp3',
+        duration: 480,
+        question: [
+            {
+                id: 13,
+                type: 'completion',
+                question:
+                    'The lecture focuses on the impact of _____ on marine ecosystems.',
+                option: undefined,
+                image: undefined,
+            },
+            {
+                id: 14,
+                type: 'multiple-choice',
+                question:
+                    'According to the lecturer, what is the primary cause of coral bleaching?',
+                option: [
+                    'Ocean pollution',
+                    'Rising water temperatures',
+                    'Overfishing',
+                    'Coastal development',
+                ],
+                image: undefined,
+            },
+            {
+                id: 15,
+                type: 'completion',
+                question:
+                    'What percentage of coral reefs have been affected globally?',
+                option: undefined,
+                image: undefined,
+            },
+            {
+                id: 16,
+                type: 'completion',
+                question:
+                    'The Great Barrier Reef has lost approximately _____% of its coral cover.',
+                option: undefined,
+                image: undefined,
             },
         ],
     },
