@@ -141,18 +141,8 @@ export function ListeningTest({
             </header>
 
             <div className="container mx-auto px-4 py-6">
-                <div className="grid h-[calc(100vh-140px)] grid-cols-1 gap-6 lg:grid-cols-2">
-                    <div className="lg:col-span-1">
-                        <AudioPlayer
-                            sections={availableSections}
-                            currentSection={currentSection}
-                            onSectionChange={setCurrentSection}
-                            isTestStarted={isTestStarted}
-                            onTestStart={() => setIsTestStarted(true)}
-                        />
-                    </div>
-
-                    <div className="lg:col-span-1">
+                <div className="grid h-[calc(100vh-140px)] grid-cols-1 gap-6 lg:grid-cols-3">
+                    <div className="lg:col-span-2">
                         {currentSectionData && (
                             <QuestionPanel
                                 questions={currentSectionData.questions}
@@ -161,6 +151,15 @@ export function ListeningTest({
                                 passageTitle={currentSectionData.title}
                             />
                         )}
+                    </div>
+                    <div className="lg:col-span-1">
+                        <AudioPlayer
+                            sections={availableSections}
+                            currentSection={currentSection}
+                            onSectionChange={setCurrentSection}
+                            isTestStarted={isTestStarted}
+                            onTestStart={() => setIsTestStarted(true)}
+                        />
                     </div>
                 </div>
             </div>

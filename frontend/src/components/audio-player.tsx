@@ -74,7 +74,6 @@ export default function AudioPlayer({
     }, [volume, isMuted]);
 
     useEffect(() => {
-        // Reset audio when section changes
         setCurrentTime(0);
         setIsPlaying(false);
         if (audioRef.current) {
@@ -121,7 +120,7 @@ export default function AudioPlayer({
         duration > 0 ? (currentTime / duration) * 100 : 0;
 
     return (
-        <Card className="h-full">
+        <Card className="h-100">
             <CardHeader className="pb-4">
                 <div className="flex items-center justify-between">
                     <CardTitle className="text-lg text-balance">
