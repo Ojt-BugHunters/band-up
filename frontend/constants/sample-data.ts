@@ -488,6 +488,7 @@ export const mockListeningSections: ListeningSection[] = [
                 id: 1,
                 type: 'completion',
                 question: 'The caller wants to book a table for _____ people.',
+                image: '/listening-image.jpg',
             },
             {
                 id: 2,
