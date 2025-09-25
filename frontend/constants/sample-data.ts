@@ -332,7 +332,6 @@ The future of urban planning lies in adaptive strategies that can respond to cha
                     'The Indus Valley',
                     'Medieval Europe',
                 ],
-                answer: '',
                 image: '/loginimg.jpg',
             },
             {
@@ -340,21 +339,18 @@ The future of urban planning lies in adaptive strategies that can respond to cha
                 type: 'short-answer',
                 question:
                     'Name two cities mentioned as examples of early urban planning.',
-                answer: '',
             },
             {
                 id: 3,
                 type: 'true-false',
                 question:
                     'The Garden City movement was initiated during the Industrial Revolution.',
-                answer: '',
             },
             {
                 id: 4,
                 type: 'completion',
                 question:
                     'Modern urban planning must consider _______ change, technological advancement, and demographic shifts.',
-                answer: '',
             },
             {
                 id: 5,
@@ -367,7 +363,6 @@ The future of urban planning lies in adaptive strategies that can respond to cha
                     'It should ignore environmental factors',
                     'It requires no professional training',
                 ],
-                answer: '',
             },
         ],
     },
@@ -389,7 +384,6 @@ Recent technological advances offer new opportunities for marine conservation. S
                 type: 'completion',
                 question:
                     'Coral reefs are often called the "_______ of the sea."',
-                answer: '',
             },
             {
                 id: 7,
@@ -397,21 +391,18 @@ Recent technological advances offer new opportunities for marine conservation. S
                 question:
                     'What percentage of marine species do coral reefs support?',
                 options: ['10%', '15%', '25%', '50%'],
-                answer: '',
             },
             {
                 id: 8,
                 type: 'short-answer',
                 question:
                     'List three threats to marine biodiversity mentioned in the passage.',
-                answer: '',
             },
             {
                 id: 9,
                 type: 'true-false',
                 question:
                     'Marine protected areas serve as sanctuaries for marine life recovery.',
-                answer: '',
             },
             {
                 id: 10,
@@ -424,7 +415,6 @@ Recent technological advances offer new opportunities for marine conservation. S
                     'Satellite monitoring',
                     'Sonar systems',
                 ],
-                answer: '',
             },
         ],
     },
@@ -452,28 +442,24 @@ Despite these advances, AI implementation in healthcare faces several challenges
                     'Only work with X-rays',
                     'Reduce imaging costs',
                 ],
-                answer: '',
             },
             {
                 id: 12,
                 type: 'completion',
                 question:
                     'Traditional pharmaceutical research can take _______ and cost billions of dollars.',
-                answer: '',
             },
             {
                 id: 13,
                 type: 'short-answer',
                 question:
                     'Name two specific medical conditions mentioned where AI shows superior performance.',
-                answer: '',
             },
             {
                 id: 14,
                 type: 'true-false',
                 question:
                     'Natural language processing can extract information from clinical notes.',
-                answer: '',
             },
             {
                 id: 15,
@@ -486,7 +472,6 @@ Despite these advances, AI implementation in healthcare faces several challenges
                     'Data privacy concerns',
                     'Limited technology',
                 ],
-                answer: '',
             },
         ],
     },
@@ -503,29 +488,22 @@ export const mockListeningSections: ListeningSection[] = [
                 id: 1,
                 type: 'completion',
                 question: 'The caller wants to book a table for _____ people.',
-                option: undefined,
-                image: undefined,
             },
             {
                 id: 2,
                 type: 'multiple-choice',
                 question: 'What time does the restaurant close on Sundays?',
-                option: ['8:00 PM', '9:00 PM', '10:00 PM', '11:00 PM'],
-                image: undefined,
+                options: ['8:00 PM', '9:00 PM', '10:00 PM', '11:00 PM'],
             },
             {
                 id: 3,
                 type: 'completion',
                 question: 'The restaurant is located on _____ Street.',
-                option: undefined,
-                image: undefined,
             },
             {
                 id: 4,
                 type: 'completion',
                 question: 'What is the phone number for reservations?',
-                option: undefined,
-                image: undefined,
             },
         ],
     },
@@ -539,38 +517,32 @@ export const mockListeningSections: ListeningSection[] = [
                 id: 5,
                 type: 'multiple-choice',
                 question: 'The main purpose of the talk is to:',
-                option: [
+                options: [
                     'Introduce new museum exhibits',
                     'Explain museum opening hours',
                     'Describe the museum layout',
                     'Announce special events',
                 ],
-                image: undefined,
             },
             {
                 id: 6,
                 type: 'completion',
                 question: 'The museum was built in _____.',
-                option: undefined,
-                image: undefined,
             },
             {
                 id: 7,
                 type: 'true-false',
                 question: 'Photography is allowed in all areas of the museum.',
-                option: undefined,
-                image: undefined,
             },
             {
                 id: 8,
                 type: 'completion',
                 question: 'Match the floor with its main attraction:',
-                option: [
+                options: [
                     'Ground Floor - Gift Shop',
                     'First Floor - Ancient History',
                     'Second Floor - Modern Art',
                 ],
-                image: undefined,
             },
         ],
     },
@@ -584,36 +556,29 @@ export const mockListeningSections: ListeningSection[] = [
                 id: 9,
                 type: 'multiple-choice',
                 question: 'What is the main topic of the discussion?',
-                option: [
+                options: [
                     'Climate change research',
                     'Renewable energy sources',
                     'Environmental policies',
                     'Sustainable development',
                 ],
-                image: undefined,
             },
             {
                 id: 10,
                 type: 'completion',
                 question: 'The research project will last for _____ months.',
-                option: undefined,
-                image: undefined,
             },
             {
                 id: 11,
                 type: 'completion',
                 question:
                     'Which country will they visit for their field study?',
-                option: undefined,
-                image: undefined,
             },
             {
                 id: 12,
                 type: 'true-false',
                 question:
                     'The students need to submit their proposal by next Friday.',
-                option: undefined,
-                image: undefined,
             },
         ],
     },
@@ -628,37 +593,30 @@ export const mockListeningSections: ListeningSection[] = [
                 type: 'completion',
                 question:
                     'The lecture focuses on the impact of _____ on marine ecosystems.',
-                option: undefined,
-                image: undefined,
             },
             {
                 id: 14,
                 type: 'multiple-choice',
                 question:
                     'According to the lecturer, what is the primary cause of coral bleaching?',
-                option: [
+                options: [
                     'Ocean pollution',
                     'Rising water temperatures',
                     'Overfishing',
                     'Coastal development',
                 ],
-                image: undefined,
             },
             {
                 id: 15,
                 type: 'completion',
                 question:
                     'What percentage of coral reefs have been affected globally?',
-                option: undefined,
-                image: undefined,
             },
             {
                 id: 16,
                 type: 'completion',
                 question:
                     'The Great Barrier Reef has lost approximately _____% of its coral cover.',
-                option: undefined,
-                image: undefined,
             },
         ],
     },
