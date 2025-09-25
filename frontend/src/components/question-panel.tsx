@@ -227,7 +227,7 @@ export default function QuestionPanel({
             </CardHeader>
 
             <CardContent className="h-[calc(100%-120px)] p-0">
-                <ScrollArea className="custom-scrollbar h-full">
+                <ScrollArea className="custom-scrollbar h-200 overflow-scroll">
                     <div className="space-y-4 p-6">
                         {questions.map(renderQuestion)}
                     </div>
