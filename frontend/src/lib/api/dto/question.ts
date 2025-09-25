@@ -4,14 +4,16 @@ export type ReadingQuestionType =
     | 'true-false'
     | 'completion';
 
-export type ListeningQuestionType = 'multiple-choice' | 'completion';
+export type ListeningQuestionType =
+    | 'multiple-choice'
+    | 'completion'
+    | 'true-false';
 
 export interface ReadingQuestion {
     id: number;
     type: ReadingQuestionType;
     question: string;
     options?: string[];
-    answer: string;
     image?: string;
 }
 
@@ -19,7 +21,7 @@ export interface ListeningQuestion {
     id: number;
     type: ListeningQuestionType;
     question: string;
-    option?: string[];
+    options?: string[];
     image?: string;
 }
 

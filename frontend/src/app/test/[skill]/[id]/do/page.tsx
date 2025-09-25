@@ -27,7 +27,7 @@ export default function DoTestPage({ searchParams }: DoTestProps) {
             Component = <ReadingTest mode={mode} sections={sections} />;
             break;
         case 'listening':
-            Component = <ListeningTest />;
+            Component = <ListeningTest mode={mode} sections={sections} />;
             break;
         case 'writing':
             Component = <WritingTest />;

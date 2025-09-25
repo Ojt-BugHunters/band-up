@@ -7,13 +7,13 @@ import { Label } from '@/components/ui/label';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
-import { Question } from '@/lib/api/dto/question';
+import { ReadingQuestion } from '@/lib/api/dto/question';
 import Image from 'next/image';
 import { useState } from 'react';
 import { ZoomIn } from 'lucide-react';
 import { Dialog, DialogContent } from './ui/dialog';
 interface QuestionPanelProps {
-    questions: Question[];
+    questions: ReadingQuestion[];
     answers: Record<number, string>;
     onAnswerChange: (questionId: number, answer: string) => void;
     passageTitle: string;
@@ -56,7 +56,7 @@ export default function QuestionPanel({
         }
     };
 
-    const renderQuestion = (question: Question) => {
+    const renderQuestion = (question: ReadingQuestion) => {
         const isAnswered =
             answers[question.id] && answers[question.id].trim() !== '';
 
