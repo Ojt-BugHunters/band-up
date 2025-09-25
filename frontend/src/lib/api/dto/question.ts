@@ -37,5 +37,5 @@ export interface ListeningSection {
     title: string;
     audioUrl: string;
     duration: number;
-    question: ListeningQuestion[];
+    questions: ListeningQuestion[];
 }

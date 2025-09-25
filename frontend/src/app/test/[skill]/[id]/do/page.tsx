@@ -4,15 +4,15 @@ import { WritingTest } from '@/components/writing-test';
 import { ListeningTest } from '@/components/listening-test';
 
 type DoTestProps = {
-    searchParams: {
+    searchParams: Promise<{
         mode?: string;
         skill?: string;
         section?: string | string[];
-    };
+    }>;
 };
 
-export default function DoTestPage({ searchParams }: DoTestProps) {
-    const { mode, skill, section } = searchParams;
+export default async function DoTestPage({ searchParams }: DoTestProps) {
+    const { mode, skill, section } = await searchParams;
 
     let sections: string[] = [];
     if (Array.isArray(section)) {

@@ -479,11 +479,11 @@ Despite these advances, AI implementation in healthcare faces several challenges
 
 export const mockListeningSections: ListeningSection[] = [
     {
-        id: 'section1',
+        id: 'section-1',
         title: 'Section 1: Everyday Social Conversation',
         audioUrl: '/audio/example.mp3',
         duration: 300,
-        question: [
+        questions: [
             {
                 id: 1,
                 type: 'completion',
@@ -508,11 +508,11 @@ export const mockListeningSections: ListeningSection[] = [
         ],
     },
     {
-        id: 'section2',
+        id: 'section-2',
         title: 'Section 2: Monologue on General Interest',
         audioUrl: '/audio/example.mp3',
         duration: 360,
-        question: [
+        questions: [
             {
                 id: 5,
                 type: 'multiple-choice',
@@ -547,11 +547,11 @@ export const mockListeningSections: ListeningSection[] = [
         ],
     },
     {
-        id: 'section3',
+        id: 'section-3',
         title: 'Section 3: Academic Discussion',
         audioUrl: '/audio/example.mp3',
         duration: 420,
-        question: [
+        questions: [
             {
                 id: 9,
                 type: 'multiple-choice',
@@ -583,11 +583,11 @@ export const mockListeningSections: ListeningSection[] = [
         ],
     },
     {
-        id: 'section4',
+        id: 'section-4',
         title: 'Section 4: Academic Lecture',
         audioUrl: '/audio/example.mp3',
         duration: 480,
-        question: [
+        questions: [
             {
                 id: 13,
                 type: 'completion',

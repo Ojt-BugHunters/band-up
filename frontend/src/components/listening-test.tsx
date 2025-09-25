@@ -61,7 +61,7 @@ export function ListeningTest({
 
     const getTotalQuestions = () => {
         return availableSections.reduce(
-            (total, section) => total + section.question.length,
+            (total, section) => total + section.questions.length,
             0,
         );
     };
@@ -74,7 +74,7 @@ export function ListeningTest({
 
     const getUnansweredQuestions = () => {
         const allQuestions = availableSections.flatMap(
-            (section) => section.question,
+            (section) => section.questions,
         );
         return allQuestions.filter(
             (q) => !answers[q.id] || answers[q.id].trim() === '',
@@ -155,7 +155,7 @@ export function ListeningTest({
                     <div className="lg:col-span-1">
                         {currentSectionData && (
                             <QuestionPanel
-                                questions={currentSectionData.question}
+                                questions={currentSectionData.questions}
                                 answers={answers}
                                 onAnswerChange={handleAnswerChange}
                                 passageTitle={currentSectionData.title}
