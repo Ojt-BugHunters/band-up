@@ -19,6 +19,36 @@ interface QuestionPanelProps {
     passageTitle: string;
 }
 
+const getQuestionTypeLabel = (type: string) => {
+    switch (type) {
+        case 'multiple-choice':
+            return 'Multiple Choice';
+        case 'short-answer':
+            return 'Short Answer';
+        case 'true-false':
+            return 'True/False';
+        case 'completion':
+            return 'Completion';
+        default:
+            return type;
+    }
+};
+
+const getQuestionTypeColor = (type: string) => {
+    switch (type) {
+        case 'multiple-choice':
+            return 'bg-primary/10 text-primary border-primary/20';
+        case 'short-answer':
+            return 'bg-success/10 text-success border-success/20';
+        case 'true-false':
+            return 'bg-warning/10 text-warning border-warning/20';
+        case 'completion':
+            return 'bg-accent/10 text-accent-foreground border-accent/20';
+        default:
+            return 'bg-muted text-muted-foreground';
+    }
+};
+
 export default function QuestionPanel({
     questions,
     answers,
@@ -26,36 +56,6 @@ export default function QuestionPanel({
     passageTitle,
 }: QuestionPanelProps) {
     const [zoomedImage, setZoomedImage] = useState<string | null>(null);
-    const getQuestionTypeLabel = (type: string) => {
-        switch (type) {
-            case 'multiple-choice':
-                return 'Multiple Choice';
-            case 'short-answer':
-                return 'Short Answer';
-            case 'true-false':
-                return 'True/False';
-            case 'completion':
-                return 'Completion';
-            default:
-                return type;
-        }
-    };
-
-    const getQuestionTypeColor = (type: string) => {
-        switch (type) {
-            case 'multiple-choice':
-                return 'bg-primary/10 text-primary border-primary/20';
-            case 'short-answer':
-                return 'bg-success/10 text-success border-success/20';
-            case 'true-false':
-                return 'bg-warning/10 text-warning border-warning/20';
-            case 'completion':
-                return 'bg-accent/10 text-accent-foreground border-accent/20';
-            default:
-                return 'bg-muted text-muted-foreground';
-        }
-    };
-
     const renderQuestion = (question: ReadingQuestion) => {
         const isAnswered =
             answers[question.id] && answers[question.id].trim() !== '';

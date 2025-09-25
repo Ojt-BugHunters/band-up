@@ -39,3 +39,14 @@ export interface ListeningSection {
     duration: number;
     questions: ListeningQuestion[];
 }
+
+export interface WritingTask {
+    title: string;
+    content: string;
+    imageUrl?: string;
+}
+
+export type WritingTasks = {
+    task1: WritingTask;
+    task2: WritingTask;
+};

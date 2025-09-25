@@ -1,7 +1,11 @@
 import type { Flashcard } from '@/lib/api/dto/flashcards';
 import { Comment } from '@/lib/api/dto/comment';
 import { Test, TestOverview } from '@/lib/api/dto/test';
-import { ListeningSection, Passage } from '@/lib/api/dto/question';
+import {
+    ListeningSection,
+    Passage,
+    WritingTasks,
+} from '@/lib/api/dto/question';
 
 export const mockFlashcards: Flashcard[] = [
     {
@@ -622,3 +626,16 @@ export const mockListeningSections: ListeningSection[] = [
         ],
     },
 ];
+
+export const writingTasks: WritingTasks = {
+    task1: {
+        title: 'Academic Writing Task 1',
+        content: 'Write at least 150 words.',
+        imageUrl: '/line-chart-showing-percentage-of-households-in-own.jpg',
+    },
+    task2: {
+        title: 'Academic Writing Task 2',
+        content:
+            'Some people think that all university students should study whatever they like. Others believe that they should only be allowed to study subjects that will be useful in the future, such as those related to science and technology. Discuss both these views and give your own opinion. Give reasons for your answer and include any relevant examples from your own knowledge or experience.',
+    },
+};
