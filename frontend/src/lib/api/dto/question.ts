@@ -25,6 +25,11 @@ export interface ListeningQuestion {
     image?: string;
 }
 
+export interface SpeakingQuestion {
+    id: number;
+    question: string;
+}
+
 export interface Passage {
     id: string;
     title: string;
@@ -45,4 +50,12 @@ export interface ListeningSection {
     audioUrl: string;
     duration: number;
     questions: ListeningQuestion[];
+}
+
+export interface SpeakingSection {
+    id: string;
+    title: string;
+    duration: number;
+    description: string;
+    questions: SpeakingQuestion[];
 }
