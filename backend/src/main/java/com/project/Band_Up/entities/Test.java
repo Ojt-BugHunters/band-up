@@ -42,5 +42,5 @@ public class Test {
     @CreationTimestamp
     @Column(name = "create_at", nullable = false, updatable = false)
     private LocalDateTime createAt;
-    
+
 }

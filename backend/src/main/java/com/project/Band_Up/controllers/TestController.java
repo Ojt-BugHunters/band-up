@@ -144,14 +144,15 @@ public class TestController {
             @ApiResponse(responseCode = "400", description = "Yêu cầu không hợp lệ"),
             @ApiResponse(responseCode = "404", description = "Test không tồn tại")
     })
-    @PutMapping(value = "", consumes = MediaType.APPLICATION_JSON_VALUE)
+    @PutMapping(value = "/{id}", consumes = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<TestResponse> updateTest(
+            @PathVariable UUID id,
             @io.swagger.v3.oas.annotations.parameters.RequestBody(
                     description = "TestUpdateRequest JSON, bắt buộc có id. Ví dụ: { \"id\":\"<uuid>\", \"title\":\"Mới\", \"numberOfPeople\":5 }",
                     required = true
             )
             @Valid @RequestBody TestUpdateRequest request) {
-        TestResponse updated = testService.updateTest(request);
+        TestResponse updated = testService.updateTest(id, request);
         return ResponseEntity.ok(updated);
     }
 
