@@ -1,11 +1,7 @@
 import type { Flashcard } from '@/lib/api/dto/flashcards';
 import { Comment } from '@/lib/api/dto/comment';
 import { Test, TestOverview } from '@/lib/api/dto/test';
-import {
-    ListeningSection,
-    Passage,
-    WritingTasks,
-} from '@/lib/api/dto/question';
+import { ListeningSection, Passage, WritingTask } from '@/lib/api/dto/question';
 
 export const mockFlashcards: Flashcard[] = [
     {
@@ -245,13 +241,13 @@ export const writingTest: Test = {
     number_participant: 654,
     section: [
         {
-            id: 'task-1',
+            id: 'section-1',
             title: 'Task 1',
             questions: 1,
             description: 'Describe graph, chart, or diagram',
         },
         {
-            id: 'task-2',
+            id: 'section-2',
             title: 'Task 2',
             questions: 1,
             description: 'Essay on academic or general topic',
@@ -627,22 +623,18 @@ export const mockListeningSections: ListeningSection[] = [
     },
 ];
 
-export const writingTasks = {
-    task1: {
-        id: 'task1',
+export const writingTasks: WritingTask[] = [
+    {
+        id: 'section-1',
         title: 'Academic Writing Task 1',
-        instructions:
-            'You should spend about 20 minutes on this task. The chart below shows the percentage of households in owned and rented accommodation in England and Wales between 1918 and 2011. Summarise the information by selecting and reporting the main features, and make comparisons where relevant.',
-        prompt: 'Write at least 150 words.',
-        minWords: 150,
+        content:
+            'The chart below shows the percentage of households in owned and rented accommodation in England and Wales between 1918 and 2011. Summarise the information by selecting and reporting the main features, and make comparisons where relevant',
         imageUrl: '/writing-test-1.jpg',
     },
-    task2: {
-        id: 'task2',
+    {
+        id: 'section-2',
         title: 'Academic Writing Task 2',
-        instructions:
-            'You should spend about 40 minutes on this task. Write about the following topic:',
-        prompt: 'Some people think that all university students should study whatever they like. Others believe that they should only be allowed to study subjects that will be useful in the future, such as those related to science and technology. Discuss both these views and give your own opinion. Give reasons for your answer and include any relevant examples from your own knowledge or experience.',
-        minWords: 250,
+        content:
+            'Some people think that all university students should study whatever they like. Others believe that they should only be allowed to study subjects that will be useful in the future, such as those related to science and technology. Discuss both these views and give your own opinion. Give reasons for your answer and include any relevant examples from your own knowledge or experience.',
     },
-};
+];
