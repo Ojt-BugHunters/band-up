@@ -25,6 +25,11 @@ export interface ListeningQuestion {
     image?: string;
 }
 
+export interface SpeakingQuestion {
+    id: number;
+    question: string;
+}
+
 export interface Passage {
     id: string;
     title: string;
@@ -45,4 +50,44 @@ export interface ListeningSection {
     audioUrl: string;
     duration: number;
     questions: ListeningQuestion[];
+}
+
+export interface SpeakingSection {
+    id: string;
+    title: string;
+    duration: number;
+    description: string;
+    questions: SpeakingQuestion[];
+}
+
+export interface EnrichedSpeakingQuestion extends SpeakingQuestion {
+    preparationTime: number;
+    speakingTime: number;
+}
+
+export interface EnrichedSpeakingSection extends SpeakingSection {
+    questions: EnrichedSpeakingQuestion[];
+}
+
+export function enrichSpeakingTestParts(
+    sections: SpeakingSection[],
+): EnrichedSpeakingSection[] {
+    return sections.map((section) => {
+        let preparationTime = 0;
+        let speakingTime = 90;
+
+        if (section.id === 'section-2') {
+            preparationTime = 60;
+            speakingTime = 120;
+        }
+
+        return {
+            ...section,
+            questions: section.questions.map((q) => ({
+                ...q,
+                preparationTime,
+                speakingTime,
+            })),
+        };
+    });
 }

@@ -89,7 +89,7 @@ export default function ReadingPassage({
                                             toggleToken(id);
                                             e.preventDefault();
                                         }}
-                                        onMouseEnter={(e) => {
+                                        onMouseEnter={() => {
                                             if (
                                                 !highlightMode ||
                                                 !selecting ||

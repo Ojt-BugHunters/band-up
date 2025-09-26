@@ -1,3 +1,4 @@
+import { SpeakingSection } from './../src/lib/api/dto/question';
 import type { Flashcard } from '@/lib/api/dto/flashcards';
 import { Comment } from '@/lib/api/dto/comment';
 import { Test, TestOverview } from '@/lib/api/dto/test';
@@ -265,13 +266,13 @@ export const speakingTest: Test = {
     number_participant: 432,
     section: [
         {
-            id: 'part-1',
+            id: 'section-1',
             title: 'Part 1',
             questions: 4,
             description: 'Introduction and interview questions',
         },
         {
-            id: 'part-2-3',
+            id: 'section-2-3',
             title: 'Part 2 & 3',
             questions: 6,
             description: 'Cue card long turn followed by discussion questions',
@@ -636,5 +637,130 @@ export const writingTasks: WritingTask[] = [
         title: 'Academic Writing Task 2',
         content:
             'Some people think that all university students should study whatever they like. Others believe that they should only be allowed to study subjects that will be useful in the future, such as those related to science and technology. Discuss both these views and give your own opinion. Give reasons for your answer and include any relevant examples from your own knowledge or experience.',
+    },
+];
+
+export const speakingTestParts: SpeakingSection[] = [
+    {
+        id: 'section-1',
+        title: 'Part 1: Introduction and Interview',
+        duration: 4 * 60,
+        description:
+            'The examiner will ask you general questions about yourself and a range of familiar topics.',
+        questions: [
+            {
+                id: 1,
+                question: 'What is your full name?',
+            },
+            {
+                id: 2,
+                question: 'Can I see your identification please?',
+            },
+            {
+                id: 3,
+                question: 'Where are you from?',
+            },
+            {
+                id: 4,
+                question: 'Do you work or are you a student?',
+            },
+            {
+                id: 5,
+                question: 'What do you like most about your work/studies?',
+            },
+            {
+                id: 6,
+                question:
+                    "Let's talk about your hometown. What's your hometown like?",
+            },
+            {
+                id: 7,
+                question: 'What do you like about your hometown?',
+            },
+            {
+                id: 8,
+                question: 'What would you like to change about your hometown?',
+            },
+            {
+                id: 9,
+                question:
+                    "Let's move on to talk about food. What's your favorite food?",
+            },
+            {
+                id: 10,
+                question:
+                    'Do you prefer eating at home or in restaurants? Why?',
+            },
+            {
+                id: 11,
+                question:
+                    'Have your eating habits changed since you were younger?',
+            },
+            {
+                id: 12,
+                question:
+                    "Do you think it's important to eat healthy food? Why?",
+            },
+        ],
+    },
+    {
+        id: 'section-2',
+        title: 'Part 2: Individual Long Turn',
+        duration: 3 * 60,
+        description:
+            'You will be given a task card with a topic. You have 1 minute to prepare and then speak for 1-2 minutes.',
+        questions: [
+            {
+                id: 13,
+                question:
+                    'Describe a memorable journey you have taken.\n\nYou should say:\n• Where you went\n• Who you went with\n• What you did there\n• And explain why this journey was memorable for you\n\nYou will have 1 minute to prepare your talk and then you will need to talk for 1-2 minutes.',
+            },
+        ],
+    },
+    {
+        id: 'section-3',
+        title: 'Part 3: Two-way Discussion',
+        duration: 4 * 60,
+        description:
+            'The examiner will ask you further questions connected to the topic in Part 2.',
+        questions: [
+            {
+                id: 14,
+                question: 'How has travel changed over the past few decades?',
+            },
+            {
+                id: 15,
+                question:
+                    'What are the benefits of traveling to different countries?',
+            },
+            {
+                id: 16,
+                question:
+                    'Do you think virtual reality will replace real travel in the future? Why or why not?',
+            },
+            {
+                id: 17,
+                question:
+                    'Some people say that traveling is a waste of money. What do you think?',
+            },
+            {
+                id: 18,
+                question:
+                    'How important is it for young people to travel? Why?',
+            },
+            {
+                id: 19,
+                question: 'What impact does tourism have on local communities?',
+            },
+            {
+                id: 20,
+                question:
+                    'Do you think people will travel more or less in the future? Why?',
+            },
+            {
+                id: 21,
+                question: 'How can governments encourage responsible tourism?',
+            },
+        ],
     },
 ];

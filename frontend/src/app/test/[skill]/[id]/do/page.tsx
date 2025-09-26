@@ -15,10 +15,27 @@ export default async function DoTestPage({ searchParams }: DoTestProps) {
     const { mode, skill, section } = await searchParams;
 
     let sections: string[] = [];
+
     if (Array.isArray(section)) {
         sections = section;
     } else if (typeof section === 'string') {
-        sections = section.split(',');
+        const rawSections = section.split(',');
+
+        for (const sec of rawSections) {
+            if (sec.includes('-')) {
+                const parts = sec.split('-');
+                const prefix = parts[0];
+                const nums = parts.slice(1);
+
+                if (nums.every((n) => /^\d+$/.test(n))) {
+                    nums.forEach((n) => sections.push(`${prefix}-${n}`));
+                } else {
+                    sections.push(sec);
+                }
+            } else {
+                sections.push(sec);
+            }
+        }
     }
 
     let Component: React.ReactNode = null;
@@ -33,7 +50,7 @@ export default async function DoTestPage({ searchParams }: DoTestProps) {
             Component = <WritingTest mode={mode} sections={sections} />;
             break;
         case 'speaking':
-            Component = <SpeakingTest />;
+            Component = <SpeakingTest mode={mode} sections={sections} />;
             break;
         default:
             Component = <div>Unavaible Test</div>;
