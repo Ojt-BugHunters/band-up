@@ -2,20 +2,11 @@
 
 import type React from 'react';
 
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, useCallback } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import {
-    Clock,
-    Mic,
-    MicOff,
-    FileText,
-    Play,
-    Square,
-    Upload,
-    Info,
-} from 'lucide-react';
+import { Clock, Mic, FileText, Info, Upload, X } from 'lucide-react';
 import ProgressDialog from '@/components/progress-dialog';
 import { Separator } from '@/components/ui/separator';
 import { ScrollArea } from '@/components/ui/scroll-area';
@@ -24,6 +15,19 @@ import { Input } from '@/components/ui/input';
 import { speakingTestParts } from '../../constants/sample-data';
 import { enrichSpeakingTestParts } from '@/lib/api/dto/question';
 import { VoiceInput } from './voice-input';
+import { toast } from 'sonner';
+import {
+    FileUpload,
+    FileUploadDropzone,
+    FileUploadItem,
+    FileUploadItemDelete,
+    FileUploadItemMetadata,
+    FileUploadItemPreview,
+    FileUploadItemProgress,
+    FileUploadList,
+    type FileUploadProps,
+    FileUploadTrigger,
+} from '@/components/ui/file-upload';
 
 type SpeakingTestProps = {
     mode?: string;
@@ -55,9 +59,8 @@ export function SpeakingTest({
     const [showReview, setShowReview] = useState(false);
     const fileInputRef = useRef<HTMLInputElement>(null);
     const mediaRecorderRef = useRef<MediaRecorder | null>(null);
-    const chunksRef = useRef<Blob[]>([]);
-    const [recording, setRecording] = useState(false);
     const [audioUrl, setAudioUrl] = useState<string | null>(null);
+    const [files, setFiles] = useState<File[]>([]);
 
     const totalDuration = availableParts.reduce(
         (total, part) => total + part.duration,
@@ -121,35 +124,52 @@ export function SpeakingTest({
         return `${minutes.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
     };
 
-    const startRecording = async () => {
-        const stream = await navigator.mediaDevices.getUserMedia({
-            audio: true,
+    const onUpload: NonNullable<FileUploadProps['onUpload']> = useCallback(
+        async (files, { onProgress, onSuccess, onError }) => {
+            try {
+                const uploadPromises = files.map(async (file) => {
+                    try {
+                        const totalChunks = 10;
+                        let uploadedChunks = 0;
+                        for (let i = 0; i < totalChunks; i++) {
+                            await new Promise((resolve) =>
+                                setTimeout(resolve, Math.random() * 200 + 100),
+                            );
+
+                            uploadedChunks++;
+                            const progress =
+                                (uploadedChunks / totalChunks) * 100;
+                            onProgress(file, progress);
+                        }
+
+                        await new Promise((resolve) =>
+                            setTimeout(resolve, 500),
+                        );
+                        onSuccess(file);
+                    } catch (error) {
+                        onError(
+                            file,
+                            error instanceof Error
+                                ? error
+                                : new Error('Upload failed'),
+                        );
+                    }
+                });
+
+                await Promise.all(uploadPromises);
+            } catch (error) {
+                toast.error('Unexpected error during upload');
+                console.log(error);
+            }
+        },
+        [],
+    );
+
+    const onFileReject = useCallback((file: File, message: string) => {
+        toast(message, {
+            description: `"${file.name.length > 20 ? `${file.name.slice(0, 20)}...` : file.name}" has been rejected`,
         });
-        const mediaRecorder = new MediaRecorder(stream);
-        mediaRecorderRef.current = mediaRecorder;
-        chunksRef.current = [];
-
-        mediaRecorder.ondataavailable = (e) => {
-            if (e.data.size > 0) chunksRef.current.push(e.data);
-        };
-
-        mediaRecorder.onstop = () => {
-            const blob = new Blob(chunksRef.current, { type: 'audio/webm' });
-            const file = new File([blob], `recording-${Date.now()}.webm`, {
-                type: 'audio/webm',
-            });
-            setPartAnswers((prev) => ({ ...prev, [currentPart]: file.name }));
-            setAudioUrl(URL.createObjectURL(blob));
-        };
-
-        mediaRecorder.start();
-        setRecording(true);
-    };
-
-    const stopRecording = () => {
-        mediaRecorderRef.current?.stop();
-        setRecording(false);
-    };
+    }, []);
 
     const handleFileUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
         const file = event.target.files?.[0];
@@ -179,33 +199,8 @@ export function SpeakingTest({
         }
     };
 
-    const handleStartRecording = () => {
-        if (!currentPartData) return;
-
-        setPartAnswers((prev) => ({ ...prev, [currentPart]: 'attempted' }));
-        if (currentPart === 'section-2') {
-            setPreparationTime(60);
-            setIsPreparing(true);
-        } else {
-            setSpeakingTime(currentPartData.duration);
-            setIsRecording(true);
-        }
-    };
-
-    const handleStartWithFile = () => {
-        if (!currentPartData) return;
-        setShowFileUpload(true);
-    };
-
     const handleReviewQuestions = () => {
         setShowReview(!showReview);
-    };
-
-    const handleStopRecording = () => {
-        setIsPreparing(false);
-        setIsRecording(false);
-        setPreparationTime(0);
-        setSpeakingTime(0);
     };
 
     const handleNextPart = () => {
@@ -314,7 +309,7 @@ export function SpeakingTest({
                             <CardContent className="h-[calc(100%-120px)] p-0">
                                 <ScrollArea className="h-full">
                                     <div className="space-y-3 p-6">
-                                        {availableParts.map((part, index) => (
+                                        {availableParts.map((part) => (
                                             <div
                                                 key={part.id}
                                                 className={`cursor-pointer rounded-lg border p-4 transition-colors ${
@@ -495,94 +490,18 @@ export function SpeakingTest({
                                                                       )
                                                                     : 'N/A'}
                                                             </li>
+                                                            <li>
+                                                                IMPORTANT: Just
+                                                                choose one
+                                                                options to
+                                                                submit: Input
+                                                                Voice or Browse
+                                                                File
+                                                            </li>
                                                         </ul>
                                                     </div>
                                                 </AlertDescription>
                                             </Alert>
-
-                                            {showFileUpload && (
-                                                <Alert>
-                                                    <Info className="h-4 w-4" />
-                                                    <AlertDescription>
-                                                        <div className="space-y-3">
-                                                            <p className="font-medium">
-                                                                File Upload
-                                                                Instructions:
-                                                            </p>
-                                                            <ul className="ml-4 list-disc space-y-1 text-sm">
-                                                                <li>
-                                                                    Upload your
-                                                                    audio
-                                                                    recording
-                                                                    answering
-                                                                    ALL
-                                                                    questions in
-                                                                    this part
-                                                                </li>
-                                                                <li>
-                                                                    Accepted
-                                                                    formats:
-                                                                    MP3, WAV,
-                                                                    M4A, OGG,
-                                                                    WebM
-                                                                </li>
-                                                                <li>
-                                                                    Maximum file
-                                                                    size: 50MB
-                                                                </li>
-                                                                <li>
-                                                                    Ensure your
-                                                                    recording
-                                                                    covers all
-                                                                    questions
-                                                                    above
-                                                                </li>
-                                                                <li>
-                                                                    Recommended
-                                                                    duration:{' '}
-                                                                    {currentPartData
-                                                                        ? formatTime(
-                                                                              currentPartData.duration,
-                                                                          )
-                                                                        : 'N/A'}
-                                                                </li>
-                                                            </ul>
-                                                            <div className="flex items-center gap-2 pt-2">
-                                                                <Input
-                                                                    ref={
-                                                                        fileInputRef
-                                                                    }
-                                                                    type="file"
-                                                                    accept="audio/*,.mp3,.wav,.m4a,.ogg,.webm"
-                                                                    onChange={
-                                                                        handleFileUpload
-                                                                    }
-                                                                    className="flex-1"
-                                                                />
-                                                                <Button
-                                                                    variant="outline"
-                                                                    onClick={() =>
-                                                                        setShowFileUpload(
-                                                                            false,
-                                                                        )
-                                                                    }
-                                                                >
-                                                                    Cancel
-                                                                </Button>
-                                                            </div>
-                                                            {uploadedFile && (
-                                                                <p className="text-sm text-green-600">
-                                                                    ✓ File
-                                                                    uploaded:{' '}
-                                                                    {
-                                                                        uploadedFile.name
-                                                                    }
-                                                                </p>
-                                                            )}
-                                                        </div>
-                                                    </AlertDescription>
-                                                </Alert>
-                                            )}
 
                                             {(isRecording || isPreparing) && (
                                                 <Alert className="border-blue-200 bg-blue-50">
@@ -665,36 +584,114 @@ export function SpeakingTest({
                                         </div>
 
                                         <div className="mt-auto space-y-4">
-                                            <div className="flex flex-col items-center gap-4">
-                                                <VoiceInput
-                                                    onStart={() => {
-                                                        setPartAnswers(
-                                                            (prev) => ({
-                                                                ...prev,
-                                                                [currentPart]:
-                                                                    'attempted',
-                                                            }),
-                                                        );
-                                                    }}
-                                                    onStop={(
-                                                        file,
-                                                        duration,
-                                                    ) => {
-                                                        setPartAnswers(
-                                                            (prev) => ({
-                                                                ...prev,
-                                                                [currentPart]:
-                                                                    file.name,
-                                                            }),
-                                                        );
-                                                        console.log(
-                                                            'Recorded file:',
+                                            <div className="item-start grid grid-cols-1 gap-6 md:grid-cols-2">
+                                                <div className="flex flex-col items-center gap-4">
+                                                    <VoiceInput
+                                                        onStart={() => {
+                                                            setPartAnswers(
+                                                                (prev) => ({
+                                                                    ...prev,
+                                                                    [currentPart]:
+                                                                        'attempted',
+                                                                }),
+                                                            );
+                                                        }}
+                                                        onStop={(
                                                             file,
-                                                            'Duration:',
                                                             duration,
-                                                        );
-                                                    }}
-                                                />
+                                                        ) => {
+                                                            setPartAnswers(
+                                                                (prev) => ({
+                                                                    ...prev,
+                                                                    [currentPart]:
+                                                                        file.name,
+                                                                }),
+                                                            );
+                                                            console.log(
+                                                                'Recorded file:',
+                                                                file,
+                                                                'Duration:',
+                                                                duration,
+                                                            );
+                                                        }}
+                                                    />
+                                                </div>
+                                                <div className="flex flex-col items-center gap-4">
+                                                    <FileUpload
+                                                        value={files}
+                                                        onValueChange={setFiles}
+                                                        onUpload={onUpload}
+                                                        onFileReject={
+                                                            onFileReject
+                                                        }
+                                                        maxFiles={2}
+                                                        className="w-full max-w-md"
+                                                        multiple
+                                                    >
+                                                        <FileUploadDropzone>
+                                                            <div className="flex flex-col items-center gap-1 text-center">
+                                                                <div className="flex items-center justify-center rounded-full border p-2.5">
+                                                                    <Upload className="text-muted-foreground size-6" />
+                                                                </div>
+                                                                <p className="text-sm font-medium">
+                                                                    Drag & drop
+                                                                    files here
+                                                                </p>
+                                                                <p className="text-muted-foreground text-xs">
+                                                                    Or click to
+                                                                    browse (max
+                                                                    2 files)
+                                                                </p>
+                                                            </div>
+                                                            <FileUploadTrigger
+                                                                asChild
+                                                            >
+                                                                <Button
+                                                                    variant="outline"
+                                                                    size="sm"
+                                                                    className="mt-2 w-fit"
+                                                                >
+                                                                    Browse files
+                                                                </Button>
+                                                            </FileUploadTrigger>
+                                                        </FileUploadDropzone>
+                                                        <FileUploadList>
+                                                            {files.map(
+                                                                (
+                                                                    file,
+                                                                    index,
+                                                                ) => (
+                                                                    <FileUploadItem
+                                                                        key={
+                                                                            index
+                                                                        }
+                                                                        value={
+                                                                            file
+                                                                        }
+                                                                        className="flex-col"
+                                                                    >
+                                                                        <div className="flex w-full items-center gap-2">
+                                                                            <FileUploadItemPreview />
+                                                                            <FileUploadItemMetadata />
+                                                                            <FileUploadItemDelete
+                                                                                asChild
+                                                                            >
+                                                                                <Button
+                                                                                    variant="ghost"
+                                                                                    size="icon"
+                                                                                    className="size-7"
+                                                                                >
+                                                                                    <X />
+                                                                                </Button>
+                                                                            </FileUploadItemDelete>
+                                                                        </div>
+                                                                        <FileUploadItemProgress />
+                                                                    </FileUploadItem>
+                                                                ),
+                                                            )}
+                                                        </FileUploadList>
+                                                    </FileUpload>
+                                                </div>
                                             </div>
 
                                             <div className="flex items-center justify-between border-t pt-4">
@@ -708,20 +705,6 @@ export function SpeakingTest({
                                                 >
                                                     Previous Part
                                                 </Button>
-
-                                                {audioUrl && (
-                                                    <div className="mt-4">
-                                                        <p className="mb-1 text-sm text-green-600">
-                                                            Preview your
-                                                            recording:
-                                                        </p>
-                                                        <audio
-                                                            controls
-                                                            src={audioUrl}
-                                                            className="w-full"
-                                                        />
-                                                    </div>
-                                                )}
 
                                                 <Button
                                                     variant="outline"
