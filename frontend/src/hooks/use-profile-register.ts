@@ -12,7 +12,7 @@ export const schema = z
     .object({
         name: z.string().min(1, {message: 'Name must not be empty'}),
         gender: z.enum(["Male", "Female"]),
-        birthday: z.string(),
+        birthday: z.coerce.date({message: 'Birthday must be a valid date'}),
         address: z.string().min(1, {message: 'Address must not be empty'}),
         phone: z.string().min(1, {message: 'Phone must not be empty'}),
     })
@@ -23,13 +23,25 @@ export const useProfile = () => {
 
     const mutation = useMutation({
         mutationFn: async (values: z.infer<typeof schema>) => {
-            const response = await fetchWrapper('/auth/register', {
+            const formatDateForBackend = (date: Date) => {
+                const day = String(date.getUTCDate()).padStart(2, '0');
+                const month = String(date.getUTCMonth() + 1).padStart(2, '0');
+                const year = date.getUTCFullYear();
+                return `${day}-${month}-${year}`;
+            };
+            const payload = {
+                ...values,
+                birthday: values.birthday instanceof Date
+                    ? formatDateForBackend(values.birthday)
+                    : values.birthday,
+            };
+            const response = await fetchWrapper('/profile/update', {
                 method: 'POST',
                 headers: {
                     Accept: 'application/json',
                     'Content-Type': 'application/json',
                 },
-                body: JSON.stringify(values),
+                body: JSON.stringify(payload),
             });
 
             await throwIfError(response);
@@ -47,12 +59,18 @@ export const useProfile = () => {
         },
     });
 
-    const form = useForm<z.infer<typeof schema>>({
+    const form = useForm<{
+        name: string;
+        gender: "Male" | "Female";
+        birthday: unknown;
+        address: string;
+        phone: string;
+    }>({
         resolver: zodResolver(schema),
         defaultValues: {
             name: '',
             gender: undefined,
-            birthday: '',
+            birthday: undefined,
             address: '',
             phone: '',
         },

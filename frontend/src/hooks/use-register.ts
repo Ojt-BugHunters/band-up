@@ -70,7 +70,6 @@ export const useRegisterForm = () => {
             queryClient.setQueryData(['user'], data);
             localStorage.setItem('user', JSON.stringify(data));
             console.log('saved user', queryClient.getQueryData(['user']));
-            toast.success('Register Successfully');
             router.push('/auth/register/profile');
         },
     });
