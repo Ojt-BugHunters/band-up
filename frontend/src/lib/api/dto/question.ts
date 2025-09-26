@@ -32,6 +32,13 @@ export interface Passage {
     questions: ReadingQuestion[];
 }
 
+export interface WritingTask {
+    id: string;
+    title: string;
+    content: string;
+    imageUrl?: string;
+}
+
 export interface ListeningSection {
     id: string;
     title: string;

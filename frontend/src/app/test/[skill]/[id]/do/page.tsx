@@ -30,7 +30,7 @@ export default async function DoTestPage({ searchParams }: DoTestProps) {
             Component = <ListeningTest mode={mode} sections={sections} />;
             break;
         case 'writing':
-            Component = <WritingTest />;
+            Component = <WritingTest mode={mode} sections={sections} />;
             break;
         case 'speaking':
             Component = <SpeakingTest />;
