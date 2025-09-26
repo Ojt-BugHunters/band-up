@@ -266,7 +266,7 @@ export function WritingTest({
                         </div>
                         <div className="col-span-1">
                             <WritingEditor
-                                taskNumber={currentTask === 'section-2' ? 1 : 2}
+                                taskNumber={currentTask === 'section-2' ? 2 : 1}
                                 title={currentTaskData.title}
                                 content={currentTaskData.content}
                                 instructions={

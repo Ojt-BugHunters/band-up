@@ -287,7 +287,7 @@ export default function WritingEditor({
                     )}
 
                     <div className="text-primary text-sm font-medium">
-                        {prompt}
+                        {content}
                     </div>
                 </div>
 
