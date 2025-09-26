@@ -36,8 +36,6 @@ public class Question {
     private Map<String, Object> content;
     @NotNull
     private Integer difficult;
-    @NotNull
-    private Integer exposureCount;
     private Boolean isActive;
     @CreationTimestamp
     @Column(name = "create_at", nullable = false, updatable = false)
