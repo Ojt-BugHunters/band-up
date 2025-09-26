@@ -18,7 +18,14 @@ export default async function DoTestPage({ searchParams }: DoTestProps) {
     if (Array.isArray(section)) {
         sections = section;
     } else if (typeof section === 'string') {
-        sections = section.split(',');
+        if (section.includes('-') && !section.includes(',')) {
+            const parts = section.split('-');
+            const prefix = parts[0];
+            const nums = parts.slice(1);
+            sections = nums.map((n) => `${prefix}-${n}`);
+        } else {
+            sections = section.split(',');
+        }
     }
 
     let Component: React.ReactNode = null;

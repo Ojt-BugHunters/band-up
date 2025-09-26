@@ -266,13 +266,13 @@ export const speakingTest: Test = {
     number_participant: 432,
     section: [
         {
-            id: 'part-1',
+            id: 'section-1',
             title: 'Part 1',
             questions: 4,
             description: 'Introduction and interview questions',
         },
         {
-            id: 'part-2-3',
+            id: 'section-2-3',
             title: 'Part 2 & 3',
             questions: 6,
             description: 'Cue card long turn followed by discussion questions',
