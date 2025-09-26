@@ -20,6 +20,7 @@ export function VoiceInput({
     const [recording, setRecording] = useState(false);
     const [time, setTime] = useState(0);
     const [isClient, setIsClient] = useState(false);
+    const [audioUrl, setAudioUrl] = useState<string | null>(null);
 
     const mediaRecorderRef = useRef<MediaRecorder | null>(null);
     const chunks = useRef<Blob[]>([]);
@@ -48,6 +49,8 @@ export function VoiceInput({
             });
             onStop?.(file, time);
             setTime(0);
+            const url = URL.createObjectURL(blob);
+            setAudioUrl(url);
         };
 
         mediaRecorder.start();
@@ -136,6 +139,10 @@ export function VoiceInput({
                 <p className="h-4 text-xs text-black/70 dark:text-white/70">
                     {recording ? 'Recording...' : 'Click to speak'}
                 </p>
+
+                {audioUrl && (
+                    <audio className="mt-2 w-full" controls src={audioUrl} />
+                )}
             </div>
         </div>
     );

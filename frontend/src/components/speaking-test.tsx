@@ -23,6 +23,7 @@ import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Input } from '@/components/ui/input';
 import { speakingTestParts } from '../../constants/sample-data';
 import { enrichSpeakingTestParts } from '@/lib/api/dto/question';
+import { VoiceInput } from './voice-input';
 
 type SpeakingTestProps = {
     mode?: string;
@@ -53,6 +54,10 @@ export function SpeakingTest({
     const [uploadedFile, setUploadedFile] = useState<File | null>(null);
     const [showReview, setShowReview] = useState(false);
     const fileInputRef = useRef<HTMLInputElement>(null);
+    const mediaRecorderRef = useRef<MediaRecorder | null>(null);
+    const chunksRef = useRef<Blob[]>([]);
+    const [recording, setRecording] = useState(false);
+    const [audioUrl, setAudioUrl] = useState<string | null>(null);
 
     const totalDuration = availableParts.reduce(
         (total, part) => total + part.duration,
@@ -114,6 +119,36 @@ export function SpeakingTest({
         const minutes = Math.floor(seconds / 60);
         const secs = seconds % 60;
         return `${minutes.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+    };
+
+    const startRecording = async () => {
+        const stream = await navigator.mediaDevices.getUserMedia({
+            audio: true,
+        });
+        const mediaRecorder = new MediaRecorder(stream);
+        mediaRecorderRef.current = mediaRecorder;
+        chunksRef.current = [];
+
+        mediaRecorder.ondataavailable = (e) => {
+            if (e.data.size > 0) chunksRef.current.push(e.data);
+        };
+
+        mediaRecorder.onstop = () => {
+            const blob = new Blob(chunksRef.current, { type: 'audio/webm' });
+            const file = new File([blob], `recording-${Date.now()}.webm`, {
+                type: 'audio/webm',
+            });
+            setPartAnswers((prev) => ({ ...prev, [currentPart]: file.name }));
+            setAudioUrl(URL.createObjectURL(blob));
+        };
+
+        mediaRecorder.start();
+        setRecording(true);
+    };
+
+    const stopRecording = () => {
+        mediaRecorderRef.current?.stop();
+        setRecording(false);
     };
 
     const handleFileUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -342,7 +377,6 @@ export function SpeakingTest({
                         </Card>
                     </div>
 
-                    {/* Questions Display */}
                     <div className="lg:col-span-2">
                         <Card className="h-full">
                             <CardHeader className="pb-4">
@@ -363,8 +397,8 @@ export function SpeakingTest({
 
                             <CardContent className="flex h-[calc(100%-120px)] flex-col">
                                 {currentPartData && (
-                                    <div className="flex-1 space-y-6">
-                                        <ScrollArea className="max-h-[300px] flex-1">
+                                    <div className="h-100 flex-1 space-y-6">
+                                        <ScrollArea className="h-100 flex-1">
                                             <div className="space-y-4 pr-4">
                                                 {currentPartData.questions.map(
                                                     (question, index) => (
@@ -631,63 +665,38 @@ export function SpeakingTest({
                                         </div>
 
                                         <div className="mt-auto space-y-4">
-                                            {/* Timer and Recording Status */}
-                                            <div className="bg-muted/50 rounded-lg border p-4">
-                                                <div className="flex items-center justify-between">
-                                                    <div className="flex items-center gap-4">
-                                                        {isPreparing && (
-                                                            <div className="flex items-center gap-2">
-                                                                <Clock className="text-warning h-4 w-4" />
-                                                                <span className="text-sm font-medium">
-                                                                    Preparation
-                                                                    Time:{' '}
-                                                                    {formatTime(
-                                                                        preparationTime,
-                                                                    )}
-                                                                </span>
-                                                            </div>
-                                                        )}
-                                                        {isRecording && (
-                                                            <div className="flex items-center gap-2">
-                                                                <div className="h-3 w-3 animate-pulse rounded-full bg-red-500" />
-                                                                <span className="text-sm font-medium">
-                                                                    Recording:{' '}
-                                                                    {formatTime(
-                                                                        speakingTime,
-                                                                    )}
-                                                                </span>
-                                                            </div>
-                                                        )}
-                                                        {!isPreparing &&
-                                                            !isRecording && (
-                                                                <div className="flex items-center gap-2">
-                                                                    <MicOff className="text-muted-foreground h-4 w-4" />
-                                                                    <span className="text-muted-foreground text-sm">
-                                                                        {partAnswers[
-                                                                            currentPart
-                                                                        ]
-                                                                            ? 'Part completed'
-                                                                            : 'Ready to start'}
-                                                                    </span>
-                                                                </div>
-                                                            )}
-                                                    </div>
-
-                                                    <div className="flex items-center gap-2">
-                                                        <Badge
-                                                            variant="outline"
-                                                            className="text-xs"
-                                                        >
-                                                            Duration:{' '}
-                                                            {formatTime(
-                                                                currentPartData.duration,
-                                                            )}
-                                                        </Badge>
-                                                    </div>
-                                                </div>
+                                            <div className="flex flex-col items-center gap-4">
+                                                <VoiceInput
+                                                    onStart={() => {
+                                                        setPartAnswers(
+                                                            (prev) => ({
+                                                                ...prev,
+                                                                [currentPart]:
+                                                                    'attempted',
+                                                            }),
+                                                        );
+                                                    }}
+                                                    onStop={(
+                                                        file,
+                                                        duration,
+                                                    ) => {
+                                                        setPartAnswers(
+                                                            (prev) => ({
+                                                                ...prev,
+                                                                [currentPart]:
+                                                                    file.name,
+                                                            }),
+                                                        );
+                                                        console.log(
+                                                            'Recorded file:',
+                                                            file,
+                                                            'Duration:',
+                                                            duration,
+                                                        );
+                                                    }}
+                                                />
                                             </div>
 
-                                            {/* Controls */}
                                             <div className="flex items-center justify-between border-t pt-4">
                                                 <Button
                                                     variant="outline"
@@ -700,53 +709,19 @@ export function SpeakingTest({
                                                     Previous Part
                                                 </Button>
 
-                                                <div className="flex items-center gap-2">
-                                                    {!isPreparing &&
-                                                        !isRecording &&
-                                                        !showFileUpload && (
-                                                            <>
-                                                                <Button
-                                                                    onClick={
-                                                                        handleStartRecording
-                                                                    }
-                                                                    className="gap-2"
-                                                                    disabled={
-                                                                        !isTestStarted
-                                                                    }
-                                                                >
-                                                                    <Play className="h-4 w-4" />
-                                                                    Record All
-                                                                    Questions
-                                                                </Button>
-                                                                <Button
-                                                                    variant="outline"
-                                                                    onClick={
-                                                                        handleStartWithFile
-                                                                    }
-                                                                    disabled={
-                                                                        !isTestStarted
-                                                                    }
-                                                                    className="gap-2 bg-transparent"
-                                                                >
-                                                                    <Upload className="h-4 w-4" />
-                                                                    Upload File
-                                                                </Button>
-                                                            </>
-                                                        )}
-                                                    {(isPreparing ||
-                                                        isRecording) && (
-                                                        <Button
-                                                            variant="destructive"
-                                                            onClick={
-                                                                handleStopRecording
-                                                            }
-                                                            className="gap-2"
-                                                        >
-                                                            <Square className="h-4 w-4" />
-                                                            Stop
-                                                        </Button>
-                                                    )}
-                                                </div>
+                                                {audioUrl && (
+                                                    <div className="mt-4">
+                                                        <p className="mb-1 text-sm text-green-600">
+                                                            Preview your
+                                                            recording:
+                                                        </p>
+                                                        <audio
+                                                            controls
+                                                            src={audioUrl}
+                                                            className="w-full"
+                                                        />
+                                                    </div>
+                                                )}
 
                                                 <Button
                                                     variant="outline"
