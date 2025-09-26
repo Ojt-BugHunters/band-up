@@ -41,6 +41,7 @@ export interface ListeningSection {
 }
 
 export interface WritingTask {
+    id: string;
     title: string;
     content: string;
     imageUrl?: string;
