@@ -101,14 +101,12 @@ export function SpeakingTest({
                     if (prev <= 1) {
                         setIsRecording(false);
                         setSpeakingTime(0);
-                        // handleNextQuestion()
                         return 0;
                     }
                     return prev - 1;
                 });
             }
         }, 1000);
-
         return () => clearInterval(timer);
     }, [isPreparing, isRecording, currentPartData]);
 
@@ -121,7 +119,6 @@ export function SpeakingTest({
     const handleFileUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
         const file = event.target.files?.[0];
         if (file) {
-            // Check if file is audio format
             const allowedTypes = [
                 'audio/mp3',
                 'audio/wav',
@@ -151,10 +148,8 @@ export function SpeakingTest({
         if (!currentPartData) return;
 
         setPartAnswers((prev) => ({ ...prev, [currentPart]: 'attempted' }));
-
-        // For Part 2, use preparation time, for others start recording immediately
-        if (currentPart === 'part-2') {
-            setPreparationTime(60); // 1 minute preparation for Part 2
+        if (currentPart === 'section-2') {
+            setPreparationTime(60);
             setIsPreparing(true);
         } else {
             setSpeakingTime(currentPartData.duration);
@@ -208,7 +203,6 @@ export function SpeakingTest({
         const unansweredParts = availableParts.filter(
             (part) => !partAnswers[part.id],
         );
-        // Convert parts to question format expected by ProgressDialog
         return unansweredParts.map((part, index) => ({
             id: index + 1,
             type: 'speaking-part',
@@ -273,7 +267,6 @@ export function SpeakingTest({
 
             <div className="container mx-auto px-4 py-6">
                 <div className="grid h-[calc(100vh-140px)] grid-cols-1 gap-6 lg:grid-cols-3">
-                    {/* Part Navigation */}
                     <div className="lg:col-span-1">
                         <Card className="h-full">
                             <CardHeader className="pb-4">
@@ -303,7 +296,10 @@ export function SpeakingTest({
                                                         variant="outline"
                                                         className="text-xs"
                                                     >
-                                                        Part {index + 1}
+                                                        Part{' '}
+                                                        {part.id
+                                                            .split('-')
+                                                            .pop()}
                                                     </Badge>
                                                     <div className="flex items-center gap-2">
                                                         <Badge
