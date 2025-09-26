@@ -26,7 +26,6 @@ export const useLogin = () => {
                     'Content-Type': 'application/json',
                 },
                 body: JSON.stringify(values),
-                credentials: 'omit',
             });
 
             await throwIfError(response);
