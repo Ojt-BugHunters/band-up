@@ -12,10 +12,14 @@ export const schema = z
     .object({
         name: z.string().min(1, {message: 'Name must not be empty'}),
         gender: z.enum(["Male", "Female"]),
-        birthday: z.coerce.date({message: 'Birthday must be a valid date'}),
+        birthday: z.date({
+            message: 'Birthday must be a valid date',
+        }),
         address: z.string().min(1, {message: 'Address must not be empty'}),
         phone: z.string().min(1, {message: 'Phone must not be empty'}),
-    })
+    });
+
+export type ProfileFormValues = z.infer<typeof schema>;
 
 export const useProfile = () => {
     const router = useRouter();
@@ -59,21 +63,17 @@ export const useProfile = () => {
         },
     });
 
-    const form = useForm<{
-        name: string;
-        gender: "Male" | "Female";
-        birthday: unknown;
-        address: string;
-        phone: string;
-    }>({
+    const defaultValues = {
+        name: '',
+        gender: undefined,
+        birthday: undefined,
+        address: '',
+        phone: '',
+    } satisfies Partial<ProfileFormValues>;
+
+    const form = useForm<ProfileFormValues>({
         resolver: zodResolver(schema),
-        defaultValues: {
-            name: '',
-            gender: undefined,
-            birthday: undefined,
-            address: '',
-            phone: '',
-        },
+        defaultValues,
     });
 
     return {
