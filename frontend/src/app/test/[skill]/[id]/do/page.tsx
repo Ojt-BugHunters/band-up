@@ -15,16 +15,26 @@ export default async function DoTestPage({ searchParams }: DoTestProps) {
     const { mode, skill, section } = await searchParams;
 
     let sections: string[] = [];
+
     if (Array.isArray(section)) {
         sections = section;
     } else if (typeof section === 'string') {
-        if (section.includes('-') && !section.includes(',')) {
-            const parts = section.split('-');
-            const prefix = parts[0];
-            const nums = parts.slice(1);
-            sections = nums.map((n) => `${prefix}-${n}`);
-        } else {
-            sections = section.split(',');
+        const rawSections = section.split(',');
+
+        for (const sec of rawSections) {
+            if (sec.includes('-')) {
+                const parts = sec.split('-');
+                const prefix = parts[0];
+                const nums = parts.slice(1);
+
+                if (nums.every((n) => /^\d+$/.test(n))) {
+                    nums.forEach((n) => sections.push(`${prefix}-${n}`));
+                } else {
+                    sections.push(sec);
+                }
+            } else {
+                sections.push(sec);
+            }
         }
     }
 
