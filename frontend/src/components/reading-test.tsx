@@ -181,7 +181,10 @@ export function ReadingTest({
                                                         value={passage.id}
                                                         className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground text-sm"
                                                     >
-                                                        Passage {index + 1}
+                                                        Passage{' '}
+                                                        {passage.id
+                                                            .split('-')
+                                                            .pop()}
                                                     </TabsTrigger>
                                                 ),
                                             )}

@@ -146,7 +146,7 @@ export default function AudioPlayer({
                             onClick={() => onSectionChange(section.id)}
                             className="text-xs"
                         >
-                            Section {index + 1}
+                            Section {section.id.split('-').pop()}
                         </Button>
                     ))}
                 </div>
