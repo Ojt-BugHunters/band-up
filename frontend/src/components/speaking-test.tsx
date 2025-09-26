@@ -21,6 +21,8 @@ import { Separator } from '@/components/ui/separator';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Input } from '@/components/ui/input';
+import { speakingTestParts } from '../../constants/sample-data';
+import { enrichSpeakingTestParts } from '@/lib/api/dto/question';
 
 type SpeakingTestProps = {
     mode?: string;
@@ -31,10 +33,14 @@ export function SpeakingTest({
     mode = 'full',
     sections = [],
 }: SpeakingTestProps) {
+    const enrichedSpeakingTestParts =
+        enrichSpeakingTestParts(speakingTestParts);
     const availableParts =
         mode === 'full'
-            ? speakingTestParts
-            : speakingTestParts.filter((part) => sections.includes(part.id));
+            ? enrichedSpeakingTestParts
+            : enrichedSpeakingTestParts.filter((part) =>
+                  sections.includes(part.id),
+              );
 
     const [currentPart, setCurrentPart] = useState(availableParts[0]?.id ?? '');
     const [isTestStarted, setIsTestStarted] = useState(false);

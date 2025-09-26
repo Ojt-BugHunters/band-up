@@ -642,7 +642,7 @@ export const writingTasks: WritingTask[] = [
 
 export const speakingTestParts: SpeakingSection[] = [
     {
-        id: 'part-1',
+        id: 'section-1',
         title: 'Part 1: Introduction and Interview',
         duration: 4 * 60,
         description:
@@ -704,7 +704,7 @@ export const speakingTestParts: SpeakingSection[] = [
         ],
     },
     {
-        id: 'part-2',
+        id: 'section-2',
         title: 'Part 2: Individual Long Turn',
         duration: 3 * 60,
         description:
@@ -718,9 +718,9 @@ export const speakingTestParts: SpeakingSection[] = [
         ],
     },
     {
-        id: 'part-3',
+        id: 'section-3',
         title: 'Part 3: Two-way Discussion',
-        duration: 4 * 60, // 4-5 minutes
+        duration: 4 * 60,
         description:
             'The examiner will ask you further questions connected to the topic in Part 2.',
         questions: [
