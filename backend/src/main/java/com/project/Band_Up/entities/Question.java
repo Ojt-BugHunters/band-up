@@ -4,10 +4,12 @@ import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.JdbcTypeCode;
 import org.hibernate.annotations.UuidGenerator;
+import org.hibernate.type.SqlTypes;
 
-import java.math.BigInteger;
 import java.time.LocalDateTime;
+import java.util.Map;
 import java.util.UUID;
 
 @AllArgsConstructor
@@ -16,31 +18,28 @@ import java.util.UUID;
 @NoArgsConstructor
 @Getter
 @Setter
-@Table(name = "test")
-public class Test {
+@Table(name = "questions")
+public class Question {
     @Id
     @GeneratedValue
     @UuidGenerator(style = UuidGenerator.Style.TIME)
     private UUID id;
-
-    @ManyToOne(fetch = FetchType.LAZY, optional = false)  // Người dùng
-    @JoinColumn (name = "user_id", nullable = false,
-            foreignKey = @ForeignKey(name = "fk_test_user"))
-    private Account user ;
-
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @JoinColumn(name = "section_id", nullable = false, foreignKey = @ForeignKey(name = "fk_question_section"))
+    private Section section;
     @NotNull
-    private String skillName;
+    private String type; // multiple-choice, true-false, short-answer, etc.
 
+    @Column(columnDefinition = "jsonb")
+    @JdbcTypeCode(SqlTypes.JSON)
     @NotNull
-    private String title;
-
-    private Integer numberOfPeople;
-
+    private Map<String, Object> content;
     @NotNull
-    private BigInteger durationSeconds; // in seconds
-
+    private Integer difficult;
+    private Boolean isActive;
     @CreationTimestamp
     @Column(name = "create_at", nullable = false, updatable = false)
     private LocalDateTime createAt;
+
 
 }

@@ -14,9 +14,6 @@ import java.util.UUID;
 @AllArgsConstructor
 @Builder
 public class TestUpdateRequest {
-    @NotNull
-    private UUID id;
-
     private String skillName;
     private String title;
     private Integer numberOfPeople;

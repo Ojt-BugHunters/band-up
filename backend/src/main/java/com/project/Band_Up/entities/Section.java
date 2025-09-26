@@ -33,8 +33,8 @@ public class Section {
     @NotNull
     private Integer orderIndex;
 
-    // JSON metadata
-    @Column(columnDefinition = "jsonb") // nếu PostgreSQL và bạn muốn jsonb
+
+    @Column(columnDefinition = "jsonb")
     @JdbcTypeCode(SqlTypes.JSON)
     private Map<String, Object> metadata;
 }

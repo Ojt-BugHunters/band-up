@@ -26,7 +26,7 @@ public interface TestService {
     List<TestResponse> searchTestsByTitle(String keyword);
 
     //  Cập nhật Test
-    TestResponse updateTest(TestUpdateRequest request);
+    TestResponse updateTest(UUID testId,TestUpdateRequest request);
 
     //  Xóa Test
     void deleteTest(UUID id);

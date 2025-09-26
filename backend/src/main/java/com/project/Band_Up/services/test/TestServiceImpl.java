@@ -70,8 +70,8 @@ public class TestServiceImpl implements TestService {
 
     // ----------------- UPDATE -----------------
     @Override
-    public TestResponse updateTest(TestUpdateRequest request) {
-        Test test = testRepository.findById(request.getId())
+    public TestResponse updateTest(UUID testId, TestUpdateRequest request) {
+        Test test = testRepository.findById(testId)
                 .orElseThrow(() -> new RuntimeException("Test not found"));
 
         if (request.getSkillName() != null) test.setSkillName(request.getSkillName());
