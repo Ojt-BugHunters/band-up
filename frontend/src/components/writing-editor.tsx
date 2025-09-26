@@ -57,6 +57,7 @@ export default function WritingEditor({
             setCopied(true);
             setTimeout(() => setCopied(false), 2000);
         } catch (err) {
+            console.log(err);
             toast.error('Fail to copy text to clip board');
         }
     };

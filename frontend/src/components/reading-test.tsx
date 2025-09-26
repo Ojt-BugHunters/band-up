@@ -175,7 +175,7 @@ export function ReadingTest({
                                             }`}
                                         >
                                             {availablePassages.map(
-                                                (passage, index) => (
+                                                (passage) => (
                                                     <TabsTrigger
                                                         key={passage.id}
                                                         value={passage.id}

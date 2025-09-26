@@ -134,7 +134,7 @@ export default function AudioPlayer({
                 </div>
 
                 <div className="flex flex-wrap gap-2">
-                    {sections.map((section, index) => (
+                    {sections.map((section) => (
                         <Button
                             key={section.id}
                             variant={
