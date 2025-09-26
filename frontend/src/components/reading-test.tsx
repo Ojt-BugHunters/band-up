@@ -20,6 +20,7 @@ export function ReadingTest({
     mode = 'full',
     sections = [],
 }: ReadingTestProps) {
+    console.log(sections);
     const availablePassages =
         mode === 'full'
             ? mockPassages

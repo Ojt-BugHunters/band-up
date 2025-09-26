@@ -12,7 +12,7 @@ import { toast } from 'sonner';
 interface WritingEditorProps {
     taskNumber: 1 | 2;
     title: string;
-    prompt: string;
+    content: string;
     instructions: string;
     minWords: number;
     value: string;
@@ -25,7 +25,7 @@ interface WritingEditorProps {
 export default function WritingEditor({
     taskNumber,
     title,
-    prompt,
+    content,
     instructions,
     minWords,
     value,
@@ -110,7 +110,7 @@ export default function WritingEditor({
                         )}
 
                         <div className="text-primary text-sm font-medium">
-                            {prompt}
+                            {content}
                         </div>
                     </div>
 

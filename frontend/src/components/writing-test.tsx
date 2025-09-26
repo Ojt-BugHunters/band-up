@@ -19,19 +19,15 @@ export function WritingTest({
     mode = 'full',
     sections = [],
 }: WritingTestProps) {
+    console.log(sections);
     const availableTasks =
         mode === 'full'
-            ? [writingTasks.task1, writingTasks.task2]
-            : [writingTasks.task1, writingTasks.task2].filter((task) =>
-                  sections.includes(task.id),
-              );
-
-    const [currentTask, setCurrentTask] = useState<string>(
-        availableTasks[0]?.id ?? 'task1',
-    );
+            ? writingTasks
+            : writingTasks.filter((task) => sections.includes(task.id));
+    const [currentTask, setCurrentTask] = useState(availableTasks[0]?.id ?? '');
     const [task1Response, setTask1Response] = useState('');
     const [task2Response, setTask2Response] = useState('');
-    const [timeRemaining, setTimeRemaining] = useState(60 * 60); // 60 minutes
+    const [timeRemaining, setTimeRemaining] = useState(60 * 60);
     const [isTestStarted, setIsTestStarted] = useState(false);
 
     useEffect(() => {
@@ -69,13 +65,13 @@ export function WritingTest({
     const getAnsweredQuestions = () => {
         let answered = 0;
         if (
-            availableTasks.find((task) => task.id === 'task1') &&
-            getWordCount(task1Response) >= writingTasks.task1.minWords
+            availableTasks.find((task) => task.id === 'section-1') &&
+            getWordCount(task1Response) >= 150
         )
             answered++;
         if (
-            availableTasks.find((task) => task.id === 'task2') &&
-            getWordCount(task2Response) >= writingTasks.task2.minWords
+            availableTasks.find((task) => task.id === 'section-2') &&
+            getWordCount(task2Response) >= 250
         )
             answered++;
         return answered;
@@ -85,7 +81,7 @@ export function WritingTest({
         const unanswered = [];
         if (
             availableTasks.find((task) => task.id === 'task1') &&
-            getWordCount(task1Response) < writingTasks.task1.minWords
+            getWordCount(task1Response) < 150
         ) {
             unanswered.push({
                 id: 1,
@@ -95,7 +91,7 @@ export function WritingTest({
         }
         if (
             availableTasks.find((task) => task.id === 'task2') &&
-            getWordCount(task2Response) < writingTasks.task2.minWords
+            getWordCount(task2Response) < 250
         ) {
             unanswered.push({
                 id: 2,
@@ -107,11 +103,11 @@ export function WritingTest({
     };
 
     const currentTaskData =
-        currentTask === 'task1' ? writingTasks.task1 : writingTasks.task2;
+        currentTask === 'section-1' ? writingTasks[0] : writingTasks[1];
     const currentResponse =
-        currentTask === 'task1' ? task1Response : task2Response;
+        currentTask === 'section-1' ? task1Response : task2Response;
     const setCurrentResponse =
-        currentTask === 'task1' ? setTask1Response : setTask2Response;
+        currentTask === 'section-1' ? setTask1Response : setTask2Response;
 
     if (availableTasks.length === 0) {
         return <div>No tasks available</div>;
@@ -170,7 +166,6 @@ export function WritingTest({
 
             <div className="container mx-auto px-4 py-6">
                 <div className="space-y-6">
-                    {/* Task Navigation */}
                     {availableTasks.length > 1 && (
                         <Card>
                             <CardHeader className="pb-4">
@@ -180,15 +175,14 @@ export function WritingTest({
                                     </CardTitle>
                                     <div className="flex items-center gap-4">
                                         {availableTasks.find(
-                                            (task) => task.id === 'task1',
+                                            (task) => task.id === 'section-1',
                                         ) && (
                                             <div className="text-muted-foreground text-sm">
                                                 Task 1:{' '}
                                                 {getWordCount(task1Response)}{' '}
                                                 words
                                                 {getWordCount(task1Response) >=
-                                                    writingTasks.task1
-                                                        .minWords && (
+                                                    150 && (
                                                     <Badge
                                                         variant="default"
                                                         className="ml-2 text-xs"
@@ -199,15 +193,14 @@ export function WritingTest({
                                             </div>
                                         )}
                                         {availableTasks.find(
-                                            (task) => task.id === 'task2',
+                                            (task) => task.id === 'section-2',
                                         ) && (
                                             <div className="text-muted-foreground text-sm">
                                                 Task 2:{' '}
                                                 {getWordCount(task2Response)}{' '}
                                                 words
                                                 {getWordCount(task2Response) >=
-                                                    writingTasks.task2
-                                                        .minWords && (
+                                                    250 && (
                                                     <Badge
                                                         variant="default"
                                                         className="ml-2 text-xs"
@@ -229,59 +222,23 @@ export function WritingTest({
                                 >
                                     <TabsList className="bg-muted grid w-full grid-cols-2">
                                         {availableTasks.find(
-                                            (task) => task.id === 'task1',
+                                            (task) => task.id === 'section-1',
                                         ) && (
                                             <TabsTrigger
-                                                value="task1"
+                                                value="section-1"
                                                 className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground"
                                             >
                                                 Task 1 - Academic Writing
-                                                <Badge
-                                                    variant={
-                                                        getWordCount(
-                                                            task1Response,
-                                                        ) >=
-                                                        writingTasks.task1
-                                                            .minWords
-                                                            ? 'default'
-                                                            : 'outline'
-                                                    }
-                                                    className="ml-2 text-xs"
-                                                >
-                                                    {
-                                                        writingTasks.task1
-                                                            .minWords
-                                                    }{' '}
-                                                    words min
-                                                </Badge>
                                             </TabsTrigger>
                                         )}
                                         {availableTasks.find(
-                                            (task) => task.id === 'task2',
+                                            (task) => task.id === 'section-2',
                                         ) && (
                                             <TabsTrigger
-                                                value="task2"
+                                                value="section-2"
                                                 className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground"
                                             >
                                                 Task 2 - Essay Writing
-                                                <Badge
-                                                    variant={
-                                                        getWordCount(
-                                                            task2Response,
-                                                        ) >=
-                                                        writingTasks.task2
-                                                            .minWords
-                                                            ? 'default'
-                                                            : 'outline'
-                                                    }
-                                                    className="ml-2 text-xs"
-                                                >
-                                                    {
-                                                        writingTasks.task2
-                                                            .minWords
-                                                    }{' '}
-                                                    words min
-                                                </Badge>
                                             </TabsTrigger>
                                         )}
                                     </TabsList>
@@ -290,15 +247,16 @@ export function WritingTest({
                         </Card>
                     )}
 
-                    {/* Writing Editor */}
                     <div className="grid h-[calc(100vh-280px)] grid-cols-2 gap-6">
                         <div className="col-span-1">
                             <WritingEditor
-                                taskNumber={currentTask === 'task1' ? 1 : 2}
+                                taskNumber={currentTask === 'section-1' ? 1 : 2}
                                 title={currentTaskData.title}
-                                prompt={currentTaskData.prompt}
-                                instructions={currentTaskData.instructions}
-                                minWords={currentTaskData.minWords}
+                                content={currentTaskData.content}
+                                instructions={
+                                    'You should spend about 20 minutes on this task. Write at least 150 words'
+                                }
+                                minWords={150}
                                 value={currentResponse}
                                 onChange={setCurrentResponse}
                                 imageUrl={currentTaskData.imageUrl}
@@ -308,11 +266,13 @@ export function WritingTest({
                         </div>
                         <div className="col-span-1">
                             <WritingEditor
-                                taskNumber={currentTask === 'task1' ? 1 : 2}
+                                taskNumber={currentTask === 'section-2' ? 1 : 2}
                                 title={currentTaskData.title}
-                                prompt={currentTaskData.prompt}
-                                instructions={currentTaskData.instructions}
-                                minWords={currentTaskData.minWords}
+                                content={currentTaskData.content}
+                                instructions={
+                                    'You should spend about 40 minutes on this task. Write about the following topic:'
+                                }
+                                minWords={250}
                                 value={currentResponse}
                                 onChange={setCurrentResponse}
                                 imageUrl={currentTaskData.imageUrl}

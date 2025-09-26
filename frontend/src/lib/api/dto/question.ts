@@ -32,14 +32,6 @@ export interface Passage {
     questions: ReadingQuestion[];
 }
 
-export interface ListeningSection {
-    id: string;
-    title: string;
-    audioUrl: string;
-    duration: number;
-    questions: ListeningQuestion[];
-}
-
 export interface WritingTask {
     id: string;
     title: string;
@@ -47,7 +39,10 @@ export interface WritingTask {
     imageUrl?: string;
 }
 
-export type WritingTasks = {
-    task1: WritingTask;
-    task2: WritingTask;
-};
+export interface ListeningSection {
+    id: string;
+    title: string;
+    audioUrl: string;
+    duration: number;
+    questions: ListeningQuestion[];
+}
