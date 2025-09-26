@@ -37,7 +37,7 @@ import {
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Badge } from '@/components/ui/badge';
 import { Checkbox } from '@/components/ui/checkbox';
-import { useState } from 'react';
+import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { testInstructions } from '../../../../../constants/instruction';
 import { Separator } from '@/components/ui/separator';
@@ -48,10 +48,10 @@ import { AccountPicture } from '@/components/ui/account-picture';
 import Link from 'next/link';
 
 interface PageProps {
-    params: {
+    params: Promise<{
         skill: string;
         id: string;
-    };
+    }>;
 }
 
 const skillConfig = {
@@ -78,7 +78,7 @@ const skillConfig = {
 };
 
 export default function TestOverview({ params }: PageProps) {
-    const { skill } = params;
+    const { skill } = React.use(params);
     const dataConfig = skillConfig[skill as keyof typeof skillConfig];
     const [value, setValue] = useState<Content>('');
     const [selectedSections, setSelectedSections] = useState<string[]>([]);
