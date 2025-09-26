@@ -26,6 +26,7 @@ export const useLogin = () => {
                     'Content-Type': 'application/json',
                 },
                 body: JSON.stringify(values),
+                credentials: 'omit',
             });
 
             await throwIfError(response);
@@ -37,7 +38,6 @@ export const useLogin = () => {
         onSuccess: (data) => {
             queryClient.setQueryData(['user'], data);
             localStorage.setItem('user', JSON.stringify(data));
-
             toast.success('Login Successfully');
             router.push('/');
         },
