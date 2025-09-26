@@ -141,7 +141,19 @@ export function VoiceInput({
                 </p>
 
                 {audioUrl && (
-                    <audio className="mt-2 w-full" controls src={audioUrl} />
+                    <div className="mt-4 w-full">
+                        <div className="bg-card rounded-lg border p-4 shadow-sm">
+                            <p className="text-foreground mb-2 flex items-center gap-2 text-sm font-medium">
+                                <span className="inline-block h-2 w-2 animate-pulse rounded-full bg-green-500" />
+                                Recording Preview
+                            </p>
+                            <audio
+                                controls
+                                src={audioUrl}
+                                className="bg-background w-full rounded-md border"
+                            />
+                        </div>
+                    </div>
                 )}
             </div>
         </div>
