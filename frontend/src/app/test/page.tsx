@@ -38,6 +38,7 @@ import { mockTests } from '../../../constants/sample-data';
 import { TestCard } from '@/components/test-card';
 import { PaginationState } from '@tanstack/react-table';
 import { PaginationControl } from '@/components/ui/pagination-control';
+import Link from 'next/link';
 
 export default function TestListPage() {
     const [skill, setSkill] = useState<string | undefined>();
@@ -200,7 +201,12 @@ export default function TestListPage() {
             </div>
             <div className="mx-auto mb-12 grid max-w-7xl grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-4">
                 {paginatedTests.map((test) => (
-                    <TestCard key={test.id} test={test} />
+                    <Link
+                        key={test.id}
+                        href={`/test/${test.skill.toLowerCase()}/${test.id}`}
+                    >
+                        <TestCard test={test} />
+                    </Link>
                 ))}
             </div>
             <div className="mx-auto max-w-7xl">

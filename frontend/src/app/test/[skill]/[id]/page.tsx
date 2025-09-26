@@ -1,5 +1,6 @@
 'use client';
 import {
+    BookText,
     CircleQuestionMark,
     Clock,
     FileText,
@@ -11,7 +12,13 @@ import {
     Send,
     User,
 } from 'lucide-react';
-import { testData, comments } from '../../../../constants/sample-data';
+import {
+    listeningTest,
+    comments,
+    readingTest,
+    speakingTest,
+    writingTest,
+} from '../../../../../constants/sample-data';
 import {
     Card,
     CardContent,
@@ -30,18 +37,52 @@ import {
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Badge } from '@/components/ui/badge';
 import { Checkbox } from '@/components/ui/checkbox';
-import { useState } from 'react';
+import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
-import { testInstructions } from '../../../../constants/instruction';
+import { testInstructions } from '../../../../../constants/instruction';
 import { Separator } from '@/components/ui/separator';
 import { Content } from '@tiptap/react';
 import { MinimalTiptapEditor } from '@/components/ui/minimal-tiptap';
 import { TooltipProvider } from '@/components/ui/tooltip';
 import { AccountPicture } from '@/components/ui/account-picture';
+import Link from 'next/link';
 
-export default function TestOverview() {
+interface PageProps {
+    params: Promise<{
+        skill: string;
+        id: string;
+    }>;
+}
+
+const skillConfig = {
+    listening: {
+        icon: Headphones,
+        test: listeningTest,
+        instructions: testInstructions['listening'],
+    },
+    reading: {
+        icon: BookText,
+        test: readingTest,
+        instructions: testInstructions['reading'],
+    },
+    speaking: {
+        icon: MessageCircle,
+        test: speakingTest,
+        instructions: testInstructions['speaking'],
+    },
+    writing: {
+        icon: CircleQuestionMark,
+        test: writingTest,
+        instructions: testInstructions['writing'],
+    },
+};
+
+export default function TestOverview({ params }: PageProps) {
+    const { skill } = React.use(params);
+    const dataConfig = skillConfig[skill as keyof typeof skillConfig];
     const [value, setValue] = useState<Content>('');
     const [selectedSections, setSelectedSections] = useState<string[]>([]);
+
     const handleSectionToggle = (sectionId: string) => {
         setSelectedSections((prev) =>
             prev.includes(sectionId)
@@ -49,7 +90,9 @@ export default function TestOverview() {
                 : [...prev, sectionId],
         );
     };
-    const instructions = testInstructions['listening'];
+    const test = dataConfig.test;
+    const Icon = dataConfig.icon;
+    const instructions = dataConfig.instructions;
     return (
         <TooltipProvider>
             <div className="flex-1 space-y-6 p-6">
@@ -57,11 +100,11 @@ export default function TestOverview() {
                     <div className="mb-8">
                         <div className="mb-4 flex items-center gap-3">
                             <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-gradient-to-br from-blue-500 to-purple-600 shadow-lg">
-                                <Headphones className="h-6 w-6 text-white" />
+                                <Icon className="h-6 w-6 text-white" />
                             </div>
                             <div>
                                 <h1 className="bg-gradient-to-r from-gray-900 to-gray-700 bg-clip-text text-3xl font-bold text-balance text-transparent">
-                                    {testData.title}
+                                    {test.title}
                                 </h1>
                             </div>
                         </div>
@@ -71,7 +114,7 @@ export default function TestOverview() {
                             <StatsIcon className="bg-indigo-50 text-indigo-600">
                                 <Clock />
                             </StatsIcon>
-                            <StatsValue>30</StatsValue>
+                            <StatsValue>{test.duration}</StatsValue>
                             <StatsLabel>minutes</StatsLabel>
                             <StatsDescription>Total test time</StatsDescription>
                         </Stats>
@@ -79,7 +122,7 @@ export default function TestOverview() {
                             <StatsIcon className="bg-green-50 text-green-600">
                                 <LayoutPanelTop />
                             </StatsIcon>
-                            <StatsValue>4</StatsValue>
+                            <StatsValue>{test.section.length}</StatsValue>
                             <StatsLabel>Sections</StatsLabel>
                             <StatsDescription>
                                 Total test sections
@@ -89,7 +132,7 @@ export default function TestOverview() {
                             <StatsIcon className="bg-rose-50 text-rose-600">
                                 <CircleQuestionMark />
                             </StatsIcon>
-                            <StatsValue>40</StatsValue>
+                            <StatsValue>{test.number_questions}</StatsValue>
                             <StatsLabel>Questions</StatsLabel>
                             <StatsDescription>Total questions</StatsDescription>
                         </Stats>
@@ -97,7 +140,7 @@ export default function TestOverview() {
                             <StatsIcon className="bg-yellow-50 text-yellow-600">
                                 <User />
                             </StatsIcon>
-                            <StatsValue>1234</StatsValue>
+                            <StatsValue>{test.number_participant}</StatsValue>
                             <StatsLabel>Participants</StatsLabel>
                             <StatsDescription>
                                 Have taken this test
@@ -121,16 +164,16 @@ export default function TestOverview() {
                                 <CardHeader>
                                     <CardTitle className="flex items-center gap-3">
                                         <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-gradient-to-br from-indigo-500 to-blue-600 shadow-md">
-                                            <Headphones className="h-5 w-5 text-white" />
+                                            <Icon className="h-5 w-5 text-white" />
                                         </div>
                                         <span className="font-semibold text-slate-800">
-                                            {testData.title}
+                                            {test.title}
                                         </span>
                                         <Badge
                                             variant="secondary"
                                             className="ml-auto rounded-full bg-indigo-100 text-sm text-indigo-700"
                                         >
-                                            {testData.duration} minutes
+                                            {test.duration} minutes
                                         </Badge>
                                     </CardTitle>
                                     <CardDescription className="text-slate-500">
@@ -140,7 +183,7 @@ export default function TestOverview() {
                                 </CardHeader>
 
                                 <CardContent className="space-y-3">
-                                    {testData.section.map((section) => {
+                                    {test.section.map((section) => {
                                         const isChecked =
                                             selectedSections.includes(
                                                 section.id,
@@ -198,12 +241,17 @@ export default function TestOverview() {
                                 </CardContent>
                                 <div className="pt-2">
                                     <Button
+                                        asChild
                                         className="ml-6 bg-gradient-to-r from-blue-600 to-indigo-500 shadow-lg transition-all duration-300 hover:from-blue-700 hover:to-purple-700 hover:shadow-xl"
                                         disabled={selectedSections.length === 0}
                                         size="lg"
                                     >
-                                        Start Selected Sections (
-                                        {selectedSections.length})
+                                        <Link
+                                            href={`/test/${skill}/${test.id}/do?mode=single&skill=${skill}&section=${selectedSections.join(',')}`}
+                                        >
+                                            Start Selected Sections (
+                                            {selectedSections.length})
+                                        </Link>
                                     </Button>
                                 </div>
                             </Card>
@@ -211,47 +259,41 @@ export default function TestOverview() {
                         <TabsContent value="fulltest" className="space-y-6">
                             <Card className="border border-white/20 bg-white/70 shadow-xl backdrop-blur-md">
                                 <CardHeader>
-                                    <CardTitle>
-                                        Complete {testData.title}
-                                    </CardTitle>
+                                    <CardTitle>Complete {test.title}</CardTitle>
                                     <CardDescription>
                                         Take the full test with all{' '}
-                                        {testData.number_sections} sections in
-                                        the official order and timing.
+                                        {test.number_sections} sections in the
+                                        official order and timing.
                                     </CardDescription>
                                 </CardHeader>
                                 <CardContent className="space-y-6">
                                     <div className="space-y-4">
-                                        {testData.section.map(
-                                            (section, index) => (
-                                                <div
-                                                    key={section.id}
-                                                    className="flex items-center gap-3 rounded-lg border border-white/30 bg-white/50 p-4 backdrop-blur-sm transition-all duration-300 hover:bg-white/70"
+                                        {test.section.map((section, index) => (
+                                            <div
+                                                key={section.id}
+                                                className="flex items-center gap-3 rounded-lg border border-white/30 bg-white/50 p-4 backdrop-blur-sm transition-all duration-300 hover:bg-white/70"
+                                            >
+                                                <Badge
+                                                    variant="default"
+                                                    className="bg-gradient-to-r from-blue-600 to-purple-600 text-sm font-semibold"
                                                 >
-                                                    <Badge
-                                                        variant="default"
-                                                        className="bg-gradient-to-r from-blue-600 to-purple-600 text-sm font-semibold"
-                                                    >
-                                                        {index + 1}
-                                                    </Badge>
-                                                    <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-gradient-to-br from-blue-500/20 to-purple-500/20">
-                                                        <Headphones className="h-5 w-5 text-blue-600" />
-                                                    </div>
-                                                    <div className="flex-1">
-                                                        <h3 className="font-semibold">
-                                                            {section.title}
-                                                        </h3>
-                                                        <p className="text-muted-foreground text-sm">
-                                                            {section.questions}{' '}
-                                                            questions •{' '}
-                                                            {
-                                                                section.description
-                                                            }
-                                                        </p>
-                                                    </div>
+                                                    {index + 1}
+                                                </Badge>
+                                                <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-gradient-to-br from-blue-500/20 to-purple-500/20">
+                                                    <Headphones className="h-5 w-5 text-blue-600" />
                                                 </div>
-                                            ),
-                                        )}
+                                                <div className="flex-1">
+                                                    <h3 className="font-semibold">
+                                                        {section.title}
+                                                    </h3>
+                                                    <p className="text-muted-foreground text-sm">
+                                                        {section.questions}{' '}
+                                                        questions •{' '}
+                                                        {section.description}
+                                                    </p>
+                                                </div>
+                                            </div>
+                                        ))}
                                     </div>
 
                                     <div className="space-y-4 rounded-lg border border-white/30 bg-gradient-to-r from-blue-50/80 to-purple-50/80 p-6 backdrop-blur-sm">
@@ -264,17 +306,20 @@ export default function TestOverview() {
                                             ))}
                                         </ul>
                                     </div>
-
-                                    <Button
-                                        size="lg"
-                                        className="w-full bg-gradient-to-r from-green-600 to-blue-600 shadow-lg transition-all duration-300 hover:from-green-700 hover:to-blue-700 hover:shadow-xl"
+                                    <Link
+                                        href={`/test/${skill}/${test.id}/do?mode=full&skill=${skill}`}
                                     >
-                                        <Play className="mr-2 h-4 w-4" />
-                                        Start Full Test ({
-                                            testData.duration
-                                        }{' '}
-                                        minutes)
-                                    </Button>
+                                        <Button
+                                            size="lg"
+                                            className="w-full bg-gradient-to-r from-green-600 to-blue-600 shadow-lg transition-all duration-300 hover:from-green-700 hover:to-blue-700 hover:shadow-xl"
+                                        >
+                                            <Play className="mr-2 h-4 w-4" />
+                                            Start Full Test ({
+                                                test.duration
+                                            }{' '}
+                                            minutes)
+                                        </Button>
+                                    </Link>
                                 </CardContent>
                             </Card>
                         </TabsContent>

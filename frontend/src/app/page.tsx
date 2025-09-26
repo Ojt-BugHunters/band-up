@@ -6,16 +6,15 @@ import { ContainerScroll } from '@/components/ui/container-scroll-animation';
 import { Highlight } from '@/components/ui/highlight';
 import { LayoutTextFlip } from '@/components/ui/layout-text-flip';
 import { PointerHighlight } from '@/components/ui/pointer-highlight';
-import { Tabs } from '@/components/ui/tabs-animation';
 import { cn } from '@/lib/utils';
 import { motion } from 'framer-motion';
 import { ArrowRight, ChevronRight } from 'lucide-react';
 import Image from 'next/image';
 import Link from 'next/link';
-import { features, tabs, testimonials } from './page.data';
+import { features, testimonials, informationData } from './page.data';
 import { TestimonialsColumn } from '@/components/ui/testimonials-columns-1';
 import Component from '@/components/ui/pricing-section-1';
-import { useUser } from '@/hooks/use-user';
+import { Timeline } from '@/components/ui/timeline';
 
 const Feature = ({
     title,
@@ -60,8 +59,6 @@ const Feature = ({
 };
 
 export default function HomePage() {
-    const user = useUser();
-    console.log(user);
     const firstColumn = testimonials.slice(0, 3);
     const secondColumn = testimonials.slice(3, 6);
     const thirdColumn = testimonials.slice(6, 9);
@@ -92,17 +89,24 @@ export default function HomePage() {
                 </Highlight>
             </p>
             <div className="mt-8 flex justify-center gap-4">
-                <Button size="sm" className="rounded-full px-5 py-2 text-lg">
-                    Get Started
-                </Button>
-                <Button
-                    size="sm"
-                    variant="outline"
-                    className="rounded-lg px-5 py-2 text-lg"
-                >
-                    Take a Free Practice Test
-                    <ArrowRight className="h-4 w-4" />
-                </Button>
+                <Link href="/auth/login">
+                    <Button
+                        size="sm"
+                        className="rounded-lg p-4 px-5 py-2 text-lg"
+                    >
+                        Get Started
+                    </Button>
+                </Link>
+                <Link href="/test">
+                    <Button
+                        size="sm"
+                        variant="outline"
+                        className="rounded-lg p-4 text-lg"
+                    >
+                        Take a Free Practice Test
+                        <ArrowRight className="h-4 w-4" />
+                    </Button>
+                </Link>
             </div>
             <div className="flex flex-col overflow-hidden">
                 <ContainerScroll>
@@ -135,8 +139,8 @@ export default function HomePage() {
                     us out on this site!
                 </p>
             </div>
-            <div className="relative mx-auto my-8 flex w-full max-w-5xl flex-col items-start justify-start [perspective:1000px] md:h-[40rem]">
-                <Tabs tabs={tabs} />
+            <div className="relative w-full overflow-clip">
+                <Timeline data={informationData} />
             </div>
             <div className="relative z-10 mx-auto mt-20 grid max-w-7xl grid-cols-1 py-10 md:grid-cols-2 lg:grid-cols-4">
                 {features.map((feature, index) => (

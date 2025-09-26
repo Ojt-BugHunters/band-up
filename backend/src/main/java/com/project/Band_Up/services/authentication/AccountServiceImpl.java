@@ -42,10 +42,10 @@ public class AccountServiceImpl implements AccountService {
             if (passwordEncoder.matches(accountDto.getPassword(), account.getPassword())) {
                 return modelMapper.map(account, AccountDtoResponse.class);
             } else {
-                throw new AuthenticationFailedException();
+                throw new AuthenticationFailedException("Invalid email or password");
             }
         } else {
-            throw new AuthenticationFailedException();
+            throw new AuthenticationFailedException("Email not exist");
         }
     }
 }

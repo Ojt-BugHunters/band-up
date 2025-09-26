@@ -13,8 +13,7 @@ export const schema = z.object({
     email: z.string().min(1, { message: 'Email must not be empty' }),
     password: passwordSchema,
 });
-
-export const useLoginForm = () => {
+export const useLogin = () => {
     const router = useRouter();
     const queryClient = useQueryClient();
 
@@ -36,8 +35,8 @@ export const useLoginForm = () => {
             toast.error(error.message);
         },
         onSuccess: (data) => {
-            queryClient.setQueryData(['user'], data.user);
-            console.log('saved user', queryClient.getQueryData(['user'])); // check xem có dữ liệu chưa
+            queryClient.setQueryData(['user'], data);
+            localStorage.setItem('user', JSON.stringify(data));
             toast.success('Login Successfully');
             router.push('/');
         },

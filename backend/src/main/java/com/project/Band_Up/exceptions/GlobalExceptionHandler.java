@@ -1,6 +1,9 @@
 package com.project.Band_Up.exceptions;
 
+import com.project.Band_Up.utils.JwtUtil;
 import org.springdoc.api.ErrorMessage;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.MethodArgumentNotValidException;
@@ -13,6 +16,8 @@ import java.util.Map;
 
 @ControllerAdvice
 public class GlobalExceptionHandler {
+    @Autowired
+    private JwtUtil jwtUtil;
 
     @ExceptionHandler(value = {ResourceNotFoundException.class})
     public ResponseEntity<ErrorMessage> handleResourceNotFoundException(ResourceNotFoundException ex){
@@ -26,7 +31,10 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(value = {AuthenticationFailedException.class})
     public ResponseEntity<ErrorMessage> handleAuthenticationFailedException(AuthenticationFailedException ex){
-        return new ResponseEntity<>(new ErrorMessage(ex.getMessage()), HttpStatus.UNAUTHORIZED);
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                .header(HttpHeaders.SET_COOKIE, jwtUtil.deleteCookie("AccessToken").toString())
+                .header(HttpHeaders.SET_COOKIE, jwtUtil.deleteCookie("RefreshToken").toString())
+                .body(new ErrorMessage(ex.getMessage()));
     }
 
     @ExceptionHandler(MethodArgumentNotValidException.class)

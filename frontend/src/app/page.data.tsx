@@ -61,96 +61,85 @@ export const features = [
     },
 ];
 
-const BlogContent = () => {
-    return (
-        <div className="relative h-full w-full overflow-hidden rounded-2xl bg-black p-0">
-            <Image
-                src="/web-intro-blog.jpg"
-                alt="Review Image"
-                width={1000}
-                height={500}
-                className="h-full w-full rounded-xl object-cover object-center"
-            />
-        </div>
-    );
-};
-
-const RoomContent = () => {
-    return (
-        <div className="relative h-full w-full overflow-hidden rounded-2xl bg-black p-0">
-            <Image
-                src="/web-intro-room.jpg"
-                alt="Review Image"
-                width="1000"
-                height="500"
-                className="h-full w-full rounded-xl object-cover object-center"
-            />
-        </div>
-    );
-};
-
-const FlashCardContent = () => {
-    return (
-        <div className="relative h-full w-full overflow-hidden rounded-2xl bg-black p-0">
-            <Image
-                src="/web-intro-flashcard.jpg"
-                alt="Review Image"
-                width="1000"
-                height="500"
-                className="h-full w-full rounded-xl object-cover object-center"
-            />
-        </div>
-    );
-};
-
-const TestContent = () => {
-    return (
-        <div className="relative h-full w-full overflow-hidden rounded-2xl bg-black p-0">
-            <Image
-                src="/hero-writing.jpg"
-                alt="Review Image"
-                width="1000"
-                height="500"
-                className="h-full w-full rounded-xl object-cover object-center"
-            />
-        </div>
-    );
-};
-
-export const tabs = [
+export const informationData = [
     {
-        title: 'Blog',
-        value: 'Blog',
+        title: 'Test',
         content: (
-            <div className="relative h-full w-full overflow-hidden rounded-2xl bg-gradient-to-r from-blue-500 via-indigo-500 to-purple-500 p-6 text-xl font-bold text-white md:text-4xl">
-                <BlogContent />
+            <div>
+                <p className="mb-8 text-xs font-normal text-neutral-800 md:text-sm dark:text-neutral-200">
+                    Do our latest IELTS Trial Test in our system to prepare the
+                    best before taking an exam
+                </p>
+                <div>
+                    <Image
+                        src="/web-intro-test.jpg"
+                        alt="startup template"
+                        width={500}
+                        height={500}
+                        className="h-20 w-full rounded-lg object-cover shadow-[0_0_24px_rgba(34,_42,_53,_0.06),_0_1px_1px_rgba(0,_0,_0,_0.05),_0_0_0_1px_rgba(34,_42,_53,_0.04),_0_0_4px_rgba(34,_42,_53,_0.08),_0_16px_68px_rgba(47,_48,_55,_0.05),_0_1px_0_rgba(255,_255,_255,_0.1)_inset] md:h-44 lg:h-60"
+                    />
+                </div>
             </div>
         ),
     },
     {
         title: 'Room',
-        value: 'Room',
         content: (
-            <div className="relative h-full w-full overflow-hidden rounded-2xl bg-gradient-to-r from-blue-500 via-indigo-500 to-purple-500 p-6 text-xl font-bold text-white md:text-4xl">
-                <RoomContent />
+            <div>
+                <p className="mb-8 text-xs font-normal text-neutral-800 md:text-sm dark:text-neutral-200">
+                    Cooperate with your friends and your mentor directly and
+                    convenient in our room system
+                </p>
+
+                <div>
+                    <Image
+                        src="/web-intro-room.jpg"
+                        alt="hero template"
+                        width={500}
+                        height={500}
+                        className="h-20 w-full rounded-lg object-cover shadow-[0_0_24px_rgba(34,_42,_53,_0.06),_0_1px_1px_rgba(0,_0,_0,_0.05),_0_0_0_1px_rgba(34,_42,_53,_0.04),_0_0_4px_rgba(34,_42,_53,_0.08),_0_16px_68px_rgba(47,_48,_55,_0.05),_0_1px_0_rgba(255,_255,_255,_0.1)_inset] md:h-44 lg:h-60"
+                    />
+                </div>
             </div>
         ),
     },
     {
-        title: 'Test',
-        value: 'Test',
+        title: 'Blog',
         content: (
-            <div className="relative h-full w-full overflow-hidden rounded-2xl bg-gradient-to-r from-blue-500 via-indigo-500 to-purple-500 p-6 text-xl font-bold text-white md:text-4xl">
-                <TestContent />
+            <div>
+                <p className="mb-4 text-xs font-normal text-neutral-800 md:text-sm dark:text-neutral-200">
+                    The blog system to update the latest blog related to IELTS
+                    Test
+                </p>
+                <div>
+                    <Image
+                        src="/web-intro-blog.jpg"
+                        alt="hero template"
+                        width={500}
+                        height={500}
+                        className="h-20 w-full rounded-lg object-cover shadow-[0_0_24px_rgba(34,_42,_53,_0.06),_0_1px_1px_rgba(0,_0,_0,_0.05),_0_0_0_1px_rgba(34,_42,_53,_0.04),_0_0_4px_rgba(34,_42,_53,_0.08),_0_16px_68px_rgba(47,_48,_55,_0.05),_0_1px_0_rgba(255,_255,_255,_0.1)_inset] md:h-44 lg:h-60"
+                    />
+                </div>
             </div>
         ),
     },
     {
-        title: 'FlashCard',
-        value: 'FlashCard',
+        title: 'Card',
         content: (
-            <div className="relative h-full w-full overflow-hidden rounded-2xl bg-gradient-to-r from-blue-500 via-indigo-500 to-purple-500 p-6 text-xl font-bold text-white md:text-4xl">
-                <FlashCardContent />
+            <div>
+                <p className="mb-4 text-xs font-normal text-neutral-800 md:text-sm dark:text-neutral-200">
+                    A flashcard feature which help learner to study quickly and
+                    efficency
+                </p>
+                <div>
+                    <Image
+                        src="/web-intro-flashcard.jpg"
+                        alt="hero template"
+                        width={500}
+                        height={500}
+                        className="h-20 w-full rounded-lg object-cover shadow-[0_0_24px_rgba(34,_42,_53,_0.06),_0_1px_1px_rgba(0,_0,_0,_0.05),_0_0_0_1px_rgba(34,_42,_53,_0.04),_0_0_4px_rgba(34,_42,_53,_0.08),_0_16px_68px_rgba(47,_48,_55,_0.05),_0_1px_0_rgba(255,_255,_255,_0.1)_inset] md:h-44 lg:h-60"
+                    />
+                </div>
             </div>
         ),
     },

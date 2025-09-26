@@ -1,19 +1,24 @@
 package com.project.Band_Up.utils;
 
-import com.project.Band_Up.dtos.authentication.AccountDto;
 import com.project.Band_Up.entities.Account;
 import com.project.Band_Up.entities.RefreshToken;
+import com.project.Band_Up.exceptions.AuthenticationFailedException;
 import com.project.Band_Up.exceptions.ResourceNotFoundException;
 import com.project.Band_Up.repositories.AccountRepository;
 import com.project.Band_Up.repositories.RefreshTokenRepository;
 import io.jsonwebtoken.Claims;
+import io.jsonwebtoken.ExpiredJwtException;
+import io.jsonwebtoken.JwtException;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.security.Keys;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.cache.annotation.Cacheable;
 import org.springframework.http.ResponseCookie;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
 
@@ -34,6 +39,8 @@ public class JwtUtil {
     private SecretKey SECRET_KEY;
     @Autowired
     private PasswordEncoder passwordEncoder;
+    @Autowired
+    private UserDetailsService userDetailsService;
     private final long ACCESS_TOKEN_AGE = 15 * 60 * 1000;   // 15 minutes
     private final long REFRESH_TOKEN_AGE = 30L * 24 * 60 * 60 * 1000; // 30 days
 
@@ -49,58 +56,86 @@ public class JwtUtil {
                 .compact();
     }
 
-    public String generateRefreshToken(UUID id) {
-        Account account =  getAccount(id);
-        String rawToken = UUID.randomUUID().toString();
-        String hashedToken = passwordEncoder.encode(rawToken);
-        refreshTokenRepository.save(RefreshToken.builder()
-                .account(modelMapper.map(account, Account.class))
-                .token(hashedToken)
+    public String generateRefreshToken(UUID accountId) {
+        String tokenSecret = UUID.randomUUID().toString();
+
+        String hashedSecret = passwordEncoder.encode(tokenSecret);
+        RefreshToken refreshToken = refreshTokenRepository.save(RefreshToken.builder()
+                .account(getAccount(accountId))
+                .token(hashedSecret)
                 .expiredAt(new Date(System.currentTimeMillis() + REFRESH_TOKEN_AGE))
                 .build());
-        return rawToken;
+
+        String tokenId = refreshToken.getId().toString();
+        return tokenId + "." + tokenSecret;
     }
+
+    public UUID validateRefreshToken(String rawToken) {
+        String[] parts = rawToken.split("\\.");
+        if (parts.length != 2) {
+            throw new AuthenticationFailedException("Invalid refresh token format");
+        }
+
+        String tokenId = parts[0];
+        String tokenSecret = parts[1];
+
+        RefreshToken entity = refreshTokenRepository.findById(UUID.fromString(tokenId))
+                .orElseThrow(() -> new AuthenticationFailedException("Refresh token not found"));
+
+        if (entity.getExpiredAt().before(new Date())) {
+            throw new AuthenticationFailedException("Refresh token expired");
+        }
+
+        if (!passwordEncoder.matches(tokenSecret, entity.getToken())) {
+            throw new AuthenticationFailedException("Invalid refresh token");
+        }
+
+        return entity.getAccount().getId();
+    }
+
 
     public void deleteRefreshToken(String refreshToken) {
-        if(refreshTokenRepository.existsByToken(refreshToken))
-            refreshTokenRepository.deleteByToken(refreshToken);
+        String[] parts = refreshToken.split("\\.");
+        if (parts.length != 2) {
+            throw new AuthenticationFailedException("Invalid refresh token format");
+        }
+
+        String tokenId = parts[0];
+        String tokenSecret = parts[1];
+        if(refreshTokenRepository.existsById(UUID.fromString(tokenId)))
+            refreshTokenRepository.deleteById(UUID.fromString(tokenId));
     }
 
-    public Claims extractClaims(String token) {
-        return Jwts.parser()
-                .verifyWith(SECRET_KEY)
-                .build()
-                .parseSignedClaims(token)
-                .getPayload();
-    }
+    public Claims validateAccessToken(String token) {
+        try {
+            return Jwts.parser()
+                    .verifyWith(SECRET_KEY)
+                    .build()
+                    .parseSignedClaims(token)
+                    .getPayload();
+        } catch (ExpiredJwtException e) {
+            throw new AuthenticationFailedException("Access token expired");
+        } catch (JwtException e) {
+            throw new AuthenticationFailedException("Invalid access token");
+        }
+}
 
     public String extractSubject(String token) {
-        return extractClaims(token).getSubject();
+        return validateAccessToken(token).getSubject();
     }
 
-    public ResponseCookie getAccessTokenCookie(UUID id) {
-        String token = generateAccessToken(id);
-        ResponseCookie cookie = ResponseCookie.from("AccessToken", token)
+    public ResponseCookie getCookie(String token, String tokenType) {
+        ResponseCookie cookie = ResponseCookie.from(tokenType, token)
                 .httpOnly(true)
                 .secure(true)
                 .path("/")
                 .sameSite("None")
-                .maxAge(15 * 60) // 15 minutes
+                .maxAge(tokenType.equalsIgnoreCase("AccessToken")? 15 * 60 : (int) TimeUnit.DAYS.toSeconds(7)) // 15 minutes
                 .build();
         return cookie;
     }
-    public ResponseCookie getRefreshTokenCookie(UUID id) {
-        String token = generateRefreshToken(id);
-        ResponseCookie cookie = ResponseCookie.from("RefreshToken", token)
-                .httpOnly(true)
-                .secure(true)
-                .path("/")
-                .sameSite("None")
-                .maxAge((int) TimeUnit.DAYS.toSeconds(7)) // 7 days
-                .build();
-        return cookie;
-    }public ResponseCookie deleteAccessTokenCookie() {
-        ResponseCookie cookie = ResponseCookie.from("AccessToken", "")
+    public ResponseCookie deleteCookie(String tokenType) {
+        ResponseCookie cookie = ResponseCookie.from(tokenType, "")
                 .httpOnly(true)
                 .secure(true)
                 .path("/")
@@ -109,19 +144,19 @@ public class JwtUtil {
                 .build();
         return cookie;
     }
-    public ResponseCookie deleteRefreshTokenCookie() {
-        ResponseCookie cookie = ResponseCookie.from("RefreshToken", "")
-                .httpOnly(true)
-                .secure(true)
-                .path("/")
-                .sameSite("None")
-                .maxAge(0) // 7 days
-                .build();
-        return cookie;
-    }
 
     public Account getAccount(UUID id){
         return accountRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException(id.toString()));
+    }
+
+    public Authentication getAuthentication(UUID accountId) {
+        UserDetails userDetails = userDetailsService.loadUserByUsername(accountId.toString());
+
+        return new UsernamePasswordAuthenticationToken(
+                userDetails,
+                null, // no password required, already authenticated
+                userDetails.getAuthorities()
+        );
     }
 }

@@ -7,7 +7,7 @@ import com.project.Band_Up.utils.JwtUtil;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
-import jakarta.servlet.http.HttpServletResponse;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
@@ -17,6 +17,8 @@ import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/auth")
+@Tag(name = "Authentication API",
+    description = "Các endpoint để quản lý authentication (login,logout, register,...)")
 public class AuthenticationController {
 
     @Autowired
@@ -33,11 +35,13 @@ public class AuthenticationController {
     })
     public ResponseEntity<?> registerByEmail(@Valid @RequestBody AccountDto account) {
         AccountDtoResponse accountDtoResponse = accountService.registerByEmail(account);
-        ResponseCookie refreshToken = jwtUtil.getRefreshTokenCookie(accountDtoResponse.getId());
-        ResponseCookie accessToken = jwtUtil.getAccessTokenCookie(accountDtoResponse.getId());
+        String refreshToken = jwtUtil.generateRefreshToken(accountDtoResponse.getId());
+        String accessToken = jwtUtil.generateAccessToken(accountDtoResponse.getId());
+        ResponseCookie refreshTokenCookie = jwtUtil.getCookie(refreshToken, "RefreshToken");
+        ResponseCookie accessTokenCookie = jwtUtil.getCookie(accessToken, "AccessToken");
         return ResponseEntity.ok()
-                .header(HttpHeaders.SET_COOKIE, accessToken.toString())
-                .header(HttpHeaders.SET_COOKIE, refreshToken.toString())
+                .header(HttpHeaders.SET_COOKIE, refreshTokenCookie.toString())
+                .header(HttpHeaders.SET_COOKIE, accessTokenCookie.toString())
                 .body(accountDtoResponse);
     }
 
@@ -50,21 +54,25 @@ public class AuthenticationController {
     })
     public ResponseEntity<?> loginByEmail(@Valid @RequestBody AccountDto account) {
         AccountDtoResponse accountDtoResponse = accountService.loginByEmail(account);
-        ResponseCookie refreshToken = jwtUtil.getRefreshTokenCookie(accountDtoResponse.getId());
-        ResponseCookie accessToken = jwtUtil.getAccessTokenCookie(accountDtoResponse.getId());
+        String refreshToken = jwtUtil.generateRefreshToken(accountDtoResponse.getId());
+        String accessToken = jwtUtil.generateAccessToken(accountDtoResponse.getId());
+        ResponseCookie refreshTokenCookie = jwtUtil.getCookie(refreshToken, "RefreshToken");
+        ResponseCookie accessTokenCookie = jwtUtil.getCookie(accessToken, "AccessToken");
         return ResponseEntity.ok()
-                .header(HttpHeaders.SET_COOKIE, accessToken.toString())
-                .header(HttpHeaders.SET_COOKIE, refreshToken.toString())
+                .header(HttpHeaders.SET_COOKIE, refreshTokenCookie.toString())
+                .header(HttpHeaders.SET_COOKIE, accessTokenCookie.toString())
                 .body(accountDtoResponse);
     }
 
     @PostMapping("/logout")
+    @Operation(summary = "Logout the existing account",
+            description = "Delete and invalidate the current access token and refresh token")
     public ResponseEntity<?> logout(@CookieValue(name = "RefreshToken", required = false) String refreshToken,
                                    @CookieValue(name = "AccessToken", required = false) String accessToken) {
         jwtUtil.deleteRefreshToken(refreshToken);
         return ResponseEntity.ok()
-                .header(HttpHeaders.SET_COOKIE, jwtUtil.deleteRefreshTokenCookie().toString())
-                .header(HttpHeaders.SET_COOKIE, jwtUtil.deleteAccessTokenCookie().toString())
+                .header(HttpHeaders.SET_COOKIE, jwtUtil.deleteCookie("AccessToken").toString())
+                .header(HttpHeaders.SET_COOKIE, jwtUtil.deleteCookie("RefreshToken").toString())
                 .build();
     }
 }

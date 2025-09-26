@@ -3,6 +3,7 @@ package com.project.Band_Up.dtos.quizlet;
 import lombok.*;
 
 import java.time.LocalDateTime;
+import java.util.UUID;
 
 @Setter
 @Getter
@@ -10,6 +11,7 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 @Builder
 public class DeckDtoResponse {
+    private UUID id;
     private String title    ;
     private String description;
     private int learnerNumber;
