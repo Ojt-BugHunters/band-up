@@ -3,6 +3,7 @@ import type { Flashcard } from '@/lib/api/dto/flashcards';
 import { Comment } from '@/lib/api/dto/comment';
 import { Test, TestOverview } from '@/lib/api/dto/test';
 import { ListeningSection, Passage, WritingTask } from '@/lib/api/dto/question';
+import { FlashcardItem } from '@/lib/api/dto/flashcarditem';
 
 export const mockFlashcards: Flashcard[] = [
     {
@@ -124,6 +125,44 @@ export const mockFlashcards: Flashcard[] = [
         number_learner: 98,
         created_at: '2025-09-25T14:40:00Z',
         is_public: true,
+    },
+];
+
+export const flashcardItemsForSet1: FlashcardItem[] = [
+    {
+        id: '1-1',
+        flashcard_id: '1',
+        front: 'Artificial Intelligence (AI)',
+        back: 'Trí tuệ nhân tạo – công nghệ mô phỏng trí tuệ con người.',
+        example: 'AI is revolutionizing industries such as healthcare and finance.',
+    },
+    {
+        id: '1-2',
+        flashcard_id: '1',
+        front: 'Cybersecurity',
+        back: 'An ninh mạng – bảo vệ hệ thống khỏi các mối đe dọa số.',
+        example: 'Cybersecurity has become a critical issue for modern businesses.',
+    },
+    {
+        id: '1-3',
+        flashcard_id: '1',
+        front: 'Cloud Computing',
+        back: 'Điện toán đám mây – lưu trữ và xử lý dữ liệu qua internet.',
+        example: 'Many companies use cloud computing to reduce infrastructure costs.',
+    },
+    {
+        id: '1-4',
+        flashcard_id: '1',
+        front: 'Big Data',
+        back: 'Dữ liệu lớn – tập hợp khối lượng dữ liệu khổng lồ cần phân tích.',
+        example: 'Big Data helps organizations understand customer behavior.',
+    },
+    {
+        id: '1-5',
+        flashcard_id: '1',
+        front: 'Blockchain',
+        back: 'Chuỗi khối – công nghệ lưu trữ dữ liệu phân tán, bảo mật.',
+        example: 'Blockchain is the underlying technology behind cryptocurrencies.',
     },
 ];
 
