@@ -107,4 +107,19 @@ public class CommentController {
         commentService.deleteComment(commentId, UUID.fromString(accountId));
         return ResponseEntity.noContent().build();
     }
+    @Operation(
+            summary = "Đếm số lượng Comments của một Test",
+            description = "Trả về tổng số comment thuộc về Test theo UUID."
+    )
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "Thành công"),
+            @ApiResponse(responseCode = "404", description = "Test không tồn tại")
+    })
+    @GetMapping("/count/by-test/{testId}")
+    public ResponseEntity<Integer> countCommentsByTestId(
+            @Parameter(description = "UUID của Test", required = true) @PathVariable("testId") UUID testId) {
+        Integer count = commentService.countCommentsByTestId(testId);
+        return ResponseEntity.ok(count);
+    }
+
 }

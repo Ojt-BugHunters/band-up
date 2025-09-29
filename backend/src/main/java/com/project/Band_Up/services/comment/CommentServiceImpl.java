@@ -77,4 +77,8 @@ public class CommentServiceImpl implements CommentService {
 
         commentRepository.delete(comment);
     }
+    @Override
+    public Integer countCommentsByTestId(UUID testId) {
+        return commentRepository.countByTest_Id(testId);
+    }
 }

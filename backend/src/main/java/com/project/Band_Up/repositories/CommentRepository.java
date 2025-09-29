@@ -11,4 +11,6 @@ import java.util.UUID;
 public interface CommentRepository extends JpaRepository<Comment, UUID> {
     // List all comments by test ID ordered by creation date descending
     List<Comment> findAllByTest_IdOrderByCreateAtDesc(UUID testId);
+    // Count comments by test ID
+    Integer countByTest_Id(UUID testId);
 }

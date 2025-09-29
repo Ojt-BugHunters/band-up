@@ -16,4 +16,6 @@ public interface CommentService {
     CommentResponse updateComment(UUID commentId, UUID userId, CommentUpdateRequest commentUpdateRequest);
     // Delete Comment
     void deleteComment(UUID commentId, UUID userId);
+    // Count Comments by TestId
+    Integer countCommentsByTestId(UUID testId);
 }
