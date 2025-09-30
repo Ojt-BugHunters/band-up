@@ -17,6 +17,6 @@ public interface DeckService {
 
     public DeckDto deleteDeck(UUID deckId);
 
-    public DeckDtoResponse updateDeck(UUID deckId, DeckDto deckDto);
+    public DeckDtoResponse updateDeck(UUID deckId, DeckDto deckDto, UUID accountId);
 
 }
