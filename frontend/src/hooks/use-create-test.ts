@@ -8,7 +8,7 @@ export const TestCreateSchema = z.object({
         .string()
         .min(3, 'Title must be at least 3 characters')
         .max(100, 'Title is too long'),
-    durationMinutes: z.number(),
+    durationSeconds: z.number(),
 });
 
 export const useCreateTest = () => {
