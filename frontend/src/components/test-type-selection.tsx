@@ -8,6 +8,8 @@ import {
     CardTitle,
 } from './ui/card';
 import { cn } from '@/lib/utils';
+import { useState } from 'react';
+import { CreateTestDialog } from './create-test-dialog';
 
 export const TEST_TYPES: {
     value: TestType;
@@ -60,7 +62,14 @@ const testTypeIconColors = {
     speaking: 'text-orange-600',
 };
 
+function capitalize(word: string) {
+    return word.charAt(0).toUpperCase() + word.slice(1);
+}
+
 export function TestTypeSelection() {
+    const [openTestDialog, setOpenTestDialog] = useState(false);
+    const [selectedTestType, setSelectedTestType] =
+        useState<TestType>('reading');
     return (
         <div className="space-y-6">
             <div className="text-center">
@@ -78,6 +87,10 @@ export function TestTypeSelection() {
                     return (
                         <Card
                             key={testType.value}
+                            onClick={() => {
+                                setOpenTestDialog(true);
+                                setSelectedTestType(testType.value);
+                            }}
                             className={cn(
                                 'cursor-pointer transition-all duration-200 hover:shadow-md',
                                 testTypeColors[testType.value],
@@ -126,6 +139,12 @@ export function TestTypeSelection() {
                     );
                 })}
             </div>
+            <CreateTestDialog
+                open={openTestDialog}
+                onOpenChange={setOpenTestDialog}
+                skillName={selectedTestType}
+                displayName={capitalize(selectedTestType)}
+            />
         </div>
     );
 }
