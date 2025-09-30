@@ -1,5 +1,4 @@
 'use client';
-
 import {
     FormState,
     FormStep,
@@ -214,7 +213,11 @@ export default function CreateTestPage() {
                             ) : (
                                 <Button
                                     type="submit"
-                                    onClick={() => console.log('click')}
+                                    onClick={() => {
+                                        console.log('Test Creation Data:', {
+                                            ...formState.data,
+                                        });
+                                    }}
                                     className="bg-foreground text-background hover:bg-foreground/90 flex items-center gap-2 rounded-lg px-6 py-3 text-base font-semibold shadow-lg transition-all hover:shadow-xl"
                                 >
                                     <Check className="h-5 w-5" />
