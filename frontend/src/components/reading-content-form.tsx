@@ -1,5 +1,14 @@
-import { ReadingPassage } from '@/lib/api/dto/create-test';
-import { BookOpen, Check, Edit, Plus, Trash2, X } from 'lucide-react';
+import { ReadingPassage, ReadingQuestion } from '@/lib/api/dto/create-test';
+import {
+    BookOpen,
+    Check,
+    Edit,
+    HelpCircle,
+    ImageIcon,
+    Plus,
+    Trash2,
+    X,
+} from 'lucide-react';
 import { useState } from 'react';
 import { Badge } from './ui/badge';
 import { Button } from './ui/button';
@@ -13,13 +22,35 @@ import {
 import { Label } from './ui/label';
 import { Input } from './ui/input';
 import { Textarea } from './ui/textarea';
+import {
+    Select,
+    SelectContent,
+    SelectItem,
+    SelectTrigger,
+    SelectValue,
+} from './ui/select';
+import { ReadingQuestionType } from '@/lib/api/dto/question';
 
+const READING_PASSAGE_COUNT = 3;
+const READING_QUESTION_TYPES: {
+    value: ReadingQuestionType;
+    label: string;
+}[] = [
+    { value: 'multiple-choice', label: 'Multiple Choice' },
+    { value: 'short-answer', label: 'Short Answer' },
+    { value: 'true-false', label: 'True/False/Not Given' },
+    { value: 'completion', label: 'Sentence/Summary Completion' },
+];
 interface ReadingContentFormProps {
     passages: ReadingPassage[];
     onPassagesUpdate: (passage: ReadingPassage[]) => void;
 }
 
-const READING_PASSAGE_COUNT = 3;
+interface ReadingQuestionFormProps {
+    passages: ReadingPassage[];
+    questions: ReadingQuestion[];
+    onQuestionsUpdate: (questions: ReadingQuestion[]) => void;
+}
 
 export function ReadingContentForm({
     passages,
@@ -268,6 +299,432 @@ export function ReadingContentForm({
                     </div>
                     <p className="mt-1 text-sm text-green-600">
                         You can now proceed to add questions for each passage.
+                    </p>
+                </div>
+            )}
+        </div>
+    );
+}
+
+export function ReadingQuestionForm({
+    passages,
+    questions,
+    onQuestionsUpdate,
+}: ReadingQuestionFormProps) {
+    const [editingIndex, setEditingIndex] = useState<number | null>(null);
+    const [editForm, setEditForm] = useState<Partial<ReadingQuestion>>({});
+    const [selectedPassageId, setSelectedPassageId] = useState<string>('');
+
+    const handleAddQuestion = (passageId: string) => {
+        const newQuestion: ReadingQuestion = {
+            id: `question-${Date.now()}`,
+            title: '',
+            content: '',
+            image: '',
+            type: 'multiple-choice',
+            passageId,
+        };
+
+        setEditingIndex(questions.length);
+        setEditForm(newQuestion);
+        setSelectedPassageId(passageId);
+        onQuestionsUpdate([...questions, newQuestion]);
+    };
+
+    const handleEditQuestion = (index: number) => {
+        setEditingIndex(index);
+        setEditForm(questions[index]);
+        setSelectedPassageId(questions[index].passageId);
+    };
+
+    const handleSaveQuestion = () => {
+        if (editingIndex === null) return;
+
+        const updatedQuestions = [...questions];
+        updatedQuestions[editingIndex] = editForm as ReadingQuestion;
+        onQuestionsUpdate(updatedQuestions);
+        setEditingIndex(null);
+        setEditForm({});
+        setSelectedPassageId('');
+    };
+
+    const handleCancelEdit = () => {
+        if (
+            editingIndex !== null &&
+            editForm.title === '' &&
+            editForm.content === ''
+        ) {
+            const updatedQuestions = questions.filter(
+                (_, index) => index !== editingIndex,
+            );
+            onQuestionsUpdate(updatedQuestions);
+        }
+        setEditingIndex(null);
+        setEditForm({});
+        setSelectedPassageId('');
+    };
+
+    const handleDeleteQuestion = (index: number) => {
+        const updatedQuestions = questions.filter((_, i) => i !== index);
+        onQuestionsUpdate(updatedQuestions);
+    };
+
+    const getQuestionsForPassage = (passageId: string) => {
+        return questions.filter((q) => q.passageId === passageId);
+    };
+
+    const getPassageTitle = (passageId: string) => {
+        const passage = passages.find((p) => p.id === passageId);
+        return passage?.title || 'Untitled Passage';
+    };
+
+    const isFormValid =
+        editForm.title?.trim() && editForm.content?.trim() && editForm.type;
+
+    if (passages.length === 0) {
+        return (
+            <div className="py-12 text-center">
+                <HelpCircle className="text-muted-foreground mx-auto mb-4 h-12 w-12" />
+                <h4 className="text-foreground mb-2 font-medium">
+                    No passages available
+                </h4>
+                <p className="text-muted-foreground">
+                    Please add reading passages first before creating questions.
+                </p>
+            </div>
+        );
+    }
+
+    return (
+        <div className="space-y-6">
+            <div className="text-center">
+                <h3 className="text-foreground mb-2 text-lg font-semibold">
+                    Reading Questions
+                </h3>
+                <p className="text-muted-foreground">
+                    Create questions for each reading passage. Questions should
+                    test comprehension and understanding.
+                </p>
+            </div>
+
+            <div className="space-y-6">
+                {passages.map((passage, passageIndex) => {
+                    const passageQuestions = getQuestionsForPassage(passage.id);
+
+                    return (
+                        <Card key={passage.id} className="border-border border">
+                            <CardHeader className="pb-4">
+                                <div className="flex items-center justify-between">
+                                    <div>
+                                        <CardTitle className="text-base font-medium">
+                                            Passage {passageIndex + 1}:{' '}
+                                            {passage.title}
+                                        </CardTitle>
+                                        <CardDescription className="text-sm">
+                                            {passageQuestions.length} questions
+                                            created
+                                        </CardDescription>
+                                    </div>
+                                    <Button
+                                        onClick={() =>
+                                            handleAddQuestion(passage.id)
+                                        }
+                                        className="bg-blue-600 hover:bg-blue-700"
+                                        size="sm"
+                                    >
+                                        <Plus className="mr-2 h-4 w-4" />
+                                        Add Question
+                                    </Button>
+                                </div>
+                            </CardHeader>
+
+                            <CardContent className="space-y-4">
+                                {passageQuestions.map(
+                                    (question, questionIndex) => {
+                                        const globalIndex = questions.findIndex(
+                                            (q) => q.id === question.id,
+                                        );
+
+                                        return (
+                                            <Card
+                                                key={question.id}
+                                                className="border-border/50 border"
+                                            >
+                                                <CardHeader className="pb-3">
+                                                    <div className="flex items-center justify-between">
+                                                        <div className="flex items-center gap-2">
+                                                            <Badge
+                                                                variant="outline"
+                                                                className="text-xs"
+                                                            >
+                                                                {
+                                                                    READING_QUESTION_TYPES.find(
+                                                                        (t) =>
+                                                                            t.value ===
+                                                                            question.type,
+                                                                    )?.label
+                                                                }
+                                                            </Badge>
+                                                            <span className="text-sm font-medium">
+                                                                Question{' '}
+                                                                {questionIndex +
+                                                                    1}
+                                                                {question.title &&
+                                                                    `: ${question.title}`}
+                                                            </span>
+                                                        </div>
+                                                        <div className="flex items-center gap-2">
+                                                            {editingIndex !==
+                                                                globalIndex && (
+                                                                <>
+                                                                    <Button
+                                                                        variant="outline"
+                                                                        size="sm"
+                                                                        onClick={() =>
+                                                                            handleEditQuestion(
+                                                                                globalIndex,
+                                                                            )
+                                                                        }
+                                                                    >
+                                                                        <Edit className="h-4 w-4" />
+                                                                    </Button>
+                                                                    <Button
+                                                                        variant="outline"
+                                                                        size="sm"
+                                                                        onClick={() =>
+                                                                            handleDeleteQuestion(
+                                                                                globalIndex,
+                                                                            )
+                                                                        }
+                                                                        className="text-destructive hover:text-destructive"
+                                                                    >
+                                                                        <Trash2 className="h-4 w-4" />
+                                                                    </Button>
+                                                                </>
+                                                            )}
+                                                        </div>
+                                                    </div>
+                                                </CardHeader>
+
+                                                {editingIndex ===
+                                                globalIndex ? (
+                                                    <CardContent className="space-y-4">
+                                                        <div className="grid grid-cols-2 gap-4">
+                                                            <div className="space-y-2">
+                                                                <Label
+                                                                    htmlFor={`q-title-${globalIndex}`}
+                                                                >
+                                                                    Question
+                                                                    Title
+                                                                </Label>
+                                                                <Input
+                                                                    id={`q-title-${globalIndex}`}
+                                                                    value={
+                                                                        editForm.title ||
+                                                                        ''
+                                                                    }
+                                                                    onChange={(
+                                                                        e,
+                                                                    ) =>
+                                                                        setEditForm(
+                                                                            {
+                                                                                ...editForm,
+                                                                                title: e
+                                                                                    .target
+                                                                                    .value,
+                                                                            },
+                                                                        )
+                                                                    }
+                                                                    placeholder="Enter question title..."
+                                                                />
+                                                            </div>
+                                                            <div className="space-y-2">
+                                                                <Label
+                                                                    htmlFor={`q-type-${globalIndex}`}
+                                                                >
+                                                                    Question
+                                                                    Type
+                                                                </Label>
+                                                                <Select
+                                                                    value={
+                                                                        editForm.type ||
+                                                                        ''
+                                                                    }
+                                                                    onValueChange={(
+                                                                        value,
+                                                                    ) =>
+                                                                        setEditForm(
+                                                                            {
+                                                                                ...editForm,
+                                                                                type: value as ReadingQuestionType,
+                                                                            },
+                                                                        )
+                                                                    }
+                                                                >
+                                                                    <SelectTrigger>
+                                                                        <SelectValue placeholder="Select question type" />
+                                                                    </SelectTrigger>
+                                                                    <SelectContent>
+                                                                        {READING_QUESTION_TYPES.map(
+                                                                            (
+                                                                                type,
+                                                                            ) => (
+                                                                                <SelectItem
+                                                                                    key={
+                                                                                        type.value
+                                                                                    }
+                                                                                    value={
+                                                                                        type.value
+                                                                                    }
+                                                                                >
+                                                                                    {
+                                                                                        type.label
+                                                                                    }
+                                                                                </SelectItem>
+                                                                            ),
+                                                                        )}
+                                                                    </SelectContent>
+                                                                </Select>
+                                                            </div>
+                                                        </div>
+
+                                                        <div className="space-y-2">
+                                                            <Label
+                                                                htmlFor={`q-content-${globalIndex}`}
+                                                            >
+                                                                Question Content
+                                                            </Label>
+                                                            <Textarea
+                                                                id={`q-content-${globalIndex}`}
+                                                                value={
+                                                                    editForm.content ||
+                                                                    ''
+                                                                }
+                                                                onChange={(e) =>
+                                                                    setEditForm(
+                                                                        {
+                                                                            ...editForm,
+                                                                            content:
+                                                                                e
+                                                                                    .target
+                                                                                    .value,
+                                                                        },
+                                                                    )
+                                                                }
+                                                                placeholder="Enter the question content, instructions, and answer choices..."
+                                                                className="min-h-[120px] resize-none"
+                                                            />
+                                                        </div>
+
+                                                        <div className="space-y-2">
+                                                            <Label
+                                                                htmlFor={`q-image-${globalIndex}`}
+                                                            >
+                                                                <div className="flex items-center gap-2">
+                                                                    <ImageIcon className="h-4 w-4" />
+                                                                    Supporting
+                                                                    Image URL
+                                                                    (Optional)
+                                                                </div>
+                                                            </Label>
+                                                            <Input
+                                                                id={`q-image-${globalIndex}`}
+                                                                value={
+                                                                    editForm.image ||
+                                                                    ''
+                                                                }
+                                                                onChange={(e) =>
+                                                                    setEditForm(
+                                                                        {
+                                                                            ...editForm,
+                                                                            image: e
+                                                                                .target
+                                                                                .value,
+                                                                        },
+                                                                    )
+                                                                }
+                                                                placeholder="Enter image URL..."
+                                                            />
+                                                        </div>
+
+                                                        <div className="flex items-center gap-2 pt-2">
+                                                            <Button
+                                                                onClick={
+                                                                    handleSaveQuestion
+                                                                }
+                                                                disabled={
+                                                                    !isFormValid
+                                                                }
+                                                                className="bg-green-600 hover:bg-green-700"
+                                                                size="sm"
+                                                            >
+                                                                <Check className="mr-2 h-4 w-4" />
+                                                                Save
+                                                            </Button>
+                                                            <Button
+                                                                variant="outline"
+                                                                onClick={
+                                                                    handleCancelEdit
+                                                                }
+                                                                size="sm"
+                                                            >
+                                                                <X className="mr-2 h-4 w-4" />
+                                                                Cancel
+                                                            </Button>
+                                                        </div>
+                                                    </CardContent>
+                                                ) : (
+                                                    <CardContent>
+                                                        {question.content && (
+                                                            <div className="text-muted-foreground line-clamp-2 text-sm">
+                                                                {
+                                                                    question.content
+                                                                }
+                                                            </div>
+                                                        )}
+                                                    </CardContent>
+                                                )}
+                                            </Card>
+                                        );
+                                    },
+                                )}
+
+                                {passageQuestions.length === 0 && (
+                                    <div className="border-border rounded-lg border-2 border-dashed py-8 text-center">
+                                        <HelpCircle className="text-muted-foreground mx-auto mb-2 h-8 w-8" />
+                                        <p className="text-muted-foreground mb-3 text-sm">
+                                            No questions added for this passage
+                                            yet
+                                        </p>
+                                        <Button
+                                            onClick={() =>
+                                                handleAddQuestion(passage.id)
+                                            }
+                                            variant="outline"
+                                            size="sm"
+                                        >
+                                            <Plus className="mr-2 h-4 w-4" />
+                                            Add First Question
+                                        </Button>
+                                    </div>
+                                )}
+                            </CardContent>
+                        </Card>
+                    );
+                })}
+            </div>
+
+            {questions.length > 0 && (
+                <div className="rounded-lg border border-blue-200 bg-blue-50 p-4">
+                    <div className="flex items-center gap-2 text-blue-700">
+                        <Check className="h-5 w-5" />
+                        <span className="font-medium">
+                            {questions.length} questions created
+                        </span>
+                    </div>
+                    <p className="mt-1 text-sm text-blue-600">
+                        Questions have been added across all passages. Review
+                        and create your test when ready.
                     </p>
                 </div>
             )}
