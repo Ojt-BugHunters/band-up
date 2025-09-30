@@ -1,6 +1,7 @@
 import { fetchWrapper, throwIfError } from '@/lib/api';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { useMutation } from '@tanstack/react-query';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { useRouter } from 'next/navigation';
 import { useForm } from 'react-hook-form';
 import { toast } from 'sonner';
 import { z } from 'zod';
@@ -15,6 +16,8 @@ export const TestCreateSchema = z.object({
 });
 
 export const useCreateTest = () => {
+    const router = useRouter();
+    const queryClient = useQueryClient();
     const mutation = useMutation({
         mutationFn: async (values: z.infer<typeof TestCreateSchema>) => {
             const response = await fetchWrapper('/api/tests', {
@@ -26,12 +29,18 @@ export const useCreateTest = () => {
                 body: JSON.stringify(values),
             });
             await throwIfError(response);
+            return response.json();
         },
         onError: (error) => {
             toast.error(error.message);
         },
-        onSuccess: () => {
+        onSuccess: (data) => {
+            queryClient.setQueryData(['testId'], data.id);
+            localStorage.setItem('testId', JSON.stringify(data.id));
             toast.success('Create new test successfully');
+            router.push(
+                `/test/create?step=passage&type=${data.skillName}&testId=${data.id}`,
+            );
         },
     });
 
