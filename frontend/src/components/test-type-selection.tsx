@@ -1,5 +1,5 @@
 import { TestType } from '@/lib/api/dto/create-test';
-import { BookOpen, CheckCircle, Headphones, Mic, PenTool } from 'lucide-react';
+import { BookOpen, Headphones, Mic, PenTool } from 'lucide-react';
 import {
     Card,
     CardContent,
@@ -8,11 +8,6 @@ import {
     CardTitle,
 } from './ui/card';
 import { cn } from '@/lib/utils';
-
-export interface TestTypeSelectionProps {
-    selectedType: TestType | null;
-    onTypeSelect: (type: TestType) => void;
-}
 
 export const TEST_TYPES: {
     value: TestType;
@@ -58,16 +53,6 @@ const testTypeColors = {
     speaking: 'border-orange-200 bg-orange-50 hover:bg-orange-100',
 };
 
-const testTypeSelectedColors = {
-    reading: 'border-blue-500 bg-blue-100 ring-2 ring-blue-500 ring-opacity-20',
-    listening:
-        'border-green-500 bg-green-100 ring-2 ring-green-500 ring-opacity-20',
-    writing:
-        'border-purple-500 bg-purple-100 ring-2 ring-purple-500 ring-opacity-20',
-    speaking:
-        'border-orange-500 bg-orange-100 ring-2 ring-orange-500 ring-opacity-20',
-};
-
 const testTypeIconColors = {
     reading: 'text-blue-600',
     listening: 'text-green-600',
@@ -75,10 +60,7 @@ const testTypeIconColors = {
     speaking: 'text-orange-600',
 };
 
-export function TestTypeSelection({
-    selectedType,
-    onTypeSelect,
-}: TestTypeSelectionProps) {
+export function TestTypeSelection() {
     return (
         <div className="space-y-6">
             <div className="text-center">
@@ -93,18 +75,13 @@ export function TestTypeSelection({
             <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
                 {TEST_TYPES.map((testType) => {
                     const Icon = testTypeIcons[testType.value];
-                    const isSelected = selectedType === testType.value;
-
                     return (
                         <Card
                             key={testType.value}
                             className={cn(
                                 'cursor-pointer transition-all duration-200 hover:shadow-md',
-                                isSelected
-                                    ? testTypeSelectedColors[testType.value]
-                                    : testTypeColors[testType.value],
+                                testTypeColors[testType.value],
                             )}
-                            onClick={() => onTypeSelect(testType.value)}
                         >
                             <CardHeader className="pb-3">
                                 <div className="flex items-center justify-between">
@@ -125,9 +102,6 @@ export function TestTypeSelection({
                                             </CardTitle>
                                         </div>
                                     </div>
-                                    {isSelected && (
-                                        <CheckCircle className="h-5 w-5 text-green-600" />
-                                    )}
                                 </div>
                             </CardHeader>
                             <CardContent className="pt-0">
@@ -152,28 +126,6 @@ export function TestTypeSelection({
                     );
                 })}
             </div>
-            {selectedType && (
-                <div className="bg-muted/50 border-border mt-6 rounded-lg border p-4">
-                    <div className="flex items-start gap-3">
-                        <CheckCircle className="mt-0.5 h-5 w-5 flex-shrink-0 text-green-600" />
-                        <div>
-                            <h4 className="text-foreground mb-1 font-medium">
-                                {
-                                    TEST_TYPES.find(
-                                        (t) => t.value === selectedType,
-                                    )?.label
-                                }{' '}
-                                Test Selected
-                            </h4>
-                            <p className="text-muted-foreground text-sm">
-                                You can now proceed to configure the content and
-                                structure for your {selectedType} test. Click
-                                &quot;Next&quot; to continue.
-                            </p>
-                        </div>
-                    </div>
-                </div>
-            )}
         </div>
     );
 }
