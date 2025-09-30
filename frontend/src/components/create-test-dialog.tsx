@@ -47,7 +47,7 @@ export function CreateTestDialog({
     skillName: TestType;
     displayName: string;
 }) {
-    const { form } = useCreateTest();
+    const { form, mutation } = useCreateTest();
     const Icon = testTypeIcons[skillName];
 
     useEffect(() => {
@@ -80,9 +80,10 @@ export function CreateTestDialog({
 
                 <Form {...form}>
                     <form
-                        onSubmit={() => {
-                            console.log('Submit successfully');
-                        }}
+                        onSubmit={form.handleSubmit((values) => {
+                            console.log(values);
+                            mutation.mutate(values);
+                        })}
                         className="mt-4 space-y-6"
                     >
                         <FormField
