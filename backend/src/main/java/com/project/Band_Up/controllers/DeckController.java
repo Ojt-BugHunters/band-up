@@ -54,9 +54,10 @@ public class DeckController {
     @DeleteMapping("/deck/{deckId}/delete")
     @Operation(summary = "Delete deck",
             description = "Delete deck specified by deckId")
-    public ResponseEntity<?> deleteDeck(@PathVariable(name = "deckId") UUID deckId) {
+    public ResponseEntity<?> deleteDeck(@PathVariable(name = "deckId") UUID deckId,
+                                        @AuthenticationPrincipal JwtUserDetails userDetails) {
         return ResponseEntity.ok()
-                .body(deckService.deleteDeck(deckId));
+                .body(deckService.deleteDeck(deckId, userDetails.getAccountId()));
     }
 
     @PutMapping("/deck/{deckId}/update")
@@ -65,6 +66,7 @@ public class DeckController {
     public ResponseEntity<?> updateDeck(@PathVariable(name = "deckId") UUID deckId,
                                         @RequestBody DeckDto deckDto,
                                         @AuthenticationPrincipal JwtUserDetails userDetails) {
-        return ResponseEntity.ok().body(deckService.updateDeck(deckId,deckDto, userDetails.getAccountId()));
+        return ResponseEntity.ok()
+                .body(deckService.updateDeck(deckId,deckDto, userDetails.getAccountId()));
     }
 }

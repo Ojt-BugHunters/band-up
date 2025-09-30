@@ -83,9 +83,11 @@ public class DeckServiceImpl implements DeckService {
     }
 
     @Transactional
-    public DeckDto deleteDeck(UUID deckId) {
+    public DeckDto deleteDeck(UUID deckId, UUID accountId) {
         Deck deck = deckRepository.findById(deckId)
                 .orElseThrow(() -> new ResourceNotFoundException(deckId.toString()));
+        if (!deck.getAccount().getId().equals(accountId))
+            throw new AuthenticationFailedException("Unauthorized");
         deckRepository.delete(deck);
         return modelMapper.map(deck, DeckDto.class);
     }
@@ -94,7 +96,8 @@ public class DeckServiceImpl implements DeckService {
     public DeckDtoResponse updateDeck(UUID deckId, DeckDto deckDto, UUID accountId) {
         Deck deck = deckRepository.findById(deckId)
                 .orElseThrow(() -> new ResourceNotFoundException(deckId.toString()));
-        if(!deck.getAccount().getId().equals(accountId)) throw new AuthenticationFailedException("Unauthorized");
+        if(!deck.getAccount().getId().equals(accountId))
+            throw new AuthenticationFailedException("Unauthorized");
         Deck updatedDeck = modelMapper.map(deckDto, Deck.class);
         if(deckDto.getCards() != null)
             deck.setCards(updatedDeck.getCards());

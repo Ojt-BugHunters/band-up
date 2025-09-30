@@ -11,7 +11,7 @@ public interface CardService {
 
     public List<CardDto> getCards(UUID deckId);
 
-    public CardDto deleteCard(UUID cardId);
+    public CardDto deleteCard(UUID cardId, UUID accountId);
 
-    public CardDto updateCard(UUID cardId, CardDto cardDto);
+    public CardDto updateCard(UUID cardId, CardDto cardDto,  UUID accountId);
 }
