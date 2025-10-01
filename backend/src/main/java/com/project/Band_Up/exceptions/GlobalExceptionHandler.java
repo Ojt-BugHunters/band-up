@@ -32,8 +32,6 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(value = {AuthenticationFailedException.class})
     public ResponseEntity<ErrorMessage> handleAuthenticationFailedException(AuthenticationFailedException ex){
         return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
-                .header(HttpHeaders.SET_COOKIE, jwtUtil.deleteCookie("AccessToken").toString())
-                .header(HttpHeaders.SET_COOKIE, jwtUtil.deleteCookie("RefreshToken").toString())
                 .body(new ErrorMessage(ex.getMessage()));
     }
 
