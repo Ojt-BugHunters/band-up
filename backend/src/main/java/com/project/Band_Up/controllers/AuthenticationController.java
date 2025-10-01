@@ -18,7 +18,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.UUID;
 
 @RestController
-@RequestMapping("/auth")
+@RequestMapping("/api/auth")
 @Tag(name = "Authentication API",
     description = "Các endpoint để quản lý authentication (login,logout, register,...)")
 public class AuthenticationController {

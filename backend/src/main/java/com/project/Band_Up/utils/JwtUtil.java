@@ -1,32 +1,12 @@
 package com.project.Band_Up.utils;
 
-import com.project.Band_Up.entities.Account;
-import com.project.Band_Up.entities.RefreshToken;
-import com.project.Band_Up.exceptions.AuthenticationFailedException;
-import com.project.Band_Up.exceptions.ResourceNotFoundException;
-import com.project.Band_Up.repositories.AccountRepository;
-import com.project.Band_Up.repositories.RefreshTokenRepository;
 import io.jsonwebtoken.*;
-import io.jsonwebtoken.security.Keys;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
-import org.modelmapper.ModelMapper;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.http.ResponseCookie;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.security.core.userdetails.UserDetailsService;
-import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.stereotype.Component;
 
-import javax.crypto.SecretKey;
-import java.nio.charset.StandardCharsets;
 import java.security.Key;
 import java.util.Date;
 import java.util.UUID;
-import java.util.concurrent.TimeUnit;
 
 @AllArgsConstructor
 @Builder
