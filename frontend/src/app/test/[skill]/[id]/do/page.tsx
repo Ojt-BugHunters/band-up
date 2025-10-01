@@ -2,6 +2,7 @@ import { ReadingTest } from '@/components/reading-test';
 import { SpeakingTest } from '@/components/speaking-test';
 import { WritingTest } from '@/components/writing-test';
 import { ListeningTest } from '@/components/listening-test';
+import NotFound from '@/components/ui/not-found';
 
 type DoTestProps = {
     searchParams: Promise<{
@@ -53,7 +54,16 @@ export default async function DoTestPage({ searchParams }: DoTestProps) {
             Component = <SpeakingTest mode={mode} sections={sections} />;
             break;
         default:
-            Component = <div>Unavaible Test</div>;
+            Component = (
+                <NotFound
+                    particleCount={6000}
+                    particleSize={4}
+                    animate={true}
+                    buttonText="Go Back"
+                    buttonHref="/test"
+                    className="custom-shadow"
+                />
+            );
     }
 
     return <main className="bg-background min-h-screen">{Component}</main>;
