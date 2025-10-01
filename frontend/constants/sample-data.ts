@@ -1,7 +1,7 @@
 import { SpeakingSection } from './../src/lib/api/dto/question';
 import type { Flashcard } from '@/lib/api/dto/flashcards';
 import { Comment } from '@/lib/api/dto/comment';
-import { Test, TestOverview } from '@/lib/api/dto/test';
+import { Test, TestHistory, TestOverview } from '@/lib/api/dto/test';
 import { ListeningSection, Passage, WritingTask } from '@/lib/api/dto/question';
 import { FlashcardItem } from '@/lib/api/dto/flashcarditem';
 
@@ -808,35 +808,266 @@ export const speakingTestParts: SpeakingSection[] = [
     },
 ];
 
-export const testHistory = [
+export const testHistory: TestHistory[] = [
     {
-        id: 1,
-        date: '2024-12-15',
+        id: '1',
+        skill: 'Listening',
+        date: '2025-01-15',
+        duration: '30 mins',
         overallScore: 7.5,
-        listening: 8.0,
-        reading: 7.5,
-        writing: 7.0,
-        speaking: 7.5,
-        status: 'completed',
+        totalQuestions: 40,
+        correctAnswers: 32,
+        accuracy: 80,
+        questions: [
+            // Section 1 (9/10 correct)
+            ...Array.from({ length: 10 }, (_, i) => ({
+                questionNumber: i + 1,
+                isCorrect: i !== 5, // Question 6 is wrong
+                section: 'Section 1',
+            })),
+            // Section 2 (8/10 correct)
+            ...Array.from({ length: 10 }, (_, i) => ({
+                questionNumber: i + 11,
+                isCorrect: i !== 3 && i !== 7, // Questions 14 and 18 are wrong
+                section: 'Section 2',
+            })),
+            // Section 3 (7/10 correct)
+            ...Array.from({ length: 10 }, (_, i) => ({
+                questionNumber: i + 21,
+                isCorrect: i !== 1 && i !== 4 && i !== 8, // Questions 22, 25, 29 are wrong
+                section: 'Section 3',
+            })),
+            // Section 4 (8/10 correct)
+            ...Array.from({ length: 10 }, (_, i) => ({
+                questionNumber: i + 31,
+                isCorrect: i !== 2 && i !== 6, // Questions 33 and 37 are wrong
+                section: 'Section 4',
+            })),
+        ],
+        sectionScores: [
+            { section: 'Section 1', score: 9, maxScore: 10 },
+            { section: 'Section 2', score: 8, maxScore: 10 },
+            { section: 'Section 3', score: 7, maxScore: 10 },
+            { section: 'Section 4', score: 8, maxScore: 10 },
+        ],
+        timeSpent: [
+            { section: 'Section 1', minutes: 7 },
+            { section: 'Section 2', minutes: 8 },
+            { section: 'Section 3', minutes: 8 },
+            { section: 'Section 4', minutes: 7 },
+        ],
+        difficultyBreakdown: [
+            { level: 'Easy', correct: 12, total: 13 },
+            { level: 'Medium', correct: 14, total: 17 },
+            { level: 'Hard', correct: 6, total: 10 },
+        ],
     },
     {
-        id: 2,
-        date: '2024-12-01',
+        id: '2',
+        skill: 'Reading',
+        date: '2025-01-10',
+        duration: '60 mins',
+        overallScore: 8.0,
+        totalQuestions: 40,
+        correctAnswers: 35,
+        accuracy: 87.5,
+        questions: [
+            // Passage 1 (12/13 correct)
+            ...Array.from({ length: 13 }, (_, i) => ({
+                questionNumber: i + 1,
+                isCorrect: i !== 7, // Question 8 is wrong
+                section: 'Passage 1',
+            })),
+            // Passage 2 (11/13 correct)
+            ...Array.from({ length: 13 }, (_, i) => ({
+                questionNumber: i + 14,
+                isCorrect: i !== 4 && i !== 9, // Questions 18 and 23 are wrong
+                section: 'Passage 2',
+            })),
+            // Passage 3 (12/14 correct)
+            ...Array.from({ length: 14 }, (_, i) => ({
+                questionNumber: i + 27,
+                isCorrect: i !== 2 && i !== 10, // Questions 29 and 37 are wrong
+                section: 'Passage 3',
+            })),
+        ],
+        sectionScores: [
+            { section: 'Passage 1', score: 12, maxScore: 13 },
+            { section: 'Passage 2', score: 11, maxScore: 13 },
+            { section: 'Passage 3', score: 12, maxScore: 14 },
+        ],
+        timeSpent: [
+            { section: 'Passage 1', minutes: 18 },
+            { section: 'Passage 2', minutes: 20 },
+            { section: 'Passage 3', minutes: 22 },
+        ],
+        difficultyBreakdown: [
+            { level: 'Easy', correct: 13, total: 13 },
+            { level: 'Medium', correct: 15, total: 17 },
+            { level: 'Hard', correct: 7, total: 10 },
+        ],
+    },
+    {
+        id: '3',
+        skill: 'Writing',
+        date: '2025-01-05',
+        duration: '60 mins',
         overallScore: 7.0,
-        listening: 7.5,
-        reading: 7.0,
-        writing: 6.5,
-        speaking: 7.0,
-        status: 'completed',
+        totalQuestions: 2,
+        correctAnswers: 2,
+        accuracy: 100,
+        sectionScores: [
+            { section: 'Task Achievement', score: 7, maxScore: 9 },
+            { section: 'Coherence & Cohesion', score: 7, maxScore: 9 },
+            { section: 'Lexical Resource', score: 7, maxScore: 9 },
+            { section: 'Grammar Accuracy', score: 7, maxScore: 9 },
+        ],
+        timeSpent: [
+            { section: 'Task 1', minutes: 20 },
+            { section: 'Task 2', minutes: 40 },
+        ],
+        difficultyBreakdown: [
+            { level: 'Task 1', correct: 1, total: 1 },
+            { level: 'Task 2', correct: 1, total: 1 },
+        ],
     },
     {
-        id: 3,
-        date: '2024-11-15',
+        id: '4',
+        skill: 'Speaking',
+        date: '2024-12-28',
+        duration: '15 mins',
+        overallScore: 7.5,
+        totalQuestions: 3,
+        correctAnswers: 3,
+        accuracy: 100,
+        sectionScores: [
+            { section: 'Fluency & Coherence', score: 8, maxScore: 9 },
+            { section: 'Lexical Resource', score: 7, maxScore: 9 },
+            { section: 'Grammar Range', score: 7, maxScore: 9 },
+            { section: 'Pronunciation', score: 8, maxScore: 9 },
+        ],
+        timeSpent: [
+            { section: 'Part 1', minutes: 5 },
+            { section: 'Part 2', minutes: 6 },
+            { section: 'Part 3', minutes: 4 },
+        ],
+        difficultyBreakdown: [
+            { level: 'Part 1', correct: 1, total: 1 },
+            { level: 'Part 2', correct: 1, total: 1 },
+            { level: 'Part 3', correct: 1, total: 1 },
+        ],
+    },
+    {
+        id: '5',
+        skill: 'Listening',
+        date: '2024-12-20',
+        duration: '30 mins',
         overallScore: 6.5,
-        listening: 7.0,
-        reading: 6.5,
-        writing: 6.0,
-        speaking: 6.5,
-        status: 'completed',
+        totalQuestions: 40,
+        correctAnswers: 28,
+        accuracy: 70,
+        questions: [
+            ...Array.from({ length: 10 }, (_, i) => ({
+                questionNumber: i + 1,
+                isCorrect: i !== 4 && i !== 8,
+                section: 'Section 1',
+            })),
+            ...Array.from({ length: 10 }, (_, i) => ({
+                questionNumber: i + 11,
+                isCorrect: i !== 2 && i !== 5 && i !== 9,
+                section: 'Section 2',
+            })),
+            ...Array.from({ length: 10 }, (_, i) => ({
+                questionNumber: i + 21,
+                isCorrect: i !== 1 && i !== 3 && i !== 6 && i !== 8,
+                section: 'Section 3',
+            })),
+            ...Array.from({ length: 10 }, (_, i) => ({
+                questionNumber: i + 31,
+                isCorrect: i !== 0 && i !== 4 && i !== 7,
+                section: 'Section 4',
+            })),
+        ],
+        sectionScores: [
+            { section: 'Section 1', score: 8, maxScore: 10 },
+            { section: 'Section 2', score: 7, maxScore: 10 },
+            { section: 'Section 3', score: 6, maxScore: 10 },
+            { section: 'Section 4', score: 7, maxScore: 10 },
+        ],
+        timeSpent: [
+            { section: 'Section 1', minutes: 7 },
+            { section: 'Section 2', minutes: 8 },
+            { section: 'Section 3', minutes: 8 },
+            { section: 'Section 4', minutes: 7 },
+        ],
+        difficultyBreakdown: [
+            { level: 'Easy', correct: 11, total: 13 },
+            { level: 'Medium', correct: 12, total: 17 },
+            { level: 'Hard', correct: 5, total: 10 },
+        ],
+    },
+    {
+        id: '6',
+        skill: 'Reading',
+        date: '2024-12-15',
+        duration: '20 mins',
+        overallScore: 7.5,
+        totalQuestions: 13,
+        correctAnswers: 11,
+        accuracy: 84.6,
+        questions: [
+            { questionNumber: 1, isCorrect: true, section: 'Passage 1' },
+            { questionNumber: 2, isCorrect: true, section: 'Passage 1' },
+            { questionNumber: 3, isCorrect: false, section: 'Passage 1' },
+            { questionNumber: 4, isCorrect: true, section: 'Passage 1' },
+            { questionNumber: 5, isCorrect: true, section: 'Passage 1' },
+            { questionNumber: 6, isCorrect: true, section: 'Passage 1' },
+            { questionNumber: 7, isCorrect: false, section: 'Passage 1' },
+            { questionNumber: 8, isCorrect: true, section: 'Passage 1' },
+            { questionNumber: 9, isCorrect: true, section: 'Passage 1' },
+            { questionNumber: 10, isCorrect: true, section: 'Passage 1' },
+            { questionNumber: 11, isCorrect: true, section: 'Passage 1' },
+            { questionNumber: 12, isCorrect: true, section: 'Passage 1' },
+            { questionNumber: 13, isCorrect: true, section: 'Passage 1' },
+        ],
+        sectionScores: [{ section: 'Passage 1', score: 11, maxScore: 13 }],
+        timeSpent: [{ section: 'Passage 1', minutes: 20 }],
+        difficultyBreakdown: [
+            { level: 'Easy', correct: 5, total: 5 },
+            { level: 'Medium', correct: 4, total: 5 },
+            { level: 'Hard', correct: 2, total: 3 },
+        ],
+    },
+    {
+        id: '7',
+        skill: 'Reading',
+        date: '2024-12-15',
+        duration: '20 mins',
+        overallScore: 7.5,
+        totalQuestions: 13,
+        correctAnswers: 11,
+        accuracy: 84.6,
+        questions: [
+            { questionNumber: 1, isCorrect: true, section: 'Passage 1' },
+            { questionNumber: 2, isCorrect: true, section: 'Passage 1' },
+            { questionNumber: 3, isCorrect: false, section: 'Passage 1' },
+            { questionNumber: 4, isCorrect: true, section: 'Passage 1' },
+            { questionNumber: 5, isCorrect: true, section: 'Passage 1' },
+            { questionNumber: 6, isCorrect: true, section: 'Passage 1' },
+            { questionNumber: 7, isCorrect: false, section: 'Passage 1' },
+            { questionNumber: 8, isCorrect: true, section: 'Passage 1' },
+            { questionNumber: 9, isCorrect: true, section: 'Passage 1' },
+            { questionNumber: 10, isCorrect: true, section: 'Passage 1' },
+            { questionNumber: 11, isCorrect: true, section: 'Passage 1' },
+            { questionNumber: 12, isCorrect: true, section: 'Passage 1' },
+            { questionNumber: 13, isCorrect: true, section: 'Passage 1' },
+        ],
+        sectionScores: [{ section: 'Passage 1', score: 11, maxScore: 13 }],
+        timeSpent: [{ section: 'Passage 1', minutes: 20 }],
+        difficultyBreakdown: [
+            { level: 'Easy', correct: 5, total: 5 },
+            { level: 'Medium', correct: 4, total: 5 },
+            { level: 'Hard', correct: 2, total: 3 },
+        ],
     },
 ];
