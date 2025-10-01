@@ -4,6 +4,7 @@ import com.project.Band_Up.dtos.test.TestCreateRequest;
 import com.project.Band_Up.dtos.test.TestResponse;
 import com.project.Band_Up.dtos.test.TestUpdateRequest;
 import com.project.Band_Up.services.test.TestService;
+import com.project.Band_Up.utils.JwtUserDetails;
 import com.project.Band_Up.utils.JwtUtil;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -16,6 +17,7 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
@@ -47,10 +49,9 @@ public class TestController {
     @PostMapping(consumes = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<TestResponse> createTest(
             @Valid @RequestBody TestCreateRequest request,
-            @CookieValue(name = "AccessToken", required = true) String accessToken) {
+            @AuthenticationPrincipal JwtUserDetails userDetails) {
 
-        String accountId = jwtUtil.extractSubject(accessToken);
-        TestResponse created = testService.createTest(UUID.fromString(accountId), request);
+        TestResponse created = testService.createTest(userDetails.getAccountId(), request);
         URI location = ServletUriComponentsBuilder.fromCurrentRequest()
                 .path("/{id}")
                 .buildAndExpand(created.getId())

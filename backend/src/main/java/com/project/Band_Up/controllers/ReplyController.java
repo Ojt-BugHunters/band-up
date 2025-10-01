@@ -4,6 +4,7 @@ import com.project.Band_Up.dtos.reply.ReplyCreateRequest;
 import com.project.Band_Up.dtos.reply.ReplyResponse;
 import com.project.Band_Up.dtos.reply.ReplyUpdateRequest;
 import com.project.Band_Up.services.reply.ReplyService;
+import com.project.Band_Up.utils.JwtUserDetails;
 import com.project.Band_Up.utils.JwtUtil;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -14,6 +15,7 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
@@ -46,10 +48,9 @@ public class ReplyController {
             @Parameter(description = "UUID của Comment cần reply", required = true)
             @PathVariable("commentId") UUID commentId,
             @Valid @RequestBody ReplyCreateRequest request,
-            @CookieValue(name = "AccessToken", required = true) String accessToken) {
+            @AuthenticationPrincipal JwtUserDetails userDetails) {
 
-        String accountId = jwtUtil.extractSubject(accessToken);
-        ReplyResponse created = replyService.createReplyForComment(UUID.fromString(accountId), commentId, request);
+        ReplyResponse created = replyService.createReplyForComment(userDetails.getAccountId(), commentId, request);
 
         URI location = URI.create(String.format("/api/replies/%s", created.getId()));
         return ResponseEntity.created(location).body(created);
@@ -86,10 +87,9 @@ public class ReplyController {
             @Parameter(description = "UUID của Reply cần cập nhật", required = true)
             @PathVariable("replyId") UUID replyId,
             @Valid @RequestBody ReplyUpdateRequest request,
-            @CookieValue(name = "AccessToken", required = true) String accessToken) {
+            @AuthenticationPrincipal JwtUserDetails userDetails) {
 
-        String accountId = jwtUtil.extractSubject(accessToken);
-        ReplyResponse updated = replyService.updateReply(replyId, UUID.fromString(accountId), request);
+        ReplyResponse updated = replyService.updateReply(replyId, userDetails.getAccountId(), request);
         return ResponseEntity.ok(updated);
     }
 
@@ -106,10 +106,9 @@ public class ReplyController {
     public ResponseEntity<Void> deleteReply(
             @Parameter(description = "UUID của Reply cần xóa", required = true)
             @PathVariable("replyId") UUID replyId,
-            @CookieValue(name = "AccessToken", required = true) String accessToken) {
+            @AuthenticationPrincipal JwtUserDetails userDetails) {
 
-        String accountId = jwtUtil.extractSubject(accessToken);
-        replyService.deleteReply(replyId, UUID.fromString(accountId));
+        replyService.deleteReply(replyId, userDetails.getAccountId());
         return ResponseEntity.noContent().build();
     }
 }

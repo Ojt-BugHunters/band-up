@@ -4,6 +4,7 @@ import com.project.Band_Up.dtos.section.SectionCreateRequest;
 import com.project.Band_Up.dtos.section.SectionResponse;
 import com.project.Band_Up.dtos.section.SectionUpdateRequest;
 import com.project.Band_Up.services.section.SectionService;
+import com.project.Band_Up.utils.JwtUserDetails;
 import com.project.Band_Up.utils.JwtUtil;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -14,6 +15,7 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
@@ -47,10 +49,9 @@ public class SectionController {
             @Parameter(description = "UUID của Test mà section sẽ thuộc về", required = true)
             @PathVariable("testId") UUID testId,
             @Valid @RequestBody SectionCreateRequest request,
-            @CookieValue(name = "AccessToken", required = true) String accessToken) {
+            @AuthenticationPrincipal JwtUserDetails userDetails) {
 
-        String accountIdStr = jwtUtil.extractSubject(accessToken);
-        UUID accountId = UUID.fromString(accountIdStr);
+        UUID accountId = userDetails.getAccountId();
         SectionResponse created = sectionService.createSection(request, testId, accountId);
 
         // Build Location header: /api/sections/test/{testId}/{id}
@@ -105,9 +106,9 @@ public class SectionController {
     public ResponseEntity<SectionResponse> updateSection(
             @Parameter(description = "UUID của Section cần cập nhật", required = true) @PathVariable("id") UUID id,
             @Valid @RequestBody SectionUpdateRequest request,
-            @CookieValue(name = "AccessToken", required = true) String accessToken) {
-        String accountIdStr = jwtUtil.extractSubject(accessToken);
-        UUID accountId = UUID.fromString(accountIdStr);
+            @AuthenticationPrincipal JwtUserDetails userDetails) {
+
+        UUID accountId = userDetails.getAccountId();
         SectionResponse updated = sectionService.updateSection(id, request, accountId);
         return ResponseEntity.ok(updated);
     }
@@ -123,10 +124,9 @@ public class SectionController {
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteSection(
             @Parameter(description = "UUID của Section cần xóa", required = true) @PathVariable("id") UUID id,
-            @CookieValue (name = "AccessToken", required = true) String accessToken)
+            @AuthenticationPrincipal JwtUserDetails userDetails)
             {
-        String accountIdStr = jwtUtil.extractSubject(accessToken);
-        UUID accountId = UUID.fromString(accountIdStr);
+        UUID accountId = userDetails.getAccountId();
         sectionService.deleteSection(id, accountId);
         return ResponseEntity.noContent().build();
     }
