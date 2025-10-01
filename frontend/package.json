@@ -47,6 +47,7 @@
     "@tiptap/pm": "^3.4.4",
     "@tiptap/react": "^3.4.4",
     "@tiptap/starter-kit": "^3.4.4",
+    "@types/three": "^0.180.0",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
     "date-fns": "^4.1.0",
@@ -65,6 +66,7 @@
     "recharts": "2.15.4",
     "sonner": "^2.0.7",
     "tailwind-merge": "^3.3.1",
+    "three": "^0.180.0",
     "zod": "^4.1.9"
   },
   "devDependencies": {
