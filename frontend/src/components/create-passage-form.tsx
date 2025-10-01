@@ -10,8 +10,12 @@ import {
     FormMessage,
 } from './ui/form';
 import {
+    BookOpen,
     CloudUpload,
+    Headphones,
     ImageIcon,
+    Mic,
+    Pencil,
     Plus,
     Sparkles,
     Upload,
@@ -38,14 +42,74 @@ import {
     FileUploadList,
     FileUploadTrigger,
 } from '@/components/ui/file-upload';
-import React, { useState } from 'react';
 import { TooltipProvider } from './ui/tooltip';
 import { MinimalTiptapEditor } from './ui/minimal-tiptap';
-import { toast } from 'sonner';
+import { TestType } from '@/lib/api/dto/test';
 
-const MAX_PASSAGES = 3;
+const testTypeConfig = {
+    reading: {
+        title: 'IELTS Reading',
+        description:
+            'Design comprehensive IELTS reading materials with structured content and multimedia support',
+        maxPassages: 3,
+        colors: {
+            badge: 'bg-blue-500 text-white hover:bg-blue-600',
+            card: 'border-blue-200 hover:border-blue-400',
+            cardHeader: 'bg-blue-50/50',
+            number: 'bg-blue-500 text-white',
+            border: 'bg-blue-200/50',
+        },
+        icon: BookOpen,
+        iconColor: 'text-blue-600',
+    },
+    listening: {
+        title: 'IELTS Listening',
+        description:
+            'Create IELTS listening exercises with audio files and comprehensive content',
+        maxPassages: 4,
+        colors: {
+            badge: 'bg-green-500 text-white hover:bg-green-600',
+            card: 'border-green-200 hover:border-green-400',
+            cardHeader: 'bg-green-50/50',
+            number: 'bg-green-500 text-white',
+            border: 'bg-green-200/50',
+        },
+        icon: Headphones,
+        iconColor: 'text-green-600',
+    },
+    writing: {
+        title: 'IELTS Writing',
+        description:
+            'Develop IELTS writing tasks with detailed prompts and supporting materials',
+        maxPassages: 2,
+        colors: {
+            badge: 'bg-purple-500 text-white hover:bg-purple-600',
+            card: 'border-purple-200 hover:border-purple-400',
+            cardHeader: 'bg-purple-50/50',
+            number: 'bg-purple-500 text-white',
+            border: 'bg-purple-200/50',
+        },
+        icon: Pencil,
+        iconColor: 'text-purple-600',
+    },
+    speaking: {
+        title: 'IELTS Speaking',
+        description:
+            'Build IELTS speaking prompts with contextual content and visual aids',
+        maxPassages: 2,
+        colors: {
+            badge: 'bg-orange-500 text-white hover:bg-orange-600',
+            card: 'border-orange-200 hover:border-orange-400',
+            cardHeader: 'bg-orange-50/50',
+            number: 'bg-orange-500 text-white',
+            border: 'bg-orange-200/50',
+        },
+        icon: Mic,
+        iconColor: 'text-orange-600',
+    },
+};
 
-type TestType = 'reading' | 'listening' | 'speaking' | 'writing';
+type TestTypeKey = keyof typeof testTypeConfig;
 
 export function CreateSectionForm({ testType }: { testType: TestType }) {
     return (
@@ -55,28 +119,31 @@ export function CreateSectionForm({ testType }: { testType: TestType }) {
     );
 }
 
-function SectionForm({ testType }: { testType: string }) {
+function SectionForm({ testType }: { testType: TestTypeKey }) {
     const { sectionForm } = useCreatePassage();
+    const config = testTypeConfig[testType];
+    const IconComponent = config.icon;
 
     const { fields, append } = useFieldArray({
         control: sectionForm.control,
         name: 'section',
     });
 
-    const onSubmit = React.useCallback((data: any) => {
-        console.log('Submitted values:', data);
+    // const onSubmit = React.useCallback((data: any) => {
+    //     console.log('Submitted values:', data);
 
-        toast('Submitted values:', {
-            description: (
-                <pre className="bg-accent/30 text-accent-foreground mt-2 w-[500px] rounded-md p-4">
-                    <code>{JSON.stringify(data, null, 2)}</code>
-                </pre>
-            ),
-        });
-    }, []);
+    //     toast('Submitted values:', {
+    //         description: (
+    //             <pre className="bg-accent/30 text-accent-foreground mt-2 w-[500px] rounded-md p-4">
+    //                 <code>{JSON.stringify(data, null, 2)}</code>
+    //             </pre>
+    //         ),
+    //     });
+    // }, []);
+    const onSubmit = () => {};
 
     const addPassage = () => {
-        if (fields.length < MAX_PASSAGES) {
+        if (fields.length < config.maxPassages) {
             append({
                 title: '',
                 orderIndex: fields.length + 1,
@@ -98,23 +165,27 @@ function SectionForm({ testType }: { testType: string }) {
                 >
                     <div className="flex items-end justify-between gap-6">
                         <div className="space-y-4">
-                            <div className="bg-primary text-primary-foreground inline-flex items-center gap-3 rounded-md px-4 py-1.5 text-sm font-semibold">
-                                <Sparkles className="h-4 w-4" />
-                                IELTS Reading
+                            <div
+                                className={`inline-flex items-center gap-3 rounded-md px-4 py-1.5 text-sm font-semibold ${config.colors.badge}`}
+                            >
+                                <IconComponent className="h-4 w-4" />
+                                {config.title}
                             </div>
                             <h1 className="text-4xl font-bold tracking-tight">
-                                Create Reading Passages
+                                Create{' '}
+                                {testType.charAt(0).toUpperCase() +
+                                    testType.slice(1)}{' '}
+                                Passages
                             </h1>
                             <p className="text-muted-foreground max-w-2xl text-base leading-relaxed">
-                                Design comprehensive IELTS reading materials
-                                with structured content and multimedia support
+                                {config.description}
                             </p>
                         </div>
                         <Badge
                             variant="outline"
                             className="rounded-md border px-4 py-1.5 font-mono text-sm"
                         >
-                            {fields.length} / {MAX_PASSAGES}
+                            {fields.length} / {config.maxPassages}
                         </Badge>
                     </div>
 
@@ -122,12 +193,16 @@ function SectionForm({ testType }: { testType: string }) {
                         {fields.map((field, index) => (
                             <Card
                                 key={field.id}
-                                className="border-border hover:border-primary/40 rounded-xl border shadow-sm transition-colors"
+                                className={`rounded-xl border shadow-sm transition-colors ${config.colors.card}`}
                             >
-                                <CardHeader className="border-border bg-muted/30 border-b p-6">
+                                <CardHeader
+                                    className={`border-b p-6 ${config.colors.cardHeader}`}
+                                >
                                     <div className="flex items-start justify-between">
                                         <div className="flex items-center gap-4">
-                                            <div className="bg-primary text-primary-foreground flex h-10 w-10 items-center justify-center rounded-md font-mono text-lg font-bold">
+                                            <div
+                                                className={`flex h-10 w-10 items-center justify-center rounded-md font-mono text-lg font-bold ${config.colors.number}`}
+                                            >
                                                 {index + 1}
                                             </div>
                                             <div>
@@ -165,7 +240,9 @@ function SectionForm({ testType }: { testType: string }) {
                                         )}
                                     />
 
-                                    <Separator className="bg-border/50" />
+                                    <Separator
+                                        className={config.colors.border}
+                                    />
 
                                     <FormField
                                         control={sectionForm.control}
@@ -201,7 +278,9 @@ function SectionForm({ testType }: { testType: string }) {
                                         )}
                                     />
 
-                                    <Separator className="bg-border/50" />
+                                    <Separator
+                                        className={config.colors.border}
+                                    />
 
                                     <div className="bg-muted/30 border-border/50 space-y-6 rounded-2xl border p-6">
                                         <h4 className="text-muted-foreground flex items-center gap-2 text-sm font-bold tracking-wide uppercase">
@@ -317,6 +396,122 @@ function SectionForm({ testType }: { testType: string }) {
                                                     </FormItem>
                                                 )}
                                             />
+
+                                            {testType === 'listening' && (
+                                                <FormField
+                                                    control={
+                                                        sectionForm.control
+                                                    }
+                                                    name={`section.${index}.metadata.audio`}
+                                                    render={({ field }) => (
+                                                        <FormItem>
+                                                            <FormLabel className="flex items-center gap-2 text-sm font-semibold">
+                                                                <Headphones className="h-4 w-4" />
+                                                                Audio File{' '}
+                                                                <span className="text-destructive">
+                                                                    *
+                                                                </span>
+                                                            </FormLabel>
+                                                            <FormControl>
+                                                                <FileUpload
+                                                                    value={
+                                                                        field
+                                                                            .value
+                                                                            ?.files
+                                                                    }
+                                                                    onValueChange={(
+                                                                        files,
+                                                                    ) =>
+                                                                        field.onChange(
+                                                                            {
+                                                                                ...field.value,
+                                                                                files,
+                                                                            },
+                                                                        )
+                                                                    }
+                                                                    accept="audio/*"
+                                                                    maxFiles={1}
+                                                                    maxSize={
+                                                                        10 *
+                                                                        1024 *
+                                                                        1024
+                                                                    }
+                                                                    onFileReject={(
+                                                                        _,
+                                                                        message,
+                                                                    ) => {
+                                                                        sectionForm.setError(
+                                                                            `section.${index}.metadata.audio.files`,
+                                                                            {
+                                                                                message,
+                                                                            },
+                                                                        );
+                                                                    }}
+                                                                >
+                                                                    <FileUploadDropzone className="flex-row flex-wrap border-dotted text-center">
+                                                                        <CloudUpload className="size-4" />
+                                                                        Drag and
+                                                                        drop or
+                                                                        <FileUploadTrigger
+                                                                            asChild
+                                                                        >
+                                                                            <Button
+                                                                                variant="link"
+                                                                                size="sm"
+                                                                                className="p-0"
+                                                                            >
+                                                                                choose
+                                                                                audio
+                                                                            </Button>
+                                                                        </FileUploadTrigger>
+                                                                        to
+                                                                        upload
+                                                                    </FileUploadDropzone>
+                                                                    <FileUploadList>
+                                                                        {field.value?.files?.map(
+                                                                            (
+                                                                                file,
+                                                                                fileIndex,
+                                                                            ) => (
+                                                                                <FileUploadItem
+                                                                                    key={
+                                                                                        fileIndex
+                                                                                    }
+                                                                                    value={
+                                                                                        file
+                                                                                    }
+                                                                                >
+                                                                                    <FileUploadItemPreview />
+                                                                                    <FileUploadItemMetadata />
+                                                                                    <FileUploadItemDelete
+                                                                                        asChild
+                                                                                    >
+                                                                                        <Button
+                                                                                            variant="ghost"
+                                                                                            size="icon"
+                                                                                            className="size-7"
+                                                                                        >
+                                                                                            <X />
+                                                                                            <span className="sr-only">
+                                                                                                Delete
+                                                                                            </span>
+                                                                                        </Button>
+                                                                                    </FileUploadItemDelete>
+                                                                                </FileUploadItem>
+                                                                            ),
+                                                                        )}
+                                                                    </FileUploadList>
+                                                                </FileUpload>
+                                                            </FormControl>
+                                                            <FormDescription>
+                                                                Upload audio
+                                                                file up to 10MB
+                                                            </FormDescription>
+                                                            <FormMessage className="animate-in fade-in slide-in-from-top-1 duration-200" />
+                                                        </FormItem>
+                                                    )}
+                                                />
+                                            )}
                                         </div>
                                     </div>
                                 </CardContent>
@@ -324,7 +519,7 @@ function SectionForm({ testType }: { testType: string }) {
                         ))}
                     </div>
 
-                    {fields.length < MAX_PASSAGES && (
+                    {fields.length < config.maxPassages && (
                         <Button
                             type="button"
                             variant="outline"

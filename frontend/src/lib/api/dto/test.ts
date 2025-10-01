@@ -3,6 +3,8 @@ import { Section } from './section';
 export const skills = ['Reading', 'Listening', 'Writing', 'Speaking'];
 
 export type Skill = (typeof skills)[number];
+
+export type TestType = 'reading' | 'listening' | 'writing' | 'speaking';
 export interface TestOverview {
     id: string;
     title: string;

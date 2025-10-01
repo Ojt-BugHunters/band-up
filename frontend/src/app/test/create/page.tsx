@@ -4,6 +4,7 @@ import { Button } from '@/components/ui/button';
 import { BookOpen } from 'lucide-react';
 import { TestTypeSelection } from '@/components/test-type-selection';
 import { CreateSectionForm } from '@/components/create-passage-form';
+import { TestType } from '@/lib/api/dto/test';
 
 export default function CreateTestPage() {
     const router = useRouter();
@@ -40,7 +41,9 @@ export default function CreateTestPage() {
                             {step === 'type' ? (
                                 <TestTypeSelection />
                             ) : step === 'section' ? (
-                                <CreateSectionForm testType={type as string} />
+                                <CreateSectionForm
+                                    testType={type as TestType}
+                                />
                             ) : null}
                         </div>
                     </div>
