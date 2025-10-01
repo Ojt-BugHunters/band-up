@@ -31,11 +31,17 @@ import {
     Target,
     TrendingUp,
 } from 'lucide-react';
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { testHistory } from '../../../constants/sample-data';
+import { PaginationState } from '@tanstack/react-table';
+import { PaginationControl } from '@/components/ui/pagination-control';
 
 export default function TestHistory() {
     const [skill, setSkill] = useState<string | undefined>();
+    const [pagination, setPagination] = useState<PaginationState>({
+        pageSize: 6,
+        pageIndex: 0,
+    });
 
     const filteredTests = useMemo(() => {
         return testHistory.filter((test) => {
@@ -44,6 +50,20 @@ export default function TestHistory() {
             return matchesSkill;
         });
     }, [skill]);
+
+    const paginationTests = useMemo(() => {
+        const start = pagination.pageIndex * pagination.pageSize;
+        const end = start + pagination.pageSize;
+        return filteredTests.slice(start, end);
+    }, [filteredTests, pagination]);
+
+    useEffect(() => {
+        setPagination((prev) => ({
+            ...prev,
+            pageIndex: 0,
+        }));
+    }, [skill]);
+
     return (
         <div className="flex-1 space-y-6 p-6">
             <Hero>
@@ -118,7 +138,15 @@ export default function TestHistory() {
                         </SelectContent>
                     </Select>
                 </div>
-                <TestHistoryGrid testHistory={filteredTests} />
+                <TestHistoryGrid testHistory={paginationTests} />
+            </div>
+            <div className="mx-auto max-w-7xl">
+                <PaginationControl
+                    className="mt-6"
+                    itemCount={filteredTests.length}
+                    pagination={pagination}
+                    setPagination={setPagination}
+                />
             </div>
         </div>
     );
