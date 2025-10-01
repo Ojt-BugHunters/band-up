@@ -28,7 +28,6 @@ import {
 import { Button } from './ui/button';
 import { Input } from './ui/input';
 import { Separator } from './ui/separator';
-import { Textarea } from './ui/textarea';
 import {
     FileUpload,
     FileUploadDropzone,
@@ -39,10 +38,11 @@ import {
     FileUploadList,
     FileUploadTrigger,
 } from '@/components/ui/file-upload';
-import { useState } from 'react';
+import React, { useState } from 'react';
 import { Content } from '@tiptap/react';
 import { TooltipProvider } from './ui/tooltip';
 import { MinimalTiptapEditor } from './ui/minimal-tiptap';
+import { toast } from 'sonner';
 
 const MAX_PASSAGES = 3;
 
@@ -59,7 +59,17 @@ function PassageForm() {
         name: 'passages',
     });
 
-    const onSubmit = () => {};
+    const onSubmit = React.useCallback((data: any) => {
+        console.log('Submitted values:', data);
+
+        toast('Submitted values:', {
+            description: (
+                <pre className="bg-accent/30 text-accent-foreground mt-2 w-[500px] rounded-md p-4">
+                    <code>{JSON.stringify(data, null, 2)}</code>
+                </pre>
+            ),
+        });
+    }, []);
 
     const addPassage = () => {
         if (fields.length < MAX_PASSAGES) {
@@ -128,7 +138,7 @@ function PassageForm() {
                                     </div>
                                 </CardHeader>
 
-                                <CardContent className="space-y-8 p-8">
+                                <CardContent className="space-y-8 pt-4 pl-8">
                                     <FormField
                                         control={passagesForm.control}
                                         name={`passages.${index}.title`}
@@ -164,8 +174,8 @@ function PassageForm() {
                                                     </span>
                                                 </FormLabel>
                                                 <MinimalTiptapEditor
-                                                    value={value}
-                                                    onChange={setValue}
+                                                    value={field.value}
+                                                    onChange={field.onChange}
                                                     className="h-full min-h-40 w-full"
                                                     output="html"
                                                     placeholder="Enter the content of the passage..."

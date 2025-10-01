@@ -23,10 +23,7 @@ export const passageSchema = z.object({
         .max(200, 'Title must be less than 200 characters'),
     orderIndex: z.number().int().min(1).max(3),
     metadata: z.object({
-        content: z
-            .string()
-            .min(5, 'Content must be at least 5 characters')
-            .max(7000, 'Content can be maximum 7000 characters'),
+        content: z.string().max(7000, 'Content can be maximum 7000 characters'),
         image: fileSchema,
     }),
 });
