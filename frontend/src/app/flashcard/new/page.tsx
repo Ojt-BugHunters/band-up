@@ -35,11 +35,16 @@ export default function CreateDeckPage() {
 }
 
 const CreateDeckForm = () => {
-    const { form, onSubmit } = useCreateDeck();
+    const { form, mutation } = useCreateDeck();
 
     return (
         <Form {...form}>
-            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+            <form
+                className="p-6 md:p-8"
+                onSubmit={form.handleSubmit((values) =>
+                    mutation.mutate(values),
+                )}
+            >
                 <FormField
                     control={form.control}
                     name="title"

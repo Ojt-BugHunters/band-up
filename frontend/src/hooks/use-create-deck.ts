@@ -1,6 +1,13 @@
 import { zodResolver } from "@hookform/resolvers/zod"
 import { useForm } from "react-hook-form"
 import { z } from "zod"
+import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { fetchWrapper, throwIfError } from '@/lib/api';
+import { toast } from 'sonner';
+import { useRouter } from 'next/navigation';
+
+
+
 
 export const createDeckSchema = z.object({
   title: z
@@ -18,6 +25,9 @@ export const createDeckSchema = z.object({
 export type CreateDeckFormValues = z.infer<typeof createDeckSchema>
 
 export function useCreateDeck() {
+    const queryClient = useQueryClient();
+    const router = useRouter();
+
   const form = useForm<CreateDeckFormValues>({
     resolver: zodResolver(createDeckSchema),
     defaultValues: {
@@ -26,21 +36,33 @@ export function useCreateDeck() {
     },
   })
 
-  const onSubmit = async (data: CreateDeckFormValues) => {
-    try {
-      console.log("Deck data:", data)
-      // TODO: Add your API call here to create the deck
-      // Example: await createDeck(data)
+      const mutation = useMutation({
+        mutationFn: async (values: z.infer<typeof createDeckSchema>) => {
+            const response = await fetchWrapper('/api/quizlet/deck/create', {
+                method: 'POST',
+                headers: {
+                    Accept: 'application/json',
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(values),
+            });
 
-      // Reset form after successful submission
-      form.reset()
-    } catch (error) {
-      console.error("Error creating deck:", error)
-    }
-  }
+            await throwIfError(response);
+            return response.json();
+        },
+        onError: (error) => {
+            toast.error(error.message);
+        },
+        onSuccess: (data) => {
+            queryClient.setQueryData(['user'], data);
+            localStorage.setItem('user', JSON.stringify(data));
+            toast.success('Create successfully');
+            router.push('/');
+        },
+    });
 
   return {
     form,
-    onSubmit,
+    mutation,
   }
 }
