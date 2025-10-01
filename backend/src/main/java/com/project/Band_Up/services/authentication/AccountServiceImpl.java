@@ -5,12 +5,17 @@ import com.project.Band_Up.dtos.authentication.AccountDtoResponse;
 import com.project.Band_Up.entities.Account;
 import com.project.Band_Up.exceptions.AuthenticationFailedException;
 import com.project.Band_Up.exceptions.EmailAlreadyExistedException;
+import com.project.Band_Up.exceptions.ResourceNotFoundException;
 import com.project.Band_Up.repositories.AccountRepository;
+import com.project.Band_Up.utils.JwtUserDetails;
 import com.project.Band_Up.utils.JwtUtil;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+
+import javax.security.auth.login.AccountNotFoundException;
+import java.util.UUID;
 
 
 @Service
@@ -47,5 +52,12 @@ public class AccountServiceImpl implements AccountService {
         } else {
             throw new AuthenticationFailedException("Email not exist");
         }
+    }
+
+    @Override
+    public JwtUserDetails getAccountDetails(UUID accountId) {
+        Account account = accountRepository.findById(accountId)
+                .orElseThrow(() -> new ResourceNotFoundException(accountId.toString()));
+        return modelMapper.map(account, JwtUserDetails.class);
     }
 }

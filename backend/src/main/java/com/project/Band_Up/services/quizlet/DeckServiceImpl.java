@@ -6,6 +6,7 @@ import com.project.Band_Up.dtos.quizlet.DeckDtoResponse;
 import com.project.Band_Up.entities.Account;
 import com.project.Band_Up.entities.Card;
 import com.project.Band_Up.entities.Deck;
+import com.project.Band_Up.exceptions.AuthenticationFailedException;
 import com.project.Band_Up.exceptions.ResourceNotFoundException;
 import com.project.Band_Up.repositories.AccountRepository;
 import com.project.Band_Up.repositories.DeckRepository;
@@ -82,17 +83,21 @@ public class DeckServiceImpl implements DeckService {
     }
 
     @Transactional
-    public DeckDto deleteDeck(UUID deckId) {
+    public DeckDto deleteDeck(UUID deckId, UUID accountId) {
         Deck deck = deckRepository.findById(deckId)
                 .orElseThrow(() -> new ResourceNotFoundException(deckId.toString()));
+        if (!deck.getAccount().getId().equals(accountId))
+            throw new AuthenticationFailedException("Unauthorized");
         deckRepository.delete(deck);
         return modelMapper.map(deck, DeckDto.class);
     }
 
     @Transactional
-    public DeckDtoResponse updateDeck(UUID deckId, DeckDto deckDto) {
+    public DeckDtoResponse updateDeck(UUID deckId, DeckDto deckDto, UUID accountId) {
         Deck deck = deckRepository.findById(deckId)
                 .orElseThrow(() -> new ResourceNotFoundException(deckId.toString()));
+        if(!deck.getAccount().getId().equals(accountId))
+            throw new AuthenticationFailedException("Unauthorized");
         Deck updatedDeck = modelMapper.map(deckDto, Deck.class);
         if(deckDto.getCards() != null)
             deck.setCards(updatedDeck.getCards());

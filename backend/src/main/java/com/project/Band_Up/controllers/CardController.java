@@ -2,9 +2,11 @@ package com.project.Band_Up.controllers;
 
 import com.project.Band_Up.dtos.quizlet.CardDto;
 import com.project.Band_Up.services.quizlet.CardService;
+import com.project.Band_Up.utils.JwtUserDetails;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -26,19 +28,22 @@ public class CardController {
     }
 
     @GetMapping("/deck/{deckId}/card")
-    public ResponseEntity<?> getCards(@PathVariable UUID deckId) {
+    public ResponseEntity<?> getCards(@PathVariable UUID deckId,
+                                      @AuthenticationPrincipal JwtUserDetails userDetails) {
         List<CardDto> cardDtos = cardService.getCards(deckId);
         return ResponseEntity.ok().body(cardDtos);
     }
 
     @DeleteMapping("/deck/card/{cardId}")
-    public ResponseEntity<?> deleteCard(@PathVariable UUID cardId) {
-        return ResponseEntity.ok().body(cardService.deleteCard(cardId));
+    public ResponseEntity<?> deleteCard(@PathVariable UUID cardId,
+                                        @AuthenticationPrincipal JwtUserDetails userDetails) {
+        return ResponseEntity.ok().body(cardService.deleteCard(cardId, userDetails.getAccountId()));
     }
 
     @PutMapping("/deck/card/{cardId}/update")
     public ResponseEntity<?> updateCard(@PathVariable UUID cardId,
-                                        @RequestBody CardDto cardDto) {
-        return ResponseEntity.ok().body(cardService.updateCard(cardId, cardDto));
+                                        @RequestBody CardDto cardDto,
+                                        @AuthenticationPrincipal JwtUserDetails userDetails) {
+        return ResponseEntity.ok().body(cardService.updateCard(cardId, cardDto, userDetails.getAccountId()));
     }
 }

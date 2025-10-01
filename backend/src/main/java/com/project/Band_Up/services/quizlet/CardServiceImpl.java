@@ -3,6 +3,7 @@ package com.project.Band_Up.services.quizlet;
 import com.project.Band_Up.dtos.quizlet.CardDto;
 import com.project.Band_Up.entities.Card;
 import com.project.Band_Up.entities.Deck;
+import com.project.Band_Up.exceptions.AuthenticationFailedException;
 import com.project.Band_Up.exceptions.ResourceNotFoundException;
 import com.project.Band_Up.repositories.CardRepository;
 import com.project.Band_Up.repositories.DeckRepository;
@@ -47,17 +48,21 @@ public class CardServiceImpl implements CardService {
     }
 
     @Transactional
-    public CardDto deleteCard(UUID cardId) {
+    public CardDto deleteCard(UUID cardId, UUID accountId) {
         Card card = cardRepository.findById(cardId)
                 .orElseThrow(() -> new ResourceNotFoundException(cardId.toString()));
+        if (!card.getDeck().getAccount().getId().equals(accountId))
+            throw new AuthenticationFailedException("Unauthorized");
         cardRepository.delete(card);
         return modelMapper.map(card, CardDto.class);
     }
 
     @Transactional
-    public CardDto updateCard(UUID cardId, CardDto cardDto) {
+    public CardDto updateCard(UUID cardId, CardDto cardDto,  UUID accountId) {
         Card card = cardRepository.findById(cardId)
                 .orElseThrow(() -> new ResourceNotFoundException(cardId.toString()));
+        if (!card.getDeck().getAccount().getId().equals(accountId))
+            throw new AuthenticationFailedException("Unauthorized");
         Card updatedCard = modelMapper.map(cardDto, Card.class);
         card.setBack(updatedCard.getBack());
         card.setFront(updatedCard.getFront());

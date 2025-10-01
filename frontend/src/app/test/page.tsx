@@ -32,6 +32,7 @@ import {
     User,
     BookOpenCheck,
     BookOpen,
+    Plus,
 } from 'lucide-react';
 import { useEffect, useMemo, useState } from 'react';
 import { mockTests } from '../../../constants/sample-data';
@@ -39,6 +40,7 @@ import { TestCard } from '@/components/test-card';
 import { PaginationState } from '@tanstack/react-table';
 import { PaginationControl } from '@/components/ui/pagination-control';
 import Link from 'next/link';
+import { Button } from '@/components/ui/button';
 
 export default function TestListPage() {
     const [skill, setSkill] = useState<string | undefined>();
@@ -197,6 +199,12 @@ export default function TestListPage() {
                             </SelectItem>
                         </SelectContent>
                     </Select>
+                    <Link href="/test/create">
+                        <Button className="rounded-xl bg-red-600 font-medium text-white shadow-lg shadow-red-600/25 hover:bg-red-700">
+                            <Plus className="mr-2 h-4 w-4" />
+                            Create New Test
+                        </Button>
+                    </Link>
                 </div>
             </div>
             <div className="mx-auto mb-12 grid max-w-7xl grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-4">

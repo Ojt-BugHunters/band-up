@@ -9,6 +9,9 @@ export type ListeningQuestionType =
     | 'completion'
     | 'true-false';
 
+export type WritingQuestionType = 'task1' | 'task2';
+
+export type SpeakingQuestionType = 'part1' | 'part23';
 export interface ReadingQuestion {
     id: number;
     type: ReadingQuestionType;
