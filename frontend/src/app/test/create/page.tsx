@@ -1,4 +1,5 @@
 'use client';
+import { Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { BookOpen } from 'lucide-react';
@@ -6,7 +7,7 @@ import { TestTypeSelection } from '@/components/test-type-selection';
 import { CreateSectionForm } from '@/components/create-passage-form';
 import { TestType } from '@/lib/api/dto/test';
 
-export default function CreateTestPage() {
+function CreateTestPageContent() {
     const router = useRouter();
     const searchParams = useSearchParams();
     const step = searchParams.get('step') || 'type';
@@ -50,5 +51,13 @@ export default function CreateTestPage() {
                 </div>
             </div>
         </div>
+    );
+}
+
+export default function CreateTestPage() {
+    return (
+        <Suspense fallback={<div>Loading...</div>}>
+            <CreateTestPageContent />
+        </Suspense>
     );
 }
