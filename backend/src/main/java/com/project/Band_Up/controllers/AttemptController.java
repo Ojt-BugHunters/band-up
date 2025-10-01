@@ -4,6 +4,7 @@ import com.project.Band_Up.dtos.attempt.AttemptCreateRequest;
 import com.project.Band_Up.dtos.attempt.AttemptResponse;
 import com.project.Band_Up.dtos.attempt.AttemptUpdateRequest;
 import com.project.Band_Up.services.attempt.AttemptService;
+import com.project.Band_Up.utils.JwtUserDetails;
 import com.project.Band_Up.utils.JwtUtil;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -14,6 +15,7 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
@@ -47,10 +49,9 @@ public class AttemptController {
     public ResponseEntity<AttemptResponse> createAttempt(
             @Parameter(description = "UUID của Test", required = true) @PathVariable("testId") UUID testId,
             @Valid @RequestBody AttemptCreateRequest request,
-            @CookieValue(name = "AccessToken", required = true) String accessToken) {
+            @AuthenticationPrincipal JwtUserDetails userDetails) {
 
-        String accountId = jwtUtil.extractSubject(accessToken);
-        AttemptResponse created = attemptService.createAttempt(UUID.fromString(accountId), testId, request);
+        AttemptResponse created = attemptService.createAttempt(userDetails.getAccountId(), testId, request);
 
         URI location = ServletUriComponentsBuilder.fromCurrentRequest()
                 .path("/{id}")
@@ -144,10 +145,9 @@ public class AttemptController {
                     required = true
             )
             @Valid @RequestBody AttemptUpdateRequest request,
-            @CookieValue(name = "AccessToken", required = true) String accessToken) {
+            @AuthenticationPrincipal JwtUserDetails userDetails) {
 
-        String accountId = jwtUtil.extractSubject(accessToken);
-        AttemptResponse updated = attemptService.updateAttempt(id, UUID.fromString(accountId), request);
+        AttemptResponse updated = attemptService.updateAttempt(id, userDetails.getAccountId(), request);
         return ResponseEntity.ok(updated);
     }
 
@@ -163,10 +163,9 @@ public class AttemptController {
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteAttempt(
             @Parameter(description = "UUID của Attempt cần xóa", required = true) @PathVariable("id") UUID id,
-            @CookieValue(name = "AccessToken", required = true) String accessToken) {
+            @AuthenticationPrincipal JwtUserDetails userDetails) {
 
-        String accountId = jwtUtil.extractSubject(accessToken);
-        attemptService.deleteAttempt(id, UUID.fromString(accountId));
+        attemptService.deleteAttempt(id, userDetails.getAccountId());
         return ResponseEntity.noContent().build();
     }
 }

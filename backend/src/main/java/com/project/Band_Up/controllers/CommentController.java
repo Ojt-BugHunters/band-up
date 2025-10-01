@@ -4,6 +4,7 @@ import com.project.Band_Up.dtos.comment.CommentCreateRequest;
 import com.project.Band_Up.dtos.comment.CommentResponse;
 import com.project.Band_Up.dtos.comment.CommentUpdateRequest;
 import com.project.Band_Up.services.comment.CommentService;
+import com.project.Band_Up.utils.JwtUserDetails;
 import com.project.Band_Up.utils.JwtUtil;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -15,6 +16,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
@@ -47,10 +49,9 @@ public class CommentController {
     public ResponseEntity<CommentResponse> createComment(
             @Parameter(description = "UUID của Test", required = true) @PathVariable("testId") UUID testId,
             @Valid @RequestBody CommentCreateRequest request,
-            @CookieValue(name = "AccessToken", required = true) String accessToken) {
+            @AuthenticationPrincipal JwtUserDetails userDetails) {
 
-        String accountId = jwtUtil.extractSubject(accessToken);
-        CommentResponse created = commentService.createComment(UUID.fromString(accountId), testId, request);
+        CommentResponse created = commentService.createComment(userDetails.getAccountId(), testId, request);
         return ResponseEntity.status(HttpStatus.CREATED).body(created);
     }
 
@@ -82,10 +83,9 @@ public class CommentController {
     public ResponseEntity<CommentResponse> updateComment(
             @Parameter(description = "UUID của Comment", required = true) @PathVariable("commentId") UUID commentId,
             @Valid @RequestBody CommentUpdateRequest request,
-            @CookieValue(name = "AccessToken", required = true) String accessToken) {
+            @AuthenticationPrincipal JwtUserDetails userDetails) {
 
-        String accountId = jwtUtil.extractSubject(accessToken);
-        CommentResponse updated = commentService.updateComment(commentId, UUID.fromString(accountId), request);
+        CommentResponse updated = commentService.updateComment(commentId, userDetails.getAccountId(), request);
         return ResponseEntity.ok(updated);
     }
 
@@ -101,10 +101,9 @@ public class CommentController {
     @DeleteMapping("/{commentId}")
     public ResponseEntity<Void> deleteComment(
             @Parameter(description = "UUID của Comment cần xóa", required = true) @PathVariable("commentId") UUID commentId,
-            @CookieValue(name = "AccessToken", required = true) String accessToken) {
+            @AuthenticationPrincipal JwtUserDetails userDetails) {
 
-        String accountId = jwtUtil.extractSubject(accessToken);
-        commentService.deleteComment(commentId, UUID.fromString(accountId));
+        commentService.deleteComment(commentId, userDetails.getAccountId());
         return ResponseEntity.noContent().build();
     }
     @Operation(
