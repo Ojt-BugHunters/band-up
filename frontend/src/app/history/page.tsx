@@ -1,183 +1,941 @@
+'use client';
+
+import { useEffect, useId, useRef, useState } from 'react';
+import { AnimatePresence, motion } from 'framer-motion';
+import { useOutsideClick } from '@/hooks/use-outside-click';
 import {
-    Hero,
-    HeroDescription,
-    HeroKeyword,
-    HeroSummary,
-    HeroTitle,
-} from '@/components/hero';
+    Card,
+    CardContent,
+    CardDescription,
+    CardHeader,
+    CardTitle,
+} from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
 import {
-    Stats,
-    StatsDescription,
-    StatsGrid,
-    StatsIcon,
-    StatsLabel,
-    StatsValue,
-} from '@/components/stats';
-import {
-    Award,
-    BookOpen,
     Calendar,
-    ChevronDown,
-    Headphones,
-    History,
-    Mic,
-    PenTool,
+    Clock,
     Target,
     TrendingUp,
+    CheckCircle2,
+    XCircle,
 } from 'lucide-react';
-import { testHistory } from '../../../constants/sample-data';
 import {
-    Accordion,
-    AccordionContent,
-    AccordionItem,
-    AccordionTrigger,
-} from '@/components/ui/accordion';
-import { Badge } from '@/components/ui/badge';
+    Bar,
+    BarChart,
+    CartesianGrid,
+    XAxis,
+    YAxis,
+    ResponsiveContainer,
+} from 'recharts';
+import {
+    ChartContainer,
+    ChartTooltip,
+    ChartTooltipContent,
+} from '@/components/ui/chart';
 
-export default function TestHistory() {
+// IELTS Test Data Type
+type IELTSTest = {
+    id: string;
+    skill: 'Listening' | 'Reading' | 'Writing' | 'Speaking';
+    date: string;
+    duration: string;
+    overallScore: number;
+    totalQuestions: number;
+    correctAnswers: number;
+    accuracy: number;
+    questions?: Array<{
+        questionNumber: number;
+        isCorrect: boolean;
+        userAnswer?: string;
+        correctAnswer?: string;
+        section: string;
+    }>;
+    sectionScores: Array<{
+        section: string;
+        score: number;
+        maxScore: number;
+    }>;
+    timeSpent: Array<{
+        section: string;
+        minutes: number;
+    }>;
+    difficultyBreakdown: Array<{
+        level: string;
+        correct: number;
+        total: number;
+    }>;
+};
+
+const testHistory: IELTSTest[] = [
+    {
+        id: '1',
+        skill: 'Listening',
+        date: '2025-01-15',
+        duration: '30 mins',
+        overallScore: 7.5,
+        totalQuestions: 40,
+        correctAnswers: 32,
+        accuracy: 80,
+        questions: [
+            // Section 1 (9/10 correct)
+            ...Array.from({ length: 10 }, (_, i) => ({
+                questionNumber: i + 1,
+                isCorrect: i !== 5, // Question 6 is wrong
+                section: 'Section 1',
+            })),
+            // Section 2 (8/10 correct)
+            ...Array.from({ length: 10 }, (_, i) => ({
+                questionNumber: i + 11,
+                isCorrect: i !== 3 && i !== 7, // Questions 14 and 18 are wrong
+                section: 'Section 2',
+            })),
+            // Section 3 (7/10 correct)
+            ...Array.from({ length: 10 }, (_, i) => ({
+                questionNumber: i + 21,
+                isCorrect: i !== 1 && i !== 4 && i !== 8, // Questions 22, 25, 29 are wrong
+                section: 'Section 3',
+            })),
+            // Section 4 (8/10 correct)
+            ...Array.from({ length: 10 }, (_, i) => ({
+                questionNumber: i + 31,
+                isCorrect: i !== 2 && i !== 6, // Questions 33 and 37 are wrong
+                section: 'Section 4',
+            })),
+        ],
+        sectionScores: [
+            { section: 'Section 1', score: 9, maxScore: 10 },
+            { section: 'Section 2', score: 8, maxScore: 10 },
+            { section: 'Section 3', score: 7, maxScore: 10 },
+            { section: 'Section 4', score: 8, maxScore: 10 },
+        ],
+        timeSpent: [
+            { section: 'Section 1', minutes: 7 },
+            { section: 'Section 2', minutes: 8 },
+            { section: 'Section 3', minutes: 8 },
+            { section: 'Section 4', minutes: 7 },
+        ],
+        difficultyBreakdown: [
+            { level: 'Easy', correct: 12, total: 13 },
+            { level: 'Medium', correct: 14, total: 17 },
+            { level: 'Hard', correct: 6, total: 10 },
+        ],
+    },
+    {
+        id: '2',
+        skill: 'Reading',
+        date: '2025-01-10',
+        duration: '60 mins',
+        overallScore: 8.0,
+        totalQuestions: 40,
+        correctAnswers: 35,
+        accuracy: 87.5,
+        questions: [
+            // Passage 1 (12/13 correct)
+            ...Array.from({ length: 13 }, (_, i) => ({
+                questionNumber: i + 1,
+                isCorrect: i !== 7, // Question 8 is wrong
+                section: 'Passage 1',
+            })),
+            // Passage 2 (11/13 correct)
+            ...Array.from({ length: 13 }, (_, i) => ({
+                questionNumber: i + 14,
+                isCorrect: i !== 4 && i !== 9, // Questions 18 and 23 are wrong
+                section: 'Passage 2',
+            })),
+            // Passage 3 (12/14 correct)
+            ...Array.from({ length: 14 }, (_, i) => ({
+                questionNumber: i + 27,
+                isCorrect: i !== 2 && i !== 10, // Questions 29 and 37 are wrong
+                section: 'Passage 3',
+            })),
+        ],
+        sectionScores: [
+            { section: 'Passage 1', score: 12, maxScore: 13 },
+            { section: 'Passage 2', score: 11, maxScore: 13 },
+            { section: 'Passage 3', score: 12, maxScore: 14 },
+        ],
+        timeSpent: [
+            { section: 'Passage 1', minutes: 18 },
+            { section: 'Passage 2', minutes: 20 },
+            { section: 'Passage 3', minutes: 22 },
+        ],
+        difficultyBreakdown: [
+            { level: 'Easy', correct: 13, total: 13 },
+            { level: 'Medium', correct: 15, total: 17 },
+            { level: 'Hard', correct: 7, total: 10 },
+        ],
+    },
+    {
+        id: '3',
+        skill: 'Writing',
+        date: '2025-01-05',
+        duration: '60 mins',
+        overallScore: 7.0,
+        totalQuestions: 2,
+        correctAnswers: 2,
+        accuracy: 100,
+        sectionScores: [
+            { section: 'Task Achievement', score: 7, maxScore: 9 },
+            { section: 'Coherence & Cohesion', score: 7, maxScore: 9 },
+            { section: 'Lexical Resource', score: 7, maxScore: 9 },
+            { section: 'Grammar Accuracy', score: 7, maxScore: 9 },
+        ],
+        timeSpent: [
+            { section: 'Task 1', minutes: 20 },
+            { section: 'Task 2', minutes: 40 },
+        ],
+        difficultyBreakdown: [
+            { level: 'Task 1', correct: 1, total: 1 },
+            { level: 'Task 2', correct: 1, total: 1 },
+        ],
+    },
+    {
+        id: '4',
+        skill: 'Speaking',
+        date: '2024-12-28',
+        duration: '15 mins',
+        overallScore: 7.5,
+        totalQuestions: 3,
+        correctAnswers: 3,
+        accuracy: 100,
+        sectionScores: [
+            { section: 'Fluency & Coherence', score: 8, maxScore: 9 },
+            { section: 'Lexical Resource', score: 7, maxScore: 9 },
+            { section: 'Grammar Range', score: 7, maxScore: 9 },
+            { section: 'Pronunciation', score: 8, maxScore: 9 },
+        ],
+        timeSpent: [
+            { section: 'Part 1', minutes: 5 },
+            { section: 'Part 2', minutes: 6 },
+            { section: 'Part 3', minutes: 4 },
+        ],
+        difficultyBreakdown: [
+            { level: 'Part 1', correct: 1, total: 1 },
+            { level: 'Part 2', correct: 1, total: 1 },
+            { level: 'Part 3', correct: 1, total: 1 },
+        ],
+    },
+    {
+        id: '5',
+        skill: 'Listening',
+        date: '2024-12-20',
+        duration: '30 mins',
+        overallScore: 6.5,
+        totalQuestions: 40,
+        correctAnswers: 28,
+        accuracy: 70,
+        questions: [
+            ...Array.from({ length: 10 }, (_, i) => ({
+                questionNumber: i + 1,
+                isCorrect: i !== 4 && i !== 8,
+                section: 'Section 1',
+            })),
+            ...Array.from({ length: 10 }, (_, i) => ({
+                questionNumber: i + 11,
+                isCorrect: i !== 2 && i !== 5 && i !== 9,
+                section: 'Section 2',
+            })),
+            ...Array.from({ length: 10 }, (_, i) => ({
+                questionNumber: i + 21,
+                isCorrect: i !== 1 && i !== 3 && i !== 6 && i !== 8,
+                section: 'Section 3',
+            })),
+            ...Array.from({ length: 10 }, (_, i) => ({
+                questionNumber: i + 31,
+                isCorrect: i !== 0 && i !== 4 && i !== 7,
+                section: 'Section 4',
+            })),
+        ],
+        sectionScores: [
+            { section: 'Section 1', score: 8, maxScore: 10 },
+            { section: 'Section 2', score: 7, maxScore: 10 },
+            { section: 'Section 3', score: 6, maxScore: 10 },
+            { section: 'Section 4', score: 7, maxScore: 10 },
+        ],
+        timeSpent: [
+            { section: 'Section 1', minutes: 7 },
+            { section: 'Section 2', minutes: 8 },
+            { section: 'Section 3', minutes: 8 },
+            { section: 'Section 4', minutes: 7 },
+        ],
+        difficultyBreakdown: [
+            { level: 'Easy', correct: 11, total: 13 },
+            { level: 'Medium', correct: 12, total: 17 },
+            { level: 'Hard', correct: 5, total: 10 },
+        ],
+    },
+    {
+        id: '6',
+        skill: 'Reading',
+        date: '2024-12-15',
+        duration: '20 mins',
+        overallScore: 7.5,
+        totalQuestions: 13,
+        correctAnswers: 11,
+        accuracy: 84.6,
+        questions: [
+            { questionNumber: 1, isCorrect: true, section: 'Passage 1' },
+            { questionNumber: 2, isCorrect: true, section: 'Passage 1' },
+            { questionNumber: 3, isCorrect: false, section: 'Passage 1' },
+            { questionNumber: 4, isCorrect: true, section: 'Passage 1' },
+            { questionNumber: 5, isCorrect: true, section: 'Passage 1' },
+            { questionNumber: 6, isCorrect: true, section: 'Passage 1' },
+            { questionNumber: 7, isCorrect: false, section: 'Passage 1' },
+            { questionNumber: 8, isCorrect: true, section: 'Passage 1' },
+            { questionNumber: 9, isCorrect: true, section: 'Passage 1' },
+            { questionNumber: 10, isCorrect: true, section: 'Passage 1' },
+            { questionNumber: 11, isCorrect: true, section: 'Passage 1' },
+            { questionNumber: 12, isCorrect: true, section: 'Passage 1' },
+            { questionNumber: 13, isCorrect: true, section: 'Passage 1' },
+        ],
+        sectionScores: [{ section: 'Passage 1', score: 11, maxScore: 13 }],
+        timeSpent: [{ section: 'Passage 1', minutes: 20 }],
+        difficultyBreakdown: [
+            { level: 'Easy', correct: 5, total: 5 },
+            { level: 'Medium', correct: 4, total: 5 },
+            { level: 'Hard', correct: 2, total: 3 },
+        ],
+    },
+];
+
+const skillColors = {
+    Listening: 'bg-blue-500',
+    Reading: 'bg-green-500',
+    Writing: 'bg-purple-500',
+    Speaking: 'bg-orange-500',
+};
+
+const skillBadgeColors = {
+    Listening: 'bg-blue-100 text-blue-700 dark:bg-blue-900 dark:text-blue-300',
+    Reading:
+        'bg-green-100 text-green-700 dark:bg-green-900 dark:text-green-300',
+    Writing:
+        'bg-purple-100 text-purple-700 dark:bg-purple-900 dark:text-purple-300',
+    Speaking:
+        'bg-orange-100 text-orange-700 dark:bg-orange-900 dark:text-orange-300',
+};
+
+export default function TestHistoryGrid() {
+    const [active, setActive] = useState<IELTSTest | null>(null);
+    const ref = useRef<HTMLDivElement>(null!);
+    const id = useId();
+
+    useEffect(() => {
+        function onKeyDown(event: KeyboardEvent) {
+            if (event.key === 'Escape') {
+                setActive(null);
+            }
+        }
+
+        if (active) {
+            document.body.style.overflow = 'hidden';
+        } else {
+            document.body.style.overflow = 'auto';
+        }
+
+        window.addEventListener('keydown', onKeyDown);
+        return () => window.removeEventListener('keydown', onKeyDown);
+    }, [active]);
+
+    useOutsideClick(ref, () => setActive(null));
+
     return (
-        <div className="flex-1 space-y-6 p-6">
-            <Hero>
-                <HeroSummary color="yellow">
-                    <History className="mr-2 h-4 w-4" />
-                    Review Test
-                </HeroSummary>
-                <HeroTitle>
-                    Tracked Test
-                    <HeroKeyword color="green">Done</HeroKeyword>
-                </HeroTitle>
-                <HeroDescription>
-                    Manage the test that you have done to see your brilliant
-                    progress
-                </HeroDescription>
-            </Hero>
+        <>
+            <AnimatePresence>
+                {active && (
+                    <motion.div
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        exit={{ opacity: 0 }}
+                        className="fixed inset-0 z-10 h-full w-full bg-black/60 backdrop-blur-sm"
+                    />
+                )}
+            </AnimatePresence>
 
-            <StatsGrid>
-                <Stats>
-                    <StatsIcon className="bg-indigo-50 text-indigo-600">
-                        <Award />
-                    </StatsIcon>
-                    <StatsValue>7.0</StatsValue>
-                    <StatsLabel>Average Score</StatsLabel>
-                    <StatsDescription>Score between test</StatsDescription>
-                </Stats>
-                <Stats>
-                    <StatsIcon className="bg-green-50 text-green-600">
-                        <Target />
-                    </StatsIcon>
-                    <StatsValue>9.0</StatsValue>
-                    <StatsLabel>Highest Score</StatsLabel>
-                    <StatsDescription>
-                        Highest Score of all test
-                    </StatsDescription>
-                </Stats>
-                <Stats>
-                    <StatsIcon className="bg-rose-50 text-rose-600">
-                        <Calendar />
-                    </StatsIcon>
-                    <StatsValue>3</StatsValue>
-                    <StatsLabel>Tests</StatsLabel>
-                    <StatsDescription>Total test taken</StatsDescription>
-                </Stats>
-                <Stats>
-                    <StatsIcon className="bg-yellow-50 text-yellow-600">
-                        <TrendingUp />
-                    </StatsIcon>
-                    <StatsValue>+0.5</StatsValue>
-                    <StatsLabel>Improvement</StatsLabel>
-                    <StatsDescription>
-                        Your own improvement so far
-                    </StatsDescription>
-                </Stats>
-            </StatsGrid>
-            <div className="mx-auto max-w-7xl">
-                <Accordion type="single" collapsible className="space-y-4">
-                    {testHistory.map((test, index) => (
-                        <AccordionItem
-                            key={test.id}
-                            value={`test-${test.id}`}
-                            className="overflow-hidden rounded-2xl border border-zinc-200 bg-white shadow-md transition-all duration-300 hover:-translate-y-0.5 hover:shadow-xl"
+            <AnimatePresence>
+                {active ? (
+                    <div className="fixed inset-0 z-[100] grid place-items-center p-4">
+                        <motion.button
+                            key={`button-${active.id}-${id}`}
+                            layout
+                            initial={{ opacity: 0 }}
+                            animate={{ opacity: 1 }}
+                            exit={{
+                                opacity: 0,
+                                transition: { duration: 0.05 },
+                            }}
+                            className="absolute top-4 right-4 z-50 flex h-8 w-8 items-center justify-center rounded-full bg-white shadow-lg transition-colors hover:bg-neutral-100 dark:bg-neutral-800 dark:hover:bg-neutral-700"
+                            onClick={() => setActive(null)}
                         >
-                            <AccordionTrigger className="px-6 py-5 transition-colors hover:bg-zinc-50 hover:no-underline [&[data-state=open]>div]:bg-zinc-50">
-                                <div className="flex w-full items-center justify-between pr-4">
-                                    <div className="flex items-center gap-4">
-                                        <div className="text-left">
-                                            <div className="mb-1 text-base font-semibold text-zinc-900">
+                            <CloseIcon />
+                        </motion.button>
+
+                        <motion.div
+                            layoutId={`card-${active.id}-${id}`}
+                            ref={ref}
+                            className="flex h-auto max-h-[90vh] w-full max-w-7xl flex-col overflow-hidden rounded-2xl bg-white shadow-2xl dark:bg-neutral-900"
+                        >
+                            {/* Header */}
+                            <div
+                                className={`${skillColors[active.skill]} p-6 text-white`}
+                            >
+                                <motion.div
+                                    layoutId={`skill-${active.id}-${id}`}
+                                >
+                                    <h2 className="mb-2 text-3xl font-bold">
+                                        {active.skill} Test
+                                    </h2>
+                                    <div className="flex flex-wrap gap-4 text-sm">
+                                        <div className="flex items-center gap-2">
+                                            <Calendar className="h-4 w-4" />
+                                            <span>
                                                 {new Date(
-                                                    test.date,
+                                                    active.date,
                                                 ).toLocaleDateString('en-US', {
+                                                    year: 'numeric',
                                                     month: 'long',
                                                     day: 'numeric',
-                                                    year: 'numeric',
                                                 })}
-                                            </div>
-                                            <div className="flex items-center gap-2">
-                                                <span className="text-xs text-zinc-500">
-                                                    Overall Score
-                                                </span>
-                                                {index === 0 && (
-                                                    <Badge className="rounded-full bg-zinc-900 px-2 py-0 text-xs text-white">
-                                                        Latest
-                                                    </Badge>
-                                                )}
-                                            </div>
+                                            </span>
+                                        </div>
+                                        <div className="flex items-center gap-2">
+                                            <Clock className="h-4 w-4" />
+                                            <span>{active.duration}</span>
+                                        </div>
+                                        <div className="flex items-center gap-2">
+                                            <Target className="h-4 w-4" />
+                                            <span>
+                                                Score: {active.overallScore}/9.0
+                                            </span>
                                         </div>
                                     </div>
-                                    <div className="flex items-center gap-4">
-                                        <div className="text-4xl font-bold text-zinc-900">
+                                </motion.div>
+                            </div>
+
+                            <div className="flex-1 overflow-auto p-6">
+                                <div className="grid h-full grid-cols-1 gap-6 lg:grid-cols-2">
+                                    {/* Left Side - Charts */}
+                                    <motion.div
+                                        initial={{ opacity: 0, x: -20 }}
+                                        animate={{ opacity: 1, x: 0 }}
+                                        transition={{ delay: 0.1 }}
+                                        className="h-full"
+                                    >
+                                        <Card className="flex h-full flex-col border-2">
+                                            <CardHeader className="pb-4">
+                                                <CardTitle>
+                                                    Performance Overview
+                                                </CardTitle>
+                                                <CardDescription>
+                                                    Score breakdown by section
+                                                </CardDescription>
+                                            </CardHeader>
+                                            <CardContent className="min-h-0 flex-1">
+                                                {active.sectionScores.length >
+                                                1 ? (
+                                                    <ChartContainer
+                                                        config={{
+                                                            score: {
+                                                                label: 'Score',
+                                                                color: 'hsl(var(--chart-1))',
+                                                            },
+                                                        }}
+                                                        className="h-full w-full"
+                                                    >
+                                                        <ResponsiveContainer
+                                                            width="100%"
+                                                            height="100%"
+                                                        >
+                                                            <BarChart
+                                                                data={active.sectionScores.map(
+                                                                    (
+                                                                        section,
+                                                                    ) => ({
+                                                                        section:
+                                                                            section.section,
+                                                                        score: section.score,
+                                                                        maxScore:
+                                                                            section.maxScore,
+                                                                        percentage:
+                                                                            Math.round(
+                                                                                (section.score /
+                                                                                    section.maxScore) *
+                                                                                    100,
+                                                                            ),
+                                                                    }),
+                                                                )}
+                                                                margin={{
+                                                                    top: 10,
+                                                                    right: 10,
+                                                                    left: 0,
+                                                                    bottom: 40,
+                                                                }}
+                                                            >
+                                                                <CartesianGrid
+                                                                    strokeDasharray="3 3"
+                                                                    className="stroke-muted"
+                                                                />
+                                                                <XAxis
+                                                                    dataKey="section"
+                                                                    angle={-45}
+                                                                    textAnchor="end"
+                                                                    height={60}
+                                                                    tick={{
+                                                                        fontSize: 12,
+                                                                    }}
+                                                                />
+                                                                <YAxis
+                                                                    tick={{
+                                                                        fontSize: 12,
+                                                                    }}
+                                                                />
+                                                                <ChartTooltip
+                                                                    content={
+                                                                        <ChartTooltipContent />
+                                                                    }
+                                                                />
+                                                                <Bar
+                                                                    dataKey="score"
+                                                                    fill="var(--color-score)"
+                                                                    radius={[
+                                                                        8, 8, 0,
+                                                                        0,
+                                                                    ]}
+                                                                />
+                                                            </BarChart>
+                                                        </ResponsiveContainer>
+                                                    </ChartContainer>
+                                                ) : (
+                                                    // Single section - show summary stats
+                                                    <div className="space-y-6 py-8">
+                                                        <div className="space-y-2 text-center">
+                                                            <div className="text-primary text-6xl font-bold">
+                                                                {
+                                                                    active.overallScore
+                                                                }
+                                                            </div>
+                                                            <div className="text-muted-foreground text-sm font-medium">
+                                                                Band Score
+                                                            </div>
+                                                        </div>
+
+                                                        <div className="grid grid-cols-2 gap-4">
+                                                            <div className="rounded-xl border-2 border-green-200 bg-green-50 p-6 text-center dark:border-green-800 dark:bg-green-950">
+                                                                <div className="text-3xl font-bold text-green-700 dark:text-green-300">
+                                                                    {
+                                                                        active.correctAnswers
+                                                                    }
+                                                                </div>
+                                                                <div className="mt-1 text-sm font-medium text-green-600 dark:text-green-400">
+                                                                    Correct
+                                                                </div>
+                                                            </div>
+                                                            <div className="rounded-xl border-2 border-red-200 bg-red-50 p-6 text-center dark:border-red-800 dark:bg-red-950">
+                                                                <div className="text-3xl font-bold text-red-700 dark:text-red-300">
+                                                                    {active.totalQuestions -
+                                                                        active.correctAnswers}
+                                                                </div>
+                                                                <div className="mt-1 text-sm font-medium text-red-600 dark:text-red-400">
+                                                                    Wrong
+                                                                </div>
+                                                            </div>
+                                                        </div>
+
+                                                        <div className="bg-muted/30 rounded-xl p-6">
+                                                            <div className="mb-3 flex items-center justify-between">
+                                                                <span className="text-sm font-semibold">
+                                                                    Accuracy
+                                                                </span>
+                                                                <span className="text-primary text-2xl font-bold">
+                                                                    {
+                                                                        active.accuracy
+                                                                    }
+                                                                    %
+                                                                </span>
+                                                            </div>
+                                                            <div className="bg-muted h-4 overflow-hidden rounded-full">
+                                                                <motion.div
+                                                                    initial={{
+                                                                        width: 0,
+                                                                    }}
+                                                                    animate={{
+                                                                        width: `${active.accuracy}%`,
+                                                                    }}
+                                                                    transition={{
+                                                                        duration: 1,
+                                                                        ease: 'easeOut',
+                                                                    }}
+                                                                    className="h-full rounded-full bg-gradient-to-r from-green-500 to-emerald-500"
+                                                                />
+                                                            </div>
+                                                        </div>
+
+                                                        <div className="space-y-3">
+                                                            {active.sectionScores.map(
+                                                                (
+                                                                    section,
+                                                                    idx,
+                                                                ) => (
+                                                                    <div
+                                                                        key={
+                                                                            idx
+                                                                        }
+                                                                        className="bg-muted/20 flex items-center justify-between rounded-lg p-4"
+                                                                    >
+                                                                        <span className="text-sm font-medium">
+                                                                            {
+                                                                                section.section
+                                                                            }
+                                                                        </span>
+                                                                        <span className="text-sm font-bold">
+                                                                            {
+                                                                                section.score
+                                                                            }
+                                                                            /
+                                                                            {
+                                                                                section.maxScore
+                                                                            }
+                                                                        </span>
+                                                                    </div>
+                                                                ),
+                                                            )}
+                                                        </div>
+                                                    </div>
+                                                )}
+                                            </CardContent>
+                                        </Card>
+                                    </motion.div>
+
+                                    {/* Right Side - Question Breakdown */}
+                                    <motion.div
+                                        initial={{ opacity: 0, x: 20 }}
+                                        animate={{ opacity: 1, x: 0 }}
+                                        transition={{ delay: 0.2 }}
+                                        className="h-full"
+                                    >
+                                        <Card className="flex h-full flex-col border-2">
+                                            <CardHeader className="pb-4">
+                                                <CardTitle>
+                                                    Question Breakdown
+                                                </CardTitle>
+                                                <CardDescription>
+                                                    Your answer for each
+                                                    question
+                                                </CardDescription>
+                                            </CardHeader>
+                                            <CardContent className="min-h-0 flex-1 overflow-auto">
+                                                {active.sectionScores.length >
+                                                1 ? (
+                                                    <div className="space-y-6">
+                                                        {active.sectionScores.map(
+                                                            (
+                                                                section,
+                                                                sectionIndex,
+                                                            ) => {
+                                                                const sectionQuestions =
+                                                                    active.questions?.filter(
+                                                                        (q) =>
+                                                                            q.section ===
+                                                                            section.section,
+                                                                    );
+                                                                const correctCount =
+                                                                    sectionQuestions?.filter(
+                                                                        (q) =>
+                                                                            q.isCorrect,
+                                                                    ).length ||
+                                                                    0;
+                                                                const totalCount =
+                                                                    sectionQuestions?.length ||
+                                                                    0;
+
+                                                                return (
+                                                                    <div
+                                                                        key={
+                                                                            sectionIndex
+                                                                        }
+                                                                        className="space-y-3"
+                                                                    >
+                                                                        <div className="bg-background sticky top-0 flex items-center justify-between border-b pb-2">
+                                                                            <div className="flex items-center gap-3">
+                                                                                <div className="text-foreground text-sm font-bold tracking-wide uppercase">
+                                                                                    {
+                                                                                        section.section
+                                                                                    }
+                                                                                </div>
+                                                                                <Badge
+                                                                                    variant="outline"
+                                                                                    className="font-semibold"
+                                                                                >
+                                                                                    {
+                                                                                        correctCount
+                                                                                    }
+
+                                                                                    /
+                                                                                    {
+                                                                                        totalCount
+                                                                                    }
+                                                                                </Badge>
+                                                                            </div>
+                                                                            <div className="text-muted-foreground text-sm">
+                                                                                {(
+                                                                                    (correctCount /
+                                                                                        totalCount) *
+                                                                                    100
+                                                                                ).toFixed(
+                                                                                    0,
+                                                                                )}
+
+                                                                                %
+                                                                            </div>
+                                                                        </div>
+                                                                        <div className="grid grid-cols-5 gap-2">
+                                                                            {sectionQuestions?.map(
+                                                                                (
+                                                                                    question,
+                                                                                ) => (
+                                                                                    <motion.div
+                                                                                        key={
+                                                                                            question.questionNumber
+                                                                                        }
+                                                                                        whileHover={{
+                                                                                            scale: 1.1,
+                                                                                        }}
+                                                                                        whileTap={{
+                                                                                            scale: 0.95,
+                                                                                        }}
+                                                                                        className={`group relative flex cursor-pointer flex-col items-center justify-center rounded-xl border-2 p-3 transition-all ${
+                                                                                            question.isCorrect
+                                                                                                ? 'border-green-400 bg-green-50 hover:border-green-500 hover:shadow-lg hover:shadow-green-200 dark:border-green-600 dark:bg-green-950 dark:hover:border-green-500'
+                                                                                                : 'border-red-400 bg-red-50 hover:border-red-500 hover:shadow-lg hover:shadow-red-200 dark:border-red-600 dark:bg-red-950 dark:hover:border-red-500'
+                                                                                        }`}
+                                                                                    >
+                                                                                        <div className="flex flex-col items-center gap-1">
+                                                                                            {question.isCorrect ? (
+                                                                                                <CheckCircle2 className="h-6 w-6 text-green-600 transition-transform group-hover:scale-110 dark:text-green-400" />
+                                                                                            ) : (
+                                                                                                <XCircle className="h-6 w-6 text-red-600 transition-transform group-hover:scale-110 dark:text-red-400" />
+                                                                                            )}
+                                                                                            <span
+                                                                                                className={`text-sm font-bold ${
+                                                                                                    question.isCorrect
+                                                                                                        ? 'text-green-700 dark:text-green-300'
+                                                                                                        : 'text-red-700 dark:text-red-300'
+                                                                                                }`}
+                                                                                            >
+                                                                                                {
+                                                                                                    question.questionNumber
+                                                                                                }
+                                                                                            </span>
+                                                                                        </div>
+                                                                                    </motion.div>
+                                                                                ),
+                                                                            )}
+                                                                        </div>
+                                                                    </div>
+                                                                );
+                                                            },
+                                                        )}
+                                                    </div>
+                                                ) : (
+                                                    // Single section - show all questions
+                                                    <div className="space-y-4">
+                                                        <div className="grid grid-cols-5 gap-2">
+                                                            {active.questions?.map(
+                                                                (question) => (
+                                                                    <motion.div
+                                                                        key={
+                                                                            question.questionNumber
+                                                                        }
+                                                                        whileHover={{
+                                                                            scale: 1.1,
+                                                                        }}
+                                                                        whileTap={{
+                                                                            scale: 0.95,
+                                                                        }}
+                                                                        className={`group relative flex cursor-pointer flex-col items-center justify-center rounded-xl border-2 p-3 transition-all ${
+                                                                            question.isCorrect
+                                                                                ? 'border-green-400 bg-green-50 hover:border-green-500 hover:shadow-lg hover:shadow-green-200 dark:border-green-600 dark:bg-green-950 dark:hover:border-green-500'
+                                                                                : 'border-red-400 bg-red-50 hover:border-red-500 hover:shadow-lg hover:shadow-red-200 dark:border-red-600 dark:bg-red-950 dark:hover:border-red-500'
+                                                                        }`}
+                                                                    >
+                                                                        <div className="flex flex-col items-center gap-1">
+                                                                            {question.isCorrect ? (
+                                                                                <CheckCircle2 className="h-6 w-6 text-green-600 transition-transform group-hover:scale-110 dark:text-green-400" />
+                                                                            ) : (
+                                                                                <XCircle className="h-6 w-6 text-red-600 transition-transform group-hover:scale-110 dark:text-red-400" />
+                                                                            )}
+                                                                            <span
+                                                                                className={`text-sm font-bold ${
+                                                                                    question.isCorrect
+                                                                                        ? 'text-green-700 dark:text-green-300'
+                                                                                        : 'text-red-700 dark:text-red-300'
+                                                                                }`}
+                                                                            >
+                                                                                {
+                                                                                    question.questionNumber
+                                                                                }
+                                                                            </span>
+                                                                        </div>
+                                                                    </motion.div>
+                                                                ),
+                                                            )}
+                                                        </div>
+                                                    </div>
+                                                )}
+                                            </CardContent>
+                                        </Card>
+                                    </motion.div>
+                                </div>
+                            </div>
+                        </motion.div>
+                    </div>
+                ) : null}
+            </AnimatePresence>
+
+            <div className="grid w-full grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
+                {testHistory.map((test) => (
+                    <motion.div
+                        layoutId={`card-${test.id}-${id}`}
+                        key={`card-${test.id}-${id}`}
+                        onClick={() => setActive(test)}
+                        className="group cursor-pointer"
+                        whileHover={{ y: -8 }}
+                        transition={{ duration: 0.3 }}
+                    >
+                        <Card className="border-border hover:border-primary/30 relative overflow-hidden rounded-2xl border bg-white shadow-md transition-all duration-300 hover:shadow-2xl dark:bg-neutral-900">
+                            {/* Colored accent bar with glow */}
+                            <div
+                                className={`${skillColors[test.skill]} relative h-2`}
+                            >
+                                <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/30 to-transparent" />
+                            </div>
+
+                            {/* Subtle hover glow effect */}
+                            <div
+                                className={`pointer-events-none absolute -inset-1 opacity-0 transition-opacity duration-500 group-hover:opacity-20 ${skillColors[test.skill]} -z-10 blur-2xl`}
+                            />
+
+                            <CardHeader className="pt-6 pb-4">
+                                <div className="flex items-start justify-between gap-4">
+                                    <motion.div
+                                        layoutId={`skill-${test.id}-${id}`}
+                                        className="flex-1"
+                                    >
+                                        <CardTitle className="text-foreground mb-3 text-2xl font-bold">
+                                            {test.skill}
+                                        </CardTitle>
+                                        <Badge
+                                            className={`${skillBadgeColors[test.skill]} px-3 py-1 font-semibold`}
+                                        >
+                                            {test.skill} Test
+                                        </Badge>
+                                    </motion.div>
+                                    <div className="bg-primary/10 border-primary/20 rounded-2xl border p-3 text-right shadow-sm">
+                                        <div className="text-primary text-4xl leading-none font-bold">
                                             {test.overallScore}
                                         </div>
-                                        <ChevronDown className="h-4 w-4 text-zinc-500 transition-transform duration-300" />
-                                    </div>
-                                </div>
-                            </AccordionTrigger>
-                            <AccordionContent className="px-6 pt-2 pb-6">
-                                <div className="mt-2 grid grid-cols-2 gap-4 md:grid-cols-4">
-                                    <div className="cursor-pointer space-y-2 rounded-2xl border border-blue-100/50 bg-blue-50/50 p-4 transition-all duration-300 hover:-translate-y-1 hover:bg-blue-50 hover:shadow-lg">
-                                        <div className="flex items-center gap-2 text-xs font-medium text-blue-600">
-                                            <Headphones className="h-3.5 w-3.5" />
-                                            Listening
-                                        </div>
-                                        <div className="text-2xl font-bold text-zinc-900">
-                                            {test.listening}
-                                        </div>
-                                    </div>
-
-                                    <div className="cursor-pointer space-y-2 rounded-2xl border border-green-100/50 bg-green-50/50 p-4 transition-all duration-300 hover:-translate-y-1 hover:bg-green-50 hover:shadow-lg">
-                                        <div className="flex items-center gap-2 text-xs font-medium text-green-600">
-                                            <BookOpen className="h-3.5 w-3.5" />
-                                            Reading
-                                        </div>
-                                        <div className="text-2xl font-bold text-zinc-900">
-                                            {test.reading}
-                                        </div>
-                                    </div>
-
-                                    <div className="cursor-pointer space-y-2 rounded-2xl border border-purple-100/50 bg-purple-50/50 p-4 transition-all duration-300 hover:-translate-y-1 hover:bg-purple-50 hover:shadow-lg">
-                                        <div className="flex items-center gap-2 text-xs font-medium text-purple-600">
-                                            <PenTool className="h-3.5 w-3.5" />
-                                            Writing
-                                        </div>
-                                        <div className="text-2xl font-bold text-zinc-900">
-                                            {test.writing}
-                                        </div>
-                                    </div>
-
-                                    <div className="cursor-pointer space-y-2 rounded-2xl border border-pink-100/50 bg-pink-50/50 p-4 transition-all duration-300 hover:-translate-y-1 hover:bg-pink-50 hover:shadow-lg">
-                                        <div className="flex items-center gap-2 text-xs font-medium text-pink-600">
-                                            <Mic className="h-3.5 w-3.5" />
-                                            Speaking
-                                        </div>
-                                        <div className="text-2xl font-bold text-zinc-900">
-                                            {test.speaking}
+                                        <div className="text-muted-foreground mt-1 text-xs font-medium">
+                                            / 9.0
                                         </div>
                                     </div>
                                 </div>
-                            </AccordionContent>
-                        </AccordionItem>
-                    ))}
-                </Accordion>
+                            </CardHeader>
+
+                            <CardContent className="space-y-4 pb-6">
+                                <div className="space-y-2">
+                                    <div className="text-muted-foreground flex items-center gap-3 text-sm">
+                                        <div className="bg-muted/50 flex h-8 w-8 items-center justify-center rounded-lg">
+                                            <Calendar className="h-4 w-4" />
+                                        </div>
+                                        <span className="font-medium">
+                                            {new Date(
+                                                test.date,
+                                            ).toLocaleDateString('en-US', {
+                                                month: 'short',
+                                                day: 'numeric',
+                                                year: 'numeric',
+                                            })}
+                                        </span>
+                                    </div>
+
+                                    <div className="text-muted-foreground flex items-center gap-3 text-sm">
+                                        <div className="bg-muted/50 flex h-8 w-8 items-center justify-center rounded-lg">
+                                            <Clock className="h-4 w-4" />
+                                        </div>
+                                        <span className="font-medium">
+                                            {test.duration}
+                                        </span>
+                                    </div>
+                                </div>
+
+                                <div className="space-y-3 border-t pt-3">
+                                    <div className="flex items-center justify-between">
+                                        <span className="text-muted-foreground text-sm font-medium">
+                                            Accuracy
+                                        </span>
+                                        <div className="flex items-center gap-2">
+                                            <div className="bg-muted h-2 w-20 overflow-hidden rounded-full">
+                                                <div
+                                                    className={`h-full ${skillColors[test.skill]} rounded-full transition-all`}
+                                                    style={{
+                                                        width: `${test.accuracy}%`,
+                                                    }}
+                                                />
+                                            </div>
+                                            <span className="text-sm font-bold">
+                                                {test.accuracy}%
+                                            </span>
+                                        </div>
+                                    </div>
+                                    <div className="flex items-center justify-between">
+                                        <span className="text-muted-foreground text-sm font-medium">
+                                            Correct Answers
+                                        </span>
+                                        <span className="text-sm font-bold">
+                                            {test.correctAnswers}
+                                            <span className="text-muted-foreground font-normal">
+                                                /{test.totalQuestions}
+                                            </span>
+                                        </span>
+                                    </div>
+                                </div>
+
+                                <div className="pt-3">
+                                    <div className="text-primary bg-primary/5 group-hover:bg-primary/10 border-primary/10 flex items-center justify-center gap-2 rounded-lg border px-4 py-2 text-sm font-semibold transition-all group-hover:gap-3">
+                                        <span>View Details</span>
+                                        <TrendingUp className="h-4 w-4 transition-transform group-hover:translate-x-1" />
+                                    </div>
+                                </div>
+                            </CardContent>
+                        </Card>
+                    </motion.div>
+                ))}
             </div>
-        </div>
+        </>
     );
 }
+
+// CloseIcon component remains unchanged
+const CloseIcon = () => {
+    return (
+        <motion.svg
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0, transition: { duration: 0.05 } }}
+            xmlns="http://www.w3.org/2000/svg"
+            width="24"
+            height="24"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="2"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            className="h-4 w-4 text-black dark:text-white"
+        >
+            <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+            <path d="M18 6l-12 12" />
+            <path d="M6 6l12 12" />
+        </motion.svg>
+    );
+};
