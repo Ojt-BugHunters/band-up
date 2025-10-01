@@ -21,7 +21,7 @@ import {
     DropdownMenuTrigger,
 } from './ui/dropdown-menu';
 import { AccountPicture } from './ui/account-picture';
-import { ChevronDown, LogOut, User } from 'lucide-react';
+import { ChevronDown, History, LogOut, User } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { AccountOverview } from './account-overview';
 import { useLogout } from '@/hooks/use-logout';
@@ -222,6 +222,24 @@ export function Header() {
                                                     </span>
                                                     <div className="text-xs text-slate-500">
                                                         Manage your account
+                                                    </div>
+                                                </div>
+                                            </Link>
+                                        </DropdownMenuItem>
+                                        <DropdownMenuItem asChild>
+                                            <Link
+                                                href="/history"
+                                                className="flex cursor-pointer items-center gap-3 rounded-xl px-3 py-2.5 transition-colors duration-200 hover:bg-slate-50"
+                                            >
+                                                <div className="rounded-lg bg-green-50 p-1.5">
+                                                    <History className="h-4 w-4 text-green-600" />
+                                                </div>
+                                                <div>
+                                                    <span className="font-medium text-slate-900">
+                                                        Hisotry
+                                                    </span>
+                                                    <div className="text-xs text-slate-500">
+                                                        Manage your test history
                                                     </div>
                                                 </div>
                                             </Link>

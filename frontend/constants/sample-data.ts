@@ -134,21 +134,24 @@ export const flashcardItemsForSet1: FlashcardItem[] = [
         flashcard_id: '1',
         front: 'Artificial Intelligence (AI)',
         back: 'Trí tuệ nhân tạo – công nghệ mô phỏng trí tuệ con người.',
-        example: 'AI is revolutionizing industries such as healthcare and finance.',
+        example:
+            'AI is revolutionizing industries such as healthcare and finance.',
     },
     {
         id: '1-2',
         flashcard_id: '1',
         front: 'Cybersecurity',
         back: 'An ninh mạng – bảo vệ hệ thống khỏi các mối đe dọa số.',
-        example: 'Cybersecurity has become a critical issue for modern businesses.',
+        example:
+            'Cybersecurity has become a critical issue for modern businesses.',
     },
     {
         id: '1-3',
         flashcard_id: '1',
         front: 'Cloud Computing',
         back: 'Điện toán đám mây – lưu trữ và xử lý dữ liệu qua internet.',
-        example: 'Many companies use cloud computing to reduce infrastructure costs.',
+        example:
+            'Many companies use cloud computing to reduce infrastructure costs.',
     },
     {
         id: '1-4',
@@ -162,7 +165,8 @@ export const flashcardItemsForSet1: FlashcardItem[] = [
         flashcard_id: '1',
         front: 'Blockchain',
         back: 'Chuỗi khối – công nghệ lưu trữ dữ liệu phân tán, bảo mật.',
-        example: 'Blockchain is the underlying technology behind cryptocurrencies.',
+        example:
+            'Blockchain is the underlying technology behind cryptocurrencies.',
     },
 ];
 
@@ -801,5 +805,38 @@ export const speakingTestParts: SpeakingSection[] = [
                 question: 'How can governments encourage responsible tourism?',
             },
         ],
+    },
+];
+
+export const testHistory = [
+    {
+        id: 1,
+        date: '2024-12-15',
+        overallScore: 7.5,
+        listening: 8.0,
+        reading: 7.5,
+        writing: 7.0,
+        speaking: 7.5,
+        status: 'completed',
+    },
+    {
+        id: 2,
+        date: '2024-12-01',
+        overallScore: 7.0,
+        listening: 7.5,
+        reading: 7.0,
+        writing: 6.5,
+        speaking: 7.0,
+        status: 'completed',
+    },
+    {
+        id: 3,
+        date: '2024-11-15',
+        overallScore: 6.5,
+        listening: 7.0,
+        reading: 6.5,
+        writing: 6.0,
+        speaking: 6.5,
+        status: 'completed',
     },
 ];
