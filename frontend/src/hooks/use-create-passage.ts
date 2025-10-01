@@ -16,6 +16,19 @@ export const fileSchema = z.object({
         .optional(),
 });
 
+export const sectionSchema = z.object({
+    title: z
+        .string()
+        .min(1, 'Title is required')
+        .max(200, 'Title must be less than 200 characters'),
+    orderIndex: z.number().int().min(1).max(4),
+    metadata: z.object({
+        content: z.string().max(7000, 'Content can be maximum 7000 characters'),
+        image: fileSchema,
+        audio: fileSchema,
+    }),
+});
+
 export const passageSchema = z.object({
     title: z
         .string()
@@ -41,7 +54,12 @@ export const useCreatePassage = () => {
         defaultValues: {},
     });
 
+    const sectionForm = useForm<z.infer<typeof sectionSchema>>({
+        resolver: zodResolver(sectionSchema),
+        defaultValues: {},
+    });
     return {
         passagesForm,
+        sectionForm,
     };
 };
