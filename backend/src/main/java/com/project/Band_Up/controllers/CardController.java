@@ -13,7 +13,7 @@ import java.util.List;
 import java.util.UUID;
 
 @RestController
-@RequestMapping("/quizlet")
+@RequestMapping("/api/quizlet")
 @Tag(name = "Card API", description = "Các endpoint để quản lý Card (tạo, đọc, cập nhật, xóa).")
 public class CardController {
 
