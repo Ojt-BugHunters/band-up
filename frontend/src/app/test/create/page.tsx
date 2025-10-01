@@ -1,11 +1,15 @@
 'use client';
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { BookOpen } from 'lucide-react';
 import { TestTypeSelection } from '@/components/test-type-selection';
+import { CreatePassageForm } from '@/components/create-passage-form';
 
 export default function CreateTestPage() {
     const router = useRouter();
+    const searchParams = useSearchParams();
+    const step = searchParams.get('step') || 'type';
+    const type = searchParams.get('type');
 
     return (
         <div className="flex-1 space-y-6 p-6">
@@ -33,7 +37,11 @@ export default function CreateTestPage() {
                 <div className="container mx-auto p-8">
                     <div className="mx-auto max-w-7xl">
                         <div className="animate-in fade-in slide-in-from-bottom-8 duration-600">
-                            <TestTypeSelection />
+                            {step === 'type' ? (
+                                <TestTypeSelection />
+                            ) : step === 'passage' ? (
+                                <CreatePassageForm testType={type as string} />
+                            ) : null}
                         </div>
                     </div>
                 </div>
