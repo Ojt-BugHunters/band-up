@@ -153,12 +153,11 @@ export default function TestHistoryGrid({
 
                             <div className="flex-1 overflow-auto p-6">
                                 <div className="grid h-full grid-cols-1 gap-6 lg:grid-cols-2">
-                                    {/* Left Side - Charts */}
                                     <motion.div
                                         initial={{ opacity: 0, x: -20 }}
                                         animate={{ opacity: 1, x: 0 }}
                                         transition={{ delay: 0.1 }}
-                                        className="h-full"
+                                        className="h-150"
                                     >
                                         <Card className="flex h-full flex-col border-2">
                                             <CardHeader className="pb-4">
@@ -245,7 +244,6 @@ export default function TestHistoryGrid({
                                                         </ResponsiveContainer>
                                                     </ChartContainer>
                                                 ) : (
-                                                    // Single section - show summary stats
                                                     <div className="space-y-6 py-8">
                                                         <div className="space-y-2 text-center">
                                                             <div className="text-primary text-6xl font-bold">
@@ -345,13 +343,7 @@ export default function TestHistoryGrid({
                                         </Card>
                                     </motion.div>
 
-                                    {/* Right Side - Question Breakdown */}
-                                    <motion.div
-                                        initial={{ opacity: 0, x: 20 }}
-                                        animate={{ opacity: 1, x: 0 }}
-                                        transition={{ delay: 0.2 }}
-                                        className="h-full"
-                                    >
+                                    <motion.div className="h-150">
                                         <Card className="flex h-full flex-col border-2">
                                             <CardHeader className="pb-4">
                                                 <CardTitle>
@@ -436,12 +428,6 @@ export default function TestHistoryGrid({
                                                                                         key={
                                                                                             question.questionNumber
                                                                                         }
-                                                                                        whileHover={{
-                                                                                            scale: 1.1,
-                                                                                        }}
-                                                                                        whileTap={{
-                                                                                            scale: 0.95,
-                                                                                        }}
                                                                                         className={`group relative flex cursor-pointer flex-col items-center justify-center rounded-xl border-2 p-3 transition-all ${
                                                                                             question.isCorrect
                                                                                                 ? 'border-green-400 bg-green-50 hover:border-green-500 hover:shadow-lg hover:shadow-green-200 dark:border-green-600 dark:bg-green-950 dark:hover:border-green-500'
@@ -485,12 +471,6 @@ export default function TestHistoryGrid({
                                                                         key={
                                                                             question.questionNumber
                                                                         }
-                                                                        whileHover={{
-                                                                            scale: 1.1,
-                                                                        }}
-                                                                        whileTap={{
-                                                                            scale: 0.95,
-                                                                        }}
                                                                         className={`group relative flex cursor-pointer flex-col items-center justify-center rounded-xl border-2 p-3 transition-all ${
                                                                             question.isCorrect
                                                                                 ? 'border-green-400 bg-green-50 hover:border-green-500 hover:shadow-lg hover:shadow-green-200 dark:border-green-600 dark:bg-green-950 dark:hover:border-green-500'
@@ -538,18 +518,14 @@ export default function TestHistoryGrid({
                         key={`card-${test.id}-${id}`}
                         onClick={() => setActive(test)}
                         className="group cursor-pointer"
-                        whileHover={{ y: -8 }}
-                        transition={{ duration: 0.3 }}
                     >
                         <Card className="border-border hover:border-primary/30 relative overflow-hidden rounded-2xl border bg-white shadow-md transition-all duration-300 hover:shadow-2xl dark:bg-neutral-900">
-                            {/* Colored accent bar with glow */}
                             <div
                                 className={`${skillColors[test.skill]} relative h-2`}
                             >
                                 <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/30 to-transparent" />
                             </div>
 
-                            {/* Subtle hover glow effect */}
                             <div
                                 className={`pointer-events-none absolute -inset-1 opacity-0 transition-opacity duration-500 group-hover:opacity-20 ${skillColors[test.skill]} -z-10 blur-2xl`}
                             />
