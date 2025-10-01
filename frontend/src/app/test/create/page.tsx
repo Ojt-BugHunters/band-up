@@ -3,7 +3,7 @@ import { useRouter, useSearchParams } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { BookOpen } from 'lucide-react';
 import { TestTypeSelection } from '@/components/test-type-selection';
-import { CreatePassageForm } from '@/components/create-passage-form';
+import { CreateSectionForm } from '@/components/create-passage-form';
 
 export default function CreateTestPage() {
     const router = useRouter();
@@ -39,8 +39,8 @@ export default function CreateTestPage() {
                         <div className="animate-in fade-in slide-in-from-bottom-8 duration-600">
                             {step === 'type' ? (
                                 <TestTypeSelection />
-                            ) : step === 'passage' ? (
-                                <CreatePassageForm testType={type as string} />
+                            ) : step === 'section' ? (
+                                <CreateSectionForm testType={type as string} />
                             ) : null}
                         </div>
                     </div>

@@ -36,10 +36,11 @@ export const useCreateTest = () => {
         },
         onSuccess: (data) => {
             queryClient.setQueryData(['testId'], data.id);
+            console.log(data);
             localStorage.setItem('testId', JSON.stringify(data.id));
             toast.success('Create new test successfully');
             router.push(
-                `/test/create?step=passage&type=${data.skillName}&testId=${data.id}`,
+                `/test/create?step=section&type=${data.skillName}&testId=${data.id}`,
             );
         },
     });

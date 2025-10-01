@@ -39,24 +39,28 @@ import {
     FileUploadTrigger,
 } from '@/components/ui/file-upload';
 import React, { useState } from 'react';
-import { Content } from '@tiptap/react';
 import { TooltipProvider } from './ui/tooltip';
 import { MinimalTiptapEditor } from './ui/minimal-tiptap';
 import { toast } from 'sonner';
 
 const MAX_PASSAGES = 3;
 
-export function CreatePassageForm({ testType }: { testType: string }) {
-    return <PassageForm />;
+type TestType = 'reading' | 'listening' | 'speaking' | 'writing';
+
+export function CreateSectionForm({ testType }: { testType: TestType }) {
+    return (
+        <div>
+            <SectionForm testType={testType} />;
+        </div>
+    );
 }
 
-function PassageForm() {
-    const { passagesForm } = useCreatePassage();
-    const [value, setValue] = useState<Content>('');
+function SectionForm({ testType }: { testType: string }) {
+    const { sectionForm } = useCreatePassage();
 
     const { fields, append } = useFieldArray({
-        control: passagesForm.control,
-        name: 'passages',
+        control: sectionForm.control,
+        name: 'section',
     });
 
     const onSubmit = React.useCallback((data: any) => {
@@ -79,6 +83,7 @@ function PassageForm() {
                 metadata: {
                     content: '',
                     image: { files: [] },
+                    audio: { files: [] },
                 },
             });
         }
@@ -86,9 +91,9 @@ function PassageForm() {
 
     return (
         <TooltipProvider>
-            <Form {...passagesForm}>
+            <Form {...sectionForm}>
                 <form
-                    onSubmit={passagesForm.handleSubmit(onSubmit)}
+                    onSubmit={sectionForm.handleSubmit(onSubmit)}
                     className="space-y-12"
                 >
                     <div className="flex items-end justify-between gap-6">
@@ -140,8 +145,8 @@ function PassageForm() {
 
                                 <CardContent className="space-y-8 pt-4 pl-8">
                                     <FormField
-                                        control={passagesForm.control}
-                                        name={`passages.${index}.title`}
+                                        control={sectionForm.control}
+                                        name={`section.${index}.title`}
                                         render={({ field }) => (
                                             <FormItem>
                                                 <FormLabel className="text-sm font-bold tracking-wide uppercase">
@@ -163,8 +168,8 @@ function PassageForm() {
                                     <Separator className="bg-border/50" />
 
                                     <FormField
-                                        control={passagesForm.control}
-                                        name={`passages.${index}.metadata.content`}
+                                        control={sectionForm.control}
+                                        name={`section.${index}.metadata.content`}
                                         render={({ field }) => (
                                             <FormItem>
                                                 <FormLabel className="text-sm font-bold tracking-wide uppercase">
@@ -206,8 +211,8 @@ function PassageForm() {
 
                                         <div className="grid gap-6 md:grid-cols-2">
                                             <FormField
-                                                control={passagesForm.control}
-                                                name={`passages.${index}.metadata.image`}
+                                                control={sectionForm.control}
+                                                name={`section.${index}.metadata.image`}
                                                 render={({ field }) => (
                                                     <FormItem>
                                                         <FormLabel className="flex items-center gap-2 text-sm font-semibold">
@@ -242,8 +247,8 @@ function PassageForm() {
                                                                     _,
                                                                     message,
                                                                 ) => {
-                                                                    passagesForm.setError(
-                                                                        `passages.${index}.metadata.image.files`,
+                                                                    sectionForm.setError(
+                                                                        `section.${index}.metadata.image.files`,
                                                                         {
                                                                             message,
                                                                         },
@@ -331,11 +336,11 @@ function PassageForm() {
                         </Button>
                     )}
 
-                    {passagesForm.formState.errors.passages?.root && (
+                    {sectionForm.formState.errors.section?.root && (
                         <div className="border-destructive bg-destructive/5 animate-in fade-in slide-in-from-top-2 rounded-2xl border-2 p-6 duration-300">
                             <p className="text-sm font-semibold">
                                 {
-                                    passagesForm.formState.errors.passages.root
+                                    sectionForm.formState.errors.section.root
                                         .message
                                 }
                             </p>
@@ -347,9 +352,9 @@ function PassageForm() {
                             type="submit"
                             size="lg"
                             className="h-11 rounded-md px-10 font-medium"
-                            disabled={passagesForm.formState.isSubmitting}
+                            disabled={sectionForm.formState.isSubmitting}
                         >
-                            {passagesForm.formState.isSubmitting ? (
+                            {sectionForm.formState.isSubmitting ? (
                                 <>
                                     <Upload className="mr-2 h-4 w-4 animate-spin" />
                                     Creating Passages...

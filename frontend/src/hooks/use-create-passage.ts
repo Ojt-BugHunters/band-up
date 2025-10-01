@@ -29,37 +29,19 @@ export const sectionSchema = z.object({
     }),
 });
 
-export const passageSchema = z.object({
-    title: z
-        .string()
-        .min(1, 'Title is required')
-        .max(200, 'Title must be less than 200 characters'),
-    orderIndex: z.number().int().min(1).max(3),
-    metadata: z.object({
-        content: z.string().max(7000, 'Content can be maximum 7000 characters'),
-        image: fileSchema,
-    }),
-});
-
-export const passageFormSchema = z.object({
-    passages: z
-        .array(passageSchema)
-        .min(1, 'At least one passage is required')
-        .max(4, 'Maximun 4 passages is allowed'),
+export const sectionFormSchema = z.object({
+    section: z
+        .array(sectionSchema)
+        .min(1, 'At least one section is required')
+        .max(4, 'Maximum 4 section is allowed'),
 });
 
 export const useCreatePassage = () => {
-    const passagesForm = useForm<z.infer<typeof passageFormSchema>>({
-        resolver: zodResolver(passageFormSchema),
-        defaultValues: {},
-    });
-
-    const sectionForm = useForm<z.infer<typeof sectionSchema>>({
-        resolver: zodResolver(sectionSchema),
+    const sectionForm = useForm<z.infer<typeof sectionFormSchema>>({
+        resolver: zodResolver(sectionFormSchema),
         defaultValues: {},
     });
     return {
-        passagesForm,
         sectionForm,
     };
 };
