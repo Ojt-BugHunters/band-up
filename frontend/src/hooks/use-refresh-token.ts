@@ -1,6 +1,5 @@
 import { fetchWrapper, throwIfError } from '@/lib/api';
 import { useQuery } from '@tanstack/react-query';
-import { toast } from 'sonner';
 
 export const useRefreshToken = () => {
     return useQuery({
@@ -15,8 +14,5 @@ export const useRefreshToken = () => {
         refetchInterval: 10 * 1000 * 60,
         refetchIntervalInBackground: true,
         retry: false,
-        meta: {
-            onError: (error: any) => toast.error(error.message),
-        },
     });
 };
