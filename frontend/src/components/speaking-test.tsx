@@ -2,7 +2,7 @@
 
 import type React from 'react';
 
-import { useState, useEffect, useRef, useCallback } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -11,7 +11,6 @@ import ProgressDialog from '@/components/progress-dialog';
 import { Separator } from '@/components/ui/separator';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Alert, AlertDescription } from '@/components/ui/alert';
-import { Input } from '@/components/ui/input';
 import { speakingTestParts } from '../../constants/sample-data';
 import { enrichSpeakingTestParts } from '@/lib/api/dto/question';
 import { VoiceInput } from './voice-input';
@@ -52,8 +51,8 @@ export function SpeakingTest({
     const [isTestStarted, setIsTestStarted] = useState(false);
     const [isRecording, setIsRecording] = useState(false);
     const [isPreparing, setIsPreparing] = useState(false);
-    const [preparationTime, setPreparationTime] = useState(0);
-    const [speakingTime, setSpeakingTime] = useState(0);
+    const [, setPreparationTime] = useState(0);
+    const [, setSpeakingTime] = useState(0);
     const [partAnswers, setPartAnswers] = useState<Record<string, string>>({});
     const [showReview, setShowReview] = useState(false);
     const [files, setFiles] = useState<File[]>([]);
