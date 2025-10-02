@@ -61,6 +61,6 @@ public class AccountServiceImpl implements AccountService {
     public JwtUserDetails getAccountDetails(UUID accountId) {
         Account account = accountRepository.findById(accountId)
                 .orElseThrow(() -> new ResourceNotFoundException(accountId.toString()));
-        return modelMapper.map(account, JwtUserDetails.class);
+        return new JwtUserDetails(accountId, account.getRole().toString());
     }
 }
