@@ -27,6 +27,7 @@ public class Account {
     @GenericGenerator(name = "UUID", strategy = "org.hibernate.id.UUIDGenerator")
     private UUID id;
 
+    @Column(name = "role", nullable = false, columnDefinition = "varchar(255) default 'Member'")
     @Enumerated(EnumType.STRING)
     private Role role = Role.Member;
 
@@ -35,7 +36,6 @@ public class Account {
 
     private String phone;
 
-    @NotNull
     private String password;
 
     private String name;

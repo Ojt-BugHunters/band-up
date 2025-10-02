@@ -148,3 +148,33 @@
 .custom-scrollbar::-webkit-scrollbar-thumb:hover {
     background: oklch(0.45 0.01 240);
 }
+
+@keyframes aura-burst {
+    0% {
+        box-shadow:
+            0 0 5px #facc15,
+            0 0 10px #f97316,
+            0 0 20px #ef4444;
+    }
+    50% {
+        box-shadow:
+            0 0 20px #fde047,
+            0 0 40px #f97316,
+            0 0 60px #ef4444;
+    }
+    100% {
+        box-shadow:
+            0 0 5px #facc15,
+            0 0 10px #f97316,
+            0 0 20px #ef4444;
+    }
+}
+
+.aura-premium {
+    background: linear-gradient(to right, #facc15, #f97316, #ef4444);
+    color: white;
+    font-weight: bold;
+    border-radius: 0.5rem;
+    padding: 0.25rem 1rem;
+    animation: aura-burst 1.5s infinite ease-in-out;
+}

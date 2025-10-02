@@ -8,6 +8,7 @@ import ProgressDialog from '@/components/progress-dialog';
 import QuestionPanel from '@/components/question-panel';
 import AudioPlayer from '@/components/audio-player';
 import { mockListeningSections } from '../../constants/sample-data';
+import { NotFound } from './empty-state';
 
 type ListeningTestProps = {
     mode?: string;
@@ -86,7 +87,7 @@ export function ListeningTest({
     );
 
     if (availableSections.length === 0) {
-        return <div>No sections available</div>;
+        return <NotFound />;
     }
 
     return (

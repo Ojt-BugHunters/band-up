@@ -1,9 +1,10 @@
 import { SpeakingSection } from './../src/lib/api/dto/question';
 import type { Flashcard } from '@/lib/api/dto/flashcards';
 import { Comment } from '@/lib/api/dto/comment';
-import { Test, TestOverview } from '@/lib/api/dto/test';
+import { Test, TestHistory, TestOverview } from '@/lib/api/dto/test';
 import { ListeningSection, Passage, WritingTask } from '@/lib/api/dto/question';
 import { FlashcardItem } from '@/lib/api/dto/flashcarditem';
+import { User } from '@/lib/api/dto/account';
 
 export const mockFlashcards: Flashcard[] = [
     {
@@ -134,21 +135,24 @@ export const flashcardItemsForSet1: FlashcardItem[] = [
         flashcard_id: '1',
         front: 'Artificial Intelligence (AI)',
         back: 'Trí tuệ nhân tạo – công nghệ mô phỏng trí tuệ con người.',
-        example: 'AI is revolutionizing industries such as healthcare and finance.',
+        example:
+            'AI is revolutionizing industries such as healthcare and finance.',
     },
     {
         id: '1-2',
         flashcard_id: '1',
         front: 'Cybersecurity',
         back: 'An ninh mạng – bảo vệ hệ thống khỏi các mối đe dọa số.',
-        example: 'Cybersecurity has become a critical issue for modern businesses.',
+        example:
+            'Cybersecurity has become a critical issue for modern businesses.',
     },
     {
         id: '1-3',
         flashcard_id: '1',
         front: 'Cloud Computing',
         back: 'Điện toán đám mây – lưu trữ và xử lý dữ liệu qua internet.',
-        example: 'Many companies use cloud computing to reduce infrastructure costs.',
+        example:
+            'Many companies use cloud computing to reduce infrastructure costs.',
     },
     {
         id: '1-4',
@@ -162,7 +166,8 @@ export const flashcardItemsForSet1: FlashcardItem[] = [
         flashcard_id: '1',
         front: 'Blockchain',
         back: 'Chuỗi khối – công nghệ lưu trữ dữ liệu phân tán, bảo mật.',
-        example: 'Blockchain is the underlying technology behind cryptocurrencies.',
+        example:
+            'Blockchain is the underlying technology behind cryptocurrencies.',
     },
 ];
 
@@ -801,5 +806,355 @@ export const speakingTestParts: SpeakingSection[] = [
                 question: 'How can governments encourage responsible tourism?',
             },
         ],
+    },
+];
+export const user: User = {
+    id: '1',
+    role: 'Premium Member',
+    email: 'namdangcoder@gmail.com',
+    phone: '0123456789',
+    name: 'Nam Dang',
+    gender: 'Male',
+    address: '123 street, Viet Nam',
+    birthday: new Date(),
+    isActive: true,
+};
+
+export const testHistory: TestHistory[] = [
+    {
+        id: '1',
+        skill: 'Listening',
+        date: '2025-01-15',
+        duration: '30 mins',
+        overallScore: 7.5,
+        totalQuestions: 40,
+        correctAnswers: 32,
+        accuracy: 80,
+        questions: [
+            // Section 1 (9/10 correct)
+            ...Array.from({ length: 10 }, (_, i) => ({
+                questionNumber: i + 1,
+                isCorrect: i !== 5, // Question 6 is wrong
+                section: 'Section 1',
+            })),
+            // Section 2 (8/10 correct)
+            ...Array.from({ length: 10 }, (_, i) => ({
+                questionNumber: i + 11,
+                isCorrect: i !== 3 && i !== 7, // Questions 14 and 18 are wrong
+                section: 'Section 2',
+            })),
+            // Section 3 (7/10 correct)
+            ...Array.from({ length: 10 }, (_, i) => ({
+                questionNumber: i + 21,
+                isCorrect: i !== 1 && i !== 4 && i !== 8, // Questions 22, 25, 29 are wrong
+                section: 'Section 3',
+            })),
+            // Section 4 (8/10 correct)
+            ...Array.from({ length: 10 }, (_, i) => ({
+                questionNumber: i + 31,
+                isCorrect: i !== 2 && i !== 6, // Questions 33 and 37 are wrong
+                section: 'Section 4',
+            })),
+        ],
+        sectionScores: [
+            { section: 'Section 1', score: 9, maxScore: 10 },
+            { section: 'Section 2', score: 8, maxScore: 10 },
+            { section: 'Section 3', score: 7, maxScore: 10 },
+            { section: 'Section 4', score: 8, maxScore: 10 },
+        ],
+        timeSpent: [
+            { section: 'Section 1', minutes: 7 },
+            { section: 'Section 2', minutes: 8 },
+            { section: 'Section 3', minutes: 8 },
+            { section: 'Section 4', minutes: 7 },
+        ],
+        difficultyBreakdown: [
+            { level: 'Easy', correct: 12, total: 13 },
+            { level: 'Medium', correct: 14, total: 17 },
+            { level: 'Hard', correct: 6, total: 10 },
+        ],
+    },
+    {
+        id: '2',
+        skill: 'Reading',
+        date: '2025-01-10',
+        duration: '60 mins',
+        overallScore: 8.0,
+        totalQuestions: 40,
+        correctAnswers: 35,
+        accuracy: 87.5,
+        questions: [
+            // Passage 1 (12/13 correct)
+            ...Array.from({ length: 13 }, (_, i) => ({
+                questionNumber: i + 1,
+                isCorrect: i !== 7, // Question 8 is wrong
+                section: 'Passage 1',
+            })),
+            // Passage 2 (11/13 correct)
+            ...Array.from({ length: 13 }, (_, i) => ({
+                questionNumber: i + 14,
+                isCorrect: i !== 4 && i !== 9, // Questions 18 and 23 are wrong
+                section: 'Passage 2',
+            })),
+            // Passage 3 (12/14 correct)
+            ...Array.from({ length: 14 }, (_, i) => ({
+                questionNumber: i + 27,
+                isCorrect: i !== 2 && i !== 10, // Questions 29 and 37 are wrong
+                section: 'Passage 3',
+            })),
+        ],
+        sectionScores: [
+            { section: 'Passage 1', score: 12, maxScore: 13 },
+            { section: 'Passage 2', score: 11, maxScore: 13 },
+            { section: 'Passage 3', score: 12, maxScore: 14 },
+        ],
+        timeSpent: [
+            { section: 'Passage 1', minutes: 18 },
+            { section: 'Passage 2', minutes: 20 },
+            { section: 'Passage 3', minutes: 22 },
+        ],
+        difficultyBreakdown: [
+            { level: 'Easy', correct: 13, total: 13 },
+            { level: 'Medium', correct: 15, total: 17 },
+            { level: 'Hard', correct: 7, total: 10 },
+        ],
+    },
+    {
+        id: '3',
+        skill: 'Writing',
+        date: '2025-01-05',
+        duration: '60 mins',
+        overallScore: 7.0,
+        totalQuestions: 2,
+        correctAnswers: 2,
+        accuracy: 100,
+        sectionScores: [
+            { section: 'Task Achievement', score: 7, maxScore: 9 },
+            { section: 'Coherence & Cohesion', score: 7, maxScore: 9 },
+            { section: 'Lexical Resource', score: 7, maxScore: 9 },
+            { section: 'Grammar Accuracy', score: 7, maxScore: 9 },
+        ],
+        timeSpent: [
+            { section: 'Task 1', minutes: 20 },
+            { section: 'Task 2', minutes: 40 },
+        ],
+        difficultyBreakdown: [
+            { level: 'Task 1', correct: 1, total: 1 },
+            { level: 'Task 2', correct: 1, total: 1 },
+        ],
+    },
+    {
+        id: '4',
+        skill: 'Speaking',
+        date: '2024-12-28',
+        duration: '15 mins',
+        overallScore: 7.5,
+        totalQuestions: 3,
+        correctAnswers: 3,
+        accuracy: 100,
+        sectionScores: [
+            { section: 'Fluency & Coherence', score: 8, maxScore: 9 },
+            { section: 'Lexical Resource', score: 7, maxScore: 9 },
+            { section: 'Grammar Range', score: 7, maxScore: 9 },
+            { section: 'Pronunciation', score: 8, maxScore: 9 },
+        ],
+        timeSpent: [
+            { section: 'Part 1', minutes: 5 },
+            { section: 'Part 2', minutes: 6 },
+            { section: 'Part 3', minutes: 4 },
+        ],
+        difficultyBreakdown: [
+            { level: 'Part 1', correct: 1, total: 1 },
+            { level: 'Part 2', correct: 1, total: 1 },
+            { level: 'Part 3', correct: 1, total: 1 },
+        ],
+    },
+    {
+        id: '5',
+        skill: 'Listening',
+        date: '2024-12-20',
+        duration: '30 mins',
+        overallScore: 6.5,
+        totalQuestions: 40,
+        correctAnswers: 28,
+        accuracy: 70,
+        questions: [
+            ...Array.from({ length: 10 }, (_, i) => ({
+                questionNumber: i + 1,
+                isCorrect: i !== 4 && i !== 8,
+                section: 'Section 1',
+            })),
+            ...Array.from({ length: 10 }, (_, i) => ({
+                questionNumber: i + 11,
+                isCorrect: i !== 2 && i !== 5 && i !== 9,
+                section: 'Section 2',
+            })),
+            ...Array.from({ length: 10 }, (_, i) => ({
+                questionNumber: i + 21,
+                isCorrect: i !== 1 && i !== 3 && i !== 6 && i !== 8,
+                section: 'Section 3',
+            })),
+            ...Array.from({ length: 10 }, (_, i) => ({
+                questionNumber: i + 31,
+                isCorrect: i !== 0 && i !== 4 && i !== 7,
+                section: 'Section 4',
+            })),
+        ],
+        sectionScores: [
+            { section: 'Section 1', score: 8, maxScore: 10 },
+            { section: 'Section 2', score: 7, maxScore: 10 },
+            { section: 'Section 3', score: 6, maxScore: 10 },
+            { section: 'Section 4', score: 7, maxScore: 10 },
+        ],
+        timeSpent: [
+            { section: 'Section 1', minutes: 7 },
+            { section: 'Section 2', minutes: 8 },
+            { section: 'Section 3', minutes: 8 },
+            { section: 'Section 4', minutes: 7 },
+        ],
+        difficultyBreakdown: [
+            { level: 'Easy', correct: 11, total: 13 },
+            { level: 'Medium', correct: 12, total: 17 },
+            { level: 'Hard', correct: 5, total: 10 },
+        ],
+    },
+    {
+        id: '6',
+        skill: 'Reading',
+        date: '2024-12-15',
+        duration: '20 mins',
+        overallScore: 7.5,
+        totalQuestions: 13,
+        correctAnswers: 11,
+        accuracy: 84.6,
+        questions: [
+            { questionNumber: 1, isCorrect: true, section: 'Passage 1' },
+            { questionNumber: 2, isCorrect: true, section: 'Passage 1' },
+            { questionNumber: 3, isCorrect: false, section: 'Passage 1' },
+            { questionNumber: 4, isCorrect: true, section: 'Passage 1' },
+            { questionNumber: 5, isCorrect: true, section: 'Passage 1' },
+            { questionNumber: 6, isCorrect: true, section: 'Passage 1' },
+            { questionNumber: 7, isCorrect: false, section: 'Passage 1' },
+            { questionNumber: 8, isCorrect: true, section: 'Passage 1' },
+            { questionNumber: 9, isCorrect: true, section: 'Passage 1' },
+            { questionNumber: 10, isCorrect: true, section: 'Passage 1' },
+            { questionNumber: 11, isCorrect: true, section: 'Passage 1' },
+            { questionNumber: 12, isCorrect: true, section: 'Passage 1' },
+            { questionNumber: 13, isCorrect: true, section: 'Passage 1' },
+        ],
+        sectionScores: [{ section: 'Passage 1', score: 11, maxScore: 13 }],
+        timeSpent: [{ section: 'Passage 1', minutes: 20 }],
+        difficultyBreakdown: [
+            { level: 'Easy', correct: 5, total: 5 },
+            { level: 'Medium', correct: 4, total: 5 },
+            { level: 'Hard', correct: 2, total: 3 },
+        ],
+    },
+    {
+        id: '7',
+        skill: 'Reading',
+        date: '2024-12-15',
+        duration: '20 mins',
+        overallScore: 7.5,
+        totalQuestions: 13,
+        correctAnswers: 11,
+        accuracy: 84.6,
+        questions: [
+            { questionNumber: 1, isCorrect: true, section: 'Passage 1' },
+            { questionNumber: 2, isCorrect: true, section: 'Passage 1' },
+            { questionNumber: 3, isCorrect: false, section: 'Passage 1' },
+            { questionNumber: 4, isCorrect: true, section: 'Passage 1' },
+            { questionNumber: 5, isCorrect: true, section: 'Passage 1' },
+            { questionNumber: 6, isCorrect: true, section: 'Passage 1' },
+            { questionNumber: 7, isCorrect: false, section: 'Passage 1' },
+            { questionNumber: 8, isCorrect: true, section: 'Passage 1' },
+            { questionNumber: 9, isCorrect: true, section: 'Passage 1' },
+            { questionNumber: 10, isCorrect: true, section: 'Passage 1' },
+            { questionNumber: 11, isCorrect: true, section: 'Passage 1' },
+            { questionNumber: 12, isCorrect: true, section: 'Passage 1' },
+            { questionNumber: 13, isCorrect: true, section: 'Passage 1' },
+        ],
+        sectionScores: [{ section: 'Passage 1', score: 11, maxScore: 13 }],
+        timeSpent: [{ section: 'Passage 1', minutes: 20 }],
+        difficultyBreakdown: [
+            { level: 'Easy', correct: 5, total: 5 },
+            { level: 'Medium', correct: 4, total: 5 },
+            { level: 'Hard', correct: 2, total: 3 },
+        ],
+    },
+];
+
+export const mockAccountBlogs = [
+    {
+        id: 1,
+        title: 'How to reach 9.0 IELTS?',
+        description: 'The sharing of roadmap to reach master IELTS',
+        date: 'Dec 10, 2023',
+    },
+    {
+        id: 2,
+        title: 'IELTS Speaking Part 1 Tips',
+        description: 'Answer naturally and confidently with these tricks',
+        date: 'Dec 15, 2023',
+    },
+    {
+        id: 3,
+        title: 'IELTS Writing Task 2 Structures',
+        description: 'Common templates to organize your essays',
+        date: 'Dec 20, 2023',
+    },
+    {
+        id: 4,
+        title: 'Improve IELTS Listening',
+        description: 'Techniques to catch every keyword and detail',
+        date: 'Dec 25, 2023',
+    },
+    {
+        id: 5,
+        title: 'Reading True/False/Not Given',
+        description: 'Step-by-step strategy to avoid traps',
+        date: 'Jan 2, 2024',
+    },
+    {
+        id: 6,
+        title: 'Vocabulary for IELTS 8.0+',
+        description: 'Must-know academic words for high scores',
+        date: 'Jan 8, 2024',
+    },
+    {
+        id: 7,
+        title: 'Time Management in IELTS',
+        description: 'How to use your 2 hours 45 minutes wisely',
+        date: 'Jan 12, 2024',
+    },
+    {
+        id: 8,
+        title: 'Common IELTS Mistakes',
+        description: 'Avoid these errors to save your score',
+        date: 'Jan 20, 2024',
+    },
+    {
+        id: 9,
+        title: 'Speaking Fluency Hacks',
+        description: 'How to speak smoothly without hesitation',
+        date: 'Jan 25, 2024',
+    },
+    {
+        id: 10,
+        title: 'Task 1 Writing Visuals',
+        description: 'How to describe graphs and charts effectively',
+        date: 'Feb 1, 2024',
+    },
+    {
+        id: 11,
+        title: 'IELTS Grammar Essentials',
+        description: 'Focus on accuracy and complex structures',
+        date: 'Feb 10, 2024',
+    },
+    {
+        id: 12,
+        title: 'How to Self-Study IELTS',
+        description: 'Plan your journey without expensive classes',
+        date: 'Feb 20, 2024',
     },
 ];

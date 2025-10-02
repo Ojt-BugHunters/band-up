@@ -15,7 +15,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.UUID;
 
 @RestController
-@RequestMapping("/quizlet")
+@RequestMapping("/api/quizlet")
 @Tag(name = "Deck API", description = "Các endpoint để quản lý Deck (tạo, đọc, cập nhật, xóa).")
 public class DeckController {
 
