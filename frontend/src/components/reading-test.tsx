@@ -10,6 +10,7 @@ import ProgressDialog from '@/components/progress-dialog';
 import QuestionPanel from '@/components/question-panel';
 import ReadingPassage from '@/components/reading-passage';
 import { mockPassages } from '../../constants/sample-data';
+import { NotFound } from './empty-state';
 
 type ReadingTestProps = {
     mode?: string;
@@ -87,7 +88,7 @@ export function ReadingTest({
     );
 
     if (availablePassages.length === 0) {
-        return <div>No passage available</div>;
+        return <NotFound />;
     }
 
     return (

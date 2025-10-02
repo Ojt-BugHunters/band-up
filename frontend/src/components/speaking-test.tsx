@@ -28,6 +28,7 @@ import {
     type FileUploadProps,
     FileUploadTrigger,
 } from '@/components/ui/file-upload';
+import { NotFound } from './empty-state';
 
 type SpeakingTestProps = {
     mode?: string;
@@ -54,12 +55,7 @@ export function SpeakingTest({
     const [preparationTime, setPreparationTime] = useState(0);
     const [speakingTime, setSpeakingTime] = useState(0);
     const [partAnswers, setPartAnswers] = useState<Record<string, string>>({});
-    const [showFileUpload, setShowFileUpload] = useState(false);
-    const [uploadedFile, setUploadedFile] = useState<File | null>(null);
     const [showReview, setShowReview] = useState(false);
-    const fileInputRef = useRef<HTMLInputElement>(null);
-    const mediaRecorderRef = useRef<MediaRecorder | null>(null);
-    const [audioUrl, setAudioUrl] = useState<string | null>(null);
     const [files, setFiles] = useState<File[]>([]);
 
     const totalDuration = availableParts.reduce(
@@ -171,34 +167,6 @@ export function SpeakingTest({
         });
     }, []);
 
-    const handleFileUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
-        const file = event.target.files?.[0];
-        if (file) {
-            const allowedTypes = [
-                'audio/mp3',
-                'audio/wav',
-                'audio/m4a',
-                'audio/ogg',
-                'audio/webm',
-            ];
-            if (
-                allowedTypes.includes(file.type) ||
-                file.name.match(/\.(mp3|wav|m4a|ogg|webm)$/i)
-            ) {
-                setUploadedFile(file);
-                setPartAnswers((prev) => ({
-                    ...prev,
-                    [currentPart]: `uploaded: ${file.name}`,
-                }));
-                setShowFileUpload(false);
-            } else {
-                alert(
-                    'Please upload an audio file (MP3, WAV, M4A, OGG, or WebM)',
-                );
-            }
-        }
-    };
-
     const handleReviewQuestions = () => {
         setShowReview(!showReview);
     };
@@ -241,7 +209,7 @@ export function SpeakingTest({
     };
 
     if (availableParts.length === 0) {
-        return <div>No speaking test parts available</div>;
+        return <NotFound />;
     }
 
     return (
