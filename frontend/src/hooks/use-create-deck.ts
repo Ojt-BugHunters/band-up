@@ -1,7 +1,7 @@
 import { zodResolver } from "@hookform/resolvers/zod"
 import { useForm } from "react-hook-form"
 import { z } from "zod"
-import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { useMutation } from '@tanstack/react-query';
 import { fetchWrapper, throwIfError } from '@/lib/api';
 import { toast } from 'sonner';
 import { useRouter } from 'next/navigation';
@@ -25,7 +25,6 @@ export const createDeckSchema = z.object({
 export type CreateDeckFormValues = z.infer<typeof createDeckSchema>
 
 export function useCreateDeck() {
-    const queryClient = useQueryClient();
     const router = useRouter();
 
   const form = useForm<CreateDeckFormValues>({
@@ -38,7 +37,7 @@ export function useCreateDeck() {
 
       const mutation = useMutation({
         mutationFn: async (values: z.infer<typeof createDeckSchema>) => {
-            const response = await fetchWrapper('/api/quizlet/deck/create', {
+            const response = await fetchWrapper('/quizlet/deck/create', {
                 method: 'POST',
                 headers: {
                     Accept: 'application/json',
@@ -53,9 +52,7 @@ export function useCreateDeck() {
         onError: (error) => {
             toast.error(error.message);
         },
-        onSuccess: (data) => {
-            queryClient.setQueryData(['user'], data);
-            localStorage.setItem('user', JSON.stringify(data));
+        onSuccess: () => {
             toast.success('Create successfully');
             router.push('/');
         },

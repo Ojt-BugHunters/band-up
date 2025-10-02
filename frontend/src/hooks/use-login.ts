@@ -19,7 +19,7 @@ export const useLogin = () => {
 
     const mutation = useMutation({
         mutationFn: async (values: z.infer<typeof schema>) => {
-            const response = await fetchWrapper('/api/auth/login', {
+            const response = await fetchWrapper('/auth/login', {
                 method: 'POST',
                 headers: {
                     Accept: 'application/json',
