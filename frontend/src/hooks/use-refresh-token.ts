@@ -10,10 +10,9 @@ export const useRefreshToken = () => {
                 method: 'POST',
             });
             await throwIfError(response);
-            toast.success('Refresh token successfull');
             return response;
         },
-        refetchInterval: 10 * 1000,
+        refetchInterval: 10 * 1000 * 60,
         refetchIntervalInBackground: true,
         retry: false,
         meta: {
