@@ -17,6 +17,7 @@ import { useState } from 'react';
 import { useRegisterForm } from '@/hooks/use-register';
 import Link from 'next/link';
 import { FcGoogle } from 'react-icons/fc';
+import { Loader2 } from 'lucide-react';
 
 export default function RegisterPage() {
     return (
@@ -34,8 +35,8 @@ const RegisterForm = ({ className, ...props }: React.ComponentProps<'div'>) => {
     const { form, mutation } = useRegisterForm();
 
     return (
-        <div className={cn('flex flex-col gap-6', className)} {...props}>
-            <div className="flex flex-col gap-6">
+        <div className={cn('flex flex-col gap-4', className)} {...props}>
+            <div className="flex flex-col gap-4">
                 <div className="flex flex-col items-center gap-2">
                     <Image
                         src="/logo.png"
@@ -164,12 +165,19 @@ const RegisterForm = ({ className, ...props }: React.ComponentProps<'div'>) => {
                                 </FormItem>
                             )}
                         />
-                        <Button
-                            type="submit"
-                            className="mt-4 w-full cursor-pointer"
-                        >
-                            Sign Up
-                        </Button>
+                        {mutation.status === 'pending' ? (
+                            <Button disabled className="w-full cursor-pointer">
+                                <Loader2 className="animate-spin" />
+                                Loading
+                            </Button>
+                        ) : (
+                            <Button
+                                type="submit"
+                                className="mt-4 w-full cursor-pointer"
+                            >
+                                Register
+                            </Button>
+                        )}
                     </form>
                 </Form>
 
