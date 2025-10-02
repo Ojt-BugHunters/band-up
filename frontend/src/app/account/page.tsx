@@ -5,6 +5,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { CalendarDays, Eye, FileText, Mail, Phone, User } from 'lucide-react';
 import { user } from '../../../constants/sample-data';
 import { useMemo } from 'react';
+import AccountBlogSection from '@/components/account-blog';
 
 const bgGradients = [
     'from-blue-50 to-indigo-50',
@@ -144,45 +145,7 @@ export default function ViewProfilePage() {
                                     Blog
                                 </CardTitle>
                             </CardHeader>
-                            <CardContent>
-                                <div className="space-y-4">
-                                    <div className="rounded-lg border p-4 transition-colors hover:bg-zinc-50">
-                                        <div className="flex items-start justify-between">
-                                            <div className="flex items-start gap-3">
-                                                <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-blue-100">
-                                                    <FileText className="h-5 w-5 text-blue-600" />
-                                                </div>
-                                                <div className="flex-1">
-                                                    <h3 className="font-semibold text-zinc-900">
-                                                        How to reaching 9.0
-                                                        IELTS ?
-                                                    </h3>
-                                                    <p className="mt-1 text-sm text-zinc-600">
-                                                        The sharing of roadmap
-                                                        to reach master IELTS
-                                                    </p>
-                                                    <div className="mt-2 flex items-center gap-4 text-xs text-zinc-500">
-                                                        <span>
-                                                            Uploaded on Dec 10,
-                                                            2023
-                                                        </span>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                            <div className="flex gap-2">
-                                                <Button
-                                                    size="sm"
-                                                    variant="outline"
-                                                    className="bg-white text-zinc-600"
-                                                >
-                                                    <Eye className="mr-1 h-4 w-4" />
-                                                    Read
-                                                </Button>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </CardContent>
+                            <AccountBlogSection />
                         </Card>
                     </div>
                 </div>

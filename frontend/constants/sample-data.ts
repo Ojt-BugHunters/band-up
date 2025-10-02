@@ -1083,3 +1083,78 @@ export const testHistory: TestHistory[] = [
         ],
     },
 ];
+
+export const mockAccountBlogs = [
+    {
+        id: 1,
+        title: 'How to reach 9.0 IELTS?',
+        description: 'The sharing of roadmap to reach master IELTS',
+        date: 'Dec 10, 2023',
+    },
+    {
+        id: 2,
+        title: 'IELTS Speaking Part 1 Tips',
+        description: 'Answer naturally and confidently with these tricks',
+        date: 'Dec 15, 2023',
+    },
+    {
+        id: 3,
+        title: 'IELTS Writing Task 2 Structures',
+        description: 'Common templates to organize your essays',
+        date: 'Dec 20, 2023',
+    },
+    {
+        id: 4,
+        title: 'Improve IELTS Listening',
+        description: 'Techniques to catch every keyword and detail',
+        date: 'Dec 25, 2023',
+    },
+    {
+        id: 5,
+        title: 'Reading True/False/Not Given',
+        description: 'Step-by-step strategy to avoid traps',
+        date: 'Jan 2, 2024',
+    },
+    {
+        id: 6,
+        title: 'Vocabulary for IELTS 8.0+',
+        description: 'Must-know academic words for high scores',
+        date: 'Jan 8, 2024',
+    },
+    {
+        id: 7,
+        title: 'Time Management in IELTS',
+        description: 'How to use your 2 hours 45 minutes wisely',
+        date: 'Jan 12, 2024',
+    },
+    {
+        id: 8,
+        title: 'Common IELTS Mistakes',
+        description: 'Avoid these errors to save your score',
+        date: 'Jan 20, 2024',
+    },
+    {
+        id: 9,
+        title: 'Speaking Fluency Hacks',
+        description: 'How to speak smoothly without hesitation',
+        date: 'Jan 25, 2024',
+    },
+    {
+        id: 10,
+        title: 'Task 1 Writing Visuals',
+        description: 'How to describe graphs and charts effectively',
+        date: 'Feb 1, 2024',
+    },
+    {
+        id: 11,
+        title: 'IELTS Grammar Essentials',
+        description: 'Focus on accuracy and complex structures',
+        date: 'Feb 10, 2024',
+    },
+    {
+        id: 12,
+        title: 'How to Self-Study IELTS',
+        description: 'Plan your journey without expensive classes',
+        date: 'Feb 20, 2024',
+    },
+];
