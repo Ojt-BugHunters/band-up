@@ -1,11 +1,14 @@
+'use client';
+
 import { Avatar, AvatarImage } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
-import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { CalendarDays, Eye, FileText, Mail, Phone, User } from 'lucide-react';
+import { CalendarDays, Edit, Mail, Phone, User } from 'lucide-react';
 import { user } from '../../../constants/sample-data';
-import { useMemo } from 'react';
+import { useMemo, useState } from 'react';
 import AccountBlogSection from '@/components/account-blog';
+import { Button } from '@/components/ui/button';
+import EditDialog from '@/components/edit-dialog';
 
 const bgGradients = [
     'from-blue-50 to-indigo-50',
@@ -28,6 +31,7 @@ const quotes = [
 ];
 
 export default function ViewProfilePage() {
+    const [openDialog, setOpenDialog] = useState(false);
     const bgClass = useMemo(
         () => bgGradients[Math.floor(Math.random() * bgGradients.length)],
         [],
@@ -52,20 +56,29 @@ export default function ViewProfilePage() {
                         </div>
 
                         <div className="relative -mt-10 ml-6 flex flex-col items-start px-6 pb-8">
-                            <div className="flex items-center gap-3">
-                                <Avatar className="size-20 rounded-lg border-4 border-white shadow-md">
-                                    <AvatarImage src="/test.png" />
-                                </Avatar>
-                                <Badge
+                            <div className="flex w-full items-center justify-between gap-3">
+                                <div className="flex items-center gap-3">
+                                    <Avatar className="size-20 rounded-lg border-4 border-white shadow-md">
+                                        <AvatarImage src="/test.png" />
+                                    </Avatar>
+                                    <Badge
+                                        variant="outline"
+                                        className={
+                                            user?.role === 'Premium Member'
+                                                ? 'aura-premium'
+                                                : 'bg-rose-500 text-white'
+                                        }
+                                    >
+                                        {user?.role}
+                                    </Badge>
+                                </div>
+                                <Button
                                     variant="outline"
-                                    className={
-                                        user?.role === 'Premium Member'
-                                            ? 'aura-premium'
-                                            : 'bg-rose-500 text-white'
-                                    }
+                                    className="h-10 w-10"
+                                    onClick={() => setOpenDialog(true)}
                                 >
-                                    {user?.role}
-                                </Badge>
+                                    <Edit className="h-4 w-4" />
+                                </Button>
                             </div>
                             <h1 className="mt-4 text-2xl font-bold text-zinc-900">
                                 {user?.name}
@@ -150,6 +163,7 @@ export default function ViewProfilePage() {
                     </div>
                 </div>
             </div>
+            <EditDialog open={openDialog} onOpenChange={setOpenDialog} />
         </div>
     );
 }
