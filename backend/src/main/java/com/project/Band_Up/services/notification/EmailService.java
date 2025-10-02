@@ -1,4 +1,4 @@
 package com.project.Band_Up.services.notification;
 
-public class EmailService {
+public interface EmailService {
 }

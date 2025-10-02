@@ -12,7 +12,7 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-@RequestMapping("/profile")
+@RequestMapping("/api/profile")
 @Tag(name = "Profile API",
         description = "Các endpoint để quản lý Profile (read, update, delete ,...)")
 public class ProfileController {

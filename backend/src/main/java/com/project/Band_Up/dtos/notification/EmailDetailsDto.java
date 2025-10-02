@@ -1,4 +1,17 @@
 package com.project.Band_Up.dtos.notification;
 
-public class EmailDetails {
+import lombok.*;
+
+@Setter
+@Getter
+@AllArgsConstructor
+@NoArgsConstructor
+@Builder
+public class EmailDetailsDto {
+
+    private String recipient;
+    private String subject;
+    private String msgBody;
+    private String attachment;
+
 }
