@@ -4,7 +4,7 @@
 @import './partials/typography.css';
 @import './partials/zoom.css';
 
-@reference "../../../../app/global.css";
+@reference "../../../../app/globals.css";
 
 :root {
     --mt-overlay: rgba(251, 251, 251, 0.75);
