@@ -40,6 +40,7 @@ public class JwtFilter extends OncePerRequestFilter {
                 }
             }
         }
+
         if (accessToken != null && jwtUtil.validateAccessToken(accessToken)){
             JwtUserDetails jwtUserDetails = jwtUtil.extractUserFromAccess(accessToken);
             List<GrantedAuthority> authorities = new ArrayList<>();

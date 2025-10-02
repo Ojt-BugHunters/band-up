@@ -1,6 +1,8 @@
 package com.project.Band_Up.handlers;
 
 import com.project.Band_Up.entities.Account;
+import com.project.Band_Up.enums.Gender;
+import com.project.Band_Up.enums.Role;
 import com.project.Band_Up.repositories.AccountRepository;
 import com.project.Band_Up.utils.JwtUserDetails;
 import com.project.Band_Up.utils.JwtUtil;
@@ -9,6 +11,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseCookie;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.oauth2.core.user.OAuth2User;
@@ -16,6 +19,8 @@ import org.springframework.security.web.authentication.AuthenticationSuccessHand
 import org.springframework.stereotype.Component;
 
 import java.io.IOException;
+import java.sql.Date;
+import java.time.LocalDate;
 
 @Component
 public class Oauth2SuccessHandler implements AuthenticationSuccessHandler {
@@ -37,19 +42,31 @@ public class Oauth2SuccessHandler implements AuthenticationSuccessHandler {
                                         Authentication authentication)
             throws IOException, ServletException {
         OAuth2User oAuth2User = (OAuth2User) authentication.getPrincipal();
-        Account account = Account.builder()
-                .email(oAuth2User.getAttribute("email"))
-                .name(oAuth2User.getAttribute("name"))
-                .birthday(oAuth2User.getAttribute("birthday"))
-                .gender(oAuth2User.getAttribute("gender"))
-                .build();
-        Account existingAccount = accountRepository.findByEmail(oAuth2User.getAttribute("email"));
-        if(existingAccount != null) {
-            existingAccount.setName(account.getName());
-            existingAccount.setGender(account.getGender());
-            existingAccount.setBirthday(account.getBirthday());
-            account = accountRepository.save(existingAccount);
-        } else account = accountRepository.save(account);
+
+        String email = oAuth2User.getAttribute("email");
+        String name = oAuth2User.getAttribute("name");
+        boolean isFirstTime = false;
+        if (email == null || email.isBlank()) {
+            throw new IllegalArgumentException("OAuth2 provider did not return an email address");
+        }
+
+        Account account = accountRepository.findByEmail(email);
+
+        if (account != null) {
+            if (name != null) account.setName(name);
+
+            account = accountRepository.save(account);
+        } else {
+            account = Account.builder()
+                    .email(email)
+                    .name(name != null ? name : "Anonymous User")
+                    .isActive(true)
+                    .role(Role.Member)
+                    .build();
+
+            account = accountRepository.save(account);
+            isFirstTime = true;
+        }
         JwtUserDetails jwtUserDetails = JwtUserDetails.builder()
                 .role(account.getRole().toString())
                 .accountId(account.getId())
@@ -71,7 +88,11 @@ public class Oauth2SuccessHandler implements AuthenticationSuccessHandler {
                 .path("/")
                 .build();
 
-        response.addHeader("Set-Cookie", refreshCookie.toString());
-        response.addHeader("Set-Cookie", accessCookie.toString());
+        response.addHeader(HttpHeaders.SET_COOKIE, refreshCookie.toString());
+        response.addHeader(HttpHeaders.SET_COOKIE, accessCookie.toString());
+        if(isFirstTime){
+            response.sendRedirect(frontendURL+"/auth/register/profile");
+        } else
+            response.sendRedirect(frontendURL);
     }
 }

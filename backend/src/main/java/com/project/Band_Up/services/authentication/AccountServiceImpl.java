@@ -3,6 +3,7 @@ package com.project.Band_Up.services.authentication;
 import com.project.Band_Up.dtos.authentication.AccountDto;
 import com.project.Band_Up.dtos.authentication.AccountDtoResponse;
 import com.project.Band_Up.entities.Account;
+import com.project.Band_Up.enums.Role;
 import com.project.Band_Up.exceptions.AuthenticationFailedException;
 import com.project.Band_Up.exceptions.EmailAlreadyExistedException;
 import com.project.Band_Up.exceptions.ResourceNotFoundException;
@@ -33,6 +34,8 @@ public class AccountServiceImpl implements AccountService {
         if (!accountRepository.existsByEmail(accountDto.getEmail().toLowerCase())) {
             accountDto.setEmail(accountDto.getEmail().toLowerCase());
             Account account = modelMapper.map(accountDto, Account.class);
+            account.setRole(Role.Member);
+            account.setActive(true);
             account.setPassword(passwordEncoder.encode(account.getPassword()));
             accountRepository.save(account);
             return modelMapper.map(account, AccountDtoResponse.class);
