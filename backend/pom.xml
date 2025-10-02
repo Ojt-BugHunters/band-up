@@ -106,6 +106,7 @@
 			<artifactId>cloudfront</artifactId>
 			<version>2.20.120</version>
 		</dependency>
+
 	</dependencies>
 
 	<build>
