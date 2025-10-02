@@ -37,6 +37,7 @@ import {
     SelectTrigger,
     SelectValue,
 } from '@/components/ui/select';
+import Link from 'next/link';
 
 export default function FlashcardPage() {
     const [search, setSearch] = useState('');
@@ -153,11 +154,12 @@ export default function FlashcardPage() {
                             <SelectItem value="private">Private</SelectItem>
                         </SelectContent>
                     </Select>
-
-                    <Button className="rounded-xl bg-blue-600 font-medium text-white shadow-lg shadow-blue-600/25 hover:bg-blue-700">
-                        <Plus className="mr-2 h-4 w-4" />
-                        Create New Deck
-                    </Button>
+                    <Link href="/flashcard/new">
+                        <Button className="cursor-pointer rounded-xl bg-blue-600 font-medium text-white shadow-lg shadow-blue-600/25 hover:bg-blue-700">
+                            <Plus className="mr-2 h-4 w-4" />
+                            Create New Deck
+                        </Button>
+                    </Link>
                 </div>
             </div>
 
