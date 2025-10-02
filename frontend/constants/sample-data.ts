@@ -4,6 +4,7 @@ import { Comment } from '@/lib/api/dto/comment';
 import { Test, TestHistory, TestOverview } from '@/lib/api/dto/test';
 import { ListeningSection, Passage, WritingTask } from '@/lib/api/dto/question';
 import { FlashcardItem } from '@/lib/api/dto/flashcarditem';
+import { User } from '@/lib/api/dto/account';
 
 export const mockFlashcards: Flashcard[] = [
     {
@@ -807,6 +808,17 @@ export const speakingTestParts: SpeakingSection[] = [
         ],
     },
 ];
+export const user: User = {
+    id: '1',
+    role: 'Premium Member',
+    email: 'namdangcoder@gmail.com',
+    phone: '0123456789',
+    name: 'Nam Dang',
+    gender: 'Male',
+    address: '123 street, Viet Nam',
+    birthday: new Date(),
+    isActive: true,
+};
 
 export const testHistory: TestHistory[] = [
     {
