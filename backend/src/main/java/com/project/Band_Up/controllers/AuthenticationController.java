@@ -114,7 +114,6 @@ public class AuthenticationController {
         return ResponseEntity.ok()
                 .header(HttpHeaders.SET_COOKIE, refreshCookie.toString(), accessCookie.toString())
                 .build();
-
     }
 
     @PostMapping("/refresh")
