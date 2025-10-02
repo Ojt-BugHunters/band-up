@@ -81,7 +81,6 @@ export function CreateTestDialog({
                 <Form {...form}>
                     <form
                         onSubmit={form.handleSubmit((values) => {
-                            console.log(values);
                             mutation.mutate(values);
                         })}
                         className="mt-4 space-y-6"

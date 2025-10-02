@@ -9,6 +9,7 @@ import { Clock, PenTool } from 'lucide-react';
 import ProgressDialog from '@/components/progress-dialog';
 import WritingEditor from '@/components/writing-editor';
 import { writingTasks } from '../../constants/sample-data';
+import { NotFound } from './empty-state';
 
 type WritingTestProps = {
     mode?: string;
@@ -110,7 +111,7 @@ export function WritingTest({
         currentTask === 'section-1' ? setTask1Response : setTask2Response;
 
     if (availableTasks.length === 0) {
-        return <div>No tasks available</div>;
+        return <NotFound />;
     }
 
     return (

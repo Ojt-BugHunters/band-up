@@ -26,7 +26,7 @@ import {
     PopoverContent,
     PopoverTrigger,
 } from '@/components/ui/popover';
-import { CalendarIcon } from 'lucide-react';
+import { CalendarIcon, Loader2 } from 'lucide-react';
 import { useState } from 'react';
 import { Calendar } from '@/components/ui/calendar';
 
@@ -211,12 +211,19 @@ const ProfileForm = ({ className, ...props }: React.ComponentProps<'div'>) => {
                                 </FormItem>
                             )}
                         />
-                        <Button
-                            type="submit"
-                            className="mt-4 w-full cursor-pointer"
-                        >
-                            Submit
-                        </Button>
+                        {mutation.status === 'pending' ? (
+                            <Button disabled className="w-full cursor-pointer">
+                                <Loader2 className="animate-spin" />
+                                Loading
+                            </Button>
+                        ) : (
+                            <Button
+                                type="submit"
+                                className="mt-4 w-full cursor-pointer"
+                            >
+                                Submit
+                            </Button>
+                        )}
                     </form>
                 </Form>
             </div>

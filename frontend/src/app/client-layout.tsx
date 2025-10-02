@@ -4,6 +4,12 @@ import { usePathname } from 'next/navigation';
 import { Header } from '@/components/header';
 import { Footer } from '@/components/footer';
 import { Toaster } from 'sonner';
+import { useRefreshToken } from '@/hooks/use-refresh-token';
+
+function AutoRefeshToken() {
+    useRefreshToken();
+    return null;
+}
 
 export default function ClientLayout({
     children,
@@ -14,6 +20,7 @@ export default function ClientLayout({
     const hideLayout = pathname.includes('/do');
     return (
         <>
+            <AutoRefeshToken />
             {!hideLayout && <Header />}
             {children}
             {!hideLayout && <Footer />}
