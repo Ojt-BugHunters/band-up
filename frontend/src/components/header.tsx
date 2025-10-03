@@ -175,7 +175,7 @@ export function Header() {
                 <NavBody>
                     <NavbarLogo />
                     <NavItems items={navItems} />
-                    <div className="flex items-center gap-4">
+                    {/* <div className="flex items-center gap-4">
                         <ThemeToggleButton className="relative z-50 h-8 w-8" />
                         <Link href="/auth/login">
                             <NavbarButton as="div" variant="secondary">
@@ -187,7 +187,7 @@ export function Header() {
                                 Sign Up
                             </NavbarButton>
                         </Link>
-                    </div>
+                    </div> */}
                     {!isMember ? (
                         <div className="flex items-center gap-4">
                             <ThemeToggleButton className="relative z-50 h-8 w-8" />
