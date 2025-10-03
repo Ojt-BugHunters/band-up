@@ -28,7 +28,7 @@ export const StatsLabel = ({
         <div
             className={cn(
                 className,
-                'mb-1 text-sm font-semibold text-slate-900',
+                'mb-1 text-sm font-semibold text-slate-900 dark:text-white',
             )}
             {...props}
         >
@@ -43,7 +43,13 @@ export const StatsDescription = ({
     ...props
 }: PropsWithChildren<JSX.IntrinsicElements['div']>) => {
     return (
-        <div className={cn(className, 'text-xs text-slate-500')} {...props}>
+        <div
+            className={cn(
+                className,
+                'text-xs text-slate-500 dark:text-slate-400',
+            )}
+            {...props}
+        >
             {children}
         </div>
     );
@@ -56,7 +62,10 @@ export const StatsValue = ({
 }: PropsWithChildren<JSX.IntrinsicElements['div']>) => {
     return (
         <div
-            className={cn(className, 'mb-2 text-3xl font-bold text-slate-900')}
+            className={cn(
+                className,
+                'mb-2 text-3xl font-bold text-slate-900 dark:text-white',
+            )}
             {...props}
         >
             {children}
@@ -73,7 +82,7 @@ export const Stats = ({
         <div
             className={cn(
                 className,
-                'mx-auto w-full rounded-2xl border border-slate-200 bg-white p-6 text-center transition-all duration-200 hover:border-slate-300 hover:shadow-lg hover:shadow-slate-200/50',
+                'mx-auto w-full rounded-2xl border border-slate-200 bg-white p-6 text-center transition-all duration-200 hover:border-slate-300 hover:shadow-lg hover:shadow-slate-200/50 dark:border-slate-800 dark:bg-black dark:hover:border-slate-700 dark:hover:shadow-slate-900/50',
             )}
             {...props}
         >
@@ -84,7 +93,7 @@ export const Stats = ({
 
 export const StatsGrid = ({ children }: PropsWithChildren) => {
     return (
-        <section className="border-t border-slate-100 bg-white py-16">
+        <section className="border-t border-slate-100 bg-white py-16 dark:border-slate-900 dark:bg-black">
             <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
                 <div className="grid grid-cols-1 gap-8 sm:grid-cols-2 lg:grid-cols-4">
                     {children}
