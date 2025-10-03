@@ -9,10 +9,11 @@ import {
 } from 'framer-motion';
 import Image from 'next/image';
 
-import React, { useRef, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { MenuItem } from './menu-items';
 import Link from 'next/link';
 import { useTheme } from 'next-themes';
+import { Skeleton } from './skeleton';
 
 interface NavbarProps {
     children: React.ReactNode;
@@ -260,7 +261,26 @@ export const MobileNavToggle = ({
 
 export const NavbarLogo = () => {
     const { resolvedTheme } = useTheme();
+    const [mounted, setMounted] = useState(false);
+
+    useEffect(() => {
+        setMounted(true);
+    }, []);
+
+    if (!mounted) {
+        return (
+            <Link
+                href="/"
+                className="relative z-20 mr-4 flex items-center space-x-2 px-2 py-1 text-sm font-normal"
+            >
+                <Skeleton className="h-[45px] w-[45px] rounded-full" />
+                <Skeleton className="h-6 w-24 rounded-md" />
+            </Link>
+        );
+    }
+
     const isDark = resolvedTheme === 'dark';
+
     return (
         <Link
             href="/"
