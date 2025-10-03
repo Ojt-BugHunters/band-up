@@ -32,7 +32,12 @@ export default function RootLayout({
             className={`${geistSans.variable} ${geistMono.variable} antialiased`}
         >
             <body>
-                <ThemeProvider attribute="class" defaultTheme="light">
+                <ThemeProvider
+                    attribute="class"
+                    defaultTheme="light"
+                    enableSystem
+                    disableTransitionOnChange
+                >
                     <QueryProvider>
                         <ClientLayout>{children}</ClientLayout>
                     </QueryProvider>
