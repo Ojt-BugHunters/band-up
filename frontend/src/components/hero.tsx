@@ -38,7 +38,8 @@ export const HeroKeyword = ({
 
 export const HeroTitle = ({ children }: PropsWithChildren) => {
     return (
-        <h1 className="mb-6 text-5xl leading-tight font-bold text-slate-900 md:text-6xl dark:text-white">
+        <h1 className="dark:text-foreground mb-6 text-5xl leading-tight font-bold text-slate-900 md:text-6xl">
+            {' '}
             {children}
         </h1>
     );
@@ -46,7 +47,8 @@ export const HeroTitle = ({ children }: PropsWithChildren) => {
 
 export const HeroDescription = ({ children }: PropsWithChildren) => {
     return (
-        <p className="mb-8 text-xl leading-relaxed text-slate-600 dark:text-slate-400">
+        <p className="dark:text-muted-foreground mb-8 text-xl leading-relaxed text-slate-600">
+            {' '}
             {children}
         </p>
     );
@@ -54,7 +56,8 @@ export const HeroDescription = ({ children }: PropsWithChildren) => {
 
 export const Hero = ({ children }: PropsWithChildren) => {
     return (
-        <section className="bg-white dark:bg-black">
+        <section className="dark:bg-background bg-white">
+            {' '}
             <div className="mx-auto max-w-7xl px-4 py-20 sm:px-6 lg:px-8">
                 <div className="mx-auto max-w-4xl text-center">{children}</div>
             </div>
