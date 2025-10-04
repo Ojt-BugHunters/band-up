@@ -445,7 +445,7 @@ JSON format:
             print("Gemini evaluation completed")
         except Exception as e:
             print(f"Error in Gemini evaluation: {e}")
-            evaluation = self._create_fallback_evaluation(structure_data, lexical_data, grammar_data, task_type)
+            evaluation = "No evaluation generated"
         
         # Step 5: Generate improvement suggestions
         print("\nStep 5: Generating improvement suggestions...")
@@ -454,7 +454,7 @@ JSON format:
             print("Improvement suggestions generated")
         except Exception as e:
             print(f"Error generating improvements: {e}")
-            improvement_suggestions = self._create_fallback_improvements(essay_text)
+            improvement_suggestions = "No improvement suggestions generated"
         
         # Combine all results
         result = {
@@ -500,7 +500,7 @@ JSON format:
                 
         except Exception as e:
             print(f"Error generating evaluation: {e}")
-            return self._create_fallback_evaluation({}, {}, {}, "Task 2")
+            return "No evaluation generated"
     
     def _parse_text_response(self, text: str) -> Dict[str, Any]:
         """Parse text response when JSON parsing fails"""
@@ -562,58 +562,7 @@ JSON format:
             rounded = round(score * 2) / 2
             return max(1.0, min(9.0, rounded))
     
-    def _create_fallback_evaluation(self, structure_data: Dict[str, Any], 
-                                  lexical_data: Dict[str, Any], 
-                                  grammar_data: Dict[str, Any], 
-                                  task_type: str) -> Dict[str, Any]:
-        """Create fallback evaluation when API fails"""
-        word_count = structure_data.get('word_count', 0)
-        vocabulary_size = lexical_data.get('vocabulary_size', 0)
-        error_count = grammar_data.get('error_count', 0)
-        
-        # Calculate band scores based on metrics
-        if word_count >= 250 and vocabulary_size >= 80 and error_count < 2:
-            band = 7.5
-        elif word_count >= 200 and vocabulary_size >= 60 and error_count < 4:
-            band = 6.5
-        elif word_count >= 150 and vocabulary_size >= 40 and error_count < 6:
-            band = 5.5
-        else:
-            band = 4.5
-        
-        return {
-            "overall_band": band,
-            "task_achievement": {
-                "band": band,
-                "feedback": f"Essay length: {word_count} words, addresses {task_type} requirements",
-                "strengths": ["Clear position"] if word_count >= 200 else ["Attempts to address task"],
-                "weaknesses": ["Underdeveloped ideas"] if word_count < 200 else ["Some areas need expansion"],
-                "improvements": ["Develop ideas further", "Add more examples"]
-            },
-            "coherence_cohesion": {
-                "band": band,
-                "feedback": f"Structure: {structure_data.get('paragraph_count', 0)} paragraphs",
-                "strengths": ["Clear organization"] if structure_data.get('paragraph_count', 0) >= 3 else ["Basic structure"],
-                "weaknesses": ["Limited linking"] if structure_data.get('transition_word_count', 0) < 3 else ["Some cohesion issues"],
-                "improvements": ["Use more linking words", "Improve paragraph structure"]
-            },
-            "lexical_resource": {
-                "band": band,
-                "feedback": f"Vocabulary: {vocabulary_size} unique words",
-                "strengths": ["Good vocabulary range"] if vocabulary_size >= 60 else ["Appropriate word choice"],
-                "weaknesses": ["Limited vocabulary"] if vocabulary_size < 50 else ["Some repetition"],
-                "improvements": ["Expand vocabulary", "Use more varied expressions"]
-            },
-            "grammatical_range_accuracy": {
-                "band": band,
-                "feedback": f"Sentences: {grammar_data.get('sentence_count', 0)}, Errors: {error_count}",
-                "strengths": ["Good sentence structure"] if error_count < 2 else ["Generally accurate"],
-                "weaknesses": ["Some grammatical errors"] if error_count > 1 else ["Limited complexity"],
-                "improvements": ["Review grammar rules", "Practice complex sentences"]
-            },
-            "fallback": True,
-            "model_used": "gemini-2.5-flash-lite"
-        }
+    
     
     def generate_improvement_suggestions(self, essay_text: str, evaluation: Dict[str, Any], task_type: str, task_description: str = None) -> Dict[str, Any]:
         """
@@ -675,40 +624,15 @@ JSON format:
                     result = json.loads(json_str)
                     return result
                 else:
-                    return self._create_fallback_improvements(essay_text)
-                    
+                    return "No improvement suggestions generated"
             except json.JSONDecodeError:
-                return self._create_fallback_improvements(essay_text)
+                return "No improvement suggestions generated"
                 
         except Exception as e:
             print(f"❌ Error generating improvement suggestions: {e}")
-            return self._create_fallback_improvements(essay_text)
+            return "No improvement suggestions generated"
     
-    def _create_fallback_improvements(self, essay_text: str) -> Dict[str, Any]:
-        """Create fallback improvement suggestions when API fails"""
-        return {
-            "word_replacements": [
-                {"original": "good", "suggested": "excellent/outstanding", "reason": "More sophisticated vocabulary"},
-                {"original": "bad", "suggested": "negative/detrimental", "reason": "More academic tone"},
-                {"original": "very", "suggested": "extremely/significantly", "reason": "Avoid overuse of 'very'"}
-            ],
-            "grammar_improvements": [
-                {"error": "Common errors", "correction": "Review subject-verb agreement", "explanation": "Ensure singular/plural consistency"}
-            ],
-            "structure_improvements": [
-                "Use clear topic sentences for each paragraph",
-                "Add transition words between paragraphs",
-                "Ensure logical flow of ideas"
-            ],
-            "content_additions": [
-                "Add more specific examples",
-                "Include counter-arguments where relevant",
-                "Provide more detailed explanations"
-            ],
-            "improved_sentences": [
-                {"original": "Example sentence", "improved": "Improved version with better vocabulary and structure", "improvement": "Enhanced clarity and sophistication"}
-            ]
-        }
+
     
     def get_model_info(self) -> Dict[str, Any]:
         """Get information about the Gemini API"""

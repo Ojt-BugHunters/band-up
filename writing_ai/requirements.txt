@@ -1,31 +1,16 @@
-# IELTS Writing AI Assessment System Requirements
-# Core dependencies for writing evaluation and web interface
-
-# Web Interface
-gradio>=4.0.0
-
-# API Integration
+# Core dependencies for IELTS Writing AI Assessment
 requests>=2.31.0
 python-dotenv>=1.0.0
 
-# Text Processing and Analysis
+# For JSON handling and data processing
+pydantic>=2.0.0
+
+# For text processing and analysis
 nltk>=3.8.1
 spacy>=3.7.0
-textstat>=0.7.3
 
-# Data Processing
-pandas>=2.0.0
+# For mathematical operations
 numpy>=1.24.0
 
-# JSON and File Handling
-jsonschema>=4.17.0
-
-# Optional: Advanced NLP (uncomment if needed)
-# transformers>=4.30.0
-# torch>=2.0.0
-
-# Development and Testing (optional)
-# pytest>=7.0.0
-# black>=23.0.0
-# flake8>=6.0.0
-
+# For testing (optional)
+pytest>=7.4.0

@@ -1,13 +1,25 @@
 """
 IELTS Writing AI Assessment System
-Complete pipeline for essay evaluation, grading, and improvement suggestions
+Clean API-focused version for cloud deployment (AWS Lambda, etc.)
 """
 
-from writing_evaluator import IELTSWritingEvaluator
+import json
+import logging
+import os
 from typing import Dict, Any, Optional
+from datetime import datetime
 
-class IELTSSpeakingEvaluator:
-    """Main IELTS Writing Assessment System"""
+from writing_evaluator import IELTSWritingEvaluator
+
+# Configure logging
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+)
+logger = logging.getLogger(__name__)
+
+class IELTSWritingAssessment:
+    """Main IELTS Writing Assessment System for API usage"""
     
     def __init__(self, api_key: Optional[str] = None):
         """
@@ -17,8 +29,7 @@ class IELTSSpeakingEvaluator:
             api_key: Google AI API key for Gemini (optional, will try environment variable)
         """
         self.writing_evaluator = IELTSWritingEvaluator(api_key=api_key)
-        
-        print("IELTS Writing Assessment System initialized")
+        logger.info("IELTS Writing Assessment System initialized")
     
     def evaluate_writing(self, essay_text: str, task_type: str = "Task 2", task_description: str = None) -> Dict[str, Any]:
         """
@@ -32,46 +43,46 @@ class IELTSSpeakingEvaluator:
         Returns:
             Complete evaluation results with detailed analysis
         """
-        print(f"Starting IELTS {task_type} Writing Evaluation")
-        print("=" * 60)
+        logger.info(f"Starting IELTS {task_type} Writing Evaluation")
         
         # Validate input
         if not essay_text or len(essay_text.strip()) < 50:
             return {
+                "status": "error",
                 "error": "Essay text is too short. Please provide at least 50 words for evaluation.",
                 "essay_text": essay_text,
-                "task_type": task_type
+                "task_type": task_type,
+                "timestamp": datetime.now().isoformat()
             }
         
         try:
             # Run the complete evaluation pipeline
             result = self.writing_evaluator.evaluate_essay(essay_text, task_type, task_description)
             
-            # Add system information
+            # Add system information and status
+            result["status"] = "success"
             result["system_info"] = {
                 "evaluator": "IELTS Writing AI Assessment System",
                 "model": "Gemini 2.5 Flash API",
-                "version": "1.0.0"
+                "version": "1.0.0",
+                "api_focused": True
             }
+            result["timestamp"] = datetime.now().isoformat()
             
+            logger.info("Writing evaluation completed successfully")
             return result
             
         except Exception as e:
-            print(f"Error in writing evaluation: {e}")
+            logger.error(f"Error in writing evaluation: {e}")
             return {
+                "status": "error",
                 "error": f"Evaluation failed: {str(e)}",
                 "essay_text": essay_text,
-                "task_type": task_type
+                "task_type": task_type,
+                "timestamp": datetime.now().isoformat()
             }
     
-    def get_model_info(self) -> Dict[str, Any]:
-        """Get information about the loaded model"""
-        return {
-            "writing_model": self.writing_evaluator.get_model_info(),
-            "system": "IELTS Writing AI Assessment System"
-        }
-    
-    def generate_learning_guide(self, evaluation_result: Dict[str, Any]) -> str:
+    def generate_learning_guide(self, evaluation_result: Dict[str, Any]) -> Dict[str, Any]:
         """
         Generate personalized learning guide based on evaluation results
         
@@ -79,10 +90,14 @@ class IELTSSpeakingEvaluator:
             evaluation_result: Results from evaluate_writing
             
         Returns:
-            Personalized learning guide text
+            Dictionary containing learning guide and metadata
         """
-        if "error" in evaluation_result:
-            return f"Cannot generate learning guide due to evaluation error: {evaluation_result['error']}"
+        if evaluation_result.get("status") == "error":
+            return {
+                "status": "error",
+                "error": f"Cannot generate learning guide due to evaluation error: {evaluation_result.get('error', 'Unknown error')}",
+                "timestamp": datetime.now().isoformat()
+            }
         
         try:
             essay_text = evaluation_result["essay_text"]
@@ -135,91 +150,212 @@ Make the guide practical and immediately applicable for the student."""
             if not learning_guide.startswith("# Personalized"):
                 learning_guide = f"# Personalized Writing Learning Guide\n\n{learning_guide}"
             
-            return learning_guide
+            return {
+                "status": "success",
+                "learning_guide": learning_guide,
+                "guide_length": len(learning_guide),
+                "timestamp": datetime.now().isoformat()
+            }
             
         except Exception as e:
-            return f"Error generating learning guide: {str(e)}"
+            logger.error(f"Error generating learning guide: {e}")
+            return {
+                "status": "error",
+                "error": f"Error generating learning guide: {str(e)}",
+                "timestamp": datetime.now().isoformat()
+            }
+    
+    def get_model_info(self) -> Dict[str, Any]:
+        """Get information about the loaded model"""
+        return {
+            "status": "success",
+            "writing_model": self.writing_evaluator.get_model_info(),
+            "system": "IELTS Writing AI Assessment System",
+            "api_focused": True,
+            "timestamp": datetime.now().isoformat()
+        }
+
+# API Functions for direct usage
+def evaluate_writing(essay_text: str, task_type: str = "Task 2", task_description: str = None, api_key: str = None) -> Dict[str, Any]:
+    """
+    Evaluate IELTS writing essay - API function
+    
+    Args:
+        essay_text: The essay text to evaluate
+        task_type: Task 1 or Task 2
+        task_description: The specific IELTS writing task/question (optional)
+        api_key: Google AI API key for Gemini (optional)
+        
+    Returns:
+        Complete evaluation results
+    """
+    evaluator = IELTSWritingAssessment(api_key=api_key)
+    return evaluator.evaluate_writing(essay_text, task_type, task_description)
+
+def generate_learning_guide(evaluation_result: Dict[str, Any], api_key: str = None) -> Dict[str, Any]:
+    """
+    Generate learning guide from evaluation results - API function
+    
+    Args:
+        evaluation_result: Results from evaluate_writing
+        api_key: Google AI API key for Gemini (optional)
+        
+    Returns:
+        Learning guide and metadata
+    """
+    evaluator = IELTSWritingAssessment(api_key=api_key)
+    return evaluator.generate_learning_guide(evaluation_result)
+
+def get_model_info(api_key: str = None) -> Dict[str, Any]:
+    """
+    Get model information - API function
+    
+    Args:
+        api_key: Google AI API key for Gemini (optional)
+        
+    Returns:
+        Model information
+    """
+    evaluator = IELTSWritingAssessment(api_key=api_key)
+    return evaluator.get_model_info()
 
 def main():
-    """Main function to demonstrate the system"""
-    import sys
+    """Example usage with direct variables"""
     
-    print("IELTS Writing AI Assessment System")
-    print("=" * 60)
-    
-    # Initialize evaluator
-    try:
-        evaluator = IELTSSpeakingEvaluator()
-        print("System initialized successfully!")
-    except Exception as e:
-        print(f"Failed to initialize system: {e}")
-        print("\nMake sure to set your GOOGLE_AI_API_KEY environment variable")
-        return
-    
-    # Show model information
-    model_info = evaluator.get_model_info()
-    print(f"\nModel Information:")
-    print(f"Writing Model: {model_info['writing_model']['model_name']}")
-    print(f"API Type: {model_info['writing_model']['api_type']}")
-    
-    # Example essay for testing
+    # ===== CONFIGURATION =====
+    # Set your essay text here
     sample_essay = """
-    In recent years, technology has become an integral part of our daily lives. Some people believe that this trend has positive effects on society, while others argue that it brings more problems than benefits. In my opinion, technology has both advantages and disadvantages, but the benefits outweigh the drawbacks.
-    
-    On the one hand, technology has greatly improved our quality of life. For example, the internet has made communication much easier and faster. People can now connect with friends and family members who live far away through video calls and social media. Additionally, technology has revolutionized healthcare, allowing doctors to diagnose and treat diseases more effectively.
-    
-    On the other hand, technology also has some negative aspects. One major concern is the impact on employment. Many jobs are being replaced by machines and artificial intelligence, leading to unemployment for many workers. Furthermore, excessive use of technology can lead to social isolation and health problems such as eye strain and poor posture.
-    
-    In conclusion, while technology has some negative effects, I believe that the positive impacts are more significant. The key is to use technology responsibly and find a balance between its benefits and drawbacks.
+    In certain countries, employers are legally prohibited from discriminating against job applicants on the basis of age. In my view, although the policy aims to foster fairness and equal opportunity, the potential drawbacks in real-world application may outweigh its intended benefits.
+
+    It is true that banning age-based discrimination can promote fairness and equal opportunity in the labour market. One key advantage is that it encourages a diverse and inclusive workforce. Applicants of different ages—whether younger or older—can offer unique skills, experiences, and perspectives that enhance workplace collaboration. As a result, fair hiring practices help build stronger team dynamics and foster innovation. Another benefit is that this policy helps reduce social inequality, particularly for older individuals. Many experienced professionals, for instance, are unfairly rejected due to age, even when they possess valuable expertise. By protecting them from discrimination, anti-age laws allow for extended careers and improved financial security later in life.
+
+    However, enforcing such regulations may come with practical limitations which undermine their intended benefits.. One notable  issue is that employers might still find indirect ways to discriminate. Bias can persist during interviews, or companies may use coded language in job advertisements to subtly exclude certain age groups. Consequently, legal protection alone may not be sufficient to eliminate age-related prejudice in hiring practices. Another concern is that certain jobs have physical requirements that may not align with all applicants' capabilities. For example, roles involving manual labour or high physical endurance may be less suitable for older candidates. In such cases, mandatory inclusion could result in mismatches between workers and job demands, potentially affecting performance and safety.
+
+    In conclusion, while making age-based discrimination illegal in hiring is a positive step toward fairness and equality, its effectiveness is limited by enforcement challenges and the persistence of implicit bias.
     """
     
+    # Set your task description here
+    task_description = "In some countries, it is illegal for companies to reject job applicants for their age. Is this a positive or negative development?"
+    
+    # Set task type
+    task_type = "Task 2"
+    
+    print("IELTS Writing AI Assessment - Essay Processing")
+    print("=" * 50)
+    print(f"Task Type: {task_type}")
+    print(f"Task Description: {task_description}")
+    print(f"Essay Length: {len(sample_essay.split())} words")
+    print("=" * 50)
+    
+    # Create output directory
+    output_dir = "output"
+    os.makedirs(output_dir, exist_ok=True)
+    
+    print("\n📝 Processing essay...")
+    print("This may take 10-30 seconds depending on essay length...")
+    
     try:
-        # Evaluate the sample essay
-        print(f"\nEvaluating sample Task 2 essay...")
-        result = evaluator.evaluate_writing(sample_essay, "Task 2")
+        # Evaluate the essay
+        result = evaluate_writing(
+            essay_text=sample_essay,
+            task_type=task_type,
+            task_description=task_description
+        )
         
-        if "error" in result:
-            print(f"Error: {result['error']}")
-        else:
-            # Display results
-            print("\n" + "="*60)
-            print("IELTS WRITING EVALUATION RESULTS")
-            print("="*60)
+        # Save results to files
+        timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+        essay_filename = f"essay_{timestamp}"
+        output_dir = os.path.join(output_dir, timestamp)
+        os.makedirs(output_dir, exist_ok=True)
+        
+        # Save complete results
+        complete_results_file = os.path.join(output_dir, f"results_{essay_filename}.json")
+        with open(complete_results_file, 'w', encoding='utf-8') as f:
+            json.dump(result, f, indent=2, ensure_ascii=False)
+        print(f"\n💾 Complete results saved to: {complete_results_file}")
+        
+        # Print results
+        print("\n📊 RESULTS:")
+        print("=" * 50)
+        print(json.dumps(result, indent=2, ensure_ascii=False))
+        
+        if result["status"] == "success":
+            print(f"\n✅ Writing evaluation completed successfully!")
+            print(f"   🎯 Overall Band Score: {result['evaluation']['overall_band']}")
+            print(f"   📝 Task Achievement: {result['evaluation']['task_achievement']['band']}")
+            print(f"   🔗 Coherence & Cohesion: {result['evaluation']['coherence_cohesion']['band']}")
+            print(f"   📚 Lexical Resource: {result['evaluation']['lexical_resource']['band']}")
+            print(f"   📖 Grammar: {result['evaluation']['grammatical_range_accuracy']['band']}")
             
-            evaluation = result["evaluation"]
-            print(f"\nBAND SCORES:")
-            print(f"Overall Band: {evaluation['overall_band']}")
-            print(f"Task Achievement: {evaluation['task_achievement']['band']}")
-            print(f"Coherence & Cohesion: {evaluation['coherence_cohesion']['band']}")
-            print(f"Lexical Resource: {evaluation['lexical_resource']['band']}")
-            print(f"Grammatical Range & Accuracy: {evaluation['grammatical_range_accuracy']['band']}")
             
             # Generate learning guide
-            print(f"\nGenerating personalized learning guide...")
-            learning_guide = evaluator.generate_learning_guide(result)
-            print(f"Learning guide generated ({len(learning_guide)} characters)")
+            print(f"\n📚 Generating learning guide...")
+            try:
+                learning_guide = generate_learning_guide(result)
+            except Exception as e:
+                print(f"❌ Error generating learning guide: {e}")
+                learning_guide = {
+                    "status": "error",
+                    "error": f"Learning guide generation failed: {str(e)}"
+                }
             
-            # Show preview
-            print(f"\nLearning Guide Preview:")
-            print("-" * 40)
-            print(learning_guide[:300] + "..." if len(learning_guide) > 300 else learning_guide)
-            print("-" * 40)
+            if learning_guide.get("status") == "success":
+                print(f"\n✅ Learning guide generated successfully!")
+                
+                # Get guide length safely
+                guide_length = learning_guide.get('guide_length', len(learning_guide.get('learning_guide', '')))
+                print(f"   📖 Guide length: {guide_length} characters")
+                
+                
+                # Also save as markdown file for easy reading
+                learning_guide_md_file = os.path.join(output_dir, f"learning_guide_{essay_filename}.md")
+                learning_guide_text = learning_guide.get('learning_guide', 'No learning guide content available')
+                with open(learning_guide_md_file, 'w', encoding='utf-8') as f:
+                    f.write(learning_guide_text)
+                print(f"💾 Learning guide (markdown) saved to: {learning_guide_md_file}")
+                
+                print(f"\n🎓 LEARNING GUIDE:")
+                print("=" * 50)
+                print(learning_guide_text)
+            else:
+                print(f"\n❌ Learning guide generation failed: {learning_guide.get('error')}")
+                
+                # Still save the failed learning guide attempt
+                learning_guide_file = os.path.join(output_dir, f"learning_guide_{essay_filename}_failed.json")
+                with open(learning_guide_file, 'w', encoding='utf-8') as f:
+                    json.dump(learning_guide, f, indent=2, ensure_ascii=False)
+                print(f"💾 Failed learning guide attempt saved to: {learning_guide_file}")
+        else:
+            print(f"\n❌ Writing evaluation failed: {result.get('error', 'Unknown error')}")
             
     except Exception as e:
-        print(f"Error: {e}")
-        import traceback
-        traceback.print_exc()
+        print(f"\n❌ Unexpected error: {str(e)}")
+        print("Please check your essay and try again.")
+        
+        # Save error result
+        timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+        output_dir = os.path.join(output_dir, timestamp)
+        os.makedirs(output_dir, exist_ok=True)
+        error_file = os.path.join(output_dir, f"error_{timestamp}.json")
+        
+        error_result = {
+            "status": "error",
+            "error": str(e),
+            "essay_text": sample_essay,
+            "task_type": task_type,
+            "task_description": task_description,
+            "timestamp": datetime.now().isoformat()
+        }
+        
+        with open(error_file, 'w', encoding='utf-8') as f:
+            json.dump(error_result, f, indent=2, ensure_ascii=False)
+        print(f"💾 Error details saved to: {error_file}")
+    
+    # Show model info
+    print(f"\n🔧 MODEL INFORMATION:")
+    print("=" * 50)
+    model_info = get_model_info()
+    print(json.dumps(model_info, indent=2, ensure_ascii=False))
 
 if __name__ == "__main__":
-    print("IELTS Writing AI Assessment System")
-    print("Available features:")
-    print("- Complete essay evaluation with band scores")
-    print("- Detailed feedback on all IELTS criteria")
-    print("- Specific improvement suggestions")
-    print("- Personalized learning guides")
-    print("- Word replacement suggestions")
-    print("- Grammar improvement recommendations")
-    print("\nUsage: python main.py")
-    print()
-    
     main()

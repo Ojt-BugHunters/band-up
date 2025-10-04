@@ -554,48 +554,35 @@ Respond in JSON format:
     
     def _create_fallback_evaluation(self, fluency_data: Dict[str, Any]) -> Dict[str, Any]:
         """Create fallback evaluation when API fails"""
-        speech_rate = fluency_data['speech_rate_wpm']
-        filled_pauses = fluency_data['filled_pauses']
-        
-        # Simple scoring based on fluency metrics
-        if speech_rate > 120 and filled_pauses < 3:
-            band = 7.5
-        elif speech_rate > 100 and filled_pauses < 5:
-            band = 6.5
-        elif speech_rate > 80 and filled_pauses < 8:
-            band = 5.5
-        else:
-            band = 4.5
-        
         return {
-            "overall_band": band,
+            "overall_band": 0,
             "fluency_coherence": {
-                "band": band,
-                "feedback": f"Speech rate: {speech_rate:.1f} WPM, Filled pauses: {filled_pauses}",
-                "strengths": ["Clear communication"] if speech_rate > 100 else [],
-                "weaknesses": ["Slow speech rate"] if speech_rate < 100 else ["Some hesitation"],
-                "improvements": ["Practice speaking at natural pace", "Reduce filled pauses"]
+                "band": 0,
+                "feedback": "No evaluation generated",
+                "strengths": [],
+                "weaknesses": ["Evaluation failed"],
+                "improvements": ["Try again later"]
             },
             "lexical_resource": {
-                "band": band,
-                "feedback": "Adequate vocabulary range.",
-                "strengths": ["Appropriate word choice"],
-                "weaknesses": ["Limited vocabulary"],
-                "improvements": ["Expand vocabulary range"]
+                "band": 0,
+                "feedback": "No evaluation generated",
+                "strengths": [],
+                "weaknesses": ["Evaluation failed"],
+                "improvements": ["Try again later"]
             },
             "grammatical_range_accuracy": {
-                "band": band,
-                "feedback": "Generally accurate grammar.",
-                "strengths": ["Good sentence structure"],
-                "weaknesses": ["Some grammatical errors"],
-                "improvements": ["Review grammar rules"]
+                "band": 0,
+                "feedback": "No evaluation generated",
+                "strengths": [],
+                "weaknesses": ["Evaluation failed"],
+                "improvements": ["Try again later"]
             },
             "pronunciation": {
-                "band": band,
-                "feedback": "Generally clear pronunciation.",
-                "strengths": ["Intelligible speech"],
-                "weaknesses": ["Some unclear sounds"],
-                "improvements": ["Practice difficult sounds"]
+                "band": 0,
+                "feedback": "No evaluation generated",
+                "strengths": [],
+                "weaknesses": ["Evaluation failed"],
+                "improvements": ["Try again later"]
             },
             "fallback": True,
             "model_used": "gemini-2.5-flash-lite"
@@ -605,49 +592,35 @@ Respond in JSON format:
                                            lexical_data: Dict[str, Any], 
                                            grammatical_data: Dict[str, Any]) -> Dict[str, Any]:
         """Create enhanced fallback evaluation when API fails"""
-        speech_rate = fluency_data.get('speech_rate_wpm', 0)
-        vocabulary_size = lexical_data.get('vocabulary_size', 0)
-        error_count = grammatical_data.get('error_count', 0)
-        
-        # Calculate band scores based on metrics
-        if speech_rate > 150 and vocabulary_size > 80 and error_count < 2:
-            band = 7.5
-        elif speech_rate > 120 and vocabulary_size > 60 and error_count < 4:
-            band = 6.5
-        elif speech_rate > 100 and vocabulary_size > 40 and error_count < 6:
-            band = 5.5
-        else:
-            band = 4.5
-        
         return {
-            "overall_band": band,
+            "overall_band": 0,
             "fluency_coherence": {
-                "band": band,
-                "feedback": f"Speech rate: {speech_rate:.1f} WPM, Filled pauses: {fluency_data.get('filled_pauses', 0)}",
-                "strengths": ["Good speech rate"] if speech_rate > 120 else ["Clear communication"],
-                "weaknesses": ["Slow speech rate"] if speech_rate < 100 else ["Some hesitation"],
-                "improvements": ["Practice speaking at natural pace", "Reduce filled pauses"]
+                "band": 0,
+                "feedback": "No evaluation generated",
+                "strengths": [],
+                "weaknesses": ["Evaluation failed"],
+                "improvements": ["Try again later"]
             },
             "lexical_resource": {
-                "band": band,
-                "feedback": f"Vocabulary size: {vocabulary_size} unique words",
-                "strengths": ["Good vocabulary range"] if vocabulary_size > 60 else ["Appropriate word choice"],
-                "weaknesses": ["Limited vocabulary"] if vocabulary_size < 50 else ["Some repetition"],
-                "improvements": ["Expand vocabulary range", "Use more varied expressions"]
+                "band": 0,
+                "feedback": "No evaluation generated",
+                "strengths": [],
+                "weaknesses": ["Evaluation failed"],
+                "improvements": ["Try again later"]
             },
             "grammatical_range_accuracy": {
-                "band": band,
-                "feedback": f"Sentences: {grammatical_data.get('sentence_count', 0)}, Errors: {error_count}",
-                "strengths": ["Good sentence structure"] if error_count < 2 else ["Generally accurate"],
-                "weaknesses": ["Some grammatical errors"] if error_count > 1 else ["Limited complexity"],
-                "improvements": ["Review grammar rules", "Practice complex sentences"]
+                "band": 0,
+                "feedback": "No evaluation generated",
+                "strengths": [],
+                "weaknesses": ["Evaluation failed"],
+                "improvements": ["Try again later"]
             },
             "pronunciation": {
-                "band": band,
-                "feedback": "Pronunciation analysis based on transcription quality",
-                "strengths": ["Clear speech"] if speech_rate > 100 else ["Intelligible"],
-                "weaknesses": ["Some unclear sounds"] if fluency_data.get('filled_pauses', 0) > 5 else ["Minor issues"],
-                "improvements": ["Practice difficult sounds", "Work on clarity"]
+                "band": 0,
+                "feedback": "No evaluation generated",
+                "strengths": [],
+                "weaknesses": ["Evaluation failed"],
+                "improvements": ["Try again later"]
             },
             "fallback": True,
             "model_used": "gemini-2.5-flash-lite"
