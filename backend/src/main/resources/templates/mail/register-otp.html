@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <title>[[${title}]]</title>
+        <style>
+            body {
+                font-family: Arial, sans-serif;
+                background-color: #f6f9fc;
+                margin: 0;
+                padding: 0;
+            }
+            .container {
+                max-width: 500px;
+                margin: 30px auto;
+                background: #ffffff;
+                padding: 30px;
+                border-radius: 8px;
+                box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+            }
+            h2 {
+                color: #333333;
+                margin-bottom: 15px;
+            }
+            .content-block {
+                margin: 20px 0;
+            }
+            .highlight-box {
+                background: #f1f5ff;
+                border: 1px dashed #4a90e2;
+                font-size: 20px;
+                font-weight: bold;
+                text-align: center;
+                letter-spacing: 2px;
+                padding: 15px;
+                margin: 15px 0;
+                border-radius: 5px;
+                color: #4a90e2;
+            }
+            p {
+                color: #555555;
+                font-size: 14px;
+                line-height: 1.5;
+            }
+            .footer {
+                margin-top: 25px;
+                font-size: 12px;
+                color: #888888;
+                text-align: center;
+            }
+
+            h2 {
+                text-align: center;
+            }
+
+            img {
+                width: 50px;
+                height: 50px;
+                text-align: center;
+            }
+        </style>
+    </head>
+    <body>
+        <div class="container">
+            <h2>
+                <img src="cid:companyLogo" alt="Band-Up logo">
+            </h2>
+            <h2>[[${subject}]]</h2>
+            <p>Hello [[${email}]],</p>
+            <div class="content-block">
+                [[${message}]]
+            </div>
+            <div class="highlight-box">
+                [[${highlight}]]
+            </div>
+            <p>
+                [[${note}]]
+            </p>
+            <div class="footer">
+                © 2025 Band-Up · All rights reserved
+            </div>
+        </div>
+    </body>
+</html>

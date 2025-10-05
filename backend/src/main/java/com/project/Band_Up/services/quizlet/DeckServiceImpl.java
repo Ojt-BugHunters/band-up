@@ -17,6 +17,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -32,6 +33,8 @@ public class DeckServiceImpl implements DeckService {
     private ModelMapper modelMapper;
     @Autowired
     private AccountRepository accountRepository;
+    @Autowired
+    private PasswordEncoder passwordEncoder;
 
     @Override
     @Transactional
@@ -40,6 +43,8 @@ public class DeckServiceImpl implements DeckService {
                 .orElseThrow(() -> new ResourceNotFoundException(account_id.toString()));
 
         Deck deck = modelMapper.map(deckDto, Deck.class);
+        if(!deck.isPublic() && !deckDto.getPassword().isEmpty())
+            deck.setPassword(passwordEncoder.encode(deck.getPassword()));
         deck.setAccount(account);
 
         if (deckDto.getCards() != null) {
@@ -60,9 +65,14 @@ public class DeckServiceImpl implements DeckService {
     }
 
 
-    public DeckDtoResponse getDeck(UUID deckId) {
+    public DeckDtoResponse getDeck(UUID deckId, String password) {
         Deck deck = deckRepository.findById(deckId)
                 .orElseThrow(() -> new ResourceNotFoundException(deckId.toString()));
+        if(!deck.isPublic()) {
+            if (passwordEncoder.matches(password, deck.getPassword())) {
+                return modelMapper.map(deck, DeckDtoResponse.class);
+            } else throw new AuthenticationFailedException("Invalid password");
+        }
         return modelMapper.map(deck, DeckDtoResponse.class);
     }
 

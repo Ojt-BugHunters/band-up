@@ -34,12 +34,13 @@ public class DeckController {
                 .body(deck);
     }
 
-    @GetMapping("/deck/{deckId}")
+    @PostMapping("/deck/{deckId}")
     @Operation(summary = "Get deck by deckId",
             description = "Return the deck specified by deckId")
-    public ResponseEntity<?> getDeck(@PathVariable(name = "deckId") UUID deckId) {
+    public ResponseEntity<?> getDeck(@PathVariable(name = "deckId") UUID deckId,
+                                     @RequestBody String password) {
         return ResponseEntity.ok()
-                .body(deckService.getDeck(deckId));
+                .body(deckService.getDeck(deckId,password));
     }
 
     @GetMapping("/deck")

@@ -21,6 +21,7 @@ import java.util.UUID;
 @Getter
 @Setter
 @Table(name = "account")
+@Data
 public class Account {
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)

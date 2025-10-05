@@ -7,6 +7,7 @@ import com.project.Band_Up.utils.JwtUserDetails;
 import com.project.Band_Up.utils.JwtUtil;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
+import org.apache.coyote.Response;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpHeaders;
@@ -39,28 +40,7 @@ public class AuthenticationController {
     @PostMapping("/register")
     public ResponseEntity<?> registerByEmail(@Valid @RequestBody AccountDto account) {
         AccountDtoResponse accountDtoResponse = accountService.registerByEmail(account);
-        JwtUserDetails jwtUserDetails = JwtUserDetails.builder()
-                .accountId(accountDtoResponse.getId())
-                .role(accountDtoResponse.getRole().toString())
-                .build();
-        ResponseCookie refreshCookie = ResponseCookie
-                .from("RefreshToken", jwtUtil.generateRefreshToken(accountDtoResponse.getId()))
-                .httpOnly(true)
-                .secure(true)
-                .sameSite("None")
-                .maxAge(refreshTokenAge/1000)
-                .path("/")
-                .build();
-        ResponseCookie accessCookie = ResponseCookie
-                .from("AccessToken", jwtUtil.generateAccessToken(jwtUserDetails))
-                .httpOnly(true)
-                .secure(true)
-                .sameSite("None")
-                .maxAge(accessTokenAge/1000)
-                .path("/")
-                .build();
         return ResponseEntity.ok()
-                .header(HttpHeaders.SET_COOKIE, refreshCookie.toString(), accessCookie.toString())
                 .body(accountDtoResponse);
     }
 
@@ -135,5 +115,54 @@ public class AuthenticationController {
                     .build();
         }
         return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
+    }
+
+    @PostMapping("/verify")
+    public ResponseEntity<?> verifyOtp(@RequestParam String inputOtp,
+                                       @RequestParam String email) {
+        AccountDtoResponse accountDtoResponse = accountService.verifyOtp(inputOtp, email);
+        JwtUserDetails jwtUserDetails = JwtUserDetails.builder()
+                .accountId(accountDtoResponse.getId())
+                .role(accountDtoResponse.getRole().toString())
+                .build();
+        ResponseCookie refreshCookie = ResponseCookie
+                .from("RefreshToken", jwtUtil.generateRefreshToken(accountDtoResponse.getId()))
+                .httpOnly(true)
+                .secure(true)
+                .sameSite("None")
+                .maxAge(refreshTokenAge/1000)
+                .path("/")
+                .build();
+        ResponseCookie accessCookie = ResponseCookie
+                .from("AccessToken", jwtUtil.generateAccessToken(jwtUserDetails))
+                .httpOnly(true)
+                .secure(true)
+                .sameSite("None")
+                .maxAge(accessTokenAge/1000)
+                .path("/")
+                .build();
+        return ResponseEntity.ok()
+                .header(HttpHeaders.SET_COOKIE, refreshCookie.toString(), accessCookie.toString())
+                .body(accountDtoResponse);
+    }
+
+    @PostMapping("/account/forget")
+    public ResponseEntity<?> forgetPassword(@RequestParam String email) {
+        accountService.forgetPassword(email);
+        return ResponseEntity.ok().build();
+    }
+
+    @PostMapping("/account/verify")
+    public ResponseEntity<?> verifyForgetPassword(@RequestParam String email,
+                                                  @RequestParam String inputOtp) {
+        Boolean result = accountService.verifyForgetPassword(inputOtp, email);
+        return ResponseEntity.ok().body(result);
+    }
+
+    @PostMapping("/account/reset-password")
+    public ResponseEntity<?> resetPassword(@RequestBody AccountDto accountDto,
+                                           @RequestParam String inputOtp) {
+        AccountDtoResponse accountDtoResponse = accountService.resetPassword(accountDto, inputOtp);
+        return ResponseEntity.ok().body(accountDtoResponse);
     }
 }

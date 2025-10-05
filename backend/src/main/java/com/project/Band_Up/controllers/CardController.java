@@ -27,10 +27,11 @@ public class CardController {
         return ResponseEntity.ok().body(cardDtos);
     }
 
-    @GetMapping("/deck/{deckId}/card")
+    @PostMapping("/deck/{deckId}/card")
     public ResponseEntity<?> getCards(@PathVariable UUID deckId,
-                                      @AuthenticationPrincipal JwtUserDetails userDetails) {
-        List<CardDto> cardDtos = cardService.getCards(deckId);
+                                      @AuthenticationPrincipal JwtUserDetails userDetails,
+                                      @RequestBody String password) {
+        List<CardDto> cardDtos = cardService.getCards(deckId, password);
         return ResponseEntity.ok().body(cardDtos);
     }
 
