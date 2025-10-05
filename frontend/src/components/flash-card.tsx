@@ -1,5 +1,5 @@
 'use client';
-import type { Flashcard } from '@/lib/api/dto/flashcards';
+import type { Flashcard } from '@/lib/api/dto/flashcard';
 import Link from 'next/link';
 import { useState } from 'react';
 import { Badge } from '@/components/ui/badge';
