@@ -33,6 +33,7 @@ import { cn } from '@/lib/utils';
 import { useJoinPrivateDeck } from '@/hooks/use-join-private-deck';
 import { useRouter } from 'next/navigation';
 
+// fetch API to handle password when join private card
 export default function FlashcardCard({ card }: { card: Flashcard }) {
     const [showDialog, setShowDialog] = useState(false);
     const [showPassword, setShowPassword] = useState(false);

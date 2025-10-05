@@ -11,12 +11,42 @@ import {
     GraduationCap,
     ClipboardCheck,
     Settings,
+    Edit,
+    Trash2,
 } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import Link from 'next/link';
 import FlashcardPlayer from '@/components/flashcard-player';
 import { AccountPicture } from '@/components/ui/account-picture';
+import {
+    DropdownMenu,
+    DropdownMenuContent,
+    DropdownMenuItem,
+    DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
 
+// in the page --> fetch api /api/quizlet/deck/{deckId}/card --> get data like this
+// just need {deckId in param}
+// [
+//     {
+//         id: 'e40cfd2a-aaa5-440a-b1f8-3727627f5b68',
+//         front: 'ECS',
+//         back: 'Elastic Container Service',
+//     },
+// ]; --> mockDeckItems
+// fetch api --> /api/quizlet/deck/{deckId} --> get data like this
+// just need {deckId in param}
+// {
+//     "id": "191e88f7-1def-4f82-ace0-065ed59d4ee5",
+//     "title": "AWS Band Up",
+//     "description": "First Cloud Journey",
+//     "learnerNumber": 0,
+//     "createdAt": "2025-09-23T13:56:24.891625",
+//     "authorName": null,
+//     "public": true
+// } --> mockFlashCard
+// fetch API update flashcard to handle update. reuse the form in /flashcard/new
+// fetch API to delete flashcard
 export default function FlashcardDetailPage({
     params,
 }: {
@@ -68,13 +98,40 @@ export default function FlashcardDetailPage({
                             </div>
                         </div>
                         <div className="flex gap-2">
-                            <Button
-                                variant="outline"
-                                size="sm"
-                                className="dark:border-gray-700 dark:bg-[#2e3856] dark:text-white dark:hover:bg-[#3d4a6b]"
-                            >
-                                <Settings className="h-4 w-4" />
-                            </Button>
+                            <DropdownMenu>
+                                <DropdownMenuTrigger asChild>
+                                    <Button
+                                        variant="outline"
+                                        size="sm"
+                                        className="transition-colors dark:border-gray-700 dark:bg-[#2e3856] dark:text-white dark:hover:bg-[#3d4a6b]"
+                                    >
+                                        <Settings className="h-4 w-4" />
+                                    </Button>
+                                </DropdownMenuTrigger>
+                                <DropdownMenuContent
+                                    align="end"
+                                    className="w-48 dark:border-gray-700 dark:bg-[#2e3856]"
+                                >
+                                    <DropdownMenuItem
+                                        onClick={() =>
+                                            console.log('Edit clicked')
+                                        }
+                                        className="cursor-pointer transition-colors dark:text-white dark:hover:bg-[#3d4a6b] dark:focus:bg-[#3d4a6b]"
+                                    >
+                                        <Edit className="mr-2 h-4 w-4" />
+                                        <span>Edit</span>
+                                    </DropdownMenuItem>
+                                    <DropdownMenuItem
+                                        onClick={() =>
+                                            console.log('Delete clicked')
+                                        }
+                                        className="cursor-pointer text-red-600 transition-colors dark:text-red-400 dark:hover:bg-[#3d4a6b] dark:focus:bg-[#3d4a6b] dark:focus:text-red-400"
+                                    >
+                                        <Trash2 className="mr-2 h-4 w-4" />
+                                        <span>Delete</span>
+                                    </DropdownMenuItem>
+                                </DropdownMenuContent>
+                            </DropdownMenu>
                         </div>
                     </div>
 
