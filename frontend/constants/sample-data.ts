@@ -1,10 +1,21 @@
 import { SpeakingSection } from './../src/lib/api/dto/question';
-import type { Flashcard } from '@/lib/api/dto/flashcards';
+import type { Flashcard } from '@/lib/api/dto/flashcard';
 import { Comment } from '@/lib/api/dto/comment';
 import { Test, TestHistory, TestOverview } from '@/lib/api/dto/test';
 import { ListeningSection, Passage, WritingTask } from '@/lib/api/dto/question';
-import { FlashcardItem } from '@/lib/api/dto/flashcarditem';
+import { FlashcardItem } from '@/lib/api/dto/flashcard';
 import { User } from '@/lib/api/dto/account';
+
+export const mockFlashCard: Flashcard = {
+    id: '1',
+    title: 'IELTS Vocabulary - Technology',
+    description:
+        'Learn essential technology-related vocabulary for IELTS with example sentences and usage tips.',
+    author_name: 'John Doe',
+    number_learner: 120,
+    created_at: '2025-09-18T10:30:00Z',
+    is_public: true,
+};
 
 export const mockFlashcards: Flashcard[] = [
     {
@@ -129,45 +140,31 @@ export const mockFlashcards: Flashcard[] = [
     },
 ];
 
-export const flashcardItemsForSet1: FlashcardItem[] = [
+export const mockDeckItems: FlashcardItem[] = [
     {
-        id: '1-1',
-        flashcard_id: '1',
+        id: '1',
         front: 'Artificial Intelligence (AI)',
         back: 'Trí tuệ nhân tạo – công nghệ mô phỏng trí tuệ con người.',
-        example:
-            'AI is revolutionizing industries such as healthcare and finance.',
     },
     {
         id: '1-2',
-        flashcard_id: '1',
         front: 'Cybersecurity',
         back: 'An ninh mạng – bảo vệ hệ thống khỏi các mối đe dọa số.',
-        example:
-            'Cybersecurity has become a critical issue for modern businesses.',
     },
     {
         id: '1-3',
-        flashcard_id: '1',
         front: 'Cloud Computing',
         back: 'Điện toán đám mây – lưu trữ và xử lý dữ liệu qua internet.',
-        example:
-            'Many companies use cloud computing to reduce infrastructure costs.',
     },
     {
         id: '1-4',
-        flashcard_id: '1',
         front: 'Big Data',
         back: 'Dữ liệu lớn – tập hợp khối lượng dữ liệu khổng lồ cần phân tích.',
-        example: 'Big Data helps organizations understand customer behavior.',
     },
     {
         id: '1-5',
-        flashcard_id: '1',
         front: 'Blockchain',
         back: 'Chuỗi khối – công nghệ lưu trữ dữ liệu phân tán, bảo mật.',
-        example:
-            'Blockchain is the underlying technology behind cryptocurrencies.',
     },
 ];
 
