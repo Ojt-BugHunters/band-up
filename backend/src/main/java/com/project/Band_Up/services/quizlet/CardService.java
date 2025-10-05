@@ -9,7 +9,7 @@ public interface CardService {
 
     public List<CardDto> createCard(List<CardDto> cardDtos, UUID deckId);
 
-    public List<CardDto> getCards(UUID deckId);
+    public List<CardDto> getCards(UUID deckId, String password);
 
     public CardDto deleteCard(UUID cardId, UUID accountId);
 

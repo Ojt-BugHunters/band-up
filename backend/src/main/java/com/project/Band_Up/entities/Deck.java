@@ -35,6 +35,8 @@ public class Deck {
     @Column(name = "is_public", nullable = false)
     private boolean isPublic = true;
 
+    private String password;
+
     @CreationTimestamp
     @Column(updatable = false)
     private LocalDateTime createdAt;

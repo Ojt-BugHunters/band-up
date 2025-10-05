@@ -10,6 +10,7 @@ import com.project.Band_Up.repositories.DeckRepository;
 import jakarta.transaction.Transactional;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -23,6 +24,8 @@ public class CardServiceImpl implements CardService {
     private DeckRepository deckRepository;
     @Autowired
     private ModelMapper modelMapper;
+    @Autowired
+    private PasswordEncoder passwordEncoder;
 
     @Override
     public List<CardDto> createCard(List<CardDto> cardDtos, UUID deckId) {
@@ -37,9 +40,17 @@ public class CardServiceImpl implements CardService {
                 .map(card -> modelMapper.map(card, CardDto.class)).toList();
     }
 
-    public List<CardDto> getCards(UUID deckId){
+    public List<CardDto> getCards(UUID deckId, String password){
         if (deckRepository.existsById(deckId)){
             Deck deck = deckRepository.findDeckById(deckId);
+            if(!deck.isPublic()){
+                if(passwordEncoder.matches(password, deck.getPassword())){
+                    return cardRepository.findByDeck(deck)
+                            .stream()
+                            .map(card -> modelMapper.map(card, CardDto.class))
+                            .toList();
+                } else throw new AuthenticationFailedException("Invalid password");
+            }
             return cardRepository.findByDeck(deck)
                     .stream()
                     .map(card -> modelMapper.map(card, CardDto.class))
