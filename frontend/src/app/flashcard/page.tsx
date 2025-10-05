@@ -39,6 +39,8 @@ import {
 } from '@/components/ui/select';
 import Link from 'next/link';
 
+// fetch API /api/quizlet/deck to replace mockFlashCards
+// fetch API password in FlashcardCard component
 export default function FlashcardPage() {
     const [search, setSearch] = useState('');
     const [visibility, setVisibility] = useState<string>('all');

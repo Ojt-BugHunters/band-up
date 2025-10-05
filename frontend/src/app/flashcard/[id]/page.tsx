@@ -1,159 +1,248 @@
 'use client';
-
 import React from 'react';
-import { notFound } from 'next/navigation';
 import {
-    mockFlashcards,
-    flashcardItemsForSet1,
+    mockFlashCard,
+    mockDeckItems,
 } from '../../../../constants/sample-data';
-import FlashcardPlayer from '@/components/flashcard-player';
+import { Card, CardContent } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
 import {
-    Hero,
-    HeroDescription,
-    HeroKeyword,
-    HeroSummary,
-    HeroTitle,
-} from '@/components/hero';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import {
-    Table,
-    TableBody,
-    TableCaption,
-    TableCell,
-    TableHead,
-    TableHeader,
-    TableRow,
-} from '@/components/ui/table';
-import { BookOpenCheck, ClipboardCheck, GraduationCap } from 'lucide-react';
+    BookOpenCheck,
+    GraduationCap,
+    ClipboardCheck,
+    Settings,
+    Edit,
+    Trash2,
+} from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import Link from 'next/link';
+import FlashcardPlayer from '@/components/flashcard-player';
+import { AccountPicture } from '@/components/ui/account-picture';
+import {
+    DropdownMenu,
+    DropdownMenuContent,
+    DropdownMenuItem,
+    DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
 
+// in the page --> fetch api /api/quizlet/deck/{deckId}/card --> get data like this
+// just need {deckId in param}
+// [
+//     {
+//         id: 'e40cfd2a-aaa5-440a-b1f8-3727627f5b68',
+//         front: 'ECS',
+//         back: 'Elastic Container Service',
+//     },
+// ]; --> mockDeckItems
+// fetch api --> /api/quizlet/deck/{deckId} --> get data like this
+// just need {deckId in param}
+// {
+//     "id": "191e88f7-1def-4f82-ace0-065ed59d4ee5",
+//     "title": "AWS Band Up",
+//     "description": "First Cloud Journey",
+//     "learnerNumber": 0,
+//     "createdAt": "2025-09-23T13:56:24.891625",
+//     "authorName": null,
+//     "public": true
+// } --> mockFlashCard
+// fetch API update flashcard to handle update. reuse the form in /flashcard/new
+// fetch API to delete flashcard
 export default function FlashcardDetailPage({
     params,
 }: {
     params: Promise<{ id: string }>;
 }) {
-    // unwrap params Promise
     const { id } = React.use(params);
 
-    const flashcard = mockFlashcards.find((card) => card.id === id);
-    if (!flashcard) return notFound();
-
-    const createdAt = flashcard.created_at
-        ? new Date(flashcard.created_at).toLocaleDateString(undefined, {
-              year: 'numeric',
-              month: 'short',
-              day: 'numeric',
-          })
-        : 'Unknown date';
-
-    const itemsByDeck: Record<string, typeof flashcardItemsForSet1> = {
-        '1': flashcardItemsForSet1,
-    };
-    const items = itemsByDeck[flashcard.id] ?? [];
+    const totalCards = mockDeckItems.length;
 
     return (
-        <div className="flex-1 space-y-6 p-6">
-            <Hero>
-                <HeroSummary color="green">
-                    <BookOpenCheck className="mr-2 h-4 w-4" />
-                    Flashcard Detail
-                </HeroSummary>
-                <HeroTitle>
-                    {flashcard.title}
-                    <HeroKeyword color="blue">Deck</HeroKeyword>
-                </HeroTitle>
-                <HeroDescription>
-                    Created by <strong>{flashcard.author_name}</strong> —{' '}
-                    {createdAt} —{' '}
-                    <Badge
-                        variant="secondary"
-                        className={
-                            flashcard.is_public
-                                ? 'bg-green-100 text-green-600'
-                                : 'bg-rose-100 text-rose-600'
-                        }
-                    >
-                        {flashcard.is_public ? 'Public' : 'Private'}
-                    </Badge>
-                </HeroDescription>
-            </Hero>
+        <div className="mt-20 min-h-screen bg-gray-50 dark:bg-[#0a092d]">
+            <div className="bg-white dark:bg-[#0a092d]">
+                <div className="mx-auto max-w-7xl px-6 py-6">
+                    <div className="flex items-start justify-between">
+                        <div className="flex-1">
+                            <h1 className="mb-3 text-3xl font-bold text-gray-900 dark:text-white">
+                                {mockFlashCard.title}
+                            </h1>
+                            <div className="mb-4 flex items-center gap-3 text-sm text-gray-600 dark:text-gray-400">
+                                <div className="flex items-center gap-2">
+                                    <div className="h-8 w-8">
+                                        <AccountPicture
+                                            name={mockFlashCard.author_name}
+                                        />
+                                    </div>
+                                    <span className="font-medium dark:text-gray-300">
+                                        {mockFlashCard.author_name}
+                                    </span>
+                                </div>
+                                <span>•</span>
+                                <span>
+                                    {new Date(
+                                        mockFlashCard.created_at,
+                                    ).toLocaleDateString()}
+                                </span>
+                                <span>•</span>
+                                <Badge
+                                    variant="secondary"
+                                    className={
+                                        mockFlashCard.is_public
+                                            ? 'border-0 bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400'
+                                            : 'border-0 bg-gray-200 text-gray-700 dark:bg-gray-700/50 dark:text-gray-300'
+                                    }
+                                >
+                                    {mockFlashCard.is_public
+                                        ? 'Public'
+                                        : 'Private'}
+                                </Badge>
+                            </div>
+                        </div>
+                        <div className="flex gap-2">
+                            <DropdownMenu>
+                                <DropdownMenuTrigger asChild>
+                                    <Button
+                                        variant="outline"
+                                        size="sm"
+                                        className="transition-colors dark:border-gray-700 dark:bg-[#2e3856] dark:text-white dark:hover:bg-[#3d4a6b]"
+                                    >
+                                        <Settings className="h-4 w-4" />
+                                    </Button>
+                                </DropdownMenuTrigger>
+                                <DropdownMenuContent
+                                    align="end"
+                                    className="w-48 dark:border-gray-700 dark:bg-[#2e3856]"
+                                >
+                                    <DropdownMenuItem
+                                        onClick={() =>
+                                            console.log('Edit clicked')
+                                        }
+                                        className="cursor-pointer transition-colors dark:text-white dark:hover:bg-[#3d4a6b] dark:focus:bg-[#3d4a6b]"
+                                    >
+                                        <Edit className="mr-2 h-4 w-4" />
+                                        <span>Edit</span>
+                                    </DropdownMenuItem>
+                                    <DropdownMenuItem
+                                        onClick={() =>
+                                            console.log('Delete clicked')
+                                        }
+                                        className="cursor-pointer text-red-600 transition-colors dark:text-red-400 dark:hover:bg-[#3d4a6b] dark:focus:bg-[#3d4a6b] dark:focus:text-red-400"
+                                    >
+                                        <Trash2 className="mr-2 h-4 w-4" />
+                                        <span>Delete</span>
+                                    </DropdownMenuItem>
+                                </DropdownMenuContent>
+                            </DropdownMenu>
+                        </div>
+                    </div>
 
-            <div className="mx-auto max-w-7xl space-y-6">
-                <div className="grid gap-4 md:grid-cols-3">
-                    <Link href={`/flashcard/${flashcard.id}/player`}>
-                        <Card className="cursor-pointer transition hover:shadow-lg">
-                            <CardHeader className="flex items-center space-x-2">
-                                <BookOpenCheck className="h-6 w-6 text-blue-500" />
-                                <CardTitle>Thẻ ghi nhớ</CardTitle>
-                            </CardHeader>
-                            <CardContent>
-                                <p className="text-muted-foreground">
-                                    Xem toàn bộ thẻ ghi nhớ trong bộ này.
-                                </p>
-                            </CardContent>
-                        </Card>
-                    </Link>
-
-                    <Link href={`/flashcard/${flashcard.id}/learn`}>
-                        <Card className="cursor-pointer transition hover:shadow-lg">
-                            <CardHeader className="flex items-center space-x-2">
-                                <GraduationCap className="h-6 w-6 text-green-500" />
-                                <CardTitle>Học</CardTitle>
-                            </CardHeader>
-                            <CardContent>
-                                <p className="text-muted-foreground">
-                                    Học từng thẻ với chế độ ôn tập chủ động.
-                                </p>
-                            </CardContent>
-                        </Card>
-                    </Link>
-
-                    <Link href={`/flashcard/${flashcard.id}/test`}>
-                        <Card className="cursor-pointer transition hover:shadow-lg">
-                            <CardHeader className="flex items-center space-x-2">
-                                <ClipboardCheck className="h-6 w-6 text-rose-500" />
-                                <CardTitle>Kiểm tra</CardTitle>
-                            </CardHeader>
-                            <CardContent>
-                                <p className="text-muted-foreground">
-                                    Làm bài kiểm tra để đánh giá kiến thức.
-                                </p>
-                            </CardContent>
-                        </Card>
-                    </Link>
+                    <div className="mt-6 flex gap-4">
+                        <Link
+                            href={`/flashcard/${mockFlashCard.id}/player`}
+                            className="flex-1"
+                        >
+                            <Button
+                                variant="outline"
+                                className="border-lg h-auto w-full justify-start py-4 dark:border-gray-700 dark:bg-[#2e3856] dark:hover:bg-[#3d4a6b]"
+                            >
+                                <div className="flex items-center gap-3">
+                                    <BookOpenCheck className="h-5 w-5 text-blue-600 dark:text-blue-400" />
+                                    <div className="text-left">
+                                        <div className="text-lg font-semibold dark:text-white">
+                                            Flashcards
+                                        </div>
+                                        <div className="text-base text-gray-500 dark:text-gray-400">
+                                            Review terms and definitions
+                                        </div>
+                                    </div>
+                                </div>
+                            </Button>
+                        </Link>
+                        <Link
+                            href={`/flashcard/${mockFlashCard.id}/learn`}
+                            className="flex-1"
+                        >
+                            <Button
+                                variant="outline"
+                                className="h-auto w-full justify-start py-4 dark:border-gray-700 dark:bg-[#2e3856] dark:hover:bg-[#3d4a6b]"
+                            >
+                                <div className="flex items-center gap-3">
+                                    <GraduationCap className="h-5 w-5 text-green-600 dark:text-green-400" />
+                                    <div className="text-left">
+                                        <div className="text-lg font-semibold dark:text-white">
+                                            Learn
+                                        </div>
+                                        <div className="text-base text-gray-500 dark:text-gray-400">
+                                            Study with adaptive learning
+                                        </div>
+                                    </div>
+                                </div>
+                            </Button>
+                        </Link>
+                        <Link
+                            href={`/flashcard/${mockFlashCard.id}/test`}
+                            className="flex-1"
+                        >
+                            <Button
+                                variant="outline"
+                                className="h-auto w-full justify-start py-4 dark:border-gray-700 dark:bg-[#2e3856] dark:hover:bg-[#3d4a6b]"
+                            >
+                                <div className="flex items-center gap-3">
+                                    <ClipboardCheck className="h-5 w-5 text-rose-600 dark:text-rose-400" />
+                                    <div className="text-left">
+                                        <div className="text-lg font-semibold dark:text-white">
+                                            Test
+                                        </div>
+                                        <div className="text-base text-gray-500 dark:text-gray-400">
+                                            Take a practice test
+                                        </div>
+                                    </div>
+                                </div>
+                            </Button>
+                        </Link>
+                    </div>
+                    <FlashcardPlayer cards={mockDeckItems} />
                 </div>
-                {/* FlashcardPlayer */}
-                <FlashcardPlayer cards={items} />
+            </div>
 
-                {/* Bảng danh sách flashcard */}
-                <Table>
-                    <TableCaption>
-                        Danh sách tất cả flashcard trong bộ này
-                    </TableCaption>
-                    <TableHeader>
-                        <TableRow>
-                            <TableHead className="w-[50px] font-extrabold">
-                                #
-                            </TableHead>
-                            <TableHead>Vocabularies</TableHead>
-                            <TableHead>Definitions</TableHead>
-                            <TableHead>Examples</TableHead>
-                        </TableRow>
-                    </TableHeader>
-                    <TableBody>
-                        {items.map((item, index) => (
-                            <TableRow key={index}>
-                                <TableCell className="font-medium">
+            <div className="mx-auto max-w-7xl px-6 py-8">
+                <div className="mb-6 flex items-center justify-between">
+                    <h2 className="text-xl font-bold text-gray-900 dark:text-white">
+                        Terms in this set ({totalCards})
+                    </h2>
+                </div>
+
+                <div className="space-y-3">
+                    {mockDeckItems.map((card, index) => (
+                        <Card
+                            key={card.id}
+                            className="border border-gray-200 transition-shadow hover:shadow-md dark:border-gray-700 dark:bg-[#2e3856] dark:hover:shadow-xl dark:hover:shadow-black/20"
+                        >
+                            <CardContent className="p-6">
+                                <div className="grid grid-cols-2 gap-8">
+                                    <div className="border-r border-gray-200 pr-8 dark:border-gray-700">
+                                        <div className="mb-2 text-xs font-semibold text-gray-500 uppercase dark:text-gray-500">
+                                            Term
+                                        </div>
+                                        <p className="text-base font-medium text-gray-900 dark:text-white">
+                                            {card.front}
+                                        </p>
+                                    </div>
+                                    <div className="pl-8">
+                                        <div className="mb-2 text-xs font-semibold text-gray-500 uppercase dark:text-gray-500">
+                                            Definition
+                                        </div>
+                                        <p className="text-base text-gray-700 dark:text-gray-300">
+                                            {card.back}
+                                        </p>
+                                    </div>
+                                </div>
+                                <div className="absolute top-4 right-4 text-sm font-semibold text-gray-400 dark:text-gray-600">
                                     {index + 1}
-                                </TableCell>
-                                <TableCell>{item.front}</TableCell>
-                                <TableCell>{item.back}</TableCell>
-                                <TableCell>{item.example}</TableCell>
-                            </TableRow>
-                        ))}
-                    </TableBody>
-                </Table>
+                                </div>
+                            </CardContent>
+                        </Card>
+                    ))}
+                </div>
             </div>
         </div>
     );
