@@ -7,3 +7,9 @@ export interface Flashcard {
     created_at: Date | string;
     is_public: boolean;
 }
+
+export interface FlashcardItem {
+    id: string;
+    front: string;
+    back: string;
+}

@@ -13,7 +13,7 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { features, testimonials, informationData } from './page.data';
 import { TestimonialsColumn } from '@/components/ui/testimonials-columns-1';
-import Component from '@/components/ui/pricing-section-1';
+import PricingSection from '@/components/ui/pricing-section';
 import { Timeline } from '@/components/ui/timeline';
 
 const Feature = ({
@@ -179,7 +179,7 @@ export default function HomePage() {
                     </div>
                 </div>
             </section>
-            <Component />
+            <PricingSection />
         </div>
     );
 }
