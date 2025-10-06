@@ -28,7 +28,7 @@ export default function CreateDeckForm() {
     });
 
     const onSubmit = (data: CreateDeckFormValues) => {
-        //mutation.mutate(data);
+        mutation.mutate(data);
         console.log(data);
     };
 

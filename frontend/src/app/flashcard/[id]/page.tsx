@@ -137,7 +137,7 @@ export default function FlashcardDetailPage({
 
                     <div className="mt-6 flex gap-4">
                         <Link
-                            href={`/flashcard/${mockFlashCard.id}/player`}
+                            href={`/flashcard/${mockFlashCard.id}/memorize`}
                             className="flex-1"
                         >
                             <Button

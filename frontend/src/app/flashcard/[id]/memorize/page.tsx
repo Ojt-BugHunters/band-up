@@ -3,15 +3,6 @@ import React from 'react';
 import { mockDeckItems } from '../../../../../constants/sample-data';
 import FlashcardPlayer from '@/components/flashcard-player';
 
-// in the page --> fetch api /api/quizlet/deck/{deckId}/card --> get data like this
-// just need {deckId in param}
-// [
-//     {
-//         id: 'e40cfd2a-aaa5-440a-b1f8-3727627f5b68',
-//         front: 'ECS',
-//         back: 'Elastic Container Service',
-//     },
-// ]; --> mockDeckItems
 export default function FlashcardPlayerPage({
     params,
 }: {
