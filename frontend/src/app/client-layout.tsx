@@ -17,7 +17,9 @@ export default function ClientLayout({
     children: React.ReactNode;
 }) {
     const pathname = usePathname();
-    const hideLayout = pathname.includes('/do');
+    const hideLayout = ['/do', '/memorize'].some((path) =>
+        pathname.includes(path),
+    );
     return (
         <>
             <AutoRefeshToken />
