@@ -1,28 +1,66 @@
 'use client';
-import React from 'react';
-import { mockDeckItems } from '../../../../../constants/sample-data';
-import FlashcardPlayer from '@/components/flashcard-player';
 
-// in the page --> fetch api /api/quizlet/deck/{deckId}/card --> get data like this
-// just need {deckId in param}
-// [
-//     {
-//         id: 'e40cfd2a-aaa5-440a-b1f8-3727627f5b68',
-//         front: 'ECS',
-//         back: 'Elastic Container Service',
-//     },
-// ]; --> mockDeckItems
+import { use } from 'react';
+import FlashcardPlayer from '@/components/flashcard-player';
+import { useFlashcardDeckCards } from '@/hooks/use-flashcard-deck';
+
+type FlashcardPlayerPageProps = {
+    params: Promise<{ id: string }>;
+    searchParams?: Promise<{ password?: string }>;
+};
+
 export default function FlashcardPlayerPage({
     params,
-}: {
-    params: Promise<{ id: string }>;
-}) {
-    const { id } = React.use(params);
+    searchParams,
+}: FlashcardPlayerPageProps) {
+    const { id } = use(params);
+    const resolvedSearchParams = searchParams ? use(searchParams) : undefined;
+    const password = resolvedSearchParams?.password;
+
+    const {
+        data: deckCards = [],
+        isLoading,
+        isError,
+        error,
+    } = useFlashcardDeckCards(id, password);
+
+    if (isLoading) {
+        return (
+            <div className="flex min-h-screen items-center justify-center">
+                Loading flashcards...
+            </div>
+        );
+    }
+
+    if (isError) {
+        const errorMessage =
+            error instanceof Error ? error.message : 'Unable to load flashcards.';
+        return (
+            <div className="flex min-h-screen items-center justify-center text-center">
+                <div>
+                    <p className="text-lg font-semibold text-red-500">
+                        {errorMessage}
+                    </p>
+                    <p className="mt-2 text-sm text-muted-foreground">
+                        Please check the password and try again.
+                    </p>
+                </div>
+            </div>
+        );
+    }
+
+    if (deckCards.length === 0) {
+        return (
+            <div className="flex min-h-screen items-center justify-center text-center">
+                <p className="text-muted-foreground">No flashcards found in this deck yet.</p>
+            </div>
+        );
+    }
 
     return (
         <div className="flex min-h-screen items-center justify-center bg-gray-50 p-8 dark:bg-[#0a092d]">
             <div className="w-full max-w-5xl">
-                <FlashcardPlayer cards={mockDeckItems} />
+                <FlashcardPlayer cards={deckCards} />
             </div>
         </div>
     );
