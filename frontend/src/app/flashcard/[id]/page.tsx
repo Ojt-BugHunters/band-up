@@ -77,7 +77,7 @@ export default function FlashcardDetailPage({
                     <p className="text-lg font-semibold text-red-500">
                         {errorMessage}
                     </p>
-                    <p className="mt-2 text-sm text-muted-foreground">
+                    <p className="text-muted-foreground mt-2 text-sm">
                         Please verify the password or try again later.
                     </p>
                 </div>
@@ -99,7 +99,9 @@ export default function FlashcardDetailPage({
                             <div className="mb-4 flex items-center gap-3 text-sm text-gray-600 dark:text-gray-400">
                                 <div className="flex items-center gap-2">
                                     <div className="h-8 w-8">
-                                        <AccountPicture name={deck.author_name} />
+                                        <AccountPicture
+                                            name={deck.author_name}
+                                        />
                                     </div>
                                     <span className="font-medium dark:text-gray-300">
                                         {deck.author_name}
@@ -107,7 +109,9 @@ export default function FlashcardDetailPage({
                                 </div>
                                 <span>•</span>
                                 <span>
-                                    {new Date(deck.created_at).toLocaleDateString()}
+                                    {new Date(
+                                        deck.created_at,
+                                    ).toLocaleDateString()}
                                 </span>
                                 <span>•</span>
                                 <Badge
@@ -162,15 +166,11 @@ export default function FlashcardDetailPage({
 
                     <div className="mt-6 flex gap-4">
                         <Link
-<<<<<<< HEAD
                             href={
                                 password
                                     ? `/flashcard/${deck.id}/player?password=${encodeURIComponent(password)}`
                                     : `/flashcard/${deck.id}/player`
                             }
-=======
-                            href={`/flashcard/${mockFlashCard.id}/memorize`}
->>>>>>> main
                             className="flex-1"
                         >
                             <Button
