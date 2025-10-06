@@ -115,6 +115,8 @@
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-mail</artifactId>
 		</dependency>
+		<!-- Use AWS SDK v1 CloudFront signer helper -->
+
 
 
 	</dependencies>
