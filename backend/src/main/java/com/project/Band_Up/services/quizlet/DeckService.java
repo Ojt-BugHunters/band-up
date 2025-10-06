@@ -13,7 +13,7 @@ public interface DeckService {
 
     public List<DeckDtoResponse> getDecks(Integer pageNo, Integer pageSize, String sortBy, Boolean ascending);
 
-    public DeckDtoResponse getDeck(UUID deckId);
+    public DeckDtoResponse getDeck(UUID deckId, String password);
 
     public DeckDto deleteDeck(UUID deckId, UUID accountId);
 

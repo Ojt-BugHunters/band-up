@@ -120,7 +120,7 @@ export default function TestOverview({ params }: PageProps) {
     const instructions = dataConfig.instructions;
     return (
         <TooltipProvider>
-            <div className="flex-1 space-y-6 p-6">
+            <div className="flex-1 space-y-6 bg-white p-6 dark:bg-black">
                 <div className="mx-auto max-w-7xl px-4 py-24 sm:px-6 lg:px-8">
                     <div className="mb-8">
                         <div className="mb-4 flex items-center gap-3">
@@ -128,7 +128,7 @@ export default function TestOverview({ params }: PageProps) {
                                 <Icon className="h-6 w-6 text-white" />
                             </div>
                             <div>
-                                <h1 className="bg-gradient-to-r from-gray-900 to-gray-700 bg-clip-text text-3xl font-bold text-balance text-transparent">
+                                <h1 className="bg-gradient-to-r from-gray-900 to-gray-700 bg-clip-text text-3xl font-bold text-balance text-transparent dark:from-white dark:to-slate-300">
                                     {test.title}
                                 </h1>
                             </div>
@@ -136,7 +136,7 @@ export default function TestOverview({ params }: PageProps) {
                     </div>
                     <StatsGrid>
                         <Stats>
-                            <StatsIcon className="bg-indigo-50 text-indigo-600">
+                            <StatsIcon className="bg-indigo-50 text-indigo-600 dark:bg-indigo-500/10 dark:text-indigo-400">
                                 <Clock />
                             </StatsIcon>
                             <StatsValue>{test.duration}</StatsValue>
@@ -144,7 +144,7 @@ export default function TestOverview({ params }: PageProps) {
                             <StatsDescription>Total test time</StatsDescription>
                         </Stats>
                         <Stats>
-                            <StatsIcon className="bg-green-50 text-green-600">
+                            <StatsIcon className="bg-green-50 text-green-600 dark:bg-green-500/10 dark:text-green-400">
                                 <LayoutPanelTop />
                             </StatsIcon>
                             <StatsValue>{test.section.length}</StatsValue>
@@ -154,7 +154,7 @@ export default function TestOverview({ params }: PageProps) {
                             </StatsDescription>
                         </Stats>
                         <Stats>
-                            <StatsIcon className="bg-rose-50 text-rose-600">
+                            <StatsIcon className="bg-rose-50 text-rose-600 dark:bg-rose-500/10 dark:text-rose-400">
                                 <CircleQuestionMark />
                             </StatsIcon>
                             <StatsValue>{test.number_questions}</StatsValue>
@@ -162,7 +162,7 @@ export default function TestOverview({ params }: PageProps) {
                             <StatsDescription>Total questions</StatsDescription>
                         </Stats>
                         <Stats>
-                            <StatsIcon className="bg-yellow-50 text-yellow-600">
+                            <StatsIcon className="bg-yellow-50 text-yellow-600 dark:bg-yellow-500/10 dark:text-yellow-400">
                                 <User />
                             </StatsIcon>
                             <StatsValue>{test.number_participant}</StatsValue>
@@ -174,34 +174,40 @@ export default function TestOverview({ params }: PageProps) {
                     </StatsGrid>
 
                     <Tabs defaultValue="sections" className="w-full">
-                        <TabsList className="mb-8 grid w-full grid-cols-2">
-                            <TabsTrigger value="sections">
+                        <TabsList className="mb-8 grid w-full grid-cols-2 bg-slate-100 dark:bg-slate-900">
+                            <TabsTrigger
+                                value="sections"
+                                className="dark:data-[state=active]:bg-black dark:data-[state=active]:text-white"
+                            >
                                 <FileText className="h-4 w-4" />
                                 Doing part of test
                             </TabsTrigger>
-                            <TabsTrigger value="fulltest">
+                            <TabsTrigger
+                                value="fulltest"
+                                className="dark:data-[state=active]:bg-black dark:data-[state=active]:text-white"
+                            >
                                 <Play className="h-4 w-4" />
                                 Doing full test
                             </TabsTrigger>
                         </TabsList>
                         <TabsContent value="sections" className="space-y-6">
-                            <Card className="border border-slate-200/50 bg-gradient-to-br from-white to-slate-50 shadow-lg backdrop-blur-md transition-transform duration-300 hover:scale-[1.01] hover:shadow-xl">
+                            <Card className="border border-slate-200/50 bg-gradient-to-br from-white to-slate-50 shadow-lg backdrop-blur-md transition-transform duration-300 hover:scale-[1.01] hover:shadow-xl dark:border-slate-800 dark:from-black dark:to-slate-950 dark:hover:border-slate-700">
                                 <CardHeader>
                                     <CardTitle className="flex items-center gap-3">
                                         <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-gradient-to-br from-indigo-500 to-blue-600 shadow-md">
                                             <Icon className="h-5 w-5 text-white" />
                                         </div>
-                                        <span className="font-semibold text-slate-800">
+                                        <span className="font-semibold text-slate-800 dark:text-white">
                                             {test.title}
                                         </span>
                                         <Badge
                                             variant="secondary"
-                                            className="ml-auto rounded-full bg-indigo-100 text-sm text-indigo-700"
+                                            className="ml-auto rounded-full bg-indigo-100 text-sm text-indigo-700 dark:bg-indigo-500/10 dark:text-indigo-400"
                                         >
                                             {test.duration} minutes
                                         </Badge>
                                     </CardTitle>
-                                    <CardDescription className="text-slate-500">
+                                    <CardDescription className="text-slate-500 dark:text-slate-400">
                                         Choose specific sections to practice
                                         individually
                                     </CardDescription>
@@ -223,8 +229,8 @@ export default function TestOverview({ params }: PageProps) {
                                                 }
                                                 className={`flex cursor-pointer items-center space-x-4 rounded-xl border p-4 transition-all duration-300 ${
                                                     isChecked
-                                                        ? 'border-indigo-300 bg-indigo-50 shadow-md'
-                                                        : 'border-slate-200 bg-white hover:bg-indigo-50 hover:shadow-md'
+                                                        ? 'border-indigo-300 bg-indigo-50 shadow-md dark:border-indigo-500/30 dark:bg-indigo-500/10'
+                                                        : 'border-slate-200 bg-white hover:bg-indigo-50 hover:shadow-md dark:border-slate-800 dark:bg-slate-950 dark:hover:border-slate-700 dark:hover:bg-indigo-500/5'
                                                 }`}
                                             >
                                                 <Checkbox
@@ -238,22 +244,22 @@ export default function TestOverview({ params }: PageProps) {
                                                     onClick={(e) =>
                                                         e.stopPropagation()
                                                     }
-                                                    className="data-[state=checked]:bg-zinc-700"
+                                                    className="data-[state=checked]:bg-zinc-700 dark:data-[state=checked]:bg-white dark:data-[state=checked]:text-black"
                                                 />
                                                 <div className="flex-1">
                                                     <label
                                                         htmlFor={section.id}
-                                                        className="cursor-pointer font-medium text-slate-800"
+                                                        className="cursor-pointer font-medium text-slate-800 dark:text-white"
                                                     >
                                                         {section.title}
                                                     </label>
-                                                    <p className="mt-1 text-sm text-slate-500">
+                                                    <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">
                                                         {section.description}
                                                     </p>
                                                     <div className="mt-2 flex items-center gap-2">
                                                         <Badge
                                                             variant="outline"
-                                                            className="rounded-full bg-slate-100 text-xs text-slate-600"
+                                                            className="rounded-full bg-slate-100 text-xs text-slate-600 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-400"
                                                         >
                                                             {section.questions}{' '}
                                                             questions
@@ -267,7 +273,7 @@ export default function TestOverview({ params }: PageProps) {
                                 <div className="pt-2">
                                     <Button
                                         asChild
-                                        className="ml-6 bg-gradient-to-r from-blue-600 to-indigo-500 shadow-lg transition-all duration-300 hover:from-blue-700 hover:to-purple-700 hover:shadow-xl"
+                                        className="ml-6 bg-gradient-to-r from-blue-600 to-indigo-500 shadow-lg transition-all duration-300 hover:from-blue-700 hover:to-purple-700 hover:shadow-xl dark:from-white dark:to-slate-100 dark:text-black dark:hover:from-slate-100 dark:hover:to-slate-200"
                                         disabled={selectedSections.length === 0}
                                         size="lg"
                                     >
@@ -282,10 +288,12 @@ export default function TestOverview({ params }: PageProps) {
                             </Card>
                         </TabsContent>
                         <TabsContent value="fulltest" className="space-y-6">
-                            <Card className="border border-white/20 bg-white/70 shadow-xl backdrop-blur-md">
+                            <Card className="border border-white/20 bg-white/70 shadow-xl backdrop-blur-md dark:border-slate-800 dark:bg-black">
                                 <CardHeader>
-                                    <CardTitle>Complete {test.title}</CardTitle>
-                                    <CardDescription>
+                                    <CardTitle className="dark:text-white">
+                                        Complete {test.title}
+                                    </CardTitle>
+                                    <CardDescription className="dark:text-slate-400">
                                         Take the full test with all{' '}
                                         {test.number_sections} sections in the
                                         official order and timing.
@@ -296,7 +304,7 @@ export default function TestOverview({ params }: PageProps) {
                                         {test.section.map((section, index) => (
                                             <div
                                                 key={section.id}
-                                                className="flex items-center gap-3 rounded-lg border border-white/30 bg-white/50 p-4 backdrop-blur-sm transition-all duration-300 hover:bg-white/70"
+                                                className="flex items-center gap-3 rounded-lg border border-white/30 bg-white/50 p-4 backdrop-blur-sm transition-all duration-300 hover:bg-white/70 dark:border-slate-800 dark:bg-slate-950 dark:hover:border-slate-700 dark:hover:bg-slate-900"
                                             >
                                                 <Badge
                                                     variant="default"
@@ -304,14 +312,14 @@ export default function TestOverview({ params }: PageProps) {
                                                 >
                                                     {index + 1}
                                                 </Badge>
-                                                <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-gradient-to-br from-blue-500/20 to-purple-500/20">
-                                                    <Headphones className="h-5 w-5 text-blue-600" />
+                                                <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-gradient-to-br from-blue-500/20 to-purple-500/20 dark:from-blue-500/10 dark:to-purple-500/10">
+                                                    <Headphones className="h-5 w-5 text-blue-600 dark:text-blue-400" />
                                                 </div>
                                                 <div className="flex-1">
-                                                    <h3 className="font-semibold">
+                                                    <h3 className="font-semibold dark:text-white">
                                                         {section.title}
                                                     </h3>
-                                                    <p className="text-muted-foreground text-sm">
+                                                    <p className="text-muted-foreground text-sm dark:text-slate-400">
                                                         {section.questions}{' '}
                                                         questions •{' '}
                                                         {section.description}
@@ -321,11 +329,11 @@ export default function TestOverview({ params }: PageProps) {
                                         ))}
                                     </div>
 
-                                    <div className="space-y-4 rounded-lg border border-white/30 bg-gradient-to-r from-blue-50/80 to-purple-50/80 p-6 backdrop-blur-sm">
-                                        <h3 className="font-semibold">
+                                    <div className="space-y-4 rounded-lg border border-white/30 bg-gradient-to-r from-blue-50/80 to-purple-50/80 p-6 backdrop-blur-sm dark:border-slate-800 dark:from-blue-950/20 dark:to-purple-950/20">
+                                        <h3 className="font-semibold dark:text-white">
                                             Test Instructions
                                         </h3>
-                                        <ul className="text-muted-foreground space-y-2 text-sm">
+                                        <ul className="text-muted-foreground space-y-2 text-sm dark:text-slate-400">
                                             {instructions.map((ins, i) => (
                                                 <li key={i}>• {ins}</li>
                                             ))}
@@ -336,7 +344,7 @@ export default function TestOverview({ params }: PageProps) {
                                     >
                                         <Button
                                             size="lg"
-                                            className="w-full bg-gradient-to-r from-green-600 to-blue-600 shadow-lg transition-all duration-300 hover:from-green-700 hover:to-blue-700 hover:shadow-xl"
+                                            className="w-full bg-gradient-to-r from-green-600 to-blue-600 shadow-lg transition-all duration-300 hover:from-green-700 hover:to-blue-700 hover:shadow-xl dark:from-white dark:to-slate-100 dark:text-black dark:hover:from-slate-100 dark:hover:to-slate-200"
                                         >
                                             <Play className="mr-2 h-4 w-4" />
                                             Start Full Test ({
@@ -350,10 +358,10 @@ export default function TestOverview({ params }: PageProps) {
                         </TabsContent>
                     </Tabs>
 
-                    <Separator className="my-8" />
+                    <Separator className="my-8 dark:bg-slate-800" />
 
                     <section className="mb-8">
-                        <h2 className="text-foreground mb-6 flex items-center space-x-2 text-xl font-semibold">
+                        <h2 className="text-foreground mb-6 flex items-center space-x-2 text-xl font-semibold dark:text-white">
                             <MessageCircle className="h-6 w-6" />
                             <span>Comments ({comments.length})</span>
                         </h2>
@@ -375,7 +383,7 @@ export default function TestOverview({ params }: PageProps) {
                                 <div className="flex justify-end">
                                     <Button
                                         size="sm"
-                                        className="rounded-lg bg-zinc-800 hover:bg-zinc-900"
+                                        className="rounded-lg bg-zinc-800 hover:bg-zinc-900 dark:bg-white dark:text-black dark:hover:bg-slate-100"
                                     >
                                         <Send className="mr-2 h-4 w-4" />
                                         Post comment
@@ -384,12 +392,12 @@ export default function TestOverview({ params }: PageProps) {
                             </div>
                         </div>
                     </div>
-                    <Separator className="my-8" />
+                    <Separator className="my-8 dark:bg-slate-800" />
                     <div className="space-y-6">
                         {comments.map((comment) => (
                             <div
                                 key={comment.id}
-                                className="rounded-xl border border-slate-200 bg-white p-5 shadow-md transition hover:shadow-lg"
+                                className="rounded-xl border border-slate-200 bg-white p-5 shadow-md transition hover:shadow-lg dark:border-slate-800 dark:bg-black dark:hover:border-slate-700"
                             >
                                 <div className="flex items-start gap-3">
                                     <div className="h-10 w-10">
@@ -399,15 +407,15 @@ export default function TestOverview({ params }: PageProps) {
                                     </div>
 
                                     <div className="flex-1">
-                                        <h4 className="flex items-center gap-2 font-semibold text-slate-900">
+                                        <h4 className="flex items-center gap-2 font-semibold text-slate-900 dark:text-white">
                                             {comment.author_name}
-                                            <MessageCircle className="h-4 w-4 text-rose-500" />
+                                            <MessageCircle className="h-4 w-4 text-rose-500 dark:text-rose-400" />
                                         </h4>
-                                        <p className="mt-1 leading-relaxed text-slate-700">
+                                        <p className="mt-1 leading-relaxed text-slate-700 dark:text-slate-300">
                                             {comment.content}
                                         </p>
                                         {comment.reply?.length > 0 && (
-                                            <div className="mt-4 rounded-lg border border-zinc-100 bg-zinc-50/80 p-3">
+                                            <div className="mt-4 rounded-lg border border-zinc-100 bg-zinc-50/80 p-3 dark:border-slate-800 dark:bg-slate-950">
                                                 {comment.reply.map((reply) => (
                                                     <div
                                                         key={reply.id}
@@ -421,13 +429,13 @@ export default function TestOverview({ params }: PageProps) {
                                                             />
                                                         </div>
                                                         <div className="flex-1">
-                                                            <h5 className="flex items-center gap-2 font-medium text-zinc-700">
+                                                            <h5 className="flex items-center gap-2 font-medium text-zinc-700 dark:text-slate-300">
                                                                 {
                                                                     reply.author_name
                                                                 }
-                                                                <ReplyIcon className="h-4 w-4 text-zinc-500" />
+                                                                <ReplyIcon className="h-4 w-4 text-zinc-500 dark:text-slate-500" />
                                                             </h5>
-                                                            <p className="mt-1 leading-relaxed text-zinc-900">
+                                                            <p className="mt-1 leading-relaxed text-zinc-900 dark:text-white">
                                                                 {reply.content}
                                                             </p>
                                                         </div>

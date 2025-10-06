@@ -1,11 +1,9 @@
 'use client';
-import { TimelineContent } from '@/components/ui/timeline-animation';
-import { VerticalCutReveal } from '@/components/ui/vertical-cut-reveal';
 import { cn } from '@/lib/utils';
 import NumberFlow from '@number-flow/react';
 import { CheckCheck, Zap } from 'lucide-react';
 import { motion } from 'framer-motion';
-import { useId, useRef, useState } from 'react';
+import { useId, useState } from 'react';
 
 const PricingSwitch = ({
     button1,
@@ -32,7 +30,7 @@ const PricingSwitch = ({
     return (
         <div
             className={cn(
-                'relative z-10 flex w-full rounded-full border border-gray-200 bg-white/70 p-1 shadow-inner backdrop-blur-sm',
+                'relative z-10 flex w-full rounded-full border border-gray-200 bg-white/70 p-1 shadow-inner backdrop-blur-sm dark:border-gray-700 dark:bg-gray-800/70',
                 className,
             )}
         >
@@ -42,7 +40,7 @@ const PricingSwitch = ({
                     'relative z-10 h-12 w-full rounded-full px-3 py-1 font-medium transition-colors sm:px-6',
                     selected === '0'
                         ? 'text-white'
-                        : 'text-gray-600 hover:text-gray-900',
+                        : 'text-gray-600 hover:text-gray-900 dark:text-gray-300 dark:hover:text-white',
                 )}
             >
                 {selected === '0' && (
@@ -65,7 +63,7 @@ const PricingSwitch = ({
                     'relative z-10 h-12 w-full rounded-full px-3 py-1 font-medium transition-colors sm:px-6',
                     selected === '1'
                         ? 'text-white'
-                        : 'text-gray-600 hover:text-gray-900',
+                        : 'text-gray-600 hover:text-gray-900 dark:text-gray-300 dark:hover:text-white',
                 )}
             >
                 {selected === '1' && (
@@ -87,29 +85,8 @@ const PricingSwitch = ({
     );
 };
 
-export default function PricingSection2() {
+export default function PricingSection() {
     const [isUpdates, setIsUpdates] = useState(false);
-    const pricingRef = useRef<HTMLDivElement>(null);
-
-    const revealVariants = {
-        visible: (i: number) => ({
-            y: 0,
-            opacity: 1,
-            filter: 'blur(0px)',
-            transition: { delay: i * 0.2, duration: 0.5 },
-        }),
-        hidden: { filter: 'blur(10px)', y: -20, opacity: 0 },
-    };
-
-    const timelineVaraints = {
-        visible: (i: number) => ({
-            y: 0,
-            opacity: 1,
-            filter: 'blur(0px)',
-            transition: { delay: i * 0.05, duration: 0.4 },
-        }),
-        hidden: { filter: 'blur(10px)', y: -20, opacity: 0 },
-    };
 
     const toggleUpdates = (value: string) =>
         setIsUpdates(Number.parseInt(value) === 1);
@@ -135,100 +112,86 @@ export default function PricingSection2() {
     ];
 
     return (
-        <div
-            className="relative mx-auto min-h-screen w-full px-4 pt-10"
-            ref={pricingRef}
-        >
-            <div className="relative mx-auto max-w-6xl rounded-3xl bg-gradient-to-br from-pink-100 via-purple-100 to-blue-100 p-10 shadow-xl">
-                <div className="absolute inset-0 rounded-3xl bg-white/30 backdrop-blur-sm" />
+        <div className="relative mx-auto min-h-screen w-full bg-white px-4 pt-10 dark:bg-gray-950">
+            <div className="relative mx-auto max-w-6xl rounded-3xl bg-gradient-to-br from-pink-100 via-purple-100 to-blue-100 p-10 shadow-2xl dark:from-pink-950/40 dark:via-purple-950/40 dark:to-blue-950/40 dark:shadow-purple-900/20">
+                <div className="absolute inset-0 rounded-3xl bg-white/30 backdrop-blur-sm dark:bg-gray-900/30" />
 
                 <div className="relative text-center">
-                    <TimelineContent
-                        as="div"
-                        animationNum={0}
-                        timelineRef={pricingRef}
-                        customVariants={revealVariants}
+                    <motion.div
+                        initial={{ opacity: 0, y: -20 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ duration: 0.5 }}
                         className="mb-4 flex items-center justify-center"
                     >
-                        <Zap className="mr-2 h-5 w-5 text-pink-500" />
-                        <span className="font-medium text-pink-600">
+                        <Zap className="mr-2 h-5 w-5 text-pink-500 dark:text-pink-400" />
+                        <span className="font-medium text-pink-600 dark:text-pink-400">
                             Time to connect
                         </span>
-                    </TimelineContent>
+                    </motion.div>
 
-                    <h1 className="mb-4 text-3xl font-semibold text-gray-900 sm:text-4xl md:text-5xl">
-                        <VerticalCutReveal
-                            splitBy="words"
-                            staggerDuration={0.15}
-                            staggerFrom="first"
-                            reverse
-                            containerClassName="justify-center"
-                            transition={{
-                                type: 'spring',
-                                stiffness: 250,
-                                damping: 40,
-                                delay: 0.4,
-                            }}
-                        >
-                            Let us get started
-                        </VerticalCutReveal>
-                    </h1>
+                    <motion.h1
+                        initial={{ opacity: 0, y: -20 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ duration: 0.5, delay: 0.2 }}
+                        className="mb-4 bg-gradient-to-r from-gray-900 via-purple-900 to-gray-900 bg-clip-text text-3xl font-semibold text-transparent sm:text-4xl md:text-5xl dark:from-white dark:via-purple-200 dark:to-white"
+                    >
+                        Let us get started
+                    </motion.h1>
 
-                    <TimelineContent
-                        as="p"
-                        animationNum={1}
-                        timelineRef={pricingRef}
-                        customVariants={revealVariants}
-                        className="text-xl text-gray-700"
+                    <motion.p
+                        initial={{ opacity: 0, y: -20 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ duration: 0.5, delay: 0.4 }}
+                        className="text-xl text-gray-700 dark:text-gray-300"
                     >
                         Dive into IELTS immediatly, save time and money. Profit!
-                    </TimelineContent>
+                    </motion.p>
                 </div>
 
                 <div className="relative mt-10 grid items-center gap-8 sm:grid-cols-2">
                     <div>
-                        <TimelineContent
-                            as="h3"
-                            animationNum={2}
-                            timelineRef={pricingRef}
-                            customVariants={revealVariants}
-                            className="mb-2 text-2xl font-semibold text-gray-900"
+                        <motion.h3
+                            initial={{ opacity: 0, y: -20 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            transition={{ duration: 0.5, delay: 0.6 }}
+                            className="mb-2 text-2xl font-semibold text-gray-900 dark:text-white"
                         >
                             What is inside ?
-                        </TimelineContent>
+                        </motion.h3>
 
                         <div className="space-y-4">
                             {features.map((feature, index) => (
-                                <TimelineContent
+                                <motion.div
                                     key={index}
-                                    as="div"
-                                    animationNum={3 + index}
-                                    timelineRef={pricingRef}
-                                    customVariants={timelineVaraints}
+                                    initial={{ opacity: 0, y: -20 }}
+                                    animate={{ opacity: 1, y: 0 }}
+                                    transition={{
+                                        duration: 0.4,
+                                        delay: 0.8 + index * 0.05,
+                                    }}
                                     className="flex items-center"
                                 >
-                                    <div className="mr-3 flex h-7 w-7 items-center justify-center rounded-full bg-gradient-to-r from-pink-500 to-purple-500 shadow-md">
+                                    <div className="mr-3 flex h-7 w-7 items-center justify-center rounded-full bg-gradient-to-r from-pink-500 to-purple-500 shadow-md dark:from-pink-400 dark:to-purple-400 dark:shadow-purple-500/20">
                                         <CheckCheck className="h-4 w-4 text-white" />
                                     </div>
-                                    <span className="text-gray-700">
+                                    <span className="text-gray-700 dark:text-gray-300">
                                         {feature}
                                     </span>
-                                </TimelineContent>
+                                </motion.div>
                             ))}
                         </div>
                     </div>
 
-                    <div className="space-y-8 rounded-2xl bg-white/80 p-6 shadow-lg backdrop-blur-md">
-                        <TimelineContent
-                            as="div"
-                            animationNum={3}
-                            timelineRef={pricingRef}
-                            customVariants={revealVariants}
+                    <div className="space-y-8 rounded-2xl border border-gray-200/50 bg-white/80 p-6 shadow-lg backdrop-blur-md dark:border-gray-700/50 dark:bg-gray-900/80 dark:shadow-purple-900/20">
+                        <motion.div
+                            initial={{ opacity: 0, y: -20 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            transition={{ duration: 0.5, delay: 0.6 }}
                         >
-                            <h4 className="mb-2 font-semibold text-gray-900">
+                            <h4 className="mb-2 font-semibold text-gray-900 dark:text-white">
                                 Access to updates
                             </h4>
-                            <p className="mb-2 text-sm text-gray-600">
+                            <p className="mb-2 text-sm text-gray-600 dark:text-gray-400">
                                 One-time payment, updates come to the email
                             </p>
                             <PricingSwitch
@@ -237,24 +200,23 @@ export default function PricingSection2() {
                                 onSwitch={toggleUpdates}
                                 className="grid w-full grid-cols-2"
                             />
-                        </TimelineContent>
+                        </motion.div>
 
-                        <TimelineContent
-                            as="div"
-                            animationNum={5}
-                            timelineRef={pricingRef}
-                            customVariants={revealVariants}
+                        <motion.div
+                            initial={{ opacity: 0, y: -20 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            transition={{ duration: 0.5, delay: 1.0 }}
                             className="grid grid-cols-2 items-center gap-2 px-2 text-center"
                         >
                             <div className="mb-4 flex items-center">
-                                <span className="text-5xl font-semibold text-gray-900">
+                                <span className="bg-gradient-to-r from-pink-500 via-purple-500 to-blue-500 bg-clip-text text-5xl font-semibold text-transparent dark:from-pink-400 dark:via-purple-400 dark:to-blue-400">
                                     $
                                     <NumberFlow
                                         value={currentPrice}
                                         className="text-5xl font-semibold"
                                     />
                                 </span>
-                                <span className="relative ml-2 text-xl text-gray-500 line-through">
+                                <span className="relative ml-2 text-xl text-gray-500 line-through dark:text-gray-400">
                                     $
                                     <NumberFlow
                                         value={originalPrice}
@@ -262,16 +224,17 @@ export default function PricingSection2() {
                                     />
                                 </span>
                             </div>
-                            <TimelineContent
-                                as="button"
-                                animationNum={6}
-                                timelineRef={pricingRef}
-                                customVariants={revealVariants}
-                                className="h-12 w-full rounded-full bg-gradient-to-r from-pink-500 via-purple-500 to-blue-500 text-lg font-semibold text-white shadow-md transition-transform hover:scale-105 hover:shadow-lg sm:h-16"
+                            <motion.button
+                                initial={{ opacity: 0, y: -20 }}
+                                animate={{ opacity: 1, y: 0 }}
+                                transition={{ duration: 0.5, delay: 1.2 }}
+                                whileHover={{ scale: 1.05 }}
+                                whileTap={{ scale: 0.95 }}
+                                className="h-12 w-full rounded-full bg-gradient-to-r from-pink-500 via-purple-500 to-blue-500 text-lg font-semibold text-white shadow-md transition-all hover:shadow-lg sm:h-16 dark:from-pink-600 dark:via-purple-600 dark:to-blue-600 dark:shadow-purple-500/30 dark:hover:shadow-purple-500/50"
                             >
                                 Purchase
-                            </TimelineContent>
-                        </TimelineContent>
+                            </motion.button>
+                        </motion.div>
                     </div>
                 </div>
             </div>

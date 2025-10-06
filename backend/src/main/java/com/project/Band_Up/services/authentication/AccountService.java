@@ -8,7 +8,19 @@ import org.springframework.http.ResponseCookie;
 import java.util.UUID;
 
 public interface AccountService {
-    AccountDtoResponse registerByEmail(AccountDto account);
-    AccountDtoResponse loginByEmail(AccountDto account);
+
+    public AccountDtoResponse registerByEmail(AccountDto account);
+
+    public AccountDtoResponse loginByEmail(AccountDto account);
+
     public JwtUserDetails getAccountDetails(UUID accountId);
+
+    public AccountDtoResponse verifyOtp(String inputOtp, String email);
+
+    public void forgetPassword(String email);
+
+    public boolean verifyForgetPassword(String inputOtp, String email);
+
+    public AccountDtoResponse resetPassword(AccountDto accountDto, String inputOtp);
+
 }

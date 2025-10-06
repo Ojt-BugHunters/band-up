@@ -13,5 +13,6 @@ public class DeckDto {
     private String title;
     private String description;
     private boolean isPublic;
+    private String password;
     private List<CardDto> cards;
 }

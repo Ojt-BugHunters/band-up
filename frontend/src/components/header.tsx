@@ -25,6 +25,7 @@ import { ChevronDown, History, LogOut, User } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { AccountOverview } from './account-overview';
 import { useLogout } from '@/hooks/use-logout';
+import { ThemeToggleButton } from './theme-toggle-button';
 
 export function Header() {
     const user = useUser();
@@ -122,7 +123,7 @@ export function Header() {
         },
         {
             name: 'Flash Card',
-            link: '#',
+            link: '/flashcard',
             submenu: (
                 <div className="flex flex-col gap-2 p-4">
                     <Link
@@ -176,6 +177,7 @@ export function Header() {
                     <NavItems items={navItems} />
                     {!isMember ? (
                         <div className="flex items-center gap-4">
+                            <ThemeToggleButton className="relative z-50 h-8 w-8" />
                             <Link href="/auth/login">
                                 <NavbarButton as="div" variant="secondary">
                                     Login
@@ -188,94 +190,106 @@ export function Header() {
                             </Link>
                         </div>
                     ) : (
-                        <DropdownMenu>
-                            <DropdownMenuTrigger asChild>
-                                <div className="group flex items-center gap-2 rounded-xl px-3 py-2 transition-all duration-200">
-                                    <div className="size-8">
-                                        <AccountPicture name={user.name} />
-                                    </div>
-                                    <ChevronDown className="h-3 w-3 text-slate-500 transition-colors duration-200 group-hover:text-slate-700" />
-                                </div>
-                            </DropdownMenuTrigger>
-                            <DropdownMenuContent
-                                align="end"
-                                className={cn(
-                                    'mt-2 rounded-2xl border p-2 shadow-xl transition-all duration-300',
-                                )}
-                            >
-                                <div className="mb-2 border-b border-slate-100 px-3 py-3">
-                                    <AccountOverview user={user} />
-                                </div>
-                                {isMember && (
-                                    <>
-                                        <DropdownMenuItem asChild>
-                                            <Link
-                                                href="/account"
-                                                className="flex cursor-pointer items-center gap-3 rounded-xl px-3 py-2.5 transition-colors duration-200 hover:bg-slate-50"
-                                            >
-                                                <div className="rounded-lg bg-blue-50 p-1.5">
-                                                    <User className="h-4 w-4 text-blue-600" />
-                                                </div>
-                                                <div>
-                                                    <span className="font-medium text-slate-900">
-                                                        Profile
-                                                    </span>
-                                                    <div className="text-xs text-slate-500">
-                                                        Manage your account
-                                                    </div>
-                                                </div>
-                                            </Link>
-                                        </DropdownMenuItem>
-                                        <DropdownMenuItem asChild>
-                                            <Link
-                                                href="/history"
-                                                className="flex cursor-pointer items-center gap-3 rounded-xl px-3 py-2.5 transition-colors duration-200 hover:bg-slate-50"
-                                            >
-                                                <div className="rounded-lg bg-green-50 p-1.5">
-                                                    <History className="h-4 w-4 text-green-600" />
-                                                </div>
-                                                <div>
-                                                    <span className="font-medium text-slate-900">
-                                                        Hisotry
-                                                    </span>
-                                                    <div className="text-xs text-slate-500">
-                                                        Manage your test history
-                                                    </div>
-                                                </div>
-                                            </Link>
-                                        </DropdownMenuItem>
-                                    </>
-                                )}
-                                <DropdownMenuItem
-                                    onClick={() => logout.mutate()}
-                                    className="flex cursor-pointer items-center gap-3 rounded-xl px-3 py-2.5 text-red-600 transition-colors duration-200 hover:bg-red-50 focus:text-red-600"
-                                >
-                                    <div className="rounded-lg bg-red-50 p-1.5">
-                                        <LogOut className="h-4 w-4 text-red-600" />
-                                    </div>
-                                    <div>
-                                        <span className="font-medium">
-                                            Logout
-                                        </span>
-                                        <div className="text-xs text-red-500">
-                                            Sign out of your account
+                        <>
+                            <div className="flex items-center gap-2">
+                                <ThemeToggleButton className="relative z-50 h-8 w-8" />
+                                <DropdownMenu>
+                                    <DropdownMenuTrigger asChild>
+                                        <div className="group flex items-center gap-2 rounded-xl px-3 py-2 transition-all duration-200">
+                                            <div className="size-8">
+                                                <AccountPicture
+                                                    name={user.name}
+                                                />
+                                            </div>
+                                            <ChevronDown className="h-3 w-3 text-slate-500 transition-colors duration-200 group-hover:text-slate-700" />
                                         </div>
-                                    </div>
-                                </DropdownMenuItem>
-                            </DropdownMenuContent>
-                        </DropdownMenu>
+                                    </DropdownMenuTrigger>
+                                    <DropdownMenuContent
+                                        align="end"
+                                        className={cn(
+                                            'mt-2 rounded-2xl border p-2 shadow-xl transition-all duration-300',
+                                        )}
+                                    >
+                                        <div className="mb-2 border-b border-slate-100 px-3 py-3">
+                                            <AccountOverview user={user} />
+                                        </div>
+                                        {isMember && (
+                                            <>
+                                                <DropdownMenuItem asChild>
+                                                    <Link
+                                                        href="/account"
+                                                        className="flex cursor-pointer items-center gap-3 rounded-xl px-3 py-2.5 transition-colors duration-200 hover:bg-slate-50"
+                                                    >
+                                                        <div className="rounded-lg bg-blue-50 p-1.5">
+                                                            <User className="h-4 w-4 text-blue-600" />
+                                                        </div>
+                                                        <div>
+                                                            <span className="font-medium text-slate-900">
+                                                                Profile
+                                                            </span>
+                                                            <div className="text-xs text-slate-500">
+                                                                Manage your
+                                                                account
+                                                            </div>
+                                                        </div>
+                                                    </Link>
+                                                </DropdownMenuItem>
+                                                <DropdownMenuItem asChild>
+                                                    <Link
+                                                        href="/history"
+                                                        className="flex cursor-pointer items-center gap-3 rounded-xl px-3 py-2.5 transition-colors duration-200 hover:bg-slate-50"
+                                                    >
+                                                        <div className="rounded-lg bg-green-50 p-1.5">
+                                                            <History className="h-4 w-4 text-green-600" />
+                                                        </div>
+                                                        <div>
+                                                            <span className="font-medium text-slate-900">
+                                                                History
+                                                            </span>
+                                                            <div className="text-xs text-slate-500">
+                                                                Manage your test
+                                                                history
+                                                            </div>
+                                                        </div>
+                                                    </Link>
+                                                </DropdownMenuItem>
+                                            </>
+                                        )}
+                                        <DropdownMenuItem
+                                            onClick={() => logout.mutate()}
+                                            className="flex cursor-pointer items-center gap-3 rounded-xl px-3 py-2.5 text-red-600 transition-colors duration-200 hover:bg-red-50 focus:text-red-600"
+                                        >
+                                            <div className="rounded-lg bg-red-50 p-1.5">
+                                                <LogOut className="h-4 w-4 text-red-600" />
+                                            </div>
+                                            <div>
+                                                <span className="font-medium">
+                                                    Logout
+                                                </span>
+                                                <div className="text-xs text-red-500">
+                                                    Sign out of your account
+                                                </div>
+                                            </div>
+                                        </DropdownMenuItem>
+                                    </DropdownMenuContent>
+                                </DropdownMenu>
+                            </div>
+                        </>
                     )}
                 </NavBody>
 
                 <MobileNav>
                     <MobileNavHeader>
                         <NavbarLogo />
-                        <MobileNavToggle
-                            isOpen={isMobileMenuOpen}
-                            onClick={() =>
-                                setIsMobileMenuOpen(!isMobileMenuOpen)
-                            }
-                        />
+                        <div className="flex justify-between gap-6">
+                            <ThemeToggleButton className="relative z-50 h-8 w-8" />
+                            <MobileNavToggle
+                                isOpen={isMobileMenuOpen}
+                                onClick={() =>
+                                    setIsMobileMenuOpen(!isMobileMenuOpen)
+                                }
+                            />
+                        </div>
                     </MobileNavHeader>
 
                     <MobileNavMenu
@@ -294,20 +308,28 @@ export function Header() {
                         ))}
                         {!isMember ? (
                             <div className="flex w-full flex-col gap-4">
-                                <NavbarButton
-                                    onClick={() => setIsMobileMenuOpen(false)}
-                                    variant="primary"
-                                    className="w-full"
-                                >
-                                    Login
-                                </NavbarButton>
-                                <NavbarButton
-                                    onClick={() => setIsMobileMenuOpen(false)}
-                                    variant="primary"
-                                    className="w-full"
-                                >
-                                    Sign up
-                                </NavbarButton>
+                                <Link href="/auth/login">
+                                    <NavbarButton
+                                        onClick={() =>
+                                            setIsMobileMenuOpen(false)
+                                        }
+                                        variant="primary"
+                                        className="w-full"
+                                    >
+                                        Login
+                                    </NavbarButton>
+                                </Link>
+                                <Link href="/auth/login">
+                                    <NavbarButton
+                                        onClick={() =>
+                                            setIsMobileMenuOpen(false)
+                                        }
+                                        variant="primary"
+                                        className="w-full"
+                                    >
+                                        Sign up
+                                    </NavbarButton>
+                                </Link>
                             </div>
                         ) : (
                             <DropdownMenu>
@@ -348,10 +370,29 @@ export function Header() {
                                                     </div>
                                                 </Link>
                                             </DropdownMenuItem>
+                                            <DropdownMenuItem asChild>
+                                                <Link
+                                                    href="/history"
+                                                    className="flex cursor-pointer items-center gap-3 rounded-xl px-3 py-2.5 transition-colors duration-200 hover:bg-slate-50"
+                                                >
+                                                    <div className="rounded-lg bg-green-50 p-1.5">
+                                                        <History className="h-4 w-4 text-green-600" />
+                                                    </div>
+                                                    <div>
+                                                        <span className="font-medium text-slate-900">
+                                                            History
+                                                        </span>
+                                                        <div className="text-xs text-slate-500">
+                                                            Manage your test
+                                                            history
+                                                        </div>
+                                                    </div>
+                                                </Link>
+                                            </DropdownMenuItem>
                                         </>
                                     )}
                                     <DropdownMenuItem
-                                        //onClick={() => logout.mutate()}
+                                        onClick={() => logout.mutate()}
                                         className="flex cursor-pointer items-center gap-3 rounded-xl px-3 py-2.5 text-red-600 transition-colors duration-200 hover:bg-red-50 focus:text-red-600"
                                     >
                                         <div className="rounded-lg bg-red-50 p-1.5">

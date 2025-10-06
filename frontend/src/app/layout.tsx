@@ -1,4 +1,5 @@
 import type { Metadata } from 'next';
+import { ThemeProvider } from '@/components/theme-provider';
 import ClientLayout from './client-layout';
 import QueryProvider from './query-provider';
 import { Geist, Geist_Mono } from 'next/font/google';
@@ -27,12 +28,20 @@ export default function RootLayout({
     return (
         <html
             lang="en"
+            suppressHydrationWarning
             className={`${geistSans.variable} ${geistMono.variable} antialiased`}
         >
             <body>
-                <QueryProvider>
-                    <ClientLayout>{children}</ClientLayout>
-                </QueryProvider>
+                <ThemeProvider
+                    attribute="class"
+                    defaultTheme="light"
+                    enableSystem
+                    disableTransitionOnChange
+                >
+                    <QueryProvider>
+                        <ClientLayout>{children}</ClientLayout>
+                    </QueryProvider>
+                </ThemeProvider>
             </body>
         </html>
     );
