@@ -29,13 +29,8 @@ export default function CreateDeckForm() {
     });
 
     const onSubmit = (data: CreateDeckFormValues) => {
-        const password = data.password?.trim();
-        const payload: CreateDeckFormValues = {
-            ...data,
-            password: data.public ? undefined : password,
-        };
-
-        mutation.mutate(payload);
+        mutation.mutate(data);
+        console.log(data);
     };
 
     useEffect(() => {

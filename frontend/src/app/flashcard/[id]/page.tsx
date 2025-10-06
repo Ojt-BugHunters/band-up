@@ -162,11 +162,15 @@ export default function FlashcardDetailPage({
 
                     <div className="mt-6 flex gap-4">
                         <Link
+<<<<<<< HEAD
                             href={
                                 password
                                     ? `/flashcard/${deck.id}/player?password=${encodeURIComponent(password)}`
                                     : `/flashcard/${deck.id}/player`
                             }
+=======
+                            href={`/flashcard/${mockFlashCard.id}/memorize`}
+>>>>>>> main
                             className="flex-1"
                         >
                             <Button

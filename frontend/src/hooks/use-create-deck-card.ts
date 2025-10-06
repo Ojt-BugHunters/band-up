@@ -58,7 +58,7 @@ export function useCreateDeck() {
         },
         onSuccess: () => {
             toast.success('Create successfully');
-            router.push('/');
+            router.push('/flashcard');
         },
     });
 
