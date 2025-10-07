@@ -6,6 +6,7 @@ import com.project.Band_Up.dtos.media.UploadInfo;
 import com.project.Band_Up.services.AwsService.S3Service;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import java.time.Instant;
@@ -17,6 +18,8 @@ import java.util.UUID;
 public class MediaServiceImpl implements MediaService {
 
     private final S3Service s3Service;
+    @Value("${aws.cloudfront.ttl-seconds:86400}")
+    private long cloudFrontTtlSeconds;
 
 
     @Override
@@ -53,6 +56,28 @@ public class MediaServiceImpl implements MediaService {
                 .key(uploadInfo.getKey())
                 .CloudFrontUrl(uploadInfo.getPresignedUrl())
                 .expiresAt(uploadInfo.getExpiresAt())
+                .build();
+    }
+    @Override
+    public MediaResponse createCloudFrontSignedUrl(String key) {
+        log.info("[Media] Creating CloudFront signed URL for key={}", key);
+
+        //1. Kiểm tra file có tồn tại không
+        if (!s3Service.exists(key)) {
+            log.warn("[Media] File not found in S3 for key={}", key);
+            throw new RuntimeException("File not found");
+        }
+
+        //2. Tạo URL đã ký
+        String signedUrl = s3Service.createCloudFrontSignedUrl(key);
+        Instant expiresAt = Instant.now().plusSeconds(cloudFrontTtlSeconds);
+
+        log.info("[Media] CloudFront signed URL generated successfully for key={}", key);
+
+        return MediaResponse.builder()
+                .key(key)
+                .CloudFrontUrl(signedUrl)
+                .expiresAt(expiresAt)
                 .build();
     }
 }

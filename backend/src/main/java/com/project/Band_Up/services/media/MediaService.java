@@ -5,5 +5,5 @@ import com.project.Band_Up.dtos.media.MediaResponse;
 
 public interface MediaService {
     MediaResponse createPresignedUploadUrl(MediaRequest request);
-
+    MediaResponse createCloudFrontSignedUrl(String key);
 }
