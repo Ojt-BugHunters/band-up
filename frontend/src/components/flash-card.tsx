@@ -52,6 +52,8 @@ export default function FlashcardCard({ card }: { card: Deck }) {
         if (!isPublic) {
             e.preventDefault();
             setShowDialog(true);
+        } else {
+            mutation.mutate('');
         }
     };
 
