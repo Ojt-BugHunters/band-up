@@ -13,7 +13,7 @@ public interface DeckRepository extends JpaRepository<Deck, UUID> {
 
     Page<Deck> findAllByPublicIs(boolean aPublic, Pageable pageable);
 
-    Page<Deck> findAllByPublicIsAndTitle(boolean aPublic, String title, Pageable pageable);
+    Page<Deck> findAllByPublicIsAndTitleContainingIgnoreCase(boolean aPublic, String title, Pageable pageable);
 
-    Page<Deck> findAllByTitle(String queryBy, Pageable pageable);
+    Page<Deck> findAllByTitleContainingIgnoreCase(String title, Pageable pageable);
 }
