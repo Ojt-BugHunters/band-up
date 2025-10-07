@@ -95,8 +95,8 @@ public class DeckServiceImpl implements DeckService {
         } else {
             boolean isPublic = visibility.equalsIgnoreCase("public");
             decks = queryBy.isEmpty() ?
-                    deckRepository.findAllByPublicIs(isPublic, pageable) :
-                    deckRepository.findAllByPublicIsAndTitleContainingIgnoreCase(isPublic, queryBy, pageable);
+                    deckRepository.findAllByIsPublic(isPublic, pageable) :
+                    deckRepository.findAllByIsPublicIsAndTitleContainingIgnoreCase(isPublic, queryBy, pageable);
         }
 
         return decks.map(deck -> {
