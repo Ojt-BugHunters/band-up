@@ -23,6 +23,7 @@ import {
     User,
     BookOpenCheck,
     Plus,
+    ClipboardX,
 } from 'lucide-react';
 import { useEffect, useMemo, useState } from 'react';
 import FlashcardCard from '@/components/flash-card';
@@ -38,8 +39,9 @@ import {
 } from '@/components/ui/select';
 import Link from 'next/link';
 import { useFlashcardDecks } from '@/hooks/use-flashcard-decks';
-
-// fetch API /api/quizlet/deck to replace mockFlashCards
+import LiquidLoading from '@/components/ui/liquid-loader';
+import { EmptyState } from '@/components/ui/empty-state';
+import { NotFound } from '@/components/not-found';
 
 export default function FlashcardPage() {
     const [search, setSearch] = useState('');
@@ -76,11 +78,13 @@ export default function FlashcardPage() {
         }));
     }, [search, visibility, flashcards.length]);
 
-    if (isLoading) return <div>Loading decks...</div>;
-    if (isError) return <div>Unable to load decks.</div>;
-    if (paginatedFlashcards.length === 0) {
-        return <div>No decks match your filters.</div>;
-    }
+    if (isLoading)
+        return (
+            <div className="bg-background flex min-h-screen w-full items-center justify-center rounded-lg border p-4">
+                <LiquidLoading />
+            </div>
+        );
+    if (isError) return <NotFound />;
 
     return (
         <div className="flex-1 space-y-6 p-6">
@@ -172,10 +176,23 @@ export default function FlashcardPage() {
                 </div>
             </div>
 
-            <div className="mx-auto mb-12 grid max-w-7xl cursor-pointer grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-4">
-                {paginatedFlashcards.map((card) => (
-                    <FlashcardCard key={card.id} card={card} />
-                ))}
+            <div>
+                {paginatedFlashcards.length === 0 ? (
+                    <div className="mx-auto max-w-7xl rounded-md border">
+                        <EmptyState
+                            className="mx-auto"
+                            title="No flashcards found"
+                            description="Correct your filter to see if there are flashcards"
+                            icons={[ClipboardX]}
+                        />
+                    </div>
+                ) : (
+                    <div className="mx-auto mb-12 grid max-w-7xl cursor-pointer grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-4">
+                        {paginatedFlashcards.map((card) => (
+                            <FlashcardCard key={card.id} card={card} />
+                        ))}
+                    </div>
+                )}
             </div>
 
             <div className="mx-auto max-w-7xl">
