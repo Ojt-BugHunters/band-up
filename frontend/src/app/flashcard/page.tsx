@@ -42,6 +42,8 @@ import { useGetDeck } from '@/hooks/use-get-deck';
 import LiquidLoading from '@/components/ui/liquid-loader';
 import { EmptyState } from '@/components/ui/empty-state';
 import { NotFound } from '@/components/not-found';
+import { useGetFlashcardStats } from '@/hooks/use-flashcard-stats';
+import { useUser } from '@/hooks/use-user';
 
 function useDebounce<T>(value: T, delay = 1000) {
     const [debounced, setDebounced] = useState(value);
@@ -55,29 +57,32 @@ function useDebounce<T>(value: T, delay = 1000) {
 export default function FlashcardPage() {
     const [search, setSearch] = useState('');
     const [visibility, setVisibility] = useState<string>('all');
+    const [isLearn, setIsLearn] = useState(false);
     const [pagination, setPagination] = useState<PaginationState>({
         pageSize: 8,
         pageIndex: 0,
     });
+    const user = useUser();
     const debouncedSearch = useDebounce(search, 400);
-
     const apiPaging = useMemo(
         () => ({
             pageNo: pagination.pageIndex,
             pageSize: pagination.pageSize,
-            sortBy: 'id',
-            ascending: true,
+            sortBy: 'learnerNumber',
+            ascending: false,
             queryBy: debouncedSearch.trim() || '',
             visibility: (visibility === 'all' ? '' : visibility) as
                 | ''
                 | 'public'
                 | 'private',
+            isLearned: isLearn,
         }),
         [
             pagination.pageIndex,
             pagination.pageSize,
             visibility,
             debouncedSearch,
+            isLearn,
         ],
     );
 
@@ -86,6 +91,7 @@ export default function FlashcardPage() {
     }, [search, visibility]);
 
     const { data, isPending, isError } = useGetDeck(apiPaging);
+    const { data: stats } = useGetFlashcardStats();
     const filteredFlashcards = useMemo(() => {
         return data?.content.filter((deck) => {
             const matchesSearch = deck.title
@@ -131,7 +137,7 @@ export default function FlashcardPage() {
                     <StatsIcon className="bg-indigo-50 text-indigo-600">
                         <BookOpenCheck />
                     </StatsIcon>
-                    <StatsValue>3200</StatsValue>
+                    <StatsValue>{stats?.totalCards}</StatsValue>
                     <StatsLabel>Total Flashcards</StatsLabel>
                     <StatsDescription>
                         Cards available to review
@@ -141,7 +147,7 @@ export default function FlashcardPage() {
                     <StatsIcon className="bg-green-50 text-green-600">
                         <FileText />
                     </StatsIcon>
-                    <StatsValue>120</StatsValue>
+                    <StatsValue>{stats?.totalDecks}</StatsValue>
                     <StatsLabel>Total Decks</StatsLabel>
                     <StatsDescription>Flashcard sets by topic</StatsDescription>
                 </Stats>
@@ -149,7 +155,7 @@ export default function FlashcardPage() {
                     <StatsIcon className="bg-rose-50 text-rose-600">
                         <User />
                     </StatsIcon>
-                    <StatsValue>92</StatsValue>
+                    <StatsValue>{stats?.totalLearners}</StatsValue>
                     <StatsLabel>Total Learners</StatsLabel>
                     <StatsDescription>
                         Active users studying flashcards
@@ -190,6 +196,22 @@ export default function FlashcardPage() {
                             <SelectItem value="private">Private</SelectItem>
                         </SelectContent>
                     </Select>
+                    {user && (
+                        <Select
+                            value={String(isLearn)}
+                            onValueChange={(val) => setIsLearn(val === 'true')}
+                        >
+                            <SelectTrigger className="w-[160px] rounded-lg border-slate-200 focus:ring-blue-200">
+                                <SelectValue placeholder="Learnt" />
+                            </SelectTrigger>
+                            <SelectContent>
+                                <SelectItem value="true">Learnt</SelectItem>
+                                <SelectItem value="false">
+                                    Not Learnt
+                                </SelectItem>
+                            </SelectContent>
+                        </Select>
+                    )}
                     <Link href="/flashcard/new">
                         <Button className="cursor-pointer rounded-xl bg-blue-600 font-medium text-white shadow-lg shadow-blue-600/25 hover:bg-blue-700">
                             <Plus className="mr-2 h-4 w-4" />
@@ -201,7 +223,6 @@ export default function FlashcardPage() {
 
             <div>
                 {filteredFlashcards?.length === 0 ? (
-                    // empty state when loading
                     <div className="mx-auto max-w-7xl rounded-md border">
                         <EmptyState
                             className="mx-auto"

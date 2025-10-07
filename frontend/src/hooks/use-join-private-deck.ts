@@ -29,7 +29,6 @@ export const useJoinPrivateDeck = (deckId: string) => {
             toast.error(error.message);
         },
         onSuccess: async (data) => {
-            toast.success(`Join deck ${deckId} successfully`);
             queryClient.setQueryData(['deck'], data);
             localStorage.setItem(`deck:${deckId}`, JSON.stringify(data));
             router.push(`/flashcard/${deckId}`);

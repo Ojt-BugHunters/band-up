@@ -10,6 +10,7 @@ interface PaginationInfo {
     ascending?: boolean;
     queryBy?: string;
     visibility?: '' | 'public' | 'private';
+    isLearned?: boolean;
 }
 
 export const useGetDeck = (paginationInfo: PaginationInfo) => {
