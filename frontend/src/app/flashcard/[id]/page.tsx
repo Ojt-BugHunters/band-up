@@ -21,6 +21,7 @@ import {
 } from '@/components/ui/dropdown-menu';
 import { useParams, useRouter } from 'next/navigation';
 import { DeckCard } from '@/lib/api/dto/flashcard';
+import { useDeleteDeck } from '@/hooks/use-delete-deck';
 
 export default function FlashcardDetailPage() {
     const router = useRouter();
@@ -28,6 +29,12 @@ export default function FlashcardDetailPage() {
     const raw = localStorage.getItem(`deck:${id}`);
     const deckCard: DeckCard = raw ? JSON.parse(raw) : null;
     const totalCards = deckCard?.cards.length;
+    const deleteMutation = useDeleteDeck();
+    const handleDelete = () => {
+        if (confirm('Are you sure you want to delete this deck?')) {
+            deleteMutation.mutate(id);
+        }
+    };
 
     return (
         <div className="mt-20 min-h-screen bg-gray-50 dark:bg-[#0a092d]">
@@ -93,9 +100,7 @@ export default function FlashcardDetailPage() {
                                         <span>Edit</span>
                                     </DropdownMenuItem>
                                     <DropdownMenuItem
-                                        onClick={() =>
-                                            console.log('Delete clicked')
-                                        }
+                                        onClick={handleDelete}
                                         className="cursor-pointer text-red-600 transition-colors dark:text-red-400 dark:hover:bg-[#3d4a6b] dark:focus:bg-[#3d4a6b] dark:focus:text-red-400"
                                     >
                                         <Trash2 className="mr-2 h-4 w-4" />
