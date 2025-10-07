@@ -3,6 +3,7 @@ package com.project.Band_Up.services.quizlet;
 import com.project.Band_Up.dtos.quizlet.CardDto;
 import com.project.Band_Up.dtos.quizlet.DeckDto;
 import com.project.Band_Up.dtos.quizlet.DeckDtoResponse;
+import com.project.Band_Up.dtos.quizlet.DeckResponse;
 import com.project.Band_Up.entities.Account;
 import com.project.Band_Up.entities.Card;
 import com.project.Band_Up.entities.Deck;
@@ -65,31 +66,44 @@ public class DeckServiceImpl implements DeckService {
     }
 
 
-    public DeckDtoResponse getDeck(UUID deckId, String password) {
+    public DeckResponse getDeck(UUID deckId, String password) {
         Deck deck = deckRepository.findById(deckId)
                 .orElseThrow(() -> new ResourceNotFoundException(deckId.toString()));
         if(!deck.isPublic()) {
             if (passwordEncoder.matches(password, deck.getPassword())) {
-                return modelMapper.map(deck, DeckDtoResponse.class);
+                return modelMapper.map(deck, DeckResponse.class);
             } else throw new AuthenticationFailedException("Invalid password");
         }
-        return modelMapper.map(deck, DeckDtoResponse.class);
+        return modelMapper.map(deck, DeckResponse.class);
     }
 
     @Override
-    public Page<DeckDtoResponse> getDecks(Integer pageNo, Integer pageSize, String sortBy, Boolean ascending) {
+    public Page<DeckDtoResponse> getDecks(Integer pageNo, Integer pageSize,
+                                          String sortBy, Boolean ascending,
+                                          String queryBy, String visibility) {
         Pageable pageable = PageRequest.of(
                 pageNo,
                 pageSize,
                 ascending ? Sort.by(sortBy).ascending() : Sort.by(sortBy).descending()
         );
 
-        return deckRepository.findAll(pageable)
-                .map(deck -> {
-                    DeckDtoResponse dto = modelMapper.map(deck, DeckDtoResponse.class);
-                    dto.setAuthorName(deck.getAccount().getName());
-                    return dto;
-                });
+        Page<Deck> decks;
+        if (visibility.equalsIgnoreCase("all")) {
+            decks = queryBy.isEmpty() ?
+                    deckRepository.findAll(pageable) :
+                    deckRepository.findAllByTitle(queryBy, pageable);
+        } else {
+            boolean isPublic = visibility.equalsIgnoreCase("public");
+            decks = queryBy.isEmpty() ?
+                    deckRepository.findAllByPublicIs(isPublic, pageable) :
+                    deckRepository.findAllByPublicIsAndTitle(isPublic, queryBy, pageable);
+        }
+
+        return decks.map(deck -> {
+            DeckDtoResponse dto = modelMapper.map(deck, DeckDtoResponse.class);
+            dto.setAuthorName(deck.getAccount().getName());
+            return dto;
+        });
     }
 
 
