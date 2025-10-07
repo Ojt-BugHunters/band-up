@@ -3,10 +3,11 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { ArrowLeft, ArrowRight } from 'lucide-react';
 import { AnimatePresence, motion } from 'framer-motion';
-import type { FlashcardItem } from '@/lib/api/dto/flashcard';
+import type { DeckCard } from '@/lib/api/dto/flashcard';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
+import LiquidLoading from './ui/liquid-loader';
 
 const slideVariants = {
     initial: (direction: 1 | -1) => ({
@@ -21,8 +22,13 @@ const slideVariants = {
     }),
 };
 
-export default function FlashcardPlayer({ cards }: { cards: FlashcardItem[] }) {
-    const total = cards.length;
+export default function FlashcardPlayer(props: { deckCards?: DeckCard }) {
+    if (!props.deckCards) return <LiquidLoading />;
+    return <FlashcardPlayerInner deckCards={props.deckCards} />;
+}
+
+function FlashcardPlayerInner({ deckCards }: { deckCards?: DeckCard }) {
+    const total = deckCards?.cards.length ?? 0;
     const [index, setIndex] = useState(0);
     const [isFlipped, setIsFlipped] = useState(false);
     const [direction, setDirection] = useState<1 | -1>(1);
@@ -31,12 +37,12 @@ export default function FlashcardPlayer({ cards }: { cards: FlashcardItem[] }) {
         setIndex(0);
         setIsFlipped(false);
         setDirection(1);
-    }, [total, cards]);
+    }, [total, deckCards]);
 
     const currentCard = useMemo(() => {
         if (!total) return undefined;
-        return cards[Math.min(index, total - 1)];
-    }, [cards, index, total]);
+        return deckCards?.cards[Math.min(index, total - 1)];
+    }, [deckCards, index, total]);
 
     const handleNext = useCallback(() => {
         if (!total) return;

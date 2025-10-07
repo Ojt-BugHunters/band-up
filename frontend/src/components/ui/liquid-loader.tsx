@@ -1,6 +1,9 @@
+'use client';
 import React, { useState, useEffect } from 'react';
 
 const LiquidLoading = () => {
+    const [mounted, setMounted] = useState(false);
+    const [time, setTime] = useState(0);
     const [heights, setHeights] = useState([0, 0, 0, 0, 0, 0, 0]);
     const [droplets, setDroplets] = useState([
         false,
@@ -23,42 +26,35 @@ const LiquidLoading = () => {
     ];
 
     useEffect(() => {
+        setMounted(true);
         const interval = setInterval(() => {
+            const t = Date.now() * 0.001; // chỉ tính 1 lần rồi dùng lại
+            setTime(t);
+
             setHeights((prev) =>
-                prev.map((height, index) => {
+                prev.map((_, index) => {
                     const maxHeight = 80;
-                    const delay = index * 0.8; // Increased delay for slower wave propagation
-                    const time = Date.now() * 0.001; // Much slower base speed
-
-                    // Primary wave with bounce effect
-                    const primaryWave = Math.sin(time + delay);
-
-                    // Secondary bounce wave (higher frequency, lower amplitude)
-                    const bounceWave = Math.sin(time * 4 + delay) * 0.15;
-
-                    // Tertiary ripple effect
-                    const ripple = Math.sin(time * 8 + delay) * 0.05;
-
-                    // Combine waves for liquid bounce effect
-                    const combinedWave = primaryWave + bounceWave + ripple;
-
-                    return maxHeight * combinedWave;
+                    const delay = index * 0.8;
+                    const primaryWave = Math.sin(t + delay);
+                    const bounceWave = Math.sin(t * 4 + delay) * 0.15;
+                    const ripple = Math.sin(t * 8 + delay) * 0.05;
+                    return maxHeight * (primaryWave + bounceWave + ripple);
                 }),
             );
 
-            // Animate droplets with liquid timing
             setDroplets((prev) =>
                 prev.map((_, index) => {
                     const delay = index * 0.8;
-                    const time = Date.now() * 0.001;
-                    const waveValue = Math.sin(time + delay);
-                    return waveValue > 0.8; // Show droplet at peak with tighter threshold
+                    const waveValue = Math.sin(t + delay);
+                    return waveValue > 0.8;
                 }),
             );
-        }, 32); // Slower frame rate for more liquid feel
+        }, 32);
 
         return () => clearInterval(interval);
     }, []);
+
+    if (!mounted) return null; // tránh SSR render lệch
 
     return (
         <div className="flex items-end space-x-4 p-8">
@@ -76,10 +72,28 @@ const LiquidLoading = () => {
                             animationDelay: `${index * 0.2}s`,
                             filter: 'blur(0.5px)',
                             transform: droplets[index]
-                                ? `translateY(${Math.sin(Date.now() * 0.008 + index * 0.5) * 3}px) scale(${0.8 + Math.sin(Date.now() * 0.006 + index * 0.3) * 0.4})`
+                                ? `translateY(${Math.sin(time * 0.008 + index * 0.5) * 3}px) scale(${0.8 + Math.sin(time * 0.006 + index * 0.3) * 0.4})`
                                 : 'translateY(10px) scale(0.5)',
                             boxShadow: droplets[index]
-                                ? `0 0 15px ${colors[index].includes('purple') ? '#a855f7' : colors[index].includes('blue') ? '#3b82f6' : colors[index].includes('cyan') ? '#06b6d4' : colors[index].includes('green') ? '#10b981' : colors[index].includes('yellow') ? '#eab308' : colors[index].includes('orange') ? '#f97316' : '#ef4444'}40`
+                                ? `0 0 15px ${
+                                      colors[index].includes('purple')
+                                          ? '#a855f7'
+                                          : colors[index].includes('blue')
+                                            ? '#3b82f6'
+                                            : colors[index].includes('cyan')
+                                              ? '#06b6d4'
+                                              : colors[index].includes('green')
+                                                ? '#10b981'
+                                                : colors[index].includes(
+                                                        'yellow',
+                                                    )
+                                                  ? '#eab308'
+                                                  : colors[index].includes(
+                                                          'orange',
+                                                      )
+                                                    ? '#f97316'
+                                                    : '#ef4444'
+                                  }40`
                                 : 'none',
                         }}
                     />
@@ -92,14 +106,28 @@ const LiquidLoading = () => {
                             transform: height < 0 ? 'scaleY(-1)' : 'scaleY(1)',
                             transformOrigin: 'bottom',
                             filter: 'blur(0.3px)',
-                            boxShadow: `0 0 20px ${colors[index].includes('purple') ? '#a855f7' : colors[index].includes('blue') ? '#3b82f6' : colors[index].includes('cyan') ? '#06b6d4' : colors[index].includes('green') ? '#10b981' : colors[index].includes('yellow') ? '#eab308' : colors[index].includes('orange') ? '#f97316' : '#ef4444'}50, inset 0 0 20px rgba(255,255,255,0.1)`,
+                            boxShadow: `0 0 20px ${
+                                colors[index].includes('purple')
+                                    ? '#a855f7'
+                                    : colors[index].includes('blue')
+                                      ? '#3b82f6'
+                                      : colors[index].includes('cyan')
+                                        ? '#06b6d4'
+                                        : colors[index].includes('green')
+                                          ? '#10b981'
+                                          : colors[index].includes('yellow')
+                                            ? '#eab308'
+                                            : colors[index].includes('orange')
+                                              ? '#f97316'
+                                              : '#ef4444'
+                            }50, inset 0 0 20px rgba(255,255,255,0.1)`,
                         }}
                     >
                         {/* Liquid surface tension effect */}
                         <div
                             className="absolute top-0 right-0 left-0 h-4 rounded-full bg-gradient-to-b from-white/40 to-transparent"
                             style={{
-                                transform: `translateY(${Math.sin(Date.now() * 0.003 + index * 0.5) * 1}px) scaleY(${0.8 + Math.sin(Date.now() * 0.004 + index * 0.3) * 0.3})`,
+                                transform: `translateY(${Math.sin(time * 0.003 + index * 0.5) * 1}px) scaleY(${0.8 + Math.sin(time * 0.004 + index * 0.3) * 0.3})`,
                             }}
                         />
 
@@ -107,7 +135,7 @@ const LiquidLoading = () => {
                         <div
                             className="absolute inset-0 rounded-full bg-gradient-to-t from-white/20 via-white/10 to-transparent"
                             style={{
-                                transform: `translateY(${Math.sin(Date.now() * 0.002 + index * 0.5) * 2}px)`,
+                                transform: `translateY(${Math.sin(time * 0.002 + index * 0.5) * 2}px)`,
                                 background: `linear-gradient(0deg, rgba(255,255,255,0.3) 0%, rgba(255,255,255,0.1) 50%, transparent 100%)`,
                             }}
                         />
@@ -116,7 +144,7 @@ const LiquidLoading = () => {
                         <div
                             className="absolute inset-0 rounded-full bg-gradient-to-r from-transparent via-white/40 to-transparent"
                             style={{
-                                transform: `translateX(${Math.sin(Date.now() * 0.0015 + index * 0.7) * 8}px)`,
+                                transform: `translateX(${Math.sin(time * 0.0015 + index * 0.7) * 8}px)`,
                                 width: '140%',
                                 left: '-20%',
                             }}
@@ -126,12 +154,11 @@ const LiquidLoading = () => {
                         <div
                             className="absolute h-2 w-2 rounded-full bg-white/30"
                             style={{
-                                top: `${20 + Math.sin(Date.now() * 0.003 + index * 0.8) * 10}%`,
-                                left: `${30 + Math.sin(Date.now() * 0.002 + index * 0.6) * 20}%`,
-                                transform: `scale(${0.5 + Math.sin(Date.now() * 0.004 + index * 0.4) * 0.5})`,
+                                top: `${20 + Math.sin(time * 0.003 + index * 0.8) * 10}%`,
+                                left: `${30 + Math.sin(time * 0.002 + index * 0.6) * 20}%`,
+                                transform: `scale(${0.5 + Math.sin(time * 0.004 + index * 0.4) * 0.5})`,
                                 opacity:
-                                    Math.sin(Date.now() * 0.005 + index * 0.9) *
-                                        0.3 +
+                                    Math.sin(time * 0.005 + index * 0.9) * 0.3 +
                                     0.3,
                             }}
                         />
@@ -142,12 +169,29 @@ const LiquidLoading = () => {
                         className={`h-3 w-3 rounded-full bg-gradient-to-r ${colors[index]} mt-2 transition-all duration-300`}
                         style={{
                             opacity:
-                                Math.sin(Date.now() * 0.003 + index * 0.9) *
-                                    0.4 +
+                                Math.sin(time * 0.003 + index * 0.9) * 0.4 +
                                 0.6,
-                            transform: `scale(${0.6 + Math.sin(Date.now() * 0.002 + index * 0.6) * 0.4}) translateY(${Math.sin(Date.now() * 0.004 + index * 0.8) * 1}px)`,
+                            transform: `scale(${
+                                0.6 + Math.sin(time * 0.002 + index * 0.6) * 0.4
+                            }) translateY(${
+                                Math.sin(time * 0.004 + index * 0.8) * 1
+                            }px)`,
                             filter: 'blur(0.2px)',
-                            boxShadow: `0 2px 8px ${colors[index].includes('purple') ? '#a855f7' : colors[index].includes('blue') ? '#3b82f6' : colors[index].includes('cyan') ? '#06b6d4' : colors[index].includes('green') ? '#10b981' : colors[index].includes('yellow') ? '#eab308' : colors[index].includes('orange') ? '#f97316' : '#ef4444'}40`,
+                            boxShadow: `0 2px 8px ${
+                                colors[index].includes('purple')
+                                    ? '#a855f7'
+                                    : colors[index].includes('blue')
+                                      ? '#3b82f6'
+                                      : colors[index].includes('cyan')
+                                        ? '#06b6d4'
+                                        : colors[index].includes('green')
+                                          ? '#10b981'
+                                          : colors[index].includes('yellow')
+                                            ? '#eab308'
+                                            : colors[index].includes('orange')
+                                              ? '#f97316'
+                                              : '#ef4444'
+                            }40`,
                         }}
                     />
                 </div>

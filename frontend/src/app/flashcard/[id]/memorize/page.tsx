@@ -1,7 +1,6 @@
 'use client';
 
 import React from 'react';
-import { mockDeckItems } from '../../../../../constants/sample-data';
 import FlashcardPlayer from '@/components/flashcard-player';
 import { Button } from '@/components/ui/button';
 import {
@@ -82,11 +81,11 @@ export default function MemorizePage({
                 </div>
             </header>
 
-            <main className="flex flex-grow items-center justify-center px-6 py-10">
+            {/* <main className="flex flex-grow items-center justify-center px-6 py-10">
                 <div className="w-full max-w-4xl">
                     <FlashcardPlayer cards={mockDeckItems} />
                 </div>
-            </main>
+            </main> */}
         </div>
     );
 }
