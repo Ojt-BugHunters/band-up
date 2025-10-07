@@ -2,7 +2,7 @@
 
 import { use } from 'react';
 import FlashcardPlayer from '@/components/flashcard-player';
-import { useFlashcardDeckCards } from '@/hooks/use-flashcard-deck';
+import { useFlashcardDeckCards } from '@/hooks/use-get-flashcard';
 
 type FlashcardPlayerPageProps = {
     params: Promise<{ id: string }>;
@@ -34,14 +34,16 @@ export default function FlashcardPlayerPage({
 
     if (isError) {
         const errorMessage =
-            error instanceof Error ? error.message : 'Unable to load flashcards.';
+            error instanceof Error
+                ? error.message
+                : 'Unable to load flashcards.';
         return (
             <div className="flex min-h-screen items-center justify-center text-center">
                 <div>
                     <p className="text-lg font-semibold text-red-500">
                         {errorMessage}
                     </p>
-                    <p className="mt-2 text-sm text-muted-foreground">
+                    <p className="text-muted-foreground mt-2 text-sm">
                         Please check the password and try again.
                     </p>
                 </div>
@@ -52,7 +54,9 @@ export default function FlashcardPlayerPage({
     if (deckCards.length === 0) {
         return (
             <div className="flex min-h-screen items-center justify-center text-center">
-                <p className="text-muted-foreground">No flashcards found in this deck yet.</p>
+                <p className="text-muted-foreground">
+                    No flashcards found in this deck yet.
+                </p>
             </div>
         );
     }

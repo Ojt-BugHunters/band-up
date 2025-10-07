@@ -56,9 +56,7 @@ export default function FlashcardCard({ card }: { card: Deck }) {
     };
 
     const onSubmit = ({ password }: { password: string }) => {
-        console.log(password);
         mutation.mutate(password);
-
         setShowDialog(false);
         setShowPassword(false);
         form.reset();

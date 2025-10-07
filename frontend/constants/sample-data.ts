@@ -1,144 +1,21 @@
 import { SpeakingSection } from './../src/lib/api/dto/question';
-import type { Flashcard } from '@/lib/api/dto/flashcard';
+import type { Deck } from '@/lib/api/dto/flashcard';
 import { Comment } from '@/lib/api/dto/comment';
 import { Test, TestHistory, TestOverview } from '@/lib/api/dto/test';
 import { ListeningSection, Passage, WritingTask } from '@/lib/api/dto/question';
 import { FlashcardItem } from '@/lib/api/dto/flashcard';
 import { User } from '@/lib/api/dto/account';
 
-export const mockFlashCard: Flashcard = {
+export const mockFlashCard: Deck = {
     id: '1',
     title: 'IELTS Vocabulary - Technology',
     description:
         'Learn essential technology-related vocabulary for IELTS with example sentences and usage tips.',
-    author_name: 'John Doe',
-    number_learner: 120,
-    created_at: '2025-09-18T10:30:00Z',
-    is_public: true,
+    authorName: 'John Doe',
+    learnerNumber: 120,
+    createdAt: '2025-09-18T10:30:00Z',
+    public: true,
 };
-
-export const mockFlashcards: Flashcard[] = [
-    {
-        id: '1',
-        title: 'IELTS Vocabulary - Technology',
-        description:
-            'Learn essential technology-related vocabulary for IELTS with example sentences and usage tips.',
-        author_name: 'John Doe',
-        number_learner: 120,
-        created_at: '2025-09-18T10:30:00Z',
-        is_public: true,
-    },
-    {
-        id: '2',
-        title: 'IELTS Reading - Skimming Technique',
-        description:
-            'Master the skimming technique to quickly identify key ideas in reading passages.',
-        author_name: 'Jane Smith',
-        number_learner: 95,
-        created_at: '2025-09-19T14:00:00Z',
-        is_public: true,
-    },
-    {
-        id: '3',
-        title: 'IELTS Grammar - Conditionals',
-        description:
-            'Comprehensive practice on conditional sentences (zero, first, second, and third).',
-        author_name: 'Michael Johnson',
-        number_learner: 87,
-        created_at: '2025-09-20T08:45:00Z',
-        is_public: false,
-    },
-    {
-        id: '4',
-        title: 'IELTS Speaking - Linking Words',
-        description:
-            'Enhance fluency and coherence with common linking words and phrases for speaking.',
-        author_name: 'Emily Brown',
-        number_learner: 110,
-        created_at: '2025-09-21T09:15:00Z',
-        is_public: true,
-    },
-    {
-        id: '5',
-        title: 'IELTS Listening - Instructions',
-        description:
-            'Practice listening tasks with common IELTS instructions to avoid mistakes.',
-        author_name: 'David Lee',
-        number_learner: 76,
-        created_at: '2025-09-21T17:00:00Z',
-        is_public: true,
-    },
-    {
-        id: '6',
-        title: 'IELTS Writing - Task 2 Opinion Essay',
-        description:
-            'Learn to structure opinion essays with thesis statements and supporting ideas.',
-        author_name: 'Sophia Wilson',
-        number_learner: 132,
-        created_at: '2025-09-22T08:00:00Z',
-        is_public: false,
-    },
-    {
-        id: '7',
-        title: 'IELTS Vocabulary - Environment',
-        description:
-            'Expand your vocabulary on environmental issues and sustainability topics.',
-        author_name: 'Daniel Kim',
-        number_learner: 140,
-        created_at: '2025-09-22T12:45:00Z',
-        is_public: true,
-    },
-    {
-        id: '8',
-        title: 'IELTS Grammar - Complex Sentences',
-        description:
-            'Master relative clauses and other structures to form advanced sentences.',
-        author_name: 'Olivia Martinez',
-        number_learner: 102,
-        created_at: '2025-09-23T09:30:00Z',
-        is_public: true,
-    },
-    {
-        id: '9',
-        title: 'IELTS Reading - Matching Headings',
-        description:
-            'Improve your skills in matching headings to paragraphs efficiently.',
-        author_name: 'William Chen',
-        number_learner: 89,
-        created_at: '2025-09-24T07:50:00Z',
-        is_public: false,
-    },
-    {
-        id: '10',
-        title: 'IELTS Listening - Multiple Choice',
-        description:
-            'Practice multiple-choice listening tasks and learn to avoid distractors.',
-        author_name: 'Isabella Nguyen',
-        number_learner: 150,
-        created_at: '2025-09-24T11:15:00Z',
-        is_public: true,
-    },
-    {
-        id: '11',
-        title: 'IELTS Writing - Task 1 Overview',
-        description:
-            'Learn how to write effective overview statements for IELTS Task 1.',
-        author_name: 'James Anderson',
-        number_learner: 73,
-        created_at: '2025-09-25T09:05:00Z',
-        is_public: true,
-    },
-    {
-        id: '12',
-        title: 'IELTS Speaking - Part 2 Cue Card',
-        description:
-            'Practice with cue card prompts and learn useful signposting language.',
-        author_name: 'Mia Patel',
-        number_learner: 98,
-        created_at: '2025-09-25T14:40:00Z',
-        is_public: true,
-    },
-];
 
 export const mockDeckItems: FlashcardItem[] = [
     {
