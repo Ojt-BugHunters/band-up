@@ -25,7 +25,7 @@ import {
     Plus,
     ClipboardX,
 } from 'lucide-react';
-import { useEffect, useMemo, useState } from 'react';
+import { useMemo, useState } from 'react';
 import FlashcardCard from '@/components/flash-card';
 import { PaginationState } from '@tanstack/react-table';
 import { PaginationControl } from '@/components/ui/pagination-control';
@@ -38,7 +38,7 @@ import {
     SelectValue,
 } from '@/components/ui/select';
 import Link from 'next/link';
-import { useFlashcardDecks } from '@/hooks/use-flashcard-decks';
+import { useGetDeck } from '@/hooks/use-get-deck';
 import LiquidLoading from '@/components/ui/liquid-loader';
 import { EmptyState } from '@/components/ui/empty-state';
 import { NotFound } from '@/components/not-found';
@@ -50,33 +50,31 @@ export default function FlashcardPage() {
         pageSize: 8,
         pageIndex: 0,
     });
-    const { data: flashcards = [], isLoading, isError } = useFlashcardDecks();
 
+    const apiPaging = useMemo(
+        () => ({
+            pageNo: pagination.pageIndex,
+            pageSize: pagination.pageSize,
+            sortBy: 'id',
+            ascending: true,
+        }),
+        [pagination.pageIndex, pagination.pageSize],
+    );
+
+    const { data, isLoading, isError } = useGetDeck(apiPaging);
+    console.log(data);
     const filteredFlashcards = useMemo(() => {
-        return flashcards.filter((card) => {
+        return data?.filter((card) => {
             const matchesSearch = card.title
                 .toLowerCase()
                 .includes(search.toLowerCase());
             const matchesVisibility =
                 visibility === 'all' ||
-                (visibility === 'public' && card.is_public) ||
-                (visibility === 'private' && !card.is_public);
+                (visibility === 'public' && card.public) ||
+                (visibility === 'private' && !card.public);
             return matchesSearch && matchesVisibility;
         });
-    }, [flashcards, search, visibility]);
-
-    const paginatedFlashcards = useMemo(() => {
-        const start = pagination.pageIndex * pagination.pageSize;
-        const end = start + pagination.pageSize;
-        return filteredFlashcards.slice(start, end);
-    }, [filteredFlashcards, pagination]);
-
-    useEffect(() => {
-        setPagination((prev) => ({
-            ...prev,
-            pageIndex: 0,
-        }));
-    }, [search, visibility, flashcards.length]);
+    }, [data, search, visibility]);
 
     if (isLoading)
         return (
@@ -177,7 +175,7 @@ export default function FlashcardPage() {
             </div>
 
             <div>
-                {paginatedFlashcards.length === 0 ? (
+                {filteredFlashcards?.length === 0 ? (
                     <div className="mx-auto max-w-7xl rounded-md border">
                         <EmptyState
                             className="mx-auto"
@@ -188,7 +186,7 @@ export default function FlashcardPage() {
                     </div>
                 ) : (
                     <div className="mx-auto mb-12 grid max-w-7xl cursor-pointer grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-4">
-                        {paginatedFlashcards.map((card) => (
+                        {filteredFlashcards?.map((card) => (
                             <FlashcardCard key={card.id} card={card} />
                         ))}
                     </div>
@@ -198,7 +196,7 @@ export default function FlashcardPage() {
             <div className="mx-auto max-w-7xl">
                 <PaginationControl
                     className="mt-6"
-                    itemCount={filteredFlashcards.length}
+                    itemCount={23}
                     pagination={pagination}
                     setPagination={setPagination}
                 />
