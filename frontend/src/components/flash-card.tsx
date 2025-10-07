@@ -31,15 +31,15 @@ import { Globe, Lock, User, Eye, EyeOff } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useJoinPrivateDeck } from '@/hooks/use-join-private-deck';
 import { useRouter } from 'next/navigation';
+import { Deck } from '@/lib/api/dto/flashcard';
 
-// fetch API to handle password when join private card
-export default function FlashcardCard({ card }: { card: Flashcard }) {
+export default function FlashcardCard({ card }: { card: Deck }) {
     const [showDialog, setShowDialog] = useState(false);
     const [showPassword, setShowPassword] = useState(false);
     const router = useRouter();
     const form = useJoinPrivateDeck();
 
-    const createdAt = card.created_at ? new Date(card.created_at) : null;
+    const createdAt = card.createdAt ? new Date(card.createdAt) : null;
     const createdLabel =
         createdAt && !Number.isNaN(createdAt.getTime())
             ? createdAt.toLocaleDateString(undefined, {
@@ -121,10 +121,10 @@ export default function FlashcardCard({ card }: { card: Flashcard }) {
                     <CardContent className="space-y-2">
                         <p className="flex items-center gap-1.5 text-sm font-medium text-slate-700 dark:text-slate-200">
                             <User className="h-4 w-4" />
-                            {card.author_name}
+                            {card.authorName}
                         </p>
                         <p className="text-sm text-slate-600 dark:text-slate-300">
-                            {card.number_learner} learners
+                            {card.learnerNumber} learners
                         </p>
                     </CardContent>
                 </Card>

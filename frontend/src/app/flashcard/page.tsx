@@ -62,16 +62,15 @@ export default function FlashcardPage() {
     );
 
     const { data, isLoading, isError } = useGetDeck(apiPaging);
-    console.log(data);
     const filteredFlashcards = useMemo(() => {
-        return data?.filter((card) => {
-            const matchesSearch = card.title
+        return data?.content.filter((deck) => {
+            const matchesSearch = deck.title
                 .toLowerCase()
                 .includes(search.toLowerCase());
             const matchesVisibility =
                 visibility === 'all' ||
-                (visibility === 'public' && card.public) ||
-                (visibility === 'private' && !card.public);
+                (visibility === 'public' && deck.public) ||
+                (visibility === 'private' && !deck.public);
             return matchesSearch && matchesVisibility;
         });
     }, [data, search, visibility]);
@@ -196,7 +195,7 @@ export default function FlashcardPage() {
             <div className="mx-auto max-w-7xl">
                 <PaginationControl
                     className="mt-6"
-                    itemCount={23}
+                    itemCount={data?.totalElements ?? 0}
                     pagination={pagination}
                     setPagination={setPagination}
                 />
