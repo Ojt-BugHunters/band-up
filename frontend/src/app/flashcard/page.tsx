@@ -51,6 +51,7 @@ export default function FlashcardPage() {
         pageIndex: 0,
     });
 
+    // instead of call api to fetch 100 deck. Just fetch 8 (pageSize)
     const apiPaging = useMemo(
         () => ({
             pageNo: pagination.pageIndex,
@@ -62,6 +63,7 @@ export default function FlashcardPage() {
     );
 
     const { data, isLoading, isError } = useGetDeck(apiPaging);
+    // as we define in pagination (lib/api/index.ts) pagination have 2 things (content (list of deck), and number of elements )
     const filteredFlashcards = useMemo(() => {
         return data?.content.filter((deck) => {
             const matchesSearch = deck.title
@@ -75,12 +77,15 @@ export default function FlashcardPage() {
         });
     }, [data, search, visibility]);
 
+    // isLoading and isError just have in queryFn
+    // I have added to loading state, when the user waiting the data, try to replace them by this loading
     if (isLoading)
         return (
             <div className="bg-background flex min-h-screen w-full items-center justify-center rounded-lg border p-4">
                 <LiquidLoading />
             </div>
         );
+    // render NotFound when fetch API error, NotFound is a component I also added
     if (isError) return <NotFound />;
 
     return (
@@ -175,6 +180,7 @@ export default function FlashcardPage() {
 
             <div>
                 {filteredFlashcards?.length === 0 ? (
+                    // empty state when loading
                     <div className="mx-auto max-w-7xl rounded-md border">
                         <EmptyState
                             className="mx-auto"
@@ -192,6 +198,7 @@ export default function FlashcardPage() {
                 )}
             </div>
 
+            {/* Add totalElement we get from backend to pagination control*/}
             <div className="mx-auto max-w-7xl">
                 <PaginationControl
                     className="mt-6"

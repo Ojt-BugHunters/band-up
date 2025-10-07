@@ -33,6 +33,7 @@ import { useJoinPrivateDeck } from '@/hooks/use-join-private-deck';
 import { useRouter } from 'next/navigation';
 import { Deck } from '@/lib/api/dto/flashcard';
 
+// in page.tsx we pass a deck to here
 export default function FlashcardCard({ card }: { card: Deck }) {
     const [showDialog, setShowDialog] = useState(false);
     const [showPassword, setShowPassword] = useState(false);
