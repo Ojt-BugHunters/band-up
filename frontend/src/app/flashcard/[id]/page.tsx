@@ -50,29 +50,29 @@ export default function FlashcardDetailPage({
                                 <div className="flex items-center gap-2">
                                     <div className="h-8 w-8">
                                         <AccountPicture
-                                            name={mockFlashCard.author_name}
+                                            name={mockFlashCard.authorName}
                                         />
                                     </div>
                                     <span className="font-medium dark:text-gray-300">
-                                        {mockFlashCard.author_name}
+                                        {mockFlashCard.authorName}
                                     </span>
                                 </div>
                                 <span>•</span>
                                 <span>
                                     {new Date(
-                                        mockFlashCard.created_at,
+                                        mockFlashCard.createdAt,
                                     ).toLocaleDateString()}
                                 </span>
                                 <span>•</span>
                                 <Badge
                                     variant="secondary"
                                     className={
-                                        mockFlashCard.is_public
+                                        mockFlashCard.public
                                             ? 'border-0 bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400'
                                             : 'border-0 bg-gray-200 text-gray-700 dark:bg-gray-700/50 dark:text-gray-300'
                                     }
                                 >
-                                    {mockFlashCard.is_public
+                                    {mockFlashCard.public
                                         ? 'Public'
                                         : 'Private'}
                                 </Badge>
