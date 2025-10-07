@@ -43,6 +43,7 @@ import LiquidLoading from '@/components/ui/liquid-loader';
 import { EmptyState } from '@/components/ui/empty-state';
 import { NotFound } from '@/components/not-found';
 import { useGetFlashcardStats } from '@/hooks/use-flashcard-stats';
+import { useUser } from '@/hooks/use-user';
 
 function useDebounce<T>(value: T, delay = 1000) {
     const [debounced, setDebounced] = useState(value);
@@ -61,25 +62,27 @@ export default function FlashcardPage() {
         pageSize: 8,
         pageIndex: 0,
     });
+    const user = useUser();
     const debouncedSearch = useDebounce(search, 400);
     const apiPaging = useMemo(
         () => ({
             pageNo: pagination.pageIndex,
             pageSize: pagination.pageSize,
-            sortBy: 'id',
-            ascending: true,
+            sortBy: 'learnerNumber',
+            ascending: false,
             queryBy: debouncedSearch.trim() || '',
             visibility: (visibility === 'all' ? '' : visibility) as
                 | ''
                 | 'public'
                 | 'private',
-            isLearn: false,
+            isLearned: isLearn,
         }),
         [
             pagination.pageIndex,
             pagination.pageSize,
             visibility,
             debouncedSearch,
+            isLearn,
         ],
     );
 
@@ -98,7 +101,6 @@ export default function FlashcardPage() {
                 visibility === 'all' ||
                 (visibility === 'public' && deck.public) ||
                 (visibility === 'private' && !deck.public);
-            // const matchesLearnt = isLearn === false || deck.learnt === isLearn;
             return matchesSearch && matchesVisibility;
         });
     }, [data, search, visibility]);
@@ -194,19 +196,22 @@ export default function FlashcardPage() {
                             <SelectItem value="private">Private</SelectItem>
                         </SelectContent>
                     </Select>
-
-                    <Select
-                        value={String(isLearn)}
-                        onValueChange={(val) => setIsLearn(val === 'true')}
-                    >
-                        <SelectTrigger className="w-[160px] rounded-lg border-slate-200 focus:ring-blue-200">
-                            <SelectValue placeholder="Learnt" />
-                        </SelectTrigger>
-                        <SelectContent>
-                            <SelectItem value="true">Learnt</SelectItem>
-                            <SelectItem value="false">Not Learnt</SelectItem>
-                        </SelectContent>
-                    </Select>
+                    {user && (
+                        <Select
+                            value={String(isLearn)}
+                            onValueChange={(val) => setIsLearn(val === 'true')}
+                        >
+                            <SelectTrigger className="w-[160px] rounded-lg border-slate-200 focus:ring-blue-200">
+                                <SelectValue placeholder="Learnt" />
+                            </SelectTrigger>
+                            <SelectContent>
+                                <SelectItem value="true">Learnt</SelectItem>
+                                <SelectItem value="false">
+                                    Not Learnt
+                                </SelectItem>
+                            </SelectContent>
+                        </Select>
+                    )}
                     <Link href="/flashcard/new">
                         <Button className="cursor-pointer rounded-xl bg-blue-600 font-medium text-white shadow-lg shadow-blue-600/25 hover:bg-blue-700">
                             <Plus className="mr-2 h-4 w-4" />
