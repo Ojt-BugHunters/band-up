@@ -13,6 +13,8 @@ import software.amazon.awssdk.services.s3.presigner.S3Presigner;
 import software.amazon.awssdk.services.s3.presigner.model.PutObjectPresignRequest;
 
 import java.net.URL;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.security.KeyFactory;
 import java.security.PrivateKey;
 import java.security.spec.PKCS8EncodedKeySpec;
@@ -42,13 +44,22 @@ public class S3ServiceImpl implements S3Service {
                          @Value("${aws.s3.bucket}") String bucket,
                          @Value("${cloudfront.domain}") String cloudFrontDomain,
                          @Value("${cloudfront.keypair.id}") String cloudFrontKeyPairId,
-                         @Value("${cloudfront.private.key.pem}") String cloudFrontPrivateKeyPem) {
+                         @Value("${cloudfront.private.key.path}") String cloudFrontPrivateKeyPath
+    ) {
         this.s3Client = s3Client;
         this.s3Presigner = s3Presigner;
         this.bucket = bucket;
         this.cloudFrontDomain = cloudFrontDomain;
         this.cloudFrontKeyPairId = cloudFrontKeyPairId;
-        this.cloudFrontPrivateKey = parsePrivateKeyPem(cloudFrontPrivateKeyPem);
+        try {
+            String pemContent = Files.readString(Paths.get(cloudFrontPrivateKeyPath));
+            this.cloudFrontPrivateKey = parsePrivateKeyPem(pemContent);
+            log.info("[CloudFront] Loaded private key from file: {}", cloudFrontPrivateKeyPath);
+        } catch (Exception e) {
+            log.error("[CloudFront] Failed to load private key from path: {}", cloudFrontPrivateKeyPath, e);
+            throw new RuntimeException("Could not read CloudFront private key file", e);
+        }
+
     }
 
     @Override
