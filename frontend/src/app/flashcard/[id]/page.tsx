@@ -19,10 +19,11 @@ import {
     DropdownMenuItem,
     DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
-import { useParams } from 'next/navigation';
+import { useParams, useRouter } from 'next/navigation';
 import { DeckCard } from '@/lib/api/dto/flashcard';
 
 export default function FlashcardDetailPage() {
+    const router = useRouter();
     const { id } = useParams<{ id: string }>();
     const raw = localStorage.getItem(`deck:${id}`);
     const deckCard: DeckCard = raw ? JSON.parse(raw) : null;
@@ -84,7 +85,7 @@ export default function FlashcardDetailPage() {
                                 >
                                     <DropdownMenuItem
                                         onClick={() =>
-                                            console.log('Edit clicked')
+                                            router.push(`/flashcard/${id}/edit`)
                                         }
                                         className="cursor-pointer transition-colors dark:text-white dark:hover:bg-[#3d4a6b] dark:focus:bg-[#3d4a6b]"
                                     >
