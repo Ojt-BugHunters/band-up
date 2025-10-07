@@ -76,21 +76,22 @@ public class DeckServiceImpl implements DeckService {
         return modelMapper.map(deck, DeckDtoResponse.class);
     }
 
-    public List<DeckDtoResponse> getDecks(Integer pageNo, Integer pageSize, String sortBy, Boolean ascending) {
-        Pageable pageable = PageRequest.of(pageNo, pageSize,
-                ascending ? Sort.by(sortBy).ascending() : Sort.by(sortBy).descending());
-        Page<DeckDtoResponse> page = deckRepository.findAll(pageable)
+    @Override
+    public Page<DeckDtoResponse> getDecks(Integer pageNo, Integer pageSize, String sortBy, Boolean ascending) {
+        Pageable pageable = PageRequest.of(
+                pageNo,
+                pageSize,
+                ascending ? Sort.by(sortBy).ascending() : Sort.by(sortBy).descending()
+        );
+
+        return deckRepository.findAll(pageable)
                 .map(deck -> {
                     DeckDtoResponse dto = modelMapper.map(deck, DeckDtoResponse.class);
                     dto.setAuthorName(deck.getAccount().getName());
                     return dto;
                 });
-        if (page.hasContent()) {
-            return page.getContent();
-        } else {
-            return new ArrayList<DeckDtoResponse>();
-        }
     }
+
 
     @Transactional
     public DeckDto deleteDeck(UUID deckId, UUID accountId) {
