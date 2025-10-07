@@ -129,6 +129,12 @@
 			<artifactId>spring-boot-starter-data-redis</artifactId>
 			<version>3.5.6</version>
 		</dependency>
+		<dependency>
+			<groupId>com.amazonaws</groupId>
+			<artifactId>aws-java-sdk-cloudfront</artifactId>
+			<version>1.12.769</version>
+		</dependency>
+
 
 	</dependencies>
 
