@@ -34,6 +34,8 @@ public class S3ServiceImpl implements S3Service {
 
     @Value("${aws.s3.presign.ttl-seconds:600}")
     private long presignTtlSeconds;
+    @Value("${aws.cloudfront.ttl-seconds:86400}")
+    private long cloudFrontTtlSeconds;
 
     public S3ServiceImpl(S3Client s3Client,
                          S3Presigner s3Presigner,
@@ -84,10 +86,11 @@ public class S3ServiceImpl implements S3Service {
     }
 
     @Override
-    public String createCloudFrontSignedUrl(String key, Duration ttl) {
+    public String createCloudFrontSignedUrl(String key) {
         try {
+            Duration ttlCf = Duration.ofSeconds(cloudFrontTtlSeconds);
             String resource = String.format("https://%s/%s", cloudFrontDomain, key);
-            long expiresEpoch = (System.currentTimeMillis() / 1000L) + ttl.getSeconds();
+            long expiresEpoch = (System.currentTimeMillis() / 1000L) + ttlCf.getSeconds();
             Date expires = new Date(expiresEpoch * 1000L);
 
             String signedUrl = CloudFrontUrlSigner.getSignedURLWithCannedPolicy(

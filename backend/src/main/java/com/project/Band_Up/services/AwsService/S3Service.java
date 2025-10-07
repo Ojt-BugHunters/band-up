@@ -7,7 +7,7 @@ import java.util.UUID;
 
 public interface S3Service {
     public UploadInfo createUploadPresignedUrl(String key, String contentType);
-    public String createCloudFrontSignedUrl(String key, Duration expiration);
+    public String createCloudFrontSignedUrl(String key);
     public boolean exists(String key);
     void deleteObject(String key);
 }
