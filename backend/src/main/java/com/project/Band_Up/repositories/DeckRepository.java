@@ -11,9 +11,9 @@ import java.util.UUID;
 public interface DeckRepository extends JpaRepository<Deck, UUID> {
     Deck findDeckById(UUID id);
 
-    Page<Deck> findAllByPublicIs(boolean aPublic, Pageable pageable);
-
-    Page<Deck> findAllByPublicIsAndTitleContainingIgnoreCase(boolean aPublic, String title, Pageable pageable);
-
     Page<Deck> findAllByTitleContainingIgnoreCase(String title, Pageable pageable);
+
+    Page<Deck> findAllByIsPublic(boolean isPublic, Pageable pageable);
+
+    Page<Deck> findAllByIsPublicIsAndTitleContainingIgnoreCase(boolean isPublic, String queryBy, Pageable pageable);
 }
