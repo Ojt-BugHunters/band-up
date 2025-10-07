@@ -30,15 +30,12 @@ import { Button } from '@/components/ui/button';
 import { Globe, Lock, User, Eye, EyeOff } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useJoinPrivateDeck } from '@/hooks/use-join-private-deck';
-import { useRouter } from 'next/navigation';
 import { Deck } from '@/lib/api/dto/flashcard';
 
-// in page.tsx we pass a deck to here
 export default function FlashcardCard({ card }: { card: Deck }) {
     const [showDialog, setShowDialog] = useState(false);
     const [showPassword, setShowPassword] = useState(false);
-    const router = useRouter();
-    const form = useJoinPrivateDeck();
+    const { form, mutation } = useJoinPrivateDeck(card.id);
 
     const createdAt = card.createdAt ? new Date(card.createdAt) : null;
     const createdLabel =
@@ -58,13 +55,10 @@ export default function FlashcardCard({ card }: { card: Deck }) {
         }
     };
 
-    const onSubmit = (data: { password: string }) => {
-        const password = data.password.trim();
-        const query = password
-            ? `?password=${encodeURIComponent(password)}`
-            : '';
+    const onSubmit = ({ password }: { password: string }) => {
+        console.log(password);
+        mutation.mutate(password);
 
-        router.push(`/flashcard/${card.id}${query}`);
         setShowDialog(false);
         setShowPassword(false);
         form.reset();
