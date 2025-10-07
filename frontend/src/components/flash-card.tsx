@@ -1,5 +1,4 @@
 'use client';
-import type { Flashcard } from '@/lib/api/dto/flashcard';
 import Link from 'next/link';
 import { useState } from 'react';
 import { Badge } from '@/components/ui/badge';
@@ -49,7 +48,7 @@ export default function FlashcardCard({ card }: { card: Flashcard }) {
                   day: 'numeric',
               })
             : 'Unknown date';
-    const isPublic = card.is_public;
+    const isPublic = card.public;
 
     const handleCardClick = (e: React.MouseEvent) => {
         if (!isPublic) {
@@ -60,7 +59,9 @@ export default function FlashcardCard({ card }: { card: Flashcard }) {
 
     const onSubmit = (data: { password: string }) => {
         const password = data.password.trim();
-        const query = password ? `?password=${encodeURIComponent(password)}` : '';
+        const query = password
+            ? `?password=${encodeURIComponent(password)}`
+            : '';
 
         router.push(`/flashcard/${card.id}${query}`);
         setShowDialog(false);
