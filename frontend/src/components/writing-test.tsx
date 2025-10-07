@@ -9,7 +9,7 @@ import { Clock, PenTool } from 'lucide-react';
 import ProgressDialog from '@/components/progress-dialog';
 import WritingEditor from '@/components/writing-editor';
 import { writingTasks } from '../../constants/sample-data';
-import { NotFound } from './empty-state';
+import { NotFound } from './not-found';
 
 type WritingTestProps = {
     mode?: string;

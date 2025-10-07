@@ -2,7 +2,7 @@ import { ReadingTest } from '@/components/reading-test';
 import { SpeakingTest } from '@/components/speaking-test';
 import { WritingTest } from '@/components/writing-test';
 import { ListeningTest } from '@/components/listening-test';
-import { NotFound } from '@/components/empty-state';
+import { NotFound } from '@/components/not-found';
 
 type DoTestProps = {
     searchParams: Promise<{

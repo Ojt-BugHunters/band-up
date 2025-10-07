@@ -8,7 +8,7 @@ import ProgressDialog from '@/components/progress-dialog';
 import QuestionPanel from '@/components/question-panel';
 import AudioPlayer from '@/components/audio-player';
 import { mockListeningSections } from '../../constants/sample-data';
-import { NotFound } from './empty-state';
+import { NotFound } from './not-found';
 
 type ListeningTestProps = {
     mode?: string;

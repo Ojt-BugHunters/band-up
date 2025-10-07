@@ -22,70 +22,20 @@ import {
     DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import {
-    useFlashcardDeck,
-    useFlashcardDeckCards,
-} from '@/hooks/use-flashcard-deck';
+    mockDeckItems,
+    mockFlashCard,
+} from '../../../../constants/sample-data';
 
 type FlashcardDetailPageProps = {
-    params: Promise<{ id: string }>;
-    searchParams?: Promise<{ password?: string }>;
+    params: Promise<{ deckId: string }>;
 };
 
 export default function FlashcardDetailPage({
     params,
-    searchParams,
 }: FlashcardDetailPageProps) {
-    const { id } = use(params);
-    const resolvedSearchParams = searchParams ? use(searchParams) : undefined;
-    const password = resolvedSearchParams?.password;
+    const { deckId } = use(params);
 
-    const {
-        data: deck,
-        isLoading: isDeckLoading,
-        isError: isDeckError,
-        error: deckError,
-    } = useFlashcardDeck(id, password);
-
-    const {
-        data: deckCards = [],
-        isLoading: isCardsLoading,
-        isError: isCardsError,
-        error: cardsError,
-    } = useFlashcardDeckCards(id, password);
-
-    const isLoading = isDeckLoading || isCardsLoading;
-    const isError = isDeckError || isCardsError;
-
-    if (isLoading) {
-        return (
-            <div className="flex min-h-screen items-center justify-center">
-                Loading deck...
-            </div>
-        );
-    }
-
-    if (isError || !deck) {
-        const errorMessage =
-            deckError instanceof Error
-                ? deckError.message
-                : cardsError instanceof Error
-                  ? cardsError.message
-                  : 'Unable to load deck.';
-        return (
-            <div className="flex min-h-screen items-center justify-center text-center">
-                <div>
-                    <p className="text-lg font-semibold text-red-500">
-                        {errorMessage}
-                    </p>
-                    <p className="text-muted-foreground mt-2 text-sm">
-                        Please verify the password or try again later.
-                    </p>
-                </div>
-            </div>
-        );
-    }
-
-    const totalCards = deckCards.length;
+    const totalCards = mockDeckItems.length;
 
     return (
         <div className="mt-20 min-h-screen bg-gray-50 dark:bg-[#0a092d]">
@@ -94,35 +44,37 @@ export default function FlashcardDetailPage({
                     <div className="flex items-start justify-between">
                         <div className="flex-1">
                             <h1 className="mb-3 text-3xl font-bold text-gray-900 dark:text-white">
-                                {deck.title}
+                                {mockFlashCard.title}
                             </h1>
                             <div className="mb-4 flex items-center gap-3 text-sm text-gray-600 dark:text-gray-400">
                                 <div className="flex items-center gap-2">
                                     <div className="h-8 w-8">
                                         <AccountPicture
-                                            name={deck.author_name}
+                                            name={mockFlashCard.authorName}
                                         />
                                     </div>
                                     <span className="font-medium dark:text-gray-300">
-                                        {deck.author_name}
+                                        {mockFlashCard.authorName}
                                     </span>
                                 </div>
                                 <span>•</span>
                                 <span>
                                     {new Date(
-                                        deck.created_at,
+                                        mockFlashCard.createdAt,
                                     ).toLocaleDateString()}
                                 </span>
                                 <span>•</span>
                                 <Badge
                                     variant="secondary"
                                     className={
-                                        deck.is_public
+                                        mockFlashCard.public
                                             ? 'border-0 bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400'
                                             : 'border-0 bg-gray-200 text-gray-700 dark:bg-gray-700/50 dark:text-gray-300'
                                     }
                                 >
-                                    {deck.is_public ? 'Public' : 'Private'}
+                                    {mockFlashCard.public
+                                        ? 'Public'
+                                        : 'Private'}
                                 </Badge>
                             </div>
                         </div>
@@ -165,14 +117,7 @@ export default function FlashcardDetailPage({
                     </div>
 
                     <div className="mt-6 flex gap-4">
-                        <Link
-                            href={
-                                password
-                                    ? `/flashcard/${deck.id}/player?password=${encodeURIComponent(password)}`
-                                    : `/flashcard/${deck.id}/player`
-                            }
-                            className="flex-1"
-                        >
+                        <Link href="/" className="flex-1">
                             <Button
                                 variant="outline"
                                 className="border-lg h-auto w-full justify-start py-4 dark:border-gray-700 dark:bg-[#2e3856] dark:hover:bg-[#3d4a6b]"
@@ -190,14 +135,7 @@ export default function FlashcardDetailPage({
                                 </div>
                             </Button>
                         </Link>
-                        <Link
-                            href={
-                                password
-                                    ? `/flashcard/${deck.id}/learn?password=${encodeURIComponent(password)}`
-                                    : `/flashcard/${deck.id}/learn`
-                            }
-                            className="flex-1"
-                        >
+                        <Link href="/" className="flex-1">
                             <Button
                                 variant="outline"
                                 className="h-auto w-full justify-start py-4 dark:border-gray-700 dark:bg-[#2e3856] dark:hover:bg-[#3d4a6b]"
@@ -215,14 +153,7 @@ export default function FlashcardDetailPage({
                                 </div>
                             </Button>
                         </Link>
-                        <Link
-                            href={
-                                password
-                                    ? `/flashcard/${deck.id}/test?password=${encodeURIComponent(password)}`
-                                    : `/flashcard/${deck.id}/test`
-                            }
-                            className="flex-1"
-                        >
+                        <Link href="/" className="flex-1">
                             <Button
                                 variant="outline"
                                 className="h-auto w-full justify-start py-4 dark:border-gray-700 dark:bg-[#2e3856] dark:hover:bg-[#3d4a6b]"
@@ -241,7 +172,7 @@ export default function FlashcardDetailPage({
                             </Button>
                         </Link>
                     </div>
-                    <FlashcardPlayer cards={deckCards} />
+                    <FlashcardPlayer cards={mockDeckItems} />
                 </div>
             </div>
 
@@ -253,7 +184,7 @@ export default function FlashcardDetailPage({
                 </div>
 
                 <div className="space-y-3">
-                    {deckCards.map((card, index) => (
+                    {mockDeckItems.map((card, index) => (
                         <Card
                             key={card.id}
                             className="border border-gray-200 transition-shadow hover:shadow-md dark:border-gray-700 dark:bg-[#2e3856] dark:hover:shadow-xl dark:hover:shadow-black/20"
