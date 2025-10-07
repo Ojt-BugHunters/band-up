@@ -47,9 +47,11 @@ public class DeckController {
     public ResponseEntity<?> getDecks(@RequestParam(defaultValue = "0") Integer pageNo,
                                       @RequestParam(defaultValue = "8") Integer pageSize,
                                       @RequestParam(defaultValue = "id") String sortBy,
-                                      @RequestParam(defaultValue = "true" ) Boolean ascending) {
+                                      @RequestParam(defaultValue = "true" ) Boolean ascending,
+                                      @RequestParam(defaultValue = "") String queryBy,
+                                      @RequestParam(defaultValue = "all") String visibility) {
         return ResponseEntity.ok()
-                .body(deckService.getDecks(pageNo, pageSize, sortBy, ascending));
+                .body(deckService.getDecks(pageNo, pageSize, sortBy, ascending, queryBy, visibility));
     }
 
     @DeleteMapping("/deck/{deckId}/delete")
