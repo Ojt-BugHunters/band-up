@@ -34,3 +34,18 @@ export const fetchWrapper = async (
         credentials: 'include',
     });
 };
+
+export interface Pagination<T> {
+    element_count: number;
+    data: T[];
+}
+
+export const buildParams = (data: Record<string, unknown>) => {
+    const params = new URLSearchParams();
+    for (const [key, value] of Object.entries(data)) {
+        if (value !== undefined && value !== null) {
+            params.append(key, String(value));
+        }
+    }
+    return params;
+};
