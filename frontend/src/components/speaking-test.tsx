@@ -27,7 +27,7 @@ import {
     type FileUploadProps,
     FileUploadTrigger,
 } from '@/components/ui/file-upload';
-import { NotFound } from './empty-state';
+import { NotFound } from './not-found';
 
 type SpeakingTestProps = {
     mode?: string;

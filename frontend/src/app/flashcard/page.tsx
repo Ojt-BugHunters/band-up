@@ -23,8 +23,9 @@ import {
     User,
     BookOpenCheck,
     Plus,
+    ClipboardX,
 } from 'lucide-react';
-import { useEffect, useMemo, useState } from 'react';
+import { useMemo, useState } from 'react';
 import FlashcardCard from '@/components/flash-card';
 import { PaginationState } from '@tanstack/react-table';
 import { PaginationControl } from '@/components/ui/pagination-control';
@@ -37,9 +38,10 @@ import {
     SelectValue,
 } from '@/components/ui/select';
 import Link from 'next/link';
-import { useFlashcardDecks } from '@/hooks/use-flashcard-decks';
-
-// fetch API /api/quizlet/deck to replace mockFlashCards
+import { useGetDeck } from '@/hooks/use-get-deck';
+import LiquidLoading from '@/components/ui/liquid-loader';
+import { EmptyState } from '@/components/ui/empty-state';
+import { NotFound } from '@/components/not-found';
 
 export default function FlashcardPage() {
     const [search, setSearch] = useState('');
@@ -48,39 +50,43 @@ export default function FlashcardPage() {
         pageSize: 8,
         pageIndex: 0,
     });
-    const { data: flashcards = [], isLoading, isError } = useFlashcardDecks();
 
+    // instead of call api to fetch 100 deck. Just fetch 8 (pageSize)
+    const apiPaging = useMemo(
+        () => ({
+            pageNo: pagination.pageIndex,
+            pageSize: pagination.pageSize,
+            sortBy: 'id',
+            ascending: true,
+        }),
+        [pagination.pageIndex, pagination.pageSize],
+    );
+
+    const { data, isLoading, isError } = useGetDeck(apiPaging);
+    // as we define in pagination (lib/api/index.ts) pagination have 2 things (content (list of deck), and number of elements )
     const filteredFlashcards = useMemo(() => {
-        return flashcards.filter((card) => {
-            const matchesSearch = card.title
+        return data?.content.filter((deck) => {
+            const matchesSearch = deck.title
                 .toLowerCase()
                 .includes(search.toLowerCase());
             const matchesVisibility =
                 visibility === 'all' ||
-                (visibility === 'public' && card.is_public) ||
-                (visibility === 'private' && !card.is_public);
+                (visibility === 'public' && deck.public) ||
+                (visibility === 'private' && !deck.public);
             return matchesSearch && matchesVisibility;
         });
-    }, [flashcards, search, visibility]);
+    }, [data, search, visibility]);
 
-    const paginatedFlashcards = useMemo(() => {
-        const start = pagination.pageIndex * pagination.pageSize;
-        const end = start + pagination.pageSize;
-        return filteredFlashcards.slice(start, end);
-    }, [filteredFlashcards, pagination]);
-
-    useEffect(() => {
-        setPagination((prev) => ({
-            ...prev,
-            pageIndex: 0,
-        }));
-    }, [search, visibility, flashcards.length]);
-
-    if (isLoading) return <div>Loading decks...</div>;
-    if (isError) return <div>Unable to load decks.</div>;
-    if (paginatedFlashcards.length === 0) {
-        return <div>No decks match your filters.</div>;
-    }
+    // isLoading and isError just have in queryFn
+    // I have added to loading state, when the user waiting the data, try to replace them by this loading
+    if (isLoading)
+        return (
+            <div className="bg-background flex min-h-screen w-full items-center justify-center rounded-lg border p-4">
+                <LiquidLoading />
+            </div>
+        );
+    // render NotFound when fetch API error, NotFound is a component I also added
+    if (isError) return <NotFound />;
 
     return (
         <div className="flex-1 space-y-6 p-6">
@@ -172,16 +178,31 @@ export default function FlashcardPage() {
                 </div>
             </div>
 
-            <div className="mx-auto mb-12 grid max-w-7xl cursor-pointer grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-4">
-                {paginatedFlashcards.map((card) => (
-                    <FlashcardCard key={card.id} card={card} />
-                ))}
+            <div>
+                {filteredFlashcards?.length === 0 ? (
+                    // empty state when loading
+                    <div className="mx-auto max-w-7xl rounded-md border">
+                        <EmptyState
+                            className="mx-auto"
+                            title="No flashcards found"
+                            description="Correct your filter to see if there are flashcards"
+                            icons={[ClipboardX]}
+                        />
+                    </div>
+                ) : (
+                    <div className="mx-auto mb-12 grid max-w-7xl cursor-pointer grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-4">
+                        {filteredFlashcards?.map((card) => (
+                            <FlashcardCard key={card.id} card={card} />
+                        ))}
+                    </div>
+                )}
             </div>
 
+            {/* Add totalElement we get from backend to pagination control*/}
             <div className="mx-auto max-w-7xl">
                 <PaginationControl
                     className="mt-6"
-                    itemCount={filteredFlashcards.length}
+                    itemCount={data?.totalElements ?? 0}
                     pagination={pagination}
                     setPagination={setPagination}
                 />
