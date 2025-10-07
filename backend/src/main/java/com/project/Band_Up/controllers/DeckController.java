@@ -49,9 +49,11 @@ public class DeckController {
                                       @RequestParam(defaultValue = "id") String sortBy,
                                       @RequestParam(defaultValue = "true" ) Boolean ascending,
                                       @RequestParam(defaultValue = "") String queryBy,
-                                      @RequestParam(defaultValue = "all") String visibility) {
+                                      @RequestParam(defaultValue = "all") String visibility,
+                                      @RequestParam(defaultValue = "false") boolean isLearned,
+                                      @AuthenticationPrincipal JwtUserDetails userDetails) {
         return ResponseEntity.ok()
-                .body(deckService.getDecks(pageNo, pageSize, sortBy, ascending, queryBy, visibility));
+                .body(deckService.getDecks(pageNo, pageSize, sortBy, ascending, queryBy, visibility, isLearned, userDetails == null ? null : userDetails.getAccountId()));
     }
 
     @DeleteMapping("/deck/{deckId}/delete")
@@ -71,5 +73,17 @@ public class DeckController {
                                         @AuthenticationPrincipal JwtUserDetails userDetails) {
         return ResponseEntity.ok()
                 .body(deckService.updateDeck(deckId,deckDto, userDetails.getAccountId()));
+    }
+
+    @GetMapping("/stats")
+    public ResponseEntity<?> getStats() {
+        return ResponseEntity.ok().body(deckService.getStats());
+    }
+
+    @PostMapping("/deck/{deckId}/add-learner")
+    public ResponseEntity<?> addLearner(@PathVariable(name = "deckId") UUID deckId,
+                                        @AuthenticationPrincipal JwtUserDetails userDetails) {
+        deckService.updateLearnerNumber(deckId, userDetails.getAccountId());
+        return ResponseEntity.ok().build();
     }
 }

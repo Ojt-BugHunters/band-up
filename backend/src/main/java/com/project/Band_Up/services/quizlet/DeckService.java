@@ -3,6 +3,7 @@ package com.project.Band_Up.services.quizlet;
 import com.project.Band_Up.dtos.quizlet.DeckDto;
 import com.project.Band_Up.dtos.quizlet.DeckDtoResponse;
 import com.project.Band_Up.dtos.quizlet.DeckResponse;
+import com.project.Band_Up.dtos.quizlet.QuizletStats;
 import com.project.Band_Up.entities.Deck;
 import org.springframework.data.domain.Page;
 
@@ -15,12 +16,17 @@ public interface DeckService {
 
     public Page<DeckDtoResponse> getDecks(Integer pageNo, Integer pageSize,
                                           String sortBy, Boolean ascending,
-                                          String query, String visibility);
+                                          String query, String visibility,
+                                          boolean isLearned, UUID accountId);
 
     public DeckResponse getDeck(UUID deckId, String password);
 
     public DeckDto deleteDeck(UUID deckId, UUID accountId);
 
     public DeckDtoResponse updateDeck(UUID deckId, DeckDto deckDto, UUID accountId);
+
+    public QuizletStats getStats();
+
+    public void updateLearnerNumber(UUID deckId, UUID accountId);
 
 }

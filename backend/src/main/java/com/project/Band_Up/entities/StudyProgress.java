@@ -25,6 +25,4 @@ public class StudyProgress {
     @ManyToOne(fetch = FetchType.LAZY)
     private Deck deck;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    private Card card;
 }

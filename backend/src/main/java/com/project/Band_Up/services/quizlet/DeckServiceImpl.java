@@ -1,16 +1,16 @@
 package com.project.Band_Up.services.quizlet;
 
-import com.project.Band_Up.dtos.quizlet.CardDto;
-import com.project.Band_Up.dtos.quizlet.DeckDto;
-import com.project.Band_Up.dtos.quizlet.DeckDtoResponse;
-import com.project.Band_Up.dtos.quizlet.DeckResponse;
+import com.project.Band_Up.dtos.quizlet.*;
 import com.project.Band_Up.entities.Account;
 import com.project.Band_Up.entities.Card;
 import com.project.Band_Up.entities.Deck;
+import com.project.Band_Up.entities.StudyProgress;
 import com.project.Band_Up.exceptions.AuthenticationFailedException;
 import com.project.Band_Up.exceptions.ResourceNotFoundException;
 import com.project.Band_Up.repositories.AccountRepository;
+import com.project.Band_Up.repositories.CardRepository;
 import com.project.Band_Up.repositories.DeckRepository;
+import com.project.Band_Up.repositories.StudyProgressRepository;
 import jakarta.transaction.Transactional;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -36,6 +36,10 @@ public class DeckServiceImpl implements DeckService {
     private AccountRepository accountRepository;
     @Autowired
     private PasswordEncoder passwordEncoder;
+    @Autowired
+    private CardRepository  cardRepository;
+    @Autowired
+    private StudyProgressRepository studyProgressRepository;
 
     @Override
     @Transactional
@@ -80,7 +84,8 @@ public class DeckServiceImpl implements DeckService {
     @Override
     public Page<DeckDtoResponse> getDecks(Integer pageNo, Integer pageSize,
                                           String sortBy, Boolean ascending,
-                                          String queryBy, String visibility) {
+                                          String queryBy, String visibility,
+                                          boolean isLearned, UUID accountId) {
         Pageable pageable = PageRequest.of(
                 pageNo,
                 pageSize,
@@ -88,15 +93,24 @@ public class DeckServiceImpl implements DeckService {
         );
 
         Page<Deck> decks;
-        if (visibility.equalsIgnoreCase("all")) {
-            decks = queryBy.isEmpty() ?
-                    deckRepository.findAll(pageable) :
-                    deckRepository.findAllByTitleContainingIgnoreCase(queryBy, pageable);
+
+        if (isLearned && accountId != null) {
+            // Filter by decks the account has learned
+            decks = queryBy.isEmpty()
+                    ? deckRepository.findLearnedDecksByAccountId(accountId, pageable)
+                    : deckRepository.findLearnedDecksByAccountIdAndTitle(accountId, queryBy, pageable);
         } else {
-            boolean isPublic = visibility.equalsIgnoreCase("public");
-            decks = queryBy.isEmpty() ?
-                    deckRepository.findAllByIsPublic(isPublic, pageable) :
-                    deckRepository.findAllByIsPublicIsAndTitleContainingIgnoreCase(isPublic, queryBy, pageable);
+            // Normal visibility-based filtering
+            if (visibility.equalsIgnoreCase("all")) {
+                decks = queryBy.isEmpty()
+                        ? deckRepository.findAll(pageable)
+                        : deckRepository.findAllByTitleContainingIgnoreCase(queryBy, pageable);
+            } else {
+                boolean isPublic = visibility.equalsIgnoreCase("public");
+                decks = queryBy.isEmpty()
+                        ? deckRepository.findAllByIsPublic(isPublic, pageable)
+                        : deckRepository.findAllByIsPublicIsAndTitleContainingIgnoreCase(isPublic, queryBy, pageable);
+            }
         }
 
         return decks.map(deck -> {
@@ -105,6 +119,7 @@ public class DeckServiceImpl implements DeckService {
             return dto;
         });
     }
+
 
 
     @Transactional
@@ -134,4 +149,35 @@ public class DeckServiceImpl implements DeckService {
         dto.setAuthorName(deck.getAccount().getName());
         return dto;
     }
+
+    @Override
+    public QuizletStats getStats() {
+        long totalDecks = deckRepository.count();
+        long totalCards = cardRepository.count();
+        long totalLearners = deckRepository.sumLearnerNumber();
+
+        return QuizletStats.builder()
+                .totalDecks(totalDecks)
+                .totalCards(totalCards)
+                .totalLearners(totalLearners)
+                .build();
+    }
+
+    @Override
+    @Transactional
+    public void updateLearnerNumber(UUID deckId, UUID accountId) {
+        Deck deck = deckRepository.findById(deckId)
+                .orElseThrow(() -> new ResourceNotFoundException(deckId.toString()));
+        Account account = accountRepository.findById(accountId)
+                .orElseThrow(() -> new ResourceNotFoundException(accountId.toString()));
+        if (!studyProgressRepository.existsByDeckAndAccount(deck,account)){
+            studyProgressRepository.save(StudyProgress.builder()
+                            .deck(deck)
+                            .account(account)
+                            .build());
+            deck.setLearnerNumber(deck.getLearnerNumber()+1);
+            deckRepository.save(deck);
+        }
+    }
+
 }
