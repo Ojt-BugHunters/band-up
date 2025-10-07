@@ -42,6 +42,7 @@ import { useGetDeck } from '@/hooks/use-get-deck';
 import LiquidLoading from '@/components/ui/liquid-loader';
 import { EmptyState } from '@/components/ui/empty-state';
 import { NotFound } from '@/components/not-found';
+import { useGetFlashcardStats } from '@/hooks/use-flashcard-stats';
 
 function useDebounce<T>(value: T, delay = 1000) {
     const [debounced, setDebounced] = useState(value);
@@ -60,7 +61,6 @@ export default function FlashcardPage() {
         pageIndex: 0,
     });
     const debouncedSearch = useDebounce(search, 400);
-
     const apiPaging = useMemo(
         () => ({
             pageNo: pagination.pageIndex,
@@ -72,6 +72,7 @@ export default function FlashcardPage() {
                 | ''
                 | 'public'
                 | 'private',
+            isLearn: false,
         }),
         [
             pagination.pageIndex,
@@ -86,6 +87,7 @@ export default function FlashcardPage() {
     }, [search, visibility]);
 
     const { data, isPending, isError } = useGetDeck(apiPaging);
+    const { data: stats } = useGetFlashcardStats();
     const filteredFlashcards = useMemo(() => {
         return data?.content.filter((deck) => {
             const matchesSearch = deck.title
@@ -131,7 +133,7 @@ export default function FlashcardPage() {
                     <StatsIcon className="bg-indigo-50 text-indigo-600">
                         <BookOpenCheck />
                     </StatsIcon>
-                    <StatsValue>3200</StatsValue>
+                    <StatsValue>{stats?.totalCards}</StatsValue>
                     <StatsLabel>Total Flashcards</StatsLabel>
                     <StatsDescription>
                         Cards available to review
@@ -141,7 +143,7 @@ export default function FlashcardPage() {
                     <StatsIcon className="bg-green-50 text-green-600">
                         <FileText />
                     </StatsIcon>
-                    <StatsValue>120</StatsValue>
+                    <StatsValue>{stats?.totalDecks}</StatsValue>
                     <StatsLabel>Total Decks</StatsLabel>
                     <StatsDescription>Flashcard sets by topic</StatsDescription>
                 </Stats>
@@ -149,7 +151,7 @@ export default function FlashcardPage() {
                     <StatsIcon className="bg-rose-50 text-rose-600">
                         <User />
                     </StatsIcon>
-                    <StatsValue>92</StatsValue>
+                    <StatsValue>{stats?.totalLearners}</StatsValue>
                     <StatsLabel>Total Learners</StatsLabel>
                     <StatsDescription>
                         Active users studying flashcards
@@ -201,7 +203,6 @@ export default function FlashcardPage() {
 
             <div>
                 {filteredFlashcards?.length === 0 ? (
-                    // empty state when loading
                     <div className="mx-auto max-w-7xl rounded-md border">
                         <EmptyState
                             className="mx-auto"
