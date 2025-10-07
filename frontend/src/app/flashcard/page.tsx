@@ -25,7 +25,6 @@ import {
     Plus,
 } from 'lucide-react';
 import { useEffect, useMemo, useState } from 'react';
-import { mockFlashcards } from '../../../constants/sample-data';
 import FlashcardCard from '@/components/flash-card';
 import { PaginationState } from '@tanstack/react-table';
 import { PaginationControl } from '@/components/ui/pagination-control';
@@ -38,9 +37,10 @@ import {
     SelectValue,
 } from '@/components/ui/select';
 import Link from 'next/link';
+import { useFlashcardDecks } from '@/hooks/use-flashcard-decks';
 
 // fetch API /api/quizlet/deck to replace mockFlashCards
-// fetch API password in FlashcardCard component
+
 export default function FlashcardPage() {
     const [search, setSearch] = useState('');
     const [visibility, setVisibility] = useState<string>('all');
@@ -48,9 +48,10 @@ export default function FlashcardPage() {
         pageSize: 8,
         pageIndex: 0,
     });
+    const { data: flashcards = [], isLoading, isError } = useFlashcardDecks();
 
     const filteredFlashcards = useMemo(() => {
-        return mockFlashcards.filter((card) => {
+        return flashcards.filter((card) => {
             const matchesSearch = card.title
                 .toLowerCase()
                 .includes(search.toLowerCase());
@@ -60,7 +61,7 @@ export default function FlashcardPage() {
                 (visibility === 'private' && !card.is_public);
             return matchesSearch && matchesVisibility;
         });
-    }, [search, visibility]);
+    }, [flashcards, search, visibility]);
 
     const paginatedFlashcards = useMemo(() => {
         const start = pagination.pageIndex * pagination.pageSize;
@@ -73,7 +74,13 @@ export default function FlashcardPage() {
             ...prev,
             pageIndex: 0,
         }));
-    }, [search, visibility]);
+    }, [search, visibility, flashcards.length]);
+
+    if (isLoading) return <div>Loading decks...</div>;
+    if (isError) return <div>Unable to load decks.</div>;
+    if (paginatedFlashcards.length === 0) {
+        return <div>No decks match your filters.</div>;
+    }
 
     return (
         <div className="flex-1 space-y-6 p-6">

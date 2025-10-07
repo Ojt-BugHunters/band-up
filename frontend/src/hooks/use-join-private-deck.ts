@@ -9,7 +9,9 @@ export const schema = z.object({
 export const useJoinPrivateDeck = () => {
     const form = useForm<z.infer<typeof schema>>({
         resolver: zodResolver(schema),
-        defaultValues: {},
+        defaultValues: {
+            password: '',
+        },
     });
 
     return form;

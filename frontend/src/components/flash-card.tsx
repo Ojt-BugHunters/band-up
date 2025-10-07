@@ -59,11 +59,12 @@ export default function FlashcardCard({ card }: { card: Flashcard }) {
     };
 
     const onSubmit = (data: { password: string }) => {
-        // mutation.mutata(data.password)
-        console.log('Password submitted:', data.password);
+        const password = data.password.trim();
+        const query = password ? `?password=${encodeURIComponent(password)}` : '';
 
-        router.push(`/flashcard/${card.id}`);
+        router.push(`/flashcard/${card.id}${query}`);
         setShowDialog(false);
+        setShowPassword(false);
         form.reset();
     };
 

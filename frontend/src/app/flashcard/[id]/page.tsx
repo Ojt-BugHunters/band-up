@@ -1,9 +1,6 @@
 'use client';
-import React from 'react';
-import {
-    mockFlashCard,
-    mockDeckItems,
-} from '../../../../constants/sample-data';
+
+import { use } from 'react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import {
@@ -24,37 +21,71 @@ import {
     DropdownMenuItem,
     DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
+import {
+    useFlashcardDeck,
+    useFlashcardDeckCards,
+} from '@/hooks/use-flashcard-deck';
 
-// in the page --> fetch api /api/quizlet/deck/{deckId}/card --> get data like this
-// just need {deckId in param}
-// [
-//     {
-//         id: 'e40cfd2a-aaa5-440a-b1f8-3727627f5b68',
-//         front: 'ECS',
-//         back: 'Elastic Container Service',
-//     },
-// ]; --> mockDeckItems
-// fetch api --> /api/quizlet/deck/{deckId} --> get data like this
-// just need {deckId in param}
-// {
-//     "id": "191e88f7-1def-4f82-ace0-065ed59d4ee5",
-//     "title": "AWS Band Up",
-//     "description": "First Cloud Journey",
-//     "learnerNumber": 0,
-//     "createdAt": "2025-09-23T13:56:24.891625",
-//     "authorName": null,
-//     "public": true
-// } --> mockFlashCard
-// fetch API update flashcard to handle update. reuse the form in /flashcard/new
-// fetch API to delete flashcard
+type FlashcardDetailPageProps = {
+    params: Promise<{ id: string }>;
+    searchParams?: Promise<{ password?: string }>;
+};
+
 export default function FlashcardDetailPage({
     params,
-}: {
-    params: Promise<{ id: string }>;
-}) {
-    const { id } = React.use(params);
+    searchParams,
+}: FlashcardDetailPageProps) {
+    const { id } = use(params);
+    const resolvedSearchParams = searchParams ? use(searchParams) : undefined;
+    const password = resolvedSearchParams?.password;
 
-    const totalCards = mockDeckItems.length;
+    const {
+        data: deck,
+        isLoading: isDeckLoading,
+        isError: isDeckError,
+        error: deckError,
+    } = useFlashcardDeck(id, password);
+
+    const {
+        data: deckCards = [],
+        isLoading: isCardsLoading,
+        isError: isCardsError,
+        error: cardsError,
+    } = useFlashcardDeckCards(id, password);
+
+    const isLoading = isDeckLoading || isCardsLoading;
+    const isError = isDeckError || isCardsError;
+
+    if (isLoading) {
+        return (
+            <div className="flex min-h-screen items-center justify-center">
+                Loading deck...
+            </div>
+        );
+    }
+
+    if (isError || !deck) {
+        const errorMessage =
+            deckError instanceof Error
+                ? deckError.message
+                : cardsError instanceof Error
+                  ? cardsError.message
+                  : 'Unable to load deck.';
+        return (
+            <div className="flex min-h-screen items-center justify-center text-center">
+                <div>
+                    <p className="text-lg font-semibold text-red-500">
+                        {errorMessage}
+                    </p>
+                    <p className="text-muted-foreground mt-2 text-sm">
+                        Please verify the password or try again later.
+                    </p>
+                </div>
+            </div>
+        );
+    }
+
+    const totalCards = deckCards.length;
 
     return (
         <div className="mt-20 min-h-screen bg-gray-50 dark:bg-[#0a092d]">
@@ -63,37 +94,35 @@ export default function FlashcardDetailPage({
                     <div className="flex items-start justify-between">
                         <div className="flex-1">
                             <h1 className="mb-3 text-3xl font-bold text-gray-900 dark:text-white">
-                                {mockFlashCard.title}
+                                {deck.title}
                             </h1>
                             <div className="mb-4 flex items-center gap-3 text-sm text-gray-600 dark:text-gray-400">
                                 <div className="flex items-center gap-2">
                                     <div className="h-8 w-8">
                                         <AccountPicture
-                                            name={mockFlashCard.author_name}
+                                            name={deck.author_name}
                                         />
                                     </div>
                                     <span className="font-medium dark:text-gray-300">
-                                        {mockFlashCard.author_name}
+                                        {deck.author_name}
                                     </span>
                                 </div>
                                 <span>•</span>
                                 <span>
                                     {new Date(
-                                        mockFlashCard.created_at,
+                                        deck.created_at,
                                     ).toLocaleDateString()}
                                 </span>
                                 <span>•</span>
                                 <Badge
                                     variant="secondary"
                                     className={
-                                        mockFlashCard.is_public
+                                        deck.is_public
                                             ? 'border-0 bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400'
                                             : 'border-0 bg-gray-200 text-gray-700 dark:bg-gray-700/50 dark:text-gray-300'
                                     }
                                 >
-                                    {mockFlashCard.is_public
-                                        ? 'Public'
-                                        : 'Private'}
+                                    {deck.is_public ? 'Public' : 'Private'}
                                 </Badge>
                             </div>
                         </div>
@@ -137,7 +166,11 @@ export default function FlashcardDetailPage({
 
                     <div className="mt-6 flex gap-4">
                         <Link
-                            href={`/flashcard/${mockFlashCard.id}/memorize`}
+                            href={
+                                password
+                                    ? `/flashcard/${deck.id}/player?password=${encodeURIComponent(password)}`
+                                    : `/flashcard/${deck.id}/player`
+                            }
                             className="flex-1"
                         >
                             <Button
@@ -158,7 +191,11 @@ export default function FlashcardDetailPage({
                             </Button>
                         </Link>
                         <Link
-                            href={`/flashcard/${mockFlashCard.id}/learn`}
+                            href={
+                                password
+                                    ? `/flashcard/${deck.id}/learn?password=${encodeURIComponent(password)}`
+                                    : `/flashcard/${deck.id}/learn`
+                            }
                             className="flex-1"
                         >
                             <Button
@@ -179,7 +216,11 @@ export default function FlashcardDetailPage({
                             </Button>
                         </Link>
                         <Link
-                            href={`/flashcard/${mockFlashCard.id}/test`}
+                            href={
+                                password
+                                    ? `/flashcard/${deck.id}/test?password=${encodeURIComponent(password)}`
+                                    : `/flashcard/${deck.id}/test`
+                            }
                             className="flex-1"
                         >
                             <Button
@@ -200,7 +241,7 @@ export default function FlashcardDetailPage({
                             </Button>
                         </Link>
                     </div>
-                    <FlashcardPlayer cards={mockDeckItems} />
+                    <FlashcardPlayer cards={deckCards} />
                 </div>
             </div>
 
@@ -212,7 +253,7 @@ export default function FlashcardDetailPage({
                 </div>
 
                 <div className="space-y-3">
-                    {mockDeckItems.map((card, index) => (
+                    {deckCards.map((card, index) => (
                         <Card
                             key={card.id}
                             className="border border-gray-200 transition-shadow hover:shadow-md dark:border-gray-700 dark:bg-[#2e3856] dark:hover:shadow-xl dark:hover:shadow-black/20"
