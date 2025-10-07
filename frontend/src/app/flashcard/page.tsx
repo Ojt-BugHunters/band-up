@@ -56,6 +56,7 @@ function useDebounce<T>(value: T, delay = 1000) {
 export default function FlashcardPage() {
     const [search, setSearch] = useState('');
     const [visibility, setVisibility] = useState<string>('all');
+    const [isLearn, setIsLearn] = useState(false);
     const [pagination, setPagination] = useState<PaginationState>({
         pageSize: 8,
         pageIndex: 0,
@@ -97,6 +98,7 @@ export default function FlashcardPage() {
                 visibility === 'all' ||
                 (visibility === 'public' && deck.public) ||
                 (visibility === 'private' && !deck.public);
+            // const matchesLearnt = isLearn === false || deck.learnt === isLearn;
             return matchesSearch && matchesVisibility;
         });
     }, [data, search, visibility]);
@@ -190,6 +192,19 @@ export default function FlashcardPage() {
                             <SelectItem value="all">All</SelectItem>
                             <SelectItem value="public">Public</SelectItem>
                             <SelectItem value="private">Private</SelectItem>
+                        </SelectContent>
+                    </Select>
+
+                    <Select
+                        value={String(isLearn)}
+                        onValueChange={(val) => setIsLearn(val === 'true')}
+                    >
+                        <SelectTrigger className="w-[160px] rounded-lg border-slate-200 focus:ring-blue-200">
+                            <SelectValue placeholder="Learnt" />
+                        </SelectTrigger>
+                        <SelectContent>
+                            <SelectItem value="true">Learnt</SelectItem>
+                            <SelectItem value="false">Not Learnt</SelectItem>
                         </SelectContent>
                     </Select>
                     <Link href="/flashcard/new">
