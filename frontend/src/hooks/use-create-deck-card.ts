@@ -6,7 +6,7 @@ import { fetchWrapper, throwIfError } from '@/lib/api';
 import { toast } from 'sonner';
 import { useRouter } from 'next/navigation';
 
-export const createDeckSchema = z.object({
+const baseSchema = z.object({
     title: z.string().min(1, 'Title is required'),
     description: z.string().optional(),
     cards: z
@@ -19,6 +19,19 @@ export const createDeckSchema = z.object({
         .min(1, 'At least one card is required'),
     public: z.boolean(),
     password: z.string().optional(),
+});
+
+export const createDeckSchema = baseSchema.superRefine((values, ctx) => {
+    if (!values.public) {
+        const password = values.password?.trim();
+        if (!password || password.length < 4) {
+            ctx.addIssue({
+                code: z.ZodIssueCode.custom,
+                message: 'Password must be at least 4 characters for private decks',
+                path: ['password'],
+            });
+        }
+    }
 });
 
 export type CreateDeckFormValues = z.infer<typeof createDeckSchema>;
@@ -51,7 +64,18 @@ export function useCreateDeck() {
 
     const form = useForm<CreateDeckFormValues>({
         resolver: zodResolver(createDeckSchema),
-        defaultValues: {},
+        defaultValues: {
+            title: '',
+            description: '',
+            public: true,
+            password: '',
+            cards: [
+                {
+                    front: '',
+                    back: '',
+                },
+            ],
+        },
     });
 
     return {

@@ -17,11 +17,12 @@ import { Input } from './ui/input';
 import { Textarea } from './ui/textarea';
 import { Switch } from './ui/switch';
 import { Eye, EyeOff, GripVertical, Plus, Trash2 } from 'lucide-react';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 
 export default function CreateDeckForm() {
     const [showPassword, setShowPassword] = useState(false);
     const { form, mutation } = useCreateDeck();
+    const isPublic = form.watch('public');
     const { fields, append, remove } = useFieldArray({
         control: form.control,
         name: 'cards',
@@ -31,6 +32,18 @@ export default function CreateDeckForm() {
         mutation.mutate(data);
         console.log(data);
     };
+
+    useEffect(() => {
+        if (isPublic) {
+            form.setValue('password', '', {
+                shouldDirty: false,
+                shouldTouch: false,
+                shouldValidate: false,
+            });
+            form.clearErrors('password');
+            setShowPassword(false);
+        }
+    }, [form, isPublic]);
 
     const addCard = () => {
         append({
@@ -125,7 +138,7 @@ export default function CreateDeckForm() {
                                     render={({ field }) => (
                                         <FormControl>
                                             <Switch
-                                                checked={field.value}
+                                                checked={!!field.value}
                                                 onCheckedChange={field.onChange}
                                             />
                                         </FormControl>
@@ -133,14 +146,14 @@ export default function CreateDeckForm() {
                                 />
                             </div>
 
-                            {!form.watch('public') && (
+                            {!isPublic && (
                                 <FormField
                                     control={form.control}
                                     name="password"
                                     render={({ field }) => (
                                         <FormItem>
                                             <FormLabel className="text-base font-semibold">
-                                                Password (Optional)
+                                                Password
                                             </FormLabel>
                                             <FormControl>
                                                 <div className="relative">
