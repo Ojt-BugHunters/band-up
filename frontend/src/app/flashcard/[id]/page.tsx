@@ -1,6 +1,4 @@
 'use client';
-
-import { use } from 'react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import {
@@ -21,21 +19,14 @@ import {
     DropdownMenuItem,
     DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
-import {
-    mockDeckItems,
-    mockFlashCard,
-} from '../../../../constants/sample-data';
+import { useParams } from 'next/navigation';
+import { DeckCard } from '@/lib/api/dto/flashcard';
 
-type FlashcardDetailPageProps = {
-    params: Promise<{ deckId: string }>;
-};
-
-export default function FlashcardDetailPage({
-    params,
-}: FlashcardDetailPageProps) {
-    const { deckId } = use(params);
-
-    const totalCards = mockDeckItems.length;
+export default function FlashcardDetailPage() {
+    const { id } = useParams<{ id: string }>();
+    const raw = localStorage.getItem(`deck:${id}`);
+    const deckCard: DeckCard = raw ? JSON.parse(raw) : null;
+    const totalCards = deckCard?.cards.length;
 
     return (
         <div className="mt-20 min-h-screen bg-gray-50 dark:bg-[#0a092d]">
@@ -44,37 +35,35 @@ export default function FlashcardDetailPage({
                     <div className="flex items-start justify-between">
                         <div className="flex-1">
                             <h1 className="mb-3 text-3xl font-bold text-gray-900 dark:text-white">
-                                {mockFlashCard.title}
+                                {deckCard?.title}
                             </h1>
                             <div className="mb-4 flex items-center gap-3 text-sm text-gray-600 dark:text-gray-400">
                                 <div className="flex items-center gap-2">
                                     <div className="h-8 w-8">
                                         <AccountPicture
-                                            name={mockFlashCard.authorName}
+                                            name={deckCard?.authorName}
                                         />
                                     </div>
                                     <span className="font-medium dark:text-gray-300">
-                                        {mockFlashCard.authorName}
+                                        {deckCard?.authorName}
                                     </span>
                                 </div>
                                 <span>•</span>
                                 <span>
                                     {new Date(
-                                        mockFlashCard.createdAt,
+                                        deckCard?.createdAt,
                                     ).toLocaleDateString()}
                                 </span>
                                 <span>•</span>
                                 <Badge
                                     variant="secondary"
                                     className={
-                                        mockFlashCard.public
+                                        deckCard?.public
                                             ? 'border-0 bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400'
                                             : 'border-0 bg-gray-200 text-gray-700 dark:bg-gray-700/50 dark:text-gray-300'
                                     }
                                 >
-                                    {mockFlashCard.public
-                                        ? 'Public'
-                                        : 'Private'}
+                                    {deckCard?.public ? 'Public' : 'Private'}
                                 </Badge>
                             </div>
                         </div>
@@ -172,7 +161,7 @@ export default function FlashcardDetailPage({
                             </Button>
                         </Link>
                     </div>
-                    <FlashcardPlayer cards={mockDeckItems} />
+                    <FlashcardPlayer deckCards={deckCard} />
                 </div>
             </div>
 
@@ -184,7 +173,7 @@ export default function FlashcardDetailPage({
                 </div>
 
                 <div className="space-y-3">
-                    {mockDeckItems.map((card, index) => (
+                    {deckCard?.cards.map((card, index) => (
                         <Card
                             key={card.id}
                             className="border border-gray-200 transition-shadow hover:shadow-md dark:border-gray-700 dark:bg-[#2e3856] dark:hover:shadow-xl dark:hover:shadow-black/20"
