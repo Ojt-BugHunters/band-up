@@ -12,8 +12,8 @@ const DATABASE_URL =
     process.env.DATABASE_URL ||
     'postgres://postgres:123456@localhost:5432/band_up';
 
-const NUM_ACCOUNTS = Number(process.env.SEED_ACCOUNTS ?? 10);
-const NUM_DECKS = Number(process.env.SEED_DECKS ?? 250);
+const NUM_ACCOUNTS = Number(process.env.SEED_ACCOUNTS ?? 20); // số account muốn thêm (không tính các account đã có)
+const NUM_DECKS = Number(process.env.SEED_DECKS ?? 300);
 
 const ROLES = ['Admin', 'Member'] as const;
 const GENDERS = ['Male', 'Female'] as const;
@@ -26,7 +26,6 @@ function randomBirthday(): string {
         .subtract(faker.number.int({ min: 0, max: 364 }), 'day')
         .format('YYYY-MM-DD');
 }
-
 function randomCreatedAt(): Date {
     const days = faker.number.int({ min: 0, max: 365 });
     return dayjs()
@@ -36,7 +35,11 @@ function randomCreatedAt(): Date {
 }
 
 async function connectOrExit() {
-    const client = new Client({ connectionString: DATABASE_URL });
+    const client = new Client({
+        connectionString: DATABASE_URL,
+        connectionTimeoutMillis: 3000,
+    });
+    client.on('error', (e) => console.error('PG client error:', e));
     try {
         await client.connect();
         return client;
@@ -46,21 +49,42 @@ async function connectOrExit() {
     }
 }
 
-// ==== SEED ACCOUNT ====
-async function seedAccounts(client: pkg.ClientBase) {
-    console.log('→ Clearing account...');
-    await client.query('DELETE FROM public.account;');
+// ==== LOAD EXISTING (for prod) ====
+async function loadExistingAccounts(client: pkg.ClientBase) {
+    const { rows } = await client.query<{ id: string; email: string }>(
+        `SELECT id, email FROM public.account;`
+    );
+    const emails = new Set(rows.map((r) => r.email.toLowerCase()));
+    const ids = rows.map((r) => r.id);
+    return { existingEmails: emails, existingAccountIds: ids };
+}
+async function loadExistingDeckIds(client: pkg.ClientBase) {
+    const { rows } = await client.query<{ id: string }>(
+        `SELECT id FROM public.deck;`
+    );
+    return rows.map((r) => r.id);
+}
+
+// ==== SEED ACCOUNT (ADD-ONLY, SKIP hoang@gmail.com) ====
+async function seedAccountsAddOnly(
+    client: pkg.ClientBase,
+    existingEmails: Set<string>
+) {
+    console.log('→ Adding accounts (no delete)…');
 
     const plainPassword = 'Test@123';
     const hashedPassword = await bcrypt.hash(plainPassword, 10);
 
-    const usedEmails = new Set<string>();
     const rows: any[] = [];
+    const usedInBatch = new Set<string>();
 
     for (let i = 0; i < NUM_ACCOUNTS; i++) {
         const id = uuidv4();
         const name = faker.person.fullName();
+
+        // tạo email không trùng với DB hiện có và batch hiện tại
         let email: string;
+        let tries = 0;
         do {
             email = faker.internet
                 .email({
@@ -68,8 +92,14 @@ async function seedAccounts(client: pkg.ClientBase) {
                     lastName: name.split(' ').slice(-1)[0],
                 })
                 .toLowerCase();
-        } while (usedEmails.has(email));
-        usedEmails.add(email);
+            tries++;
+            if (tries > 10) email = `${uuidv4()}@example.com`; // fallback
+        } while (
+            existingEmails.has(email) ||
+            usedInBatch.has(email) ||
+            email === 'hoang@gmail.com' // không chèn user này
+        );
+        usedInBatch.add(email);
 
         rows.push({
             id,
@@ -82,8 +112,13 @@ async function seedAccounts(client: pkg.ClientBase) {
             name,
             password: hashedPassword,
             phone: '09' + faker.string.numeric(8),
-            role: i < 2 ? ROLES[0] : ROLES[1],
+            role: ROLES[1], // Member
         });
+    }
+
+    if (rows.length === 0) {
+        console.log('⚠️ No new accounts to insert.');
+        return [];
     }
 
     const columns = [
@@ -128,29 +163,28 @@ async function seedAccounts(client: pkg.ClientBase) {
         values
     );
 
-    console.log('✅ Seed account done.');
+    console.log(`✅ Inserted ${rows.length} new accounts.`);
     return rows.map((r) => r.id);
 }
 
-// ==== SEED DECK ====
-async function seedDecks(client: pkg.ClientBase, accountIds: string[]) {
-    console.log(`→ Clearing deck...`);
-    await client.query('DELETE FROM public.deck;');
+// ==== SEED DECK (ADD-ONLY) ====
+async function seedDecksAddOnly(
+    client: pkg.ClientBase,
+    allAccountIds: string[]
+) {
+    console.log(`→ Adding ${NUM_DECKS} decks…`);
 
     const decks: any[] = [];
-
     for (let i = 0; i < NUM_DECKS; i++) {
-        const id = uuidv4();
-        const account_id = faker.helpers.arrayElement(accountIds);
         decks.push({
-            id,
+            id: uuidv4(),
             created_at: randomCreatedAt(),
             description: faker.lorem.sentence(),
             is_public: faker.datatype.boolean(),
             learner_number: faker.number.int({ min: 0, max: 500 }),
             password: null,
             title: faker.word.words({ count: { min: 2, max: 4 } }),
-            account_id,
+            account_id: faker.helpers.arrayElement(allAccountIds),
         });
     }
 
@@ -190,18 +224,19 @@ async function seedDecks(client: pkg.ClientBase, accountIds: string[]) {
         values
     );
 
-    console.log('✅ Seed deck done.');
+    console.log(`✅ Inserted ${decks.length} decks.`);
     return decks.map((d) => d.id);
 }
 
-// ==== SEED CARD ====
-async function seedCards(client: pkg.ClientBase, deckIds: string[]) {
-    console.log('→ Clearing card...');
-    await client.query('DELETE FROM public.card;');
+// ==== SEED CARD (ADD-ONLY) ====
+async function seedCardsAddOnly(
+    client: pkg.ClientBase,
+    deckIdsJustCreated: string[]
+) {
+    console.log('→ Adding cards (20–35 per new deck)…');
 
     const cards: any[] = [];
-
-    for (const deckId of deckIds) {
+    for (const deckId of deckIdsJustCreated) {
         const numCards = faker.number.int({ min: 20, max: 35 });
         for (let i = 0; i < numCards; i++) {
             cards.push({
@@ -211,6 +246,11 @@ async function seedCards(client: pkg.ClientBase, deckIds: string[]) {
                 deck_id: deckId,
             });
         }
+    }
+
+    if (cards.length === 0) {
+        console.log('⚠️ No cards to insert.');
+        return [];
     }
 
     const columns = ['id', 'front', 'back', 'deck_id'];
@@ -230,48 +270,55 @@ async function seedCards(client: pkg.ClientBase, deckIds: string[]) {
         values
     );
 
-    console.log('✅ Seed card done.');
-    return cards.map((c) => ({
-        id: c.id,
-        deck_id: c.deck_id,
-    }));
+    console.log(`✅ Inserted ${cards.length} cards.`);
+    return Array.from(new Set(cards.map((c) => c.deck_id)));
 }
 
-// ==== SEED STUDY_PROGRESS ====
-async function seedStudyProgress(
+// ==== SEED STUDY_PROGRESS (ADD-ONLY, BY DECK) ====
+async function seedStudyProgressAddOnly(
     client: pkg.ClientBase,
-    accountIds: string[],
-    cards: { id: string; deck_id: string }[]
+    allAccountIds: string[],
+    allDeckIds: string[]
 ) {
-    console.log('→ Clearing study_progress...');
-    await client.query('DELETE FROM public.study_progress;');
+    console.log('→ Adding study_progress (by deck)…');
 
-    const progresses: any[] = [];
-    for (const accId of accountIds) {
-        const learned = faker.helpers.arrayElements(cards, {
-            min: 10,
-            max: 40,
+    const progresses: Array<{
+        id: string;
+        account_id: string;
+        deck_id: string;
+    }> = [];
+    const batchDedup = new Set<string>(); // key = account_id|deck_id
+
+    for (const accId of allAccountIds) {
+        const learnedDecks = faker.helpers.arrayElements(allDeckIds, {
+            min: Math.min(1, allDeckIds.length),
+            max: Math.min(8, allDeckIds.length),
         });
-        for (const item of learned) {
+        for (const deckId of learnedDecks) {
+            const k = `${accId}|${deckId}`;
+            if (batchDedup.has(k)) continue;
+            batchDedup.add(k);
             progresses.push({
                 id: uuidv4(),
                 account_id: accId,
-                card_id: item.id,
-                deck_id: item.deck_id,
+                deck_id: deckId,
             });
         }
     }
 
-    const columns = ['id', 'account_id', 'card_id', 'deck_id'];
+    if (progresses.length === 0) {
+        console.log('⚠️ No study_progress to insert.');
+        return;
+    }
+
+    const columns = ['id', 'account_id', 'deck_id'];
     const values: any[] = [];
     const placeholders: string[] = [];
 
     progresses.forEach((r, idx) => {
         const base = idx * columns.length;
-        placeholders.push(
-            `($${base + 1}, $${base + 2}, $${base + 3}, $${base + 4})`
-        );
-        values.push(r.id, r.account_id, r.card_id, r.deck_id);
+        placeholders.push(`($${base + 1}, $${base + 2}, $${base + 3})`);
+        values.push(r.id, r.account_id, r.deck_id);
     });
 
     await client.query(
@@ -279,24 +326,44 @@ async function seedStudyProgress(
         values
     );
 
-    console.log('✅ Seed study_progress done.');
+    console.log(`✅ Inserted ${progresses.length} study_progress rows.`);
 }
 
 // ==== MAIN ====
 async function main() {
     const client = await connectOrExit();
-    console.log('✅ Connected to PostgreSQL');
+    console.log('✅ Connected to PostgreSQL (prod add-only)');
 
     try {
         await client.query('BEGIN');
 
-        const accountIds = await seedAccounts(client);
-        const deckIds = await seedDecks(client, accountIds);
-        const cards = await seedCards(client, deckIds);
-        await seedStudyProgress(client, accountIds, cards);
+        // 1) Lấy sẵn tài khoản & email đang có
+        const { existingEmails, existingAccountIds } =
+            await loadExistingAccounts(client);
+
+        // 2) Thêm accounts mới (ngoại trừ hoang@gmail.com)
+        const newAccountIds = await seedAccountsAddOnly(client, existingEmails);
+
+        // 3) Toàn bộ account để dùng cho deck: account cũ + account vừa thêm
+        const allAccountIds = [...existingAccountIds, ...newAccountIds];
+
+        // 4) Thêm deck mới (gán vào all accounts)
+        const newDeckIds = await seedDecksAddOnly(client, allAccountIds);
+
+        // 5) Thêm cards cho các deck mới
+        const deckIdsWithCards = await seedCardsAddOnly(client, newDeckIds);
+
+        // 6) Lấy toàn bộ deck id (cũ + mới) để tạo study_progress
+        const existingDeckIds = await loadExistingDeckIds(client);
+        const allDeckIds = Array.from(
+            new Set([...existingDeckIds, ...deckIdsWithCards])
+        );
+
+        // 7) Thêm study_progress (add-only)
+        await seedStudyProgressAddOnly(client, allAccountIds, allDeckIds);
 
         await client.query('COMMIT');
-        console.log('🎉 All seed done (transaction committed).');
+        console.log('🎉 Seed add-only done (transaction committed).');
     } catch (err) {
         await client.query('ROLLBACK');
         console.error('❌ Error, transaction rolled back:', err);
