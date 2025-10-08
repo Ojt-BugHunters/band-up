@@ -23,3 +23,9 @@ export interface DeckCard {
     public?: boolean;
     cards: Card[];
 }
+
+export interface FlashCardData {
+    totalCards: number;
+    totalDecks: number;
+    totalLearners: number;
+}

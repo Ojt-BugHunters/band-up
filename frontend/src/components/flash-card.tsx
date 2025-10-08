@@ -31,11 +31,13 @@ import { Globe, Lock, User, Eye, EyeOff } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useJoinPrivateDeck } from '@/hooks/use-join-private-deck';
 import { Deck } from '@/lib/api/dto/flashcard';
+import { useLearnDeck } from '@/hooks/use-learn-deck';
 
 export default function FlashcardCard({ card }: { card: Deck }) {
     const [showDialog, setShowDialog] = useState(false);
     const [showPassword, setShowPassword] = useState(false);
     const { form, mutation } = useJoinPrivateDeck(card.id);
+    const { mutate: learnMutate } = useLearnDeck(card.id);
 
     const createdAt = card.createdAt ? new Date(card.createdAt) : null;
     const createdLabel =
@@ -57,11 +59,20 @@ export default function FlashcardCard({ card }: { card: Deck }) {
         }
     };
 
+    const handleLearnCard = () => {
+        learnMutate();
+    };
+
     const onSubmit = ({ password }: { password: string }) => {
         mutation.mutate(password);
         setShowDialog(false);
         setShowPassword(false);
         form.reset();
+    };
+
+    const handleClick = (e: React.MouseEvent) => {
+        handleCardClick(e);
+        handleLearnCard();
     };
 
     const handleDialogClose = () => {
@@ -72,11 +83,7 @@ export default function FlashcardCard({ card }: { card: Deck }) {
 
     return (
         <>
-            <Link
-                href={`/flashcard/${card.id}`}
-                passHref
-                onClick={handleCardClick}
-            >
+            <Link href={`/flashcard/${card.id}`} passHref onClick={handleClick}>
                 <Card
                     className={cn(
                         'h-full transform cursor-pointer transition-all duration-300 hover:-translate-y-1 hover:scale-[1.02] hover:shadow-2xl',

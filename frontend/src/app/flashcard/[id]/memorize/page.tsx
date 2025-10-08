@@ -1,7 +1,6 @@
 'use client';
 
 import React from 'react';
-import FlashcardPlayer from '@/components/flashcard-player';
 import { Button } from '@/components/ui/button';
 import {
     DropdownMenu,
