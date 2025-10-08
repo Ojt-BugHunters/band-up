@@ -59,7 +59,7 @@ export function useEditDeck(deckId: string) {
 
   const mutation = useMutation({
     mutationFn: async (values: z.infer<typeof editDeckSchema>) => {
-      const response = await fetchWrapper(`/quizlet/deck/${deckId}`, {
+      const response = await fetchWrapper(`/quizlet/deck/${deckId}/update`, {
         method: "PUT",
         headers: {
           Accept: "application/json",
