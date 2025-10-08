@@ -12,6 +12,8 @@ import {
 } from '@/components/ui/dropdown-menu';
 import { X, BookOpen, Brain, TestTubes, ChevronDown } from 'lucide-react';
 import Link from 'next/link';
+import FlashcardPlayer from '@/components/flashcard-player';
+import { DeckCard } from '@/lib/api/dto/flashcard';
 
 export default function MemorizePage({
     params,
@@ -19,6 +21,8 @@ export default function MemorizePage({
     params: Promise<{ id: string }>;
 }) {
     const { id } = React.use(params);
+    const raw = localStorage.getItem(`deck:${id}`);
+    const deckCard: DeckCard = raw ? JSON.parse(raw) : null;
 
     return (
         <div className="bg-background flex min-h-screen flex-col">
@@ -80,11 +84,11 @@ export default function MemorizePage({
                 </div>
             </header>
 
-            {/* <main className="flex flex-grow items-center justify-center px-6 py-10">
+            <main className="flex flex-grow items-center justify-center px-6 py-10">
                 <div className="w-full max-w-4xl">
-                    <FlashcardPlayer cards={mockDeckItems} />
+                    <FlashcardPlayer deckCards={deckCard} />
                 </div>
-            </main> */}
+            </main>
         </div>
     );
 }
