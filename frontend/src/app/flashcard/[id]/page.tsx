@@ -127,7 +127,10 @@ export default function FlashcardDetailPage() {
                                 </div>
                             </Button>
                         </Link>
-                        <Link href="/" className="flex-1">
+                        <Link
+                            href={`/flashcard/${id}/memorize`}
+                            className="flex-1"
+                        >
                             <Button
                                 variant="outline"
                                 className="h-auto w-full justify-start py-4 dark:border-gray-700 dark:bg-[#2e3856] dark:hover:bg-[#3d4a6b]"
