@@ -35,7 +35,7 @@ export default function MemorizePage({
                                     variant="outline"
                                     className="border-muted hover:bg-muted/30 flex items-center gap-2 rounded-xl px-4 py-2 text-base font-medium"
                                 >
-                                    <BookOpen className="text-primary h-5 w-5" />
+                                    <BookOpen className="h-5 w-5 text-rose-500" />
                                     Flashcards
                                     <ChevronDown className="h-4 w-4 opacity-70" />
                                 </Button>
@@ -50,13 +50,19 @@ export default function MemorizePage({
                                 </DropdownMenuLabel>
                                 <DropdownMenuSeparator />
                                 <DropdownMenuItem className="hover:bg-muted/40 focus:bg-muted/40 flex cursor-pointer items-center gap-2">
-                                    <Link href="/">
+                                    <Link
+                                        href={`/flashcard/${id}/learn`}
+                                        className="flex gap-2 text-sm font-semibold"
+                                    >
                                         <Brain className="h-4 w-4 text-blue-500" />
                                         Learn
                                     </Link>
                                 </DropdownMenuItem>
                                 <DropdownMenuItem className="hover:bg-muted/40 focus:bg-muted/40 flex cursor-pointer items-center gap-2">
-                                    <Link href="/">
+                                    <Link
+                                        href={`/flashcard/${id}/test`}
+                                        className="flex gap-2 text-sm font-semibold"
+                                    >
                                         <TestTubes className="h-4 w-4 text-green-500" />
                                         Test
                                     </Link>
@@ -67,7 +73,7 @@ export default function MemorizePage({
 
                     <div className="absolute left-1/2 -translate-x-1/2">
                         <h1 className="text-foreground text-lg font-semibold tracking-tight">
-                            JPDI13 - Grammar Summary
+                            {deckCard.title}
                         </h1>
                     </div>
 
