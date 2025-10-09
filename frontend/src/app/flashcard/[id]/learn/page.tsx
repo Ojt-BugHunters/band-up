@@ -3,10 +3,11 @@
 import { LearnModeDialog } from '@/components/learn-mode-dialog';
 import { QuizInterface } from '@/components/quiz-interface';
 import { DeckCard } from '@/lib/api/dto/flashcard';
-import { useParams } from 'next/navigation';
+import { useParams, useRouter } from 'next/navigation';
 import { useState } from 'react';
 
 export default function FlashCardTestPage() {
+    const router = useRouter();
     const { id } = useParams<{ id: string }>();
     const raw = localStorage.getItem(`deck:${id}`);
     const deckCard: DeckCard = raw ? JSON.parse(raw) : null;
@@ -21,6 +22,7 @@ export default function FlashCardTestPage() {
     const handleComplete = () => {
         setLearnMode(null);
         setDeck(null);
+        router.push(`/flashcard/${id}`);
     };
     return (
         <div className="bg-background mt-20 min-h-screen dark:bg-[#0a092d]">
