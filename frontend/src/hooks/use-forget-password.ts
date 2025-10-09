@@ -1,4 +1,4 @@
-import { fetchWrapper, throwIfError } from '@/lib/api';
+import { buildParams, fetchWrapper, throwIfError } from '@/lib/api';
 import { useMutation } from '@tanstack/react-query';
 import { useRouter } from 'next/navigation';
 import { toast } from 'sonner';
@@ -22,8 +22,10 @@ export const useForgetPassword = () => {
         onError: (error) => {
             toast.error(error.message);
         },
-        onSuccess: () => {
-            router.push('/auth/forget-password');
+        onSuccess: (email) => {
+            toast.success('We have sent a verification code to your email.');
+            const qs = buildParams({ email }).toString();
+            router.push(`/auth/forget-password?${qs}`);
         },
     });
     return mutation;
