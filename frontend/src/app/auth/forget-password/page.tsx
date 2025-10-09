@@ -1,15 +1,9 @@
 'use client';
-
-import { zodResolver } from '@hookform/resolvers/zod';
-import { useForm } from 'react-hook-form';
-import * as z from 'zod';
-import { useMutation } from '@tanstack/react-query';
-import { Loader2, CheckCircle2 } from 'lucide-react';
+import { Loader2, CheckCircle2, Shield } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import {
     Form,
     FormControl,
-    FormDescription,
     FormField,
     FormItem,
     FormLabel,
@@ -21,26 +15,26 @@ import {
     InputOTPSlot,
 } from '@/components/ui/input-otp';
 import { toast } from 'sonner';
-
-const formSchema = z.object({
-    otp: z.string().min(6, {
-        message: 'Please enter the complete 6-digit code.',
-    }),
-});
-
-type FormValues = z.infer<typeof formSchema>;
+import { useSearchParams } from 'next/navigation';
+import { OtpFormValues } from '@/hooks/use-verify-otp';
+import { useVerifyOtp } from '@/hooks/use-verify-otp';
 
 export function OtpVerificationForm() {
-    const form = useForm<FormValues>({
-        resolver: zodResolver(formSchema),
-        defaultValues: {
-            otp: '',
-        },
-    });
+    const searchParams = useSearchParams();
+    const email = searchParams.get('variables') ?? '';
+    const { form, mutation } = useVerifyOtp();
 
-    function onSubmit(values: FormValues) {
-        console.log(values);
-    }
+    const onSubmit = (values: OtpFormValues) => {
+        if (!email) {
+            toast.error(
+                'Missing email. Please go back and enter your email again.',
+            );
+            return;
+        }
+        mutation.mutate({ email, otp: values.otp });
+    };
+
+    const disabled = mutation.isPending || form.watch('otp').length !== 6;
 
     return (
         <Form {...form}>
@@ -58,7 +52,7 @@ export function OtpVerificationForm() {
                                     maxLength={6}
                                     value={field.value}
                                     onChange={field.onChange}
-                                    // disabled={mutation.isPending}
+                                    disabled={mutation.isPending}
                                     className="gap-3"
                                 >
                                     <InputOTPGroup className="gap-3">
@@ -89,20 +83,15 @@ export function OtpVerificationForm() {
                                     </InputOTPGroup>
                                 </InputOTP>
                             </FormControl>
-                            <FormDescription className="text-center">
-                                Enter the 6-digit code sent to your email
-                            </FormDescription>
                             <FormMessage />
                         </FormItem>
                     )}
                 />
 
-                {/* <Button
+                <Button
                     type="submit"
                     className="h-12 w-full text-base font-medium"
-                    disabled={
-                        mutation.isPending || form.getValues('otp').length !== 6
-                    }
+                    disabled={disabled}
                 >
                     {mutation.isPending ? (
                         <>
@@ -117,7 +106,7 @@ export function OtpVerificationForm() {
                     ) : (
                         'Verify Code'
                     )}
-                </Button> */}
+                </Button>
             </form>
         </Form>
     );
@@ -125,8 +114,42 @@ export function OtpVerificationForm() {
 
 export default function ForgetPassword() {
     return (
-        <div>
-            <h1>Forget</h1>
+        <div className="bg-background flex min-h-screen items-center justify-center p-4">
+            <div className="w-full max-w-md space-y-8">
+                <div className="space-y-4 text-center">
+                    <div className="flex justify-center">
+                        <div className="bg-accent/10 rounded-full p-4">
+                            <Shield className="text-accent h-8 w-8" />
+                        </div>
+                    </div>
+                    <div className="space-y-2">
+                        <h1 className="text-3xl font-bold tracking-tight text-balance">
+                            Verify your identity
+                        </h1>
+                        <p className="text-muted-foreground leading-relaxed text-pretty">
+                            We have sent a 6-digit verification code to your
+                            email. Enter it below to continue.
+                        </p>
+                    </div>
+                </div>
+
+                <OtpVerificationForm />
+
+                <div className="space-y-4 text-center">
+                    <p className="text-muted-foreground text-sm">
+                        Didn&apos;t receive the code?{' '}
+                        <button
+                            type="button"
+                            className="text-accent hover:text-accent/80 font-medium transition-colors"
+                        >
+                            Resend code
+                        </button>
+                    </p>
+                    <p className="text-muted-foreground text-xs">
+                        This code will expire in 10 minutes
+                    </p>
+                </div>
+            </div>
         </div>
     );
 }

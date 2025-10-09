@@ -3,6 +3,9 @@ import { useMutation } from '@tanstack/react-query';
 import z from 'zod';
 import { buildParams } from '@/lib/api';
 import { toast } from 'sonner';
+import { useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { useRouter } from 'next/navigation';
 
 export const otpSchema = z.object({
     otp: z
@@ -13,7 +16,10 @@ export const otpSchema = z.object({
 
 type VerifyOtpVars = { email: string; otp: string };
 
+export type OtpFormValues = z.infer<typeof otpSchema>;
+
 export const useVerifyOtp = () => {
+    const router = useRouter();
     const mutation = useMutation({
         mutationFn: async ({ email, otp }: VerifyOtpVars) => {
             const paramData = buildParams({ email, inputOtp: otp }).toString();
@@ -32,6 +38,7 @@ export const useVerifyOtp = () => {
         onSuccess: (ok) => {
             if (ok) {
                 toast.success('OTP verify successfully');
+                router.push('/auth/reset');
             } else {
                 toast.error('Invalid OTP. Try again');
             }
@@ -40,5 +47,12 @@ export const useVerifyOtp = () => {
             toast.error(error.message);
         },
     });
-    return mutation;
+
+    const form = useForm<OtpFormValues>({
+        resolver: zodResolver(otpSchema),
+        defaultValues: { otp: '' },
+        mode: 'onSubmit',
+    });
+
+    return { form, mutation };
 };
