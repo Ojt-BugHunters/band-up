@@ -51,6 +51,7 @@
     "clsx": "^2.1.1",
     "date-fns": "^4.1.0",
     "framer-motion": "^12.23.13",
+    "input-otp": "^1.4.2",
     "lowlight": "^3.3.0",
     "lucide-react": "^0.544.0",
     "motion": "^12.23.16",
