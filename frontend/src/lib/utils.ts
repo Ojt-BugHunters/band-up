@@ -20,7 +20,7 @@ export function clearDecksFromLocalStorage() {
 
 export function initDeckAutoClear() {
     clearDecksFromLocalStorage();
-    setInterval(clearDecksFromLocalStorage, 15 * 60 * 1000);
+    setInterval(clearDecksFromLocalStorage, 5 * 60 * 60 * 1000);
 }
 
 export function useDebounce<T>(value: T, delay = 1000) {
