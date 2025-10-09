@@ -1,6 +1,7 @@
 'use client';
 
 import { LearnModeDialog } from '@/components/learn-mode-dialog';
+import { QuizInterface } from '@/components/quiz-interface';
 import { DeckCard } from '@/lib/api/dto/flashcard';
 import { useParams } from 'next/navigation';
 import { useState } from 'react';
@@ -27,6 +28,13 @@ export default function FlashCardTestPage() {
                 <div className="mx-auto max-w-7xl px-6 py-6">
                     {!learnMode && (
                         <LearnModeDialog onModeSelect={handleModeSelect} />
+                    )}
+                    {learnMode && deck && (
+                        <QuizInterface
+                            deck={deck}
+                            mode={learnMode}
+                            onComplete={handleComplete}
+                        />
                     )}
                 </div>
             </div>
