@@ -35,10 +35,14 @@ export const useVerifyOtp = () => {
             await throwIfError(response);
             return await parseBoolean(response);
         },
-        onSuccess: (ok) => {
+        onSuccess: (ok, variables) => {
             if (ok) {
                 toast.success('OTP verify successfully');
-                router.push('/auth/reset');
+                const qs = buildParams({
+                    email: variables.email,
+                    otp: variables.otp,
+                }).toString();
+                router.push(`/auth/reset?${qs}`);
             } else {
                 toast.error('Invalid OTP. Try again');
             }
