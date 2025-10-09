@@ -83,12 +83,12 @@ const LoginForm = ({ className, ...props }: React.ComponentProps<'div'>) => {
                                                 <FormLabel htmlFor="password">
                                                     Password
                                                 </FormLabel>
-                                                <a
-                                                    href="#"
+                                                <Link
+                                                    href="/auth/forget-password"
                                                     className="ml-auto text-sm underline-offset-2 hover:underline"
                                                 >
                                                     Forgot your password?
-                                                </a>
+                                                </Link>
                                             </div>
                                             <FormControl>
                                                 <div className="relative">
@@ -151,7 +151,7 @@ const LoginForm = ({ className, ...props }: React.ComponentProps<'div'>) => {
                                         Or continue with
                                     </span>
                                 </div>
-                                <div className="grid grid-cols-2 gap-4">
+                                <div>
                                     <Button
                                         variant="outline"
                                         type="button"
@@ -159,14 +159,6 @@ const LoginForm = ({ className, ...props }: React.ComponentProps<'div'>) => {
                                     >
                                         <FcGoogle />
                                         Google
-                                    </Button>
-                                    <Button
-                                        variant="outline"
-                                        type="button"
-                                        className="w-full cursor-pointer"
-                                    >
-                                        <FaFacebook className="text-2xl text-blue-600" />
-                                        Facebook
                                     </Button>
                                 </div>
                                 <div className="text-center text-sm">
