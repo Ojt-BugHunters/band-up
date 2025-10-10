@@ -139,9 +139,12 @@ public class DeckServiceImpl implements DeckService {
         if(!deck.getAccount().getId().equals(accountId))
             throw new AuthenticationFailedException("Unauthorized");
         Deck updatedDeck = modelMapper.map(deckDto, Deck.class);
-        if(deckDto.getCards() != null)
+        if(deckDto.getCards() != null && !deckDto.getCards().isEmpty())
             deck.setCards(updatedDeck.getCards());
         deck.setPublic(updatedDeck.isPublic());
+        if(!deck.isPublic()) {
+            deck.setPassword(passwordEncoder.encode(deckDto.getPassword()));
+        } else deck.setPassword(null);
         deck.setTitle(updatedDeck.getTitle());
         deck.setDescription(updatedDeck.getDescription());
         deck = deckRepository.save(deck);
