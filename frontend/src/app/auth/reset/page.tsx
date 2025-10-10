@@ -1,4 +1,6 @@
 'use client';
+
+import { Suspense } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import {
@@ -205,10 +207,12 @@ export function ResetPasswordForm() {
 
 export default function ResetPasswordPage() {
     return (
-        <div className="flex min-h-screen items-center justify-center p-4">
-            <div className="w-full max-w-md">
-                <ResetPasswordForm />
+        <Suspense>
+            <div className="flex min-h-screen items-center justify-center p-4">
+                <div className="w-full max-w-md">
+                    <ResetPasswordForm />
+                </div>
             </div>
-        </div>
+        </Suspense>
     );
 }
