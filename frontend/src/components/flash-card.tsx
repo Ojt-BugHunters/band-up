@@ -83,11 +83,6 @@ export default function FlashcardCard({ card }: { card: Deck }) {
         form.reset();
     };
 
-    const handleClick = (e: React.MouseEvent) => {
-        handleCardClick(e);
-        handleLearnCard();
-    };
-
     const handleDialogClose = () => {
         setShowDialog(false);
         form.reset();

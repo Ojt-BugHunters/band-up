@@ -48,3 +48,17 @@ export const buildParams = (data: Record<string, unknown>) => {
     }
     return params;
 };
+
+export async function parseBoolean(res: Response): Promise<boolean> {
+    try {
+        const data = await res.clone().json();
+        if (typeof data === 'boolean') return data;
+        if (typeof data === 'string') return data.toLowerCase() === 'true';
+    } catch {}
+    try {
+        const txt = (await res.text()).trim().toLowerCase();
+        return txt === 'true';
+    } catch {
+        return false;
+    }
+}
