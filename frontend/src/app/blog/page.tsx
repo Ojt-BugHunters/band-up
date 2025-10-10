@@ -18,25 +18,50 @@ import { Button } from '@/components/ui/button';
 import { AsyncSelect } from '@/components/ui/async-select';
 import { Tag } from '@/lib/api/dto/category';
 
+function normalize(text: string) {
+    return text
+        .toLowerCase()
+        .normalize('NFD')
+        .replace(/\p{Diacritic}/gu, '');
+}
+
 export default function BlogListPage() {
     const [search, setSearch] = useState('');
-    const [category, setCategory] = useState<string>('all');
+    const [categoryName, setCategoryName] = useState<string>('');
     const [sortOrder, setSortOrder] = useState<'latest' | 'oldest'>('latest');
 
     const filteredBlogs = useMemo(() => {
+        const s = normalize(search);
+        const cat = normalize(categoryName);
+
         return blogPosts
             .filter((post) => {
                 const byCategory =
-                    category === 'all' ||
-                    post.category?.some((t: Tag) => t.id === category);
-                return byCategory;
+                    !categoryName ||
+                    categoryName === 'All' ||
+                    (post.category ?? []).some(
+                        (t: Tag) => normalize(t.name) === cat,
+                    );
+
+                if (!byCategory) return false;
+
+                if (!s) return true;
+
+                const inTitle = normalize(post.title).includes(s);
+                const inSummary = normalize(post.summary || '').includes(s);
+                const inAuthor = normalize(post.author || '').includes(s);
+                const inCategoryNames = (post.category || []).some((t) =>
+                    normalize(t.name).includes(s),
+                );
+
+                return inTitle || inSummary || inAuthor || inCategoryNames;
             })
             .sort((a, b) => {
                 const da = new Date(a.publishDate).getTime();
                 const db = new Date(b.publishDate).getTime();
                 return sortOrder === 'latest' ? db - da : da - db;
             });
-    }, [category, sortOrder]);
+    }, [categoryName, sortOrder, search]);
 
     return (
         <div className="bg-background min-h-screen">
@@ -47,11 +72,11 @@ export default function BlogListPage() {
                             IELTS Learning Hub
                         </h2>
                         <p className="text-muted-foreground mx-auto max-w-2xl text-xl leading-relaxed text-pretty">
-                            Explore
+                            Explore{' '}
                             <Highlight className="bg-sky-400 text-black dark:text-white">
                                 expert insights, topic analyses, and practice
                                 tools
-                            </Highlight>
+                            </Highlight>{' '}
                             built to sharpen your IELTS skills — for both
                             Academic and General Training.
                         </p>
@@ -66,13 +91,14 @@ export default function BlogListPage() {
                         Latest Articles
                     </h2>
                 </div>
+
                 <div className="mb-10 flex flex-col gap-4 sm:flex-row">
                     <div className="relative flex-1">
                         <Search className="absolute top-1/2 left-4 h-4 w-4 -translate-y-1/2 transform text-slate-400" />
                         <Input
                             value={search}
                             onChange={(e) => setSearch(e.target.value)}
-                            placeholder="Search by blog title..."
+                            placeholder="Search by title, summary, author, or tag..."
                             className="mx-auto rounded-xl border-slate-200 pl-11 focus:border-blue-300 focus:ring-blue-200"
                         />
                     </div>
@@ -81,7 +107,7 @@ export default function BlogListPage() {
                         fetcher={fetchTags}
                         preload={false}
                         renderOption={(tag) => <span>{tag.name}</span>}
-                        getOptionValue={(tag) => tag.id}
+                        getOptionValue={(tag) => tag.name}
                         getDisplayValue={(tag) => (
                             <div className="flex items-center gap-2">
                                 <span className="truncate">{tag.name}</span>
@@ -89,11 +115,12 @@ export default function BlogListPage() {
                         )}
                         label="Tag"
                         placeholder="Filter by category..."
-                        value={category}
-                        onChange={(val) => setCategory(val || 'all')}
+                        value={categoryName}
+                        onChange={(val) => setCategoryName(val ?? '')}
                         width={240}
                         triggerClassName="rounded-lg border-slate-200 focus:ring-blue-200"
                     />
+
                     <Select
                         value={sortOrder}
                         onValueChange={(val: 'latest' | 'oldest') =>
