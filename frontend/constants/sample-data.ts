@@ -3,7 +3,8 @@ import { Comment } from '@/lib/api/dto/comment';
 import { Test, TestHistory, TestOverview } from '@/lib/api/dto/test';
 import { ListeningSection, Passage, WritingTask } from '@/lib/api/dto/question';
 import { User } from '@/lib/api/dto/account';
-import { FeatureBlogs } from '@/lib/api/dto/blog';
+import { FeatureBlogs, BlogPost } from '@/lib/api/dto/blog';
+import { Tag } from '@/lib/api/dto/category';
 
 export const mockTests: TestOverview[] = [
     {
@@ -1040,84 +1041,382 @@ export const featuredPosts: FeatureBlogs[] = [
     },
 ];
 
-export const blogPosts = [
+export const blogPosts: BlogPost[] = [
     {
-        id: 1,
+        id: '1',
         title: 'Getting Started with Next.js 14: A Complete Guide',
-        excerpt:
+        summary:
             'Learn how to build modern web applications with the latest features in Next.js 14, including the App Router and Server Components.',
-        image: '/next-js-development-setup-with-code-editor.jpg',
+        image: '/test.png',
         author: 'Sarah Chen',
         publishDate: 'Dec 15, 2024',
-        readTime: '5 min read',
-        likes: 124,
+        numberOfReader: 124,
         comments: 18,
-        category: 'Tutorial',
+        category: [
+            { id: '1', name: 'Technology' },
+            { id: '2', name: 'Reading' },
+        ],
     },
     {
-        id: 2,
+        id: '2',
         title: 'The Psychology of Color in Web Design',
-        excerpt:
-            'Discover how color choices impact user behavior and learn to create more effective color palettes for your web projects.',
+        summary:
+            'Discover how different color schemes influence user emotions and conversions, helping designers craft more persuasive interfaces.',
         image: '/colorful-design-palette-with-web-interface-mockups.jpg',
         author: 'Marcus Johnson',
         publishDate: 'Dec 12, 2024',
-        readTime: '7 min read',
-        likes: 89,
+        numberOfReader: 89,
         comments: 12,
-        category: 'Design',
+        category: [
+            { id: '3', name: 'Design' },
+            { id: '4', name: 'User Experience' },
+        ],
     },
     {
-        id: 3,
+        id: '3',
         title: 'Building Accessible Web Applications',
-        excerpt:
-            'A comprehensive guide to creating inclusive web experiences that work for everyone, including users with disabilities.',
+        summary:
+            'A comprehensive guide to making your websites inclusive for everyone by implementing accessibility standards and ARIA best practices.',
         image: '/accessibility-icons-and-inclusive-design-elements.jpg',
         author: 'Emily Rodriguez',
         publishDate: 'Dec 10, 2024',
-        readTime: '10 min read',
-        likes: 156,
+        numberOfReader: 156,
         comments: 24,
-        category: 'Accessibility',
+        category: [
+            { id: '5', name: 'Accessibility' },
+            { id: '6', name: 'Web Development' },
+        ],
     },
     {
-        id: 4,
+        id: '4',
         title: 'Optimizing React Performance: Tips and Tricks',
-        excerpt:
-            'Learn advanced techniques to make your React applications faster and more efficient with practical optimization strategies.',
+        summary:
+            'Master advanced techniques like memoization, virtualization, and code-splitting to make your React apps faster and more efficient.',
         image: '/react-performance-optimization-dashboard-with-metr.jpg',
         author: 'David Kim',
         publishDate: 'Dec 8, 2024',
-        readTime: '8 min read',
-        likes: 203,
+        numberOfReader: 203,
         comments: 31,
-        category: 'Performance',
+        category: [
+            { id: '7', name: 'React' },
+            { id: '8', name: 'Performance' },
+        ],
     },
     {
-        id: 5,
+        id: '5',
         title: 'The Future of CSS: New Features Coming in 2024',
-        excerpt:
-            'Explore the exciting new CSS features and properties that will revolutionize how we style web applications.',
+        summary:
+            'Explore next-generation CSS properties like container queries, nesting, and scope that will transform web styling forever.',
         image: '/modern-css-code-with-futuristic-design-elements.jpg',
         author: 'Lisa Park',
         publishDate: 'Dec 5, 2024',
-        readTime: '6 min read',
-        likes: 178,
+        numberOfReader: 178,
         comments: 22,
-        category: 'CSS',
+        category: [
+            { id: '9', name: 'CSS' },
+            { id: '10', name: 'Frontend' },
+        ],
     },
     {
-        id: 6,
+        id: '6',
         title: 'Mastering TypeScript: Advanced Patterns',
-        excerpt:
-            'Dive deep into advanced TypeScript patterns and techniques that will make your code more robust and maintainable.',
+        summary:
+            'Dive into advanced TypeScript features such as utility types, conditional types, and type inference to write cleaner, safer code.',
         image: '/typescript-code-editor-with-advanced-type-definiti.jpg',
         author: 'Alex Thompson',
         publishDate: 'Dec 3, 2024',
-        readTime: '12 min read',
-        likes: 267,
+        numberOfReader: 267,
         comments: 45,
-        category: 'TypeScript',
+        category: [
+            { id: '11', name: 'TypeScript' },
+            { id: '12', name: 'Programming' },
+        ],
+    },
+
+    {
+        id: '7',
+        title: 'Demystifying Serverless Architecture on AWS',
+        summary:
+            'Understand how serverless computing changes the way developers deploy and scale modern applications with AWS Lambda and API Gateway.',
+        image: '/aws-serverless-architecture-diagram.jpg',
+        author: 'Nina Patel',
+        publishDate: 'Nov 30, 2024',
+        numberOfReader: 192,
+        comments: 28,
+        category: [
+            { id: '13', name: 'Cloud' },
+            { id: '14', name: 'AWS' },
+        ],
+    },
+    {
+        id: '8',
+        title: 'How to Build Scalable APIs with Spring Boot',
+        summary:
+            'Learn essential techniques to design and implement high-performance, scalable RESTful APIs using Spring Boot and Java.',
+        image: '/spring-boot-api-architecture-diagram.jpg',
+        author: 'Daniel Nguyen',
+        publishDate: 'Nov 28, 2024',
+        numberOfReader: 234,
+        comments: 19,
+        category: [
+            { id: '15', name: 'Backend' },
+            { id: '16', name: 'Java' },
+        ],
+    },
+    {
+        id: '9',
+        title: 'A Beginner’s Guide to MySQL Index Optimization',
+        summary:
+            'Discover how to use indexes effectively to speed up queries and improve performance in large-scale MySQL databases.',
+        image: '/mysql-performance-index-tuning.jpg',
+        author: 'Linda Garcia',
+        publishDate: 'Nov 26, 2024',
+        numberOfReader: 178,
+        comments: 17,
+        category: [
+            { id: '17', name: 'Database' },
+            { id: '18', name: 'MySQL' },
+        ],
+    },
+    {
+        id: '10',
+        title: 'Building a Fullstack App with Next.js and Spring Boot',
+        summary:
+            'Step-by-step tutorial combining the power of Next.js on the frontend and Spring Boot on the backend for a modern web app.',
+        image: '/nextjs-springboot-fullstack-architecture.jpg',
+        author: 'Nam Dang',
+        publishDate: 'Nov 24, 2024',
+        numberOfReader: 412,
+        comments: 52,
+        category: [
+            { id: '19', name: 'Fullstack' },
+            { id: '20', name: 'Integration' },
+        ],
+    },
+    {
+        id: '11',
+        title: 'JWT Authentication Explained: Best Practices and Pitfalls',
+        summary:
+            'Explore how JWT works under the hood, its security implications, and how to use it safely in modern web applications.',
+        image: '/jwt-authentication-token-concept.jpg',
+        author: 'Michael Lee',
+        publishDate: 'Nov 21, 2024',
+        numberOfReader: 236,
+        comments: 21,
+        category: [
+            { id: '21', name: 'Security' },
+            { id: '22', name: 'Authentication' },
+        ],
+    },
+    {
+        id: '12',
+        title: 'Improving UX with Microinteractions',
+        summary:
+            'Small details can make a big difference — learn how microinteractions can enhance user engagement and delight.',
+        image: '/microinteraction-design-ui-animation.jpg',
+        author: 'Sophia Tran',
+        publishDate: 'Nov 18, 2024',
+        numberOfReader: 147,
+        comments: 10,
+        category: [
+            { id: '23', name: 'Design' },
+            { id: '24', name: 'UX' },
+        ],
+    },
+    {
+        id: '13',
+        title: 'Top 10 VS Code Extensions for Web Developers in 2025',
+        summary:
+            'Boost your productivity with these must-have Visual Studio Code extensions for frontend and backend developers.',
+        image: '/vscode-extensions-setup-for-developers.jpg',
+        author: 'Kevin Brooks',
+        publishDate: 'Nov 16, 2024',
+        numberOfReader: 391,
+        comments: 36,
+        category: [
+            { id: '25', name: 'Tools' },
+            { id: '26', name: 'Development' },
+        ],
+    },
+    {
+        id: '14',
+        title: 'Understanding React Query and Data Fetching Strategies',
+        summary:
+            'Learn how React Query simplifies data synchronization between your frontend and backend, with caching and pagination.',
+        image: '/react-query-data-fetching-illustration.jpg',
+        author: 'Anna Vu',
+        publishDate: 'Nov 14, 2024',
+        numberOfReader: 265,
+        comments: 27,
+        category: [
+            { id: '27', name: 'React' },
+            { id: '28', name: 'Data Fetching' },
+        ],
+    },
+    {
+        id: '15',
+        title: 'Tailwind CSS vs. Styled Components: A 2025 Comparison',
+        summary:
+            'A deep dive into the pros and cons of Tailwind CSS and Styled Components for building maintainable UI systems.',
+        image: '/tailwind-vs-styled-components-2025.jpg',
+        author: 'Ella Nguyen',
+        publishDate: 'Nov 12, 2024',
+        numberOfReader: 223,
+        comments: 16,
+        category: [
+            { id: '29', name: 'CSS' },
+            { id: '30', name: 'Frontend' },
+        ],
+    },
+    {
+        id: '16',
+        title: 'What’s New in Java 22: Features You Should Know',
+        summary:
+            'Explore the latest features and performance improvements introduced in Java 22 that make coding faster and cleaner.',
+        image: '/java-22-new-features-2025.jpg',
+        author: 'Tom Richardson',
+        publishDate: 'Nov 10, 2024',
+        numberOfReader: 312,
+        comments: 29,
+        category: [
+            { id: '31', name: 'Java' },
+            { id: '32', name: 'Programming' },
+        ],
+    },
+    {
+        id: '17',
+        title: 'State Management in Next.js with Zustand',
+        summary:
+            'Learn how to efficiently manage local and global state in your Next.js applications using the lightweight Zustand library.',
+        image: '/zustand-nextjs-state-management.jpg',
+        author: 'Khang Le',
+        publishDate: 'Nov 7, 2024',
+        numberOfReader: 174,
+        comments: 15,
+        category: [
+            { id: '33', name: 'React' },
+            { id: '34', name: 'Next.js' },
+        ],
+    },
+    {
+        id: '18',
+        title: 'Design Systems: Building Consistency Across Products',
+        summary:
+            'A step-by-step approach to creating scalable, reusable design systems that bring unity to your product ecosystem.',
+        image: '/design-system-components-guide.jpg',
+        author: 'Rachel Moore',
+        publishDate: 'Nov 5, 2024',
+        numberOfReader: 245,
+        comments: 22,
+        category: [
+            { id: '35', name: 'Design' },
+            { id: '36', name: 'UI' },
+        ],
+    },
+    {
+        id: '19',
+        title: 'Understanding WebSockets for Real-Time Communication',
+        summary:
+            'Dive into how WebSockets enable two-way communication and how to implement them in your web apps effectively.',
+        image: '/websockets-real-time-communication-diagram.jpg',
+        author: 'Leo Tran',
+        publishDate: 'Nov 2, 2024',
+        numberOfReader: 198,
+        comments: 20,
+        category: [
+            { id: '37', name: 'Web' },
+            { id: '38', name: 'Networking' },
+        ],
+    },
+    {
+        id: '20',
+        title: 'From Monolith to Microservices: Migration Strategy',
+        summary:
+            'Learn the step-by-step process of breaking a monolithic system into modular, scalable microservices architecture.',
+        image: '/microservices-architecture-transition.jpg',
+        author: 'Olivia Brown',
+        publishDate: 'Oct 30, 2024',
+        numberOfReader: 326,
+        comments: 33,
+        category: [
+            { id: '39', name: 'Architecture' },
+            { id: '40', name: 'Microservices' },
+        ],
+    },
+    {
+        id: '21',
+        title: 'Exploring the Power of GraphQL in Modern APIs',
+        summary:
+            'Discover how GraphQL transforms API development, offering flexibility, strong typing, and better performance than REST.',
+        image: '/graphql-api-diagram-illustration.jpg',
+        author: 'David Clark',
+        publishDate: 'Oct 28, 2024',
+        numberOfReader: 267,
+        comments: 25,
+        category: [
+            { id: '41', name: 'GraphQL' },
+            { id: '42', name: 'API' },
+        ],
+    },
+    {
+        id: '22',
+        title: 'Web Performance Metrics You Should Track in 2025',
+        summary:
+            'Understand the key performance indicators like LCP, CLS, and TBT that define great user experiences in modern web apps.',
+        image: '/web-performance-metrics-dashboard.jpg',
+        author: 'Hannah White',
+        publishDate: 'Oct 25, 2024',
+        numberOfReader: 311,
+        comments: 30,
+        category: [
+            { id: '43', name: 'Performance' },
+            { id: '44', name: 'Frontend' },
+        ],
+    },
+    {
+        id: '23',
+        title: 'Understanding OAuth 2.1: Modern Authentication Simplified',
+        summary:
+            'Simplify your understanding of OAuth 2.1 — learn the new flows, security enhancements, and real-world implementation tips.',
+        image: '/oauth-authentication-flow-diagram.jpg',
+        author: 'Jason Wu',
+        publishDate: 'Oct 23, 2024',
+        numberOfReader: 186,
+        comments: 19,
+        category: [
+            { id: '45', name: 'Security' },
+            { id: '46', name: 'OAuth' },
+        ],
+    },
+    {
+        id: '24',
+        title: 'Automating Workflows with GitHub Actions',
+        summary:
+            'Learn how to set up CI/CD pipelines using GitHub Actions to automate testing, deployment, and integration seamlessly.',
+        image: '/github-actions-pipeline-overview.jpg',
+        author: 'Rachel Adams',
+        publishDate: 'Oct 20, 2024',
+        numberOfReader: 278,
+        comments: 24,
+        category: [
+            { id: '47', name: 'DevOps' },
+            { id: '48', name: 'Automation' },
+        ],
+    },
+    {
+        id: '25',
+        title: 'The Role of AI in Modern Web Development',
+        summary:
+            'Explore how AI tools are revolutionizing frontend and backend workflows — from code completion to content generation.',
+        image: '/ai-web-development-tools-dashboard.jpg',
+        author: 'Minh Do',
+        publishDate: 'Oct 18, 2024',
+        numberOfReader: 344,
+        comments: 38,
+        category: [
+            { id: '49', name: 'AI' },
+            { id: '50', name: 'Web Development' },
+        ],
     },
 ];
 
@@ -1258,4 +1557,13 @@ export const fullBlogPosts = [
         category: 'Backend',
         views: 720,
     },
+];
+
+export const mockTags: Tag[] = [
+    { id: 'all', name: 'All' },
+    { id: 'tech', name: 'Technology' },
+    { id: 'wri', name: 'Writing' },
+    { id: 'lis', name: 'Listening' },
+    { id: 'read', name: 'Reading' },
+    { id: 'speak', name: 'Speaking' },
 ];
