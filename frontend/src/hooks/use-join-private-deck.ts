@@ -11,9 +11,8 @@ export const schema = z.object({
 });
 
 export const useJoinPrivateDeck = (deckId: string) => {
-    const queryClient = useQueryClient();
     const router = useRouter();
-
+    const queryClient = useQueryClient();
     const mutation = useMutation({
         mutationFn: async (password: string) => {
             const response = await fetchWrapper(`/quizlet/deck/${deckId}`, {
@@ -21,16 +20,17 @@ export const useJoinPrivateDeck = (deckId: string) => {
                 headers: {
                     'Content-Type': 'application/json',
                 },
-                body: password,
+                body: password ? password : JSON.stringify(''),
             });
             await throwIfError(response);
+            return response.json();
         },
         onError: (error) => {
             toast.error(error.message);
         },
-        onSuccess: async () => {
-            toast.success(`Join deck ${deckId} successfully`);
-            await queryClient.invalidateQueries({ queryKey: ['flash-card'] });
+        onSuccess: async (data) => {
+            queryClient.setQueryData(['deck'], data);
+            localStorage.setItem(`deck:${deckId}`, JSON.stringify(data));
             router.push(`/flashcard/${deckId}`);
         },
     });

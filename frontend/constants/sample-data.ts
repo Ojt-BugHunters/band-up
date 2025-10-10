@@ -3,7 +3,6 @@ import type { Deck } from '@/lib/api/dto/flashcard';
 import { Comment } from '@/lib/api/dto/comment';
 import { Test, TestHistory, TestOverview } from '@/lib/api/dto/test';
 import { ListeningSection, Passage, WritingTask } from '@/lib/api/dto/question';
-import { FlashcardItem } from '@/lib/api/dto/flashcard';
 import { User } from '@/lib/api/dto/account';
 
 export const mockFlashCard: Deck = {
@@ -16,35 +15,6 @@ export const mockFlashCard: Deck = {
     createdAt: '2025-09-18T10:30:00Z',
     public: true,
 };
-
-export const mockDeckItems: FlashcardItem[] = [
-    {
-        id: '1',
-        front: 'Artificial Intelligence (AI)',
-        back: 'Trí tuệ nhân tạo – công nghệ mô phỏng trí tuệ con người.',
-    },
-    {
-        id: '1-2',
-        front: 'Cybersecurity',
-        back: 'An ninh mạng – bảo vệ hệ thống khỏi các mối đe dọa số.',
-    },
-    {
-        id: '1-3',
-        front: 'Cloud Computing',
-        back: 'Điện toán đám mây – lưu trữ và xử lý dữ liệu qua internet.',
-    },
-    {
-        id: '1-4',
-        front: 'Big Data',
-        back: 'Dữ liệu lớn – tập hợp khối lượng dữ liệu khổng lồ cần phân tích.',
-    },
-    {
-        id: '1-5',
-        front: 'Blockchain',
-        back: 'Chuỗi khối – công nghệ lưu trữ dữ liệu phân tán, bảo mật.',
-    },
-];
-
 export const mockTests: TestOverview[] = [
     {
         id: '1',

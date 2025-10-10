@@ -14,7 +14,6 @@ import {
     FormMessage,
 } from '@/components/ui/form';
 import { useLogin } from '@/hooks/use-login';
-import { FaFacebook } from 'react-icons/fa';
 import { useState } from 'react';
 import Link from 'next/link';
 import { FcGoogle } from 'react-icons/fc';
@@ -22,6 +21,7 @@ import { Checkbox } from '@/components/ui/checkbox';
 import { Label } from '@/components/ui/label';
 import { Loader2 } from 'lucide-react';
 import Image from 'next/image';
+import { useForgetPassword } from '@/hooks/use-forget-password';
 
 export default function LoginPage() {
     return (
@@ -36,6 +36,19 @@ export default function LoginPage() {
 const LoginForm = ({ className, ...props }: React.ComponentProps<'div'>) => {
     const { form, mutation } = useLogin();
     const [showPassword, setShowPassword] = useState(false);
+    const forgetPassword = useForgetPassword();
+
+    const handleForgot = async () => {
+        const validateEmail = await form.trigger('email');
+        const email = form.getValues('email');
+
+        if (!validateEmail || !email) {
+            form.setError('email', { message: 'Please enter a valid email' });
+            form.setFocus('email');
+            return;
+        }
+        forgetPassword.mutate(email);
+    };
 
     return (
         <div className={cn('flex flex-col gap-6', className)} {...props}>
@@ -83,12 +96,18 @@ const LoginForm = ({ className, ...props }: React.ComponentProps<'div'>) => {
                                                 <FormLabel htmlFor="password">
                                                     Password
                                                 </FormLabel>
-                                                <a
-                                                    href="#"
-                                                    className="ml-auto text-sm underline-offset-2 hover:underline"
+                                                <button
+                                                    type="button"
+                                                    onClick={handleForgot}
+                                                    disabled={
+                                                        forgetPassword.isPending
+                                                    }
+                                                    className="text-primary ml-auto text-sm underline-offset-2 hover:underline disabled:cursor-not-allowed disabled:opacity-50"
                                                 >
-                                                    Forgot your password?
-                                                </a>
+                                                    {forgetPassword.isPending
+                                                        ? 'Sending…'
+                                                        : 'Forgot your password?'}
+                                                </button>
                                             </div>
                                             <FormControl>
                                                 <div className="relative">
@@ -151,7 +170,7 @@ const LoginForm = ({ className, ...props }: React.ComponentProps<'div'>) => {
                                         Or continue with
                                     </span>
                                 </div>
-                                <div className="grid grid-cols-2 gap-4">
+                                <div>
                                     <Button
                                         variant="outline"
                                         type="button"
@@ -159,14 +178,6 @@ const LoginForm = ({ className, ...props }: React.ComponentProps<'div'>) => {
                                     >
                                         <FcGoogle />
                                         Google
-                                    </Button>
-                                    <Button
-                                        variant="outline"
-                                        type="button"
-                                        className="w-full cursor-pointer"
-                                    >
-                                        <FaFacebook className="text-2xl text-blue-600" />
-                                        Facebook
                                     </Button>
                                 </div>
                                 <div className="text-center text-sm">

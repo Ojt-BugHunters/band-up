@@ -7,22 +7,25 @@ export interface Deck {
     authorName: string;
     public?: boolean;
 }
-export interface CardApiResponse {
-    id: string;
-    front: string | null;
-    back: string | null;
-}
-
-export const mapCardToFlashcardItem = (
-    card: CardApiResponse,
-): FlashcardItem => ({
-    id: card.id,
-    front: card.front ?? '',
-    back: card.back ?? '',
-});
-
-export interface FlashcardItem {
+export interface Card {
     id: string;
     front: string;
     back: string;
+}
+
+export interface DeckCard {
+    id: string;
+    title: string;
+    description: string;
+    learnerNumber: number;
+    createdAt: string;
+    authorName: string;
+    public?: boolean;
+    cards: Card[];
+}
+
+export interface FlashCardData {
+    totalCards: number;
+    totalDecks: number;
+    totalLearners: number;
 }

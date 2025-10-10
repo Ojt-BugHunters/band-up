@@ -2,7 +2,6 @@
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { FaFacebook } from 'react-icons/fa';
 import Image from 'next/image';
 import {
     Form,
@@ -13,11 +12,13 @@ import {
     FormMessage,
 } from '@/components/ui/form';
 import { FiEye, FiEyeOff } from 'react-icons/fi';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useRegisterForm } from '@/hooks/use-register';
 import Link from 'next/link';
 import { FcGoogle } from 'react-icons/fc';
 import { Loader2 } from 'lucide-react';
+import { useTheme } from 'next-themes';
+import { Skeleton } from '@/components/ui/skeleton';
 
 export default function RegisterPage() {
     return (
@@ -30,16 +31,36 @@ export default function RegisterPage() {
 }
 
 const RegisterForm = ({ className, ...props }: React.ComponentProps<'div'>) => {
+    const { resolvedTheme } = useTheme();
+    const [mounted, setMounted] = useState(false);
     const [showPassword, setShowPassword] = useState(false);
     const [showConfirmPassword, setShowConfirmPassword] = useState(false);
     const { form, mutation } = useRegisterForm();
+
+    useEffect(() => {
+        setMounted(true);
+    }, []);
+
+    if (!mounted) {
+        return (
+            <Link
+                href="/"
+                className="relative z-20 mr-4 flex items-center space-x-2 px-2 py-1 text-sm font-normal"
+            >
+                <Skeleton className="h-[45px] w-[45px] rounded-full" />
+                <Skeleton className="h-6 w-24 rounded-md" />
+            </Link>
+        );
+    }
+
+    const isDark = resolvedTheme === 'dark';
 
     return (
         <div className={cn('flex flex-col gap-4', className)} {...props}>
             <div className="flex flex-col gap-4">
                 <div className="flex flex-col items-center gap-2">
                     <Image
-                        src="/logo.png"
+                        src={!isDark ? '/logo-dark.png' : '/logo-white.png'}
                         alt="BandUp Logo"
                         width={65}
                         height={65}
@@ -186,7 +207,7 @@ const RegisterForm = ({ className, ...props }: React.ComponentProps<'div'>) => {
                         Or continue with
                     </span>
                 </div>
-                <div className="grid gap-4 sm:grid-cols-2">
+                <div>
                     <Button
                         variant="outline"
                         type="button"
@@ -194,14 +215,6 @@ const RegisterForm = ({ className, ...props }: React.ComponentProps<'div'>) => {
                     >
                         <FcGoogle />
                         Google
-                    </Button>
-                    <Button
-                        variant="outline"
-                        type="button"
-                        className="w-full cursor-pointer"
-                    >
-                        <FaFacebook className="text-2xl text-blue-600" />
-                        Facebook
                     </Button>
                 </div>
             </div>
