@@ -1,20 +1,10 @@
 import { SpeakingSection } from './../src/lib/api/dto/question';
-import type { Deck } from '@/lib/api/dto/flashcard';
 import { Comment } from '@/lib/api/dto/comment';
 import { Test, TestHistory, TestOverview } from '@/lib/api/dto/test';
 import { ListeningSection, Passage, WritingTask } from '@/lib/api/dto/question';
 import { User } from '@/lib/api/dto/account';
+import { FeatureBlogs } from '@/lib/api/dto/blog';
 
-export const mockFlashCard: Deck = {
-    id: '1',
-    title: 'IELTS Vocabulary - Technology',
-    description:
-        'Learn essential technology-related vocabulary for IELTS with example sentences and usage tips.',
-    authorName: 'John Doe',
-    learnerNumber: 120,
-    createdAt: '2025-09-18T10:30:00Z',
-    public: true,
-};
 export const mockTests: TestOverview[] = [
     {
         id: '1',
@@ -675,7 +665,6 @@ export const testHistory: TestHistory[] = [
         correctAnswers: 32,
         accuracy: 80,
         questions: [
-            // Section 1 (9/10 correct)
             ...Array.from({ length: 10 }, (_, i) => ({
                 questionNumber: i + 1,
                 isCorrect: i !== 5, // Question 6 is wrong
@@ -1000,5 +989,273 @@ export const mockAccountBlogs = [
         title: 'How to Self-Study IELTS',
         description: 'Plan your journey without expensive classes',
         date: 'Feb 20, 2024',
+    },
+];
+
+export const featuredPosts: FeatureBlogs[] = [
+    {
+        id: '1',
+        title: 'The Future of Web Development: Trends to Watch in 2024',
+        summary:
+            'Explore the cutting-edge technologies and methodologies that are shaping the future of web development.',
+        image: '/writing.png',
+        category: 'Technology',
+        numberOfReader: 100,
+    },
+    {
+        id: '2',
+        title: 'Building Scalable Applications with Modern Architecture',
+        summary:
+            'Learn how to design and implement applications that can grow with your business needs.',
+        image: '/writing.png',
+        category: 'Architecture',
+        numberOfReader: 150,
+    },
+    {
+        id: '3',
+        title: 'The Art of User Experience: Creating Intuitive Interfaces',
+        summary:
+            'Discover the principles and practices that make digital experiences truly exceptional.',
+        image: '/writing.png',
+        category: 'Design',
+        numberOfReader: 200,
+    },
+    {
+        id: '4',
+        title: 'The Art of User Experience: Creating Intuitive Interfaces',
+        summary:
+            'Discover the principles and practices that make digital experiences truly exceptional.',
+        image: '/writing.png',
+        category: 'Design',
+        numberOfReader: 250,
+    },
+    {
+        id: '5',
+        title: 'The Future of Web Development: Trends to Watch in 2024',
+        summary:
+            'Explore the cutting-edge technologies and methodologies that are shaping the future of web development.',
+        image: '/writing.png',
+        category: 'Technology',
+        numberOfReader: 300,
+    },
+];
+
+export const blogPosts = [
+    {
+        id: 1,
+        title: 'Getting Started with Next.js 14: A Complete Guide',
+        excerpt:
+            'Learn how to build modern web applications with the latest features in Next.js 14, including the App Router and Server Components.',
+        image: '/next-js-development-setup-with-code-editor.jpg',
+        author: 'Sarah Chen',
+        publishDate: 'Dec 15, 2024',
+        readTime: '5 min read',
+        likes: 124,
+        comments: 18,
+        category: 'Tutorial',
+    },
+    {
+        id: 2,
+        title: 'The Psychology of Color in Web Design',
+        excerpt:
+            'Discover how color choices impact user behavior and learn to create more effective color palettes for your web projects.',
+        image: '/colorful-design-palette-with-web-interface-mockups.jpg',
+        author: 'Marcus Johnson',
+        publishDate: 'Dec 12, 2024',
+        readTime: '7 min read',
+        likes: 89,
+        comments: 12,
+        category: 'Design',
+    },
+    {
+        id: 3,
+        title: 'Building Accessible Web Applications',
+        excerpt:
+            'A comprehensive guide to creating inclusive web experiences that work for everyone, including users with disabilities.',
+        image: '/accessibility-icons-and-inclusive-design-elements.jpg',
+        author: 'Emily Rodriguez',
+        publishDate: 'Dec 10, 2024',
+        readTime: '10 min read',
+        likes: 156,
+        comments: 24,
+        category: 'Accessibility',
+    },
+    {
+        id: 4,
+        title: 'Optimizing React Performance: Tips and Tricks',
+        excerpt:
+            'Learn advanced techniques to make your React applications faster and more efficient with practical optimization strategies.',
+        image: '/react-performance-optimization-dashboard-with-metr.jpg',
+        author: 'David Kim',
+        publishDate: 'Dec 8, 2024',
+        readTime: '8 min read',
+        likes: 203,
+        comments: 31,
+        category: 'Performance',
+    },
+    {
+        id: 5,
+        title: 'The Future of CSS: New Features Coming in 2024',
+        excerpt:
+            'Explore the exciting new CSS features and properties that will revolutionize how we style web applications.',
+        image: '/modern-css-code-with-futuristic-design-elements.jpg',
+        author: 'Lisa Park',
+        publishDate: 'Dec 5, 2024',
+        readTime: '6 min read',
+        likes: 178,
+        comments: 22,
+        category: 'CSS',
+    },
+    {
+        id: 6,
+        title: 'Mastering TypeScript: Advanced Patterns',
+        excerpt:
+            'Dive deep into advanced TypeScript patterns and techniques that will make your code more robust and maintainable.',
+        image: '/typescript-code-editor-with-advanced-type-definiti.jpg',
+        author: 'Alex Thompson',
+        publishDate: 'Dec 3, 2024',
+        readTime: '12 min read',
+        likes: 267,
+        comments: 45,
+        category: 'TypeScript',
+    },
+];
+
+export const fullBlogPosts = [
+    {
+        id: 1,
+        title: 'The Future of Web Development: Trends to Watch in 2024',
+        excerpt:
+            'Explore the cutting-edge technologies and methodologies that are shaping the future of web development.',
+        content: `
+        <p>The web development landscape is constantly evolving, and 2024 promises to bring exciting new trends and technologies that will reshape how we build and interact with web applications.</p>
+        
+        <h2>1. AI-Powered Development Tools</h2>
+        <p>Artificial Intelligence is revolutionizing the development process. From code generation to automated testing, AI tools are becoming indispensable for modern developers. GitHub Copilot, ChatGPT, and other AI assistants are helping developers write code faster and more efficiently than ever before.</p>
+        
+        <h2>2. WebAssembly (WASM) Adoption</h2>
+        <p>WebAssembly continues to gain traction, allowing developers to run high-performance applications in the browser. This technology enables languages like Rust, C++, and Go to run at near-native speeds in web browsers, opening up new possibilities for complex web applications.</p>
+        
+        <h2>3. Edge Computing and Serverless</h2>
+        <p>The shift towards edge computing is accelerating, with platforms like Vercel Edge Functions and Cloudflare Workers leading the charge. This trend reduces latency and improves user experience by processing data closer to the user.</p>
+        
+        <h2>4. Progressive Web Apps (PWAs) Evolution</h2>
+        <p>PWAs are becoming more sophisticated, offering native app-like experiences while maintaining the accessibility of web applications. New APIs and capabilities are constantly being added to bridge the gap between web and native apps.</p>
+        
+        <p>As we move forward, staying updated with these trends will be crucial for developers who want to remain competitive in the ever-changing web development landscape.</p>
+      `,
+        image: '/modern-web-development-workspace-with-multiple-mon.jpg',
+        author: 'Sarah Chen',
+        publishDate: 'Dec 15, 2024',
+        readTime: '8 min read',
+        likes: 234,
+        comments: 45,
+        category: 'Technology',
+        views: 1250,
+    },
+    {
+        id: 2,
+        title: 'Mastering React Server Components: A Complete Guide',
+        excerpt:
+            'Learn how to leverage React Server Components to build faster, more efficient web applications.',
+        content: `
+        <p>React Server Components represent a paradigm shift in how we think about React applications. They allow us to render components on the server, reducing bundle sizes and improving performance.</p>
+        
+        <h2>What are React Server Components?</h2>
+        <p>Server Components are a new type of React component that runs exclusively on the server. Unlike traditional React components that run in the browser, Server Components are rendered on the server and sent to the client as HTML.</p>
+        
+        <h2>Benefits of Server Components</h2>
+        <ul>
+          <li><strong>Reduced Bundle Size:</strong> Server Components don't add to your JavaScript bundle</li>
+          <li><strong>Better Performance:</strong> Less JavaScript to download and execute</li>
+          <li><strong>Direct Database Access:</strong> Fetch data directly without API routes</li>
+          <li><strong>Improved SEO:</strong> Content is rendered on the server</li>
+        </ul>
+        
+        <h2>Getting Started</h2>
+        <p>To use Server Components, you'll need Next.js 13+ with the App Router. Here's a simple example:</p>
+        
+        <pre><code>// This is a Server Component by default in the app directory
+        async function BlogPost({ id }) {
+          const post = await fetchPost(id) // Direct database call
+          
+          return (
+            &lt;article&gt;
+              &lt;h1&gt;{post.title}&lt;/h1&gt;
+              &lt;p&gt;{post.content}&lt;/p&gt;
+            &lt;/article&gt;
+          )
+        }</code></pre>
+        
+        <p>Server Components are the future of React development, offering unprecedented performance benefits while maintaining the developer experience we love.</p>
+      `,
+        image: '/next-js-development-setup-with-code-editor.jpg',
+        author: 'Alex Rodriguez',
+        publishDate: 'Dec 12, 2024',
+        readTime: '12 min read',
+        likes: 189,
+        comments: 32,
+        category: 'React',
+        views: 890,
+    },
+    {
+        id: 3,
+        title: 'Building Scalable APIs with Node.js and TypeScript',
+        excerpt:
+            'Best practices for creating robust, maintainable APIs that can handle enterprise-level traffic.',
+        content: `
+        <p>Building scalable APIs is crucial for modern applications. This guide covers best practices for creating robust, maintainable APIs using Node.js and TypeScript.</p>
+        
+        <h2>Project Structure</h2>
+        <p>A well-organized project structure is the foundation of a scalable API. Here's a recommended structure:</p>
+        
+        <pre><code>src/
+    ├── controllers/
+    ├── services/
+    ├── models/
+    ├── middleware/
+    ├── routes/
+    ├── utils/
+    └── types/</code></pre>
+        
+        <h2>Error Handling</h2>
+        <p>Proper error handling is essential for API reliability. Implement a centralized error handling middleware:</p>
+        
+        <pre><code>export const errorHandler = (
+          err: Error,
+          req: Request,
+          res: Response,
+          next: NextFunction
+        ) => {
+          const statusCode = err.statusCode || 500
+          res.status(statusCode).json({
+            success: false,
+            message: err.message,
+            ...(process.env.NODE_ENV === 'development' && { stack: err.stack })
+          })
+        }</code></pre>
+        
+        <h2>Database Optimization</h2>
+        <p>Use connection pooling, implement proper indexing, and consider caching strategies for frequently accessed data.</p>
+        
+        <h2>Security Best Practices</h2>
+        <ul>
+          <li>Input validation and sanitization</li>
+          <li>Rate limiting</li>
+          <li>Authentication and authorization</li>
+          <li>CORS configuration</li>
+          <li>Security headers</li>
+        </ul>
+        
+        <p>Following these practices will help you build APIs that can scale with your application's growth.</p>
+      `,
+        image: '/abstract-architecture-blueprint-with-modern-design.jpg',
+        author: 'Michael Kim',
+        publishDate: 'Dec 10, 2024',
+        readTime: '15 min read',
+        likes: 156,
+        comments: 28,
+        category: 'Backend',
+        views: 720,
     },
 ];
