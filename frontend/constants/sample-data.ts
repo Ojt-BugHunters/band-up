@@ -1007,7 +1007,7 @@ export const featuredPosts: FeatureBlogs[] = [
         title: 'Building Scalable Applications with Modern Architecture',
         summary:
             'Learn how to design and implement applications that can grow with your business needs.',
-        image: '/writing.png',
+        image: '/dictation.png',
         category: 'Architecture',
         numberOfReader: 150,
     },
@@ -1016,7 +1016,7 @@ export const featuredPosts: FeatureBlogs[] = [
         title: 'The Art of User Experience: Creating Intuitive Interfaces',
         summary:
             'Discover the principles and practices that make digital experiences truly exceptional.',
-        image: '/writing.png',
+        image: '/create.png',
         category: 'Design',
         numberOfReader: 200,
     },
@@ -1025,7 +1025,7 @@ export const featuredPosts: FeatureBlogs[] = [
         title: 'The Art of User Experience: Creating Intuitive Interfaces',
         summary:
             'Discover the principles and practices that make digital experiences truly exceptional.',
-        image: '/writing.png',
+        image: '/speaking.png',
         category: 'Design',
         numberOfReader: 250,
     },
@@ -1034,7 +1034,7 @@ export const featuredPosts: FeatureBlogs[] = [
         title: 'The Future of Web Development: Trends to Watch in 2024',
         summary:
             'Explore the cutting-edge technologies and methodologies that are shaping the future of web development.',
-        image: '/writing.png',
+        image: '/test.png',
         category: 'Technology',
         numberOfReader: 300,
     },
