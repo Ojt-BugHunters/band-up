@@ -3,7 +3,7 @@ import { Comment } from '@/lib/api/dto/comment';
 import { Test, TestHistory, TestOverview } from '@/lib/api/dto/test';
 import { ListeningSection, Passage, WritingTask } from '@/lib/api/dto/question';
 import { User } from '@/lib/api/dto/account';
-import { FeatureBlogs, BlogPost } from '@/lib/api/dto/blog';
+import { FeatureBlogs, BlogPosts } from '@/lib/api/dto/blog';
 import { Tag } from '@/lib/api/dto/category';
 
 export const mockTests: TestOverview[] = [
@@ -1041,13 +1041,13 @@ export const featuredPosts: FeatureBlogs[] = [
     },
 ];
 
-export const blogPosts: BlogPost[] = [
+export const blogPosts: BlogPosts[] = [
     {
         id: '1',
         title: 'Getting Started with Next.js 14: A Complete Guide',
         summary:
             'Learn how to build modern web applications with the latest features in Next.js 14, including the App Router and Server Components.',
-        image: '/test.png',
+        image: '/dictation.png',
         author: 'Sarah Chen',
         publishDate: 'Dec 15, 2024',
         numberOfReader: 124,
@@ -1062,7 +1062,7 @@ export const blogPosts: BlogPost[] = [
         title: 'The Psychology of Color in Web Design',
         summary:
             'Discover how different color schemes influence user emotions and conversions, helping designers craft more persuasive interfaces.',
-        image: '/colorful-design-palette-with-web-interface-mockups.jpg',
+        image: '/dictation.png',
         author: 'Marcus Johnson',
         publishDate: 'Dec 12, 2024',
         numberOfReader: 89,
@@ -1077,7 +1077,7 @@ export const blogPosts: BlogPost[] = [
         title: 'Building Accessible Web Applications',
         summary:
             'A comprehensive guide to making your websites inclusive for everyone by implementing accessibility standards and ARIA best practices.',
-        image: '/accessibility-icons-and-inclusive-design-elements.jpg',
+        image: '/dictation.png',
         author: 'Emily Rodriguez',
         publishDate: 'Dec 10, 2024',
         numberOfReader: 156,
@@ -1092,7 +1092,7 @@ export const blogPosts: BlogPost[] = [
         title: 'Optimizing React Performance: Tips and Tricks',
         summary:
             'Master advanced techniques like memoization, virtualization, and code-splitting to make your React apps faster and more efficient.',
-        image: '/react-performance-optimization-dashboard-with-metr.jpg',
+        image: '/dictation.png',
         author: 'David Kim',
         publishDate: 'Dec 8, 2024',
         numberOfReader: 203,
@@ -1107,7 +1107,7 @@ export const blogPosts: BlogPost[] = [
         title: 'The Future of CSS: New Features Coming in 2024',
         summary:
             'Explore next-generation CSS properties like container queries, nesting, and scope that will transform web styling forever.',
-        image: '/modern-css-code-with-futuristic-design-elements.jpg',
+        image: '/dictation.png',
         author: 'Lisa Park',
         publishDate: 'Dec 5, 2024',
         numberOfReader: 178,
@@ -1122,7 +1122,7 @@ export const blogPosts: BlogPost[] = [
         title: 'Mastering TypeScript: Advanced Patterns',
         summary:
             'Dive into advanced TypeScript features such as utility types, conditional types, and type inference to write cleaner, safer code.',
-        image: '/typescript-code-editor-with-advanced-type-definiti.jpg',
+        image: '/dictation.png',
         author: 'Alex Thompson',
         publishDate: 'Dec 3, 2024',
         numberOfReader: 267,
@@ -1132,13 +1132,12 @@ export const blogPosts: BlogPost[] = [
             { id: '12', name: 'Programming' },
         ],
     },
-
     {
         id: '7',
         title: 'Demystifying Serverless Architecture on AWS',
         summary:
             'Understand how serverless computing changes the way developers deploy and scale modern applications with AWS Lambda and API Gateway.',
-        image: '/aws-serverless-architecture-diagram.jpg',
+        image: '/dictation.png',
         author: 'Nina Patel',
         publishDate: 'Nov 30, 2024',
         numberOfReader: 192,
@@ -1153,7 +1152,7 @@ export const blogPosts: BlogPost[] = [
         title: 'How to Build Scalable APIs with Spring Boot',
         summary:
             'Learn essential techniques to design and implement high-performance, scalable RESTful APIs using Spring Boot and Java.',
-        image: '/spring-boot-api-architecture-diagram.jpg',
+        image: '/dictation.png',
         author: 'Daniel Nguyen',
         publishDate: 'Nov 28, 2024',
         numberOfReader: 234,
@@ -1168,7 +1167,7 @@ export const blogPosts: BlogPost[] = [
         title: 'A Beginner’s Guide to MySQL Index Optimization',
         summary:
             'Discover how to use indexes effectively to speed up queries and improve performance in large-scale MySQL databases.',
-        image: '/mysql-performance-index-tuning.jpg',
+        image: '/dictation.png',
         author: 'Linda Garcia',
         publishDate: 'Nov 26, 2024',
         numberOfReader: 178,
@@ -1183,7 +1182,7 @@ export const blogPosts: BlogPost[] = [
         title: 'Building a Fullstack App with Next.js and Spring Boot',
         summary:
             'Step-by-step tutorial combining the power of Next.js on the frontend and Spring Boot on the backend for a modern web app.',
-        image: '/nextjs-springboot-fullstack-architecture.jpg',
+        image: '/dictation.png',
         author: 'Nam Dang',
         publishDate: 'Nov 24, 2024',
         numberOfReader: 412,
@@ -1198,7 +1197,7 @@ export const blogPosts: BlogPost[] = [
         title: 'JWT Authentication Explained: Best Practices and Pitfalls',
         summary:
             'Explore how JWT works under the hood, its security implications, and how to use it safely in modern web applications.',
-        image: '/jwt-authentication-token-concept.jpg',
+        image: '/dictation.png',
         author: 'Michael Lee',
         publishDate: 'Nov 21, 2024',
         numberOfReader: 236,
@@ -1213,7 +1212,7 @@ export const blogPosts: BlogPost[] = [
         title: 'Improving UX with Microinteractions',
         summary:
             'Small details can make a big difference — learn how microinteractions can enhance user engagement and delight.',
-        image: '/microinteraction-design-ui-animation.jpg',
+        image: '/dictation.png',
         author: 'Sophia Tran',
         publishDate: 'Nov 18, 2024',
         numberOfReader: 147,
@@ -1228,7 +1227,7 @@ export const blogPosts: BlogPost[] = [
         title: 'Top 10 VS Code Extensions for Web Developers in 2025',
         summary:
             'Boost your productivity with these must-have Visual Studio Code extensions for frontend and backend developers.',
-        image: '/vscode-extensions-setup-for-developers.jpg',
+        image: '/dictation.png',
         author: 'Kevin Brooks',
         publishDate: 'Nov 16, 2024',
         numberOfReader: 391,
@@ -1243,7 +1242,7 @@ export const blogPosts: BlogPost[] = [
         title: 'Understanding React Query and Data Fetching Strategies',
         summary:
             'Learn how React Query simplifies data synchronization between your frontend and backend, with caching and pagination.',
-        image: '/react-query-data-fetching-illustration.jpg',
+        image: '/dictation.png',
         author: 'Anna Vu',
         publishDate: 'Nov 14, 2024',
         numberOfReader: 265,
@@ -1258,7 +1257,7 @@ export const blogPosts: BlogPost[] = [
         title: 'Tailwind CSS vs. Styled Components: A 2025 Comparison',
         summary:
             'A deep dive into the pros and cons of Tailwind CSS and Styled Components for building maintainable UI systems.',
-        image: '/tailwind-vs-styled-components-2025.jpg',
+        image: '/dictation.png',
         author: 'Ella Nguyen',
         publishDate: 'Nov 12, 2024',
         numberOfReader: 223,
@@ -1273,7 +1272,7 @@ export const blogPosts: BlogPost[] = [
         title: 'What’s New in Java 22: Features You Should Know',
         summary:
             'Explore the latest features and performance improvements introduced in Java 22 that make coding faster and cleaner.',
-        image: '/java-22-new-features-2025.jpg',
+        image: '/dictation.png',
         author: 'Tom Richardson',
         publishDate: 'Nov 10, 2024',
         numberOfReader: 312,
@@ -1288,7 +1287,7 @@ export const blogPosts: BlogPost[] = [
         title: 'State Management in Next.js with Zustand',
         summary:
             'Learn how to efficiently manage local and global state in your Next.js applications using the lightweight Zustand library.',
-        image: '/zustand-nextjs-state-management.jpg',
+        image: '/dictation.png',
         author: 'Khang Le',
         publishDate: 'Nov 7, 2024',
         numberOfReader: 174,
@@ -1303,7 +1302,7 @@ export const blogPosts: BlogPost[] = [
         title: 'Design Systems: Building Consistency Across Products',
         summary:
             'A step-by-step approach to creating scalable, reusable design systems that bring unity to your product ecosystem.',
-        image: '/design-system-components-guide.jpg',
+        image: '/dictation.png',
         author: 'Rachel Moore',
         publishDate: 'Nov 5, 2024',
         numberOfReader: 245,
@@ -1318,7 +1317,7 @@ export const blogPosts: BlogPost[] = [
         title: 'Understanding WebSockets for Real-Time Communication',
         summary:
             'Dive into how WebSockets enable two-way communication and how to implement them in your web apps effectively.',
-        image: '/websockets-real-time-communication-diagram.jpg',
+        image: '/dictation.png',
         author: 'Leo Tran',
         publishDate: 'Nov 2, 2024',
         numberOfReader: 198,
@@ -1333,7 +1332,7 @@ export const blogPosts: BlogPost[] = [
         title: 'From Monolith to Microservices: Migration Strategy',
         summary:
             'Learn the step-by-step process of breaking a monolithic system into modular, scalable microservices architecture.',
-        image: '/microservices-architecture-transition.jpg',
+        image: '/dictation.png',
         author: 'Olivia Brown',
         publishDate: 'Oct 30, 2024',
         numberOfReader: 326,
@@ -1348,7 +1347,7 @@ export const blogPosts: BlogPost[] = [
         title: 'Exploring the Power of GraphQL in Modern APIs',
         summary:
             'Discover how GraphQL transforms API development, offering flexibility, strong typing, and better performance than REST.',
-        image: '/graphql-api-diagram-illustration.jpg',
+        image: '/dictation.png',
         author: 'David Clark',
         publishDate: 'Oct 28, 2024',
         numberOfReader: 267,
@@ -1363,7 +1362,7 @@ export const blogPosts: BlogPost[] = [
         title: 'Web Performance Metrics You Should Track in 2025',
         summary:
             'Understand the key performance indicators like LCP, CLS, and TBT that define great user experiences in modern web apps.',
-        image: '/web-performance-metrics-dashboard.jpg',
+        image: '/dictation.png',
         author: 'Hannah White',
         publishDate: 'Oct 25, 2024',
         numberOfReader: 311,
@@ -1378,7 +1377,7 @@ export const blogPosts: BlogPost[] = [
         title: 'Understanding OAuth 2.1: Modern Authentication Simplified',
         summary:
             'Simplify your understanding of OAuth 2.1 — learn the new flows, security enhancements, and real-world implementation tips.',
-        image: '/oauth-authentication-flow-diagram.jpg',
+        image: '/dictation.png',
         author: 'Jason Wu',
         publishDate: 'Oct 23, 2024',
         numberOfReader: 186,
@@ -1393,7 +1392,7 @@ export const blogPosts: BlogPost[] = [
         title: 'Automating Workflows with GitHub Actions',
         summary:
             'Learn how to set up CI/CD pipelines using GitHub Actions to automate testing, deployment, and integration seamlessly.',
-        image: '/github-actions-pipeline-overview.jpg',
+        image: '/dictation.png',
         author: 'Rachel Adams',
         publishDate: 'Oct 20, 2024',
         numberOfReader: 278,
@@ -1408,7 +1407,7 @@ export const blogPosts: BlogPost[] = [
         title: 'The Role of AI in Modern Web Development',
         summary:
             'Explore how AI tools are revolutionizing frontend and backend workflows — from code completion to content generation.',
-        image: '/ai-web-development-tools-dashboard.jpg',
+        image: '/dictation.png',
         author: 'Minh Do',
         publishDate: 'Oct 18, 2024',
         numberOfReader: 344,
@@ -1566,4 +1565,17 @@ export const mockTags: Tag[] = [
     { id: 'lis', name: 'Listening' },
     { id: 'read', name: 'Reading' },
     { id: 'speak', name: 'Speaking' },
+    { id: 'life', name: 'Lifestyle' },
+    { id: 'edu', name: 'Education' },
+    { id: 'dev', name: 'Development' },
+    { id: 'cloud', name: 'Cloud' },
+    { id: 'aws', name: 'AWS' },
+    { id: 'db', name: 'Database' },
 ];
+
+export async function fetchTags(q?: string): Promise<Tag[]> {
+    await new Promise((r) => setTimeout(r, 250));
+    if (!q) return mockTags;
+    const query = q.trim().toLowerCase();
+    return mockTags.filter((t) => t.name.toLowerCase().includes(query));
+}
