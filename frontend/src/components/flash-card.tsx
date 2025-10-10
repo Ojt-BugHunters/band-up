@@ -73,6 +73,8 @@ export default function FlashcardCard({ card }: { card: Deck }) {
     };
 
     const handleLearnCard = () => {
+        if (!user) return;
+        if (user.name === card.authorName) return;
         learnMutate();
     };
 
