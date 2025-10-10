@@ -1,5 +1,6 @@
 'use client';
 
+import { Suspense } from 'react';
 import { Loader2, CheckCircle2, Shield } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import {
@@ -98,7 +99,7 @@ export function OtpVerificationForm() {
     );
 }
 
-export default function ForgetPassword() {
+export function ForgetPassword() {
     const searchParams = useSearchParams();
     const email = searchParams.get('variables') ?? '';
     const resend = useForgetPassword();
@@ -154,5 +155,13 @@ export default function ForgetPassword() {
                 </div>
             </div>
         </div>
+    );
+}
+
+export default function ForgetPasswordPage() {
+    return (
+        <Suspense>
+            <ForgetPassword />
+        </Suspense>
     );
 }

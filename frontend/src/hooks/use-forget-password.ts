@@ -1,3 +1,4 @@
+'use client';
 import { buildParams, fetchWrapper, throwIfError } from '@/lib/api';
 import { useMutation } from '@tanstack/react-query';
 import { useRouter } from 'next/navigation';

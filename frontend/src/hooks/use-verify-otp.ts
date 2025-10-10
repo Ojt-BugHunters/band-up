@@ -1,3 +1,4 @@
+'use client';
 import { fetchWrapper, parseBoolean, throwIfError } from '@/lib/api';
 import { useMutation } from '@tanstack/react-query';
 import z from 'zod';
