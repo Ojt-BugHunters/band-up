@@ -122,7 +122,7 @@ public class AccountServiceImpl implements AccountService {
         if(savedOtp == null ||  !savedOtp.equals(inputOtp)) throw new AuthenticationFailedException("Invalid OTP");
         Account account = accountRepository.findByEmail(accountDto.getEmail().toLowerCase());
         if (account != null) {
-            account.setPassword(passwordEncoder.encode(account.getPassword()));
+            account.setPassword(passwordEncoder.encode(accountDto.getPassword()));
             accountRepository.save(account);
             return modelMapper.map(account, AccountDtoResponse.class);
         } else throw new ResourceNotFoundException(accountDto.getEmail());
