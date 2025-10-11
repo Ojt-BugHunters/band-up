@@ -20,3 +20,16 @@ export interface BlogPosts {
     comments: number;
     category: Tag[];
 }
+
+export interface CreateBlog {
+    title: string;
+    summary: string;
+    content: string;
+    category: Tag[];
+}
+
+export interface BlogPost {
+    // cac field giong BlogPosts o tren
+    // them 1 field nay
+    content: string;
+}
