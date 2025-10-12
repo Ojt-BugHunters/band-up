@@ -1,20 +1,11 @@
-import { SpeakingSection } from './../src/lib/api/dto/question';
-import type { Deck } from '@/lib/api/dto/flashcard';
-import { Comment } from '@/lib/api/dto/comment';
-import { Test, TestHistory, TestOverview } from '@/lib/api/dto/test';
-import { ListeningSection, Passage, WritingTask } from '@/lib/api/dto/question';
 import { User } from '@/lib/api/dto/account';
+import { Post } from '@/lib/api/dto/blog';
+import { Tag } from '@/lib/api/dto/category';
+import { Comment } from '@/lib/api/dto/comment';
+import { ListeningSection, Passage, WritingTask } from '@/lib/api/dto/question';
+import { Test, TestHistory, TestOverview } from '@/lib/api/dto/test';
+import { SpeakingSection } from './../src/lib/api/dto/question';
 
-export const mockFlashCard: Deck = {
-    id: '1',
-    title: 'IELTS Vocabulary - Technology',
-    description:
-        'Learn essential technology-related vocabulary for IELTS with example sentences and usage tips.',
-    authorName: 'John Doe',
-    learnerNumber: 120,
-    createdAt: '2025-09-18T10:30:00Z',
-    public: true,
-};
 export const mockTests: TestOverview[] = [
     {
         id: '1',
@@ -675,7 +666,6 @@ export const testHistory: TestHistory[] = [
         correctAnswers: 32,
         accuracy: 80,
         questions: [
-            // Section 1 (9/10 correct)
             ...Array.from({ length: 10 }, (_, i) => ({
                 questionNumber: i + 1,
                 isCorrect: i !== 5, // Question 6 is wrong
@@ -1000,5 +990,122 @@ export const mockAccountBlogs = [
         title: 'How to Self-Study IELTS',
         description: 'Plan your journey without expensive classes',
         date: 'Feb 20, 2024',
+    },
+];
+
+export const mockTags: Tag[] = [
+    { id: 'all', name: 'All' },
+    { id: 'tech', name: 'Technology' },
+    { id: 'wri', name: 'Writing' },
+    { id: 'lis', name: 'Listening' },
+    { id: 'read', name: 'Reading' },
+    { id: 'speak', name: 'Speaking' },
+    { id: 'life', name: 'Lifestyle' },
+    { id: 'edu', name: 'Education' },
+    { id: 'dev', name: 'Development' },
+    { id: 'cloud', name: 'Cloud' },
+    { id: 'aws', name: 'AWS' },
+    { id: 'db', name: 'Database' },
+];
+
+export const posts: Post[] = [
+    {
+        id: '1',
+        author: {
+            id: '1',
+            name: 'Sarah Chen',
+            avatar: '/woman-developer.png',
+        },
+        title: 'Building Scalable React Applications with Server Components',
+        content:
+            "React Server Components are revolutionizing how we build web applications. By moving rendering to the server, we can significantly reduce bundle sizes and improve initial page load times. In this post, I'll share my experience migrating a large-scale application to use Server Components and the performance improvements we achieved. The key is understanding when to use server vs client components and how to properly handle data fetching patterns.",
+        coverImage: '/react-code-editor.jpg',
+        tag: mockTags,
+        reactions: 142,
+        comments: 28,
+        publishedAt: 'Dec 8',
+    },
+    {
+        id: '2',
+        author: {
+            id: '2',
+            name: 'Marcus Johnson',
+            avatar: '/man-developer.png',
+        },
+        title: 'TypeScript Best Practices for Large-Scale Applications',
+        content:
+            "After working on enterprise TypeScript projects for the past 5 years, I've learned that proper type safety is crucial for maintainability. Here are my top recommendations: Use strict mode always, leverage utility types like Pick and Omit, create custom type guards for runtime validation, and organize your types in a centralized location. These practices have saved our team countless hours of debugging and made our codebase much more reliable.",
+        coverImage: '/typescript-code.png',
+        tag: [
+            { id: 'typescript', name: 'typescript' },
+            { id: 'programming', name: 'programming' },
+            { id: 'webdev', name: 'webdev' },
+        ],
+        reactions: 89,
+        comments: 15,
+        publishedAt: 'Dec 7',
+    },
+    {
+        id: '3',
+        author: {
+            id: '3',
+            name: 'Emily Rodriguez',
+            avatar: '/woman-engineer-at-work.png',
+        },
+        title: 'CSS Grid vs Flexbox: When to Use Each',
+        content:
+            'The eternal debate! Both CSS Grid and Flexbox are powerful layout tools, but they excel in different scenarios. Use Flexbox for one-dimensional layouts (rows or columns) and when you need items to wrap naturally. Use Grid for two-dimensional layouts where you need precise control over both rows and columns. In practice, I often use both together - Grid for the overall page structure and Flexbox for component internals. Understanding both will make you a much more effective frontend developer.',
+        coverImage: '/css-grid-vs-flexbox.png',
+        tag: [
+            { id: 'css', name: 'css' },
+            { id: 'webdev', name: 'webdev' },
+            { id: 'frontend', name: 'frontend' },
+            { id: 'design', name: 'design' },
+        ],
+        reactions: 234,
+        comments: 42,
+        publishedAt: 'Dec 6',
+    },
+    {
+        id: '4',
+        author: {
+            id: '4',
+            name: 'David Kim',
+            avatar: '/man-programmer.jpg',
+        },
+        title: 'Mastering API Design: RESTful Best Practices',
+        content:
+            "Good API design is an art form. After building APIs for various companies, here's what I've learned: Use consistent naming conventions, implement proper versioning from day one, provide clear error messages with appropriate status codes, and always document your endpoints thoroughly. A well-designed API makes integration a breeze for other developers and reduces support requests significantly. Remember, your API is a product that other developers will use - treat it with the same care as your user-facing features.",
+        coverImage: '/api-architecture.png',
+        tag: [
+            { id: 'api', name: 'api' },
+            { id: 'backend', name: 'backend' },
+            { id: 'nodejs', name: 'nodejs' },
+            { id: 'architecture', name: 'architecture' },
+        ],
+        reactions: 167,
+        comments: 31,
+        publishedAt: 'Dec 5',
+    },
+    {
+        id: '5',
+        author: {
+            id: '5',
+            name: 'Aisha Patel',
+            avatar: '/woman-coder.png',
+        },
+        title: 'Getting Started with Docker for Web Developers',
+        content:
+            "Docker transformed how I develop and deploy applications. It solves the 'works on my machine' problem by containerizing your entire application environment. Start with a simple Dockerfile, learn about layers and caching, then move on to docker-compose for multi-container applications. The learning curve is worth it - you'll have consistent environments across development, staging, and production. Plus, your onboarding process for new developers becomes incredibly smooth when they can just run 'docker-compose up' and have everything working.",
+        coverImage: '/docker-containers.png',
+        tag: [
+            { id: 'docker', name: 'docker' },
+            { id: 'devops', name: 'devops' },
+            { id: 'tutorial', name: 'tutorial' },
+            { id: 'beginners', name: 'beginners' },
+        ],
+        reactions: 312,
+        comments: 56,
+        publishedAt: 'Dec 4',
     },
 ];
