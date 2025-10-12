@@ -992,7 +992,6 @@ export const mockAccountBlogs = [
         date: 'Feb 20, 2024',
     },
 ];
-
 export const mockTags: Tag[] = [
     { id: 'all', name: 'All' },
     { id: 'tech', name: 'Technology' },
