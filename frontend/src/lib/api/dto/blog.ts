@@ -1,35 +1,22 @@
-import { Tag } from './category';
-
-export interface FeatureBlogs {
+export interface Author {
     id: string;
-    title: string;
-    summary: string;
-    category: string;
-    image: string;
-    numberOfReader: number;
+    name: string;
+    avatar: string;
 }
 
-export interface BlogPosts {
+export interface Tag {
     id: string;
+    name: string;
+}
+
+export interface Post {
+    id: string;
+    author: Author;
     title: string;
-    summary: string;
-    image: string;
-    author: string;
-    publishDate: string;
-    numberOfReader: number;
+    content: string;
+    coverImage: string;
+    tag: Tag[];
+    reactions: number;
     comments: number;
-    category: Tag[];
-}
-
-export interface CreateBlog {
-    title: string;
-    summary: string;
-    content: string;
-    category: Tag[];
-}
-
-export interface BlogPost {
-    // cac field giong BlogPosts o tren
-    // them 1 field nay
-    content: string;
+    publishedAt: string;
 }
