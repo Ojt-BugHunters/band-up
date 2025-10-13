@@ -23,10 +23,10 @@ export const useForgetPassword = () => {
         onError: (error) => {
             toast.error(error.message);
         },
-        onSuccess: (_data, variables) => {
+        onSuccess: (_data, email) => {
             toast.success('We have sent a verification code to your email.');
-            const qs = buildParams({ variables }).toString();
-            router.push(`/auth/forget-password?${qs}`);
+            const qs = buildParams({ email }).toString();
+            router.push(`/auth/forget-password?${qs}&state=forget`);
         },
     });
     return mutation;

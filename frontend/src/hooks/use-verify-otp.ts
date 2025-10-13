@@ -15,7 +15,7 @@ export const otpSchema = z.object({
         .regex(/^\d{6}$/, { message: 'OTP must be 6 digits' }),
 });
 
-type VerifyOtpVars = { email: string; otp: string };
+export type VerifyOtpVars = { email: string; otp: string };
 
 export type OtpFormValues = z.infer<typeof otpSchema>;
 

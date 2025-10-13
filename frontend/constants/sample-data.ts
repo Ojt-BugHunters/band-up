@@ -159,7 +159,7 @@ export const speakingTest: Test = {
     ],
 };
 
-export const comments: Comment[] = [
+export const comments = [
     {
         id: 'c1',
         content: 'Bài viết này thực sự rất hữu ích. Cảm ơn tác giả!',
@@ -992,7 +992,6 @@ export const mockAccountBlogs = [
         date: 'Feb 20, 2024',
     },
 ];
-
 export const mockTags: Tag[] = [
     { id: 'all', name: 'All' },
     { id: 'tech', name: 'Technology' },

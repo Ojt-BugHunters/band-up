@@ -8,16 +8,15 @@ import { useForm } from 'react-hook-form';
 import { toast } from 'sonner';
 import z from 'zod';
 
-export const schema = z
-    .object({
-        name: z.string().min(1, {message: 'Name must not be empty'}),
-        gender: z.enum(["Male", "Female"]),
-        birthday: z.date({
-            message: 'Birthday must be a valid date',
-        }),
-        address: z.string().min(1, {message: 'Address must not be empty'}),
-        phone: z.string().min(1, {message: 'Phone must not be empty'}),
-    });
+export const schema = z.object({
+    name: z.string().min(1, { message: 'Name must not be empty' }),
+    gender: z.enum(['Male', 'Female']),
+    birthday: z.date({
+        message: 'Birthday must be a valid date',
+    }),
+    address: z.string().min(1, { message: 'Address must not be empty' }),
+    phone: z.string().min(1, { message: 'Phone must not be empty' }),
+});
 
 export type ProfileFormValues = z.infer<typeof schema>;
 
@@ -35,9 +34,10 @@ export const useProfile = () => {
             };
             const payload = {
                 ...values,
-                birthday: values.birthday instanceof Date
-                    ? formatDateForBackend(values.birthday)
-                    : values.birthday,
+                birthday:
+                    values.birthday instanceof Date
+                        ? formatDateForBackend(values.birthday)
+                        : values.birthday,
             };
             const response = await fetchWrapper('/profile/update', {
                 method: 'POST',
@@ -54,12 +54,9 @@ export const useProfile = () => {
         onError: (error) => {
             toast.error(error.message);
         },
-        onSuccess: (data) => {
-            queryClient.setQueryData(['user'], data);
-            localStorage.setItem('user', JSON.stringify(data));
-            console.log('saved user', queryClient.getQueryData(['user']));
-            toast.success('Submit Successfully');
-            router.push('/');
+        onSuccess: () => {
+            toast.success('Submit Successfully. Please login again');
+            router.push('/auth/login');
         },
     });
 
