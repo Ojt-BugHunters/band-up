@@ -1,6 +1,9 @@
 'use client';
 
 import { type EditDeckFormValues, useEditDeck } from '@/hooks/use-edit-deck';
+import { useUpdateCard } from '@/hooks/use-update-card';
+import { useCreateCard } from '@/hooks/use-create-card';
+import { useDeleteCard } from '@/hooks/use-delete-card';
 import { useFieldArray } from 'react-hook-form';
 import {
     Form,
@@ -17,22 +20,142 @@ import { Textarea } from './ui/textarea';
 import { Switch } from './ui/switch';
 import { Eye, EyeOff, GripVertical, Plus, Trash2 } from 'lucide-react';
 import { useEffect, useState } from 'react';
+import { useRouter } from 'next/navigation';
+import { toast } from 'sonner';
+import { DeckCard, Card as FlashCard } from '@/lib/api/dto/flashcard';
 
 interface EditDeckFormProps {
     deckId: string;
 }
 
 export default function EditDeckForm({ deckId }: EditDeckFormProps) {
+    const router = useRouter();
     const [showPassword, setShowPassword] = useState(false);
-    const { form, mutation } = useEditDeck(deckId);
+    const { form, mutation, initialDeck } = useEditDeck(deckId);
+    const updateCardMutation = useUpdateCard();
+    const createCardMutation = useCreateCard();
+    const deleteCardMutation = useDeleteCard();
     const isPublic = form.watch('public');
     const { fields, append, remove } = useFieldArray({
         control: form.control,
         name: 'cards',
     });
+    const isSaving =
+        mutation.isPending ||
+        updateCardMutation.isPending ||
+        createCardMutation.isPending ||
+        deleteCardMutation.isPending;
 
-    const onSubmit = (data: EditDeckFormValues) => {
-        mutation.mutate(data);
+    const onSubmit = async (data: EditDeckFormValues) => {
+        try {
+            await mutation.mutateAsync(data);
+
+            const initialCards = initialDeck?.cards ?? [];
+            const initialCardMap = new Map(
+                initialCards.map((card) => [card.id, card]),
+            );
+
+            const existingCards = data.cards.filter(
+                (card) => card.cardId && card.cardId.trim().length,
+            );
+            const newCards = data.cards.filter(
+                (card) => !card.cardId || !card.cardId.trim().length,
+            );
+
+            const cardsToUpdate = existingCards.filter((card) => {
+                const source = card.cardId
+                    ? initialCardMap.get(card.cardId)
+                    : undefined;
+                return (
+                    !source ||
+                    source.front !== card.front ||
+                    source.back !== card.back
+                );
+            });
+
+            const retainedCardIds = new Set(
+                existingCards
+                    .filter((card) => card.cardId)
+                    .map((card) => card.cardId as string),
+            );
+
+            const removedCardIds = initialCards
+                .filter((card) => !retainedCardIds.has(card.id))
+                .map((card) => card.id);
+
+            if (cardsToUpdate.length) {
+                await Promise.all(
+                    cardsToUpdate.map((card) =>
+                        updateCardMutation.mutateAsync({
+                            cardId: card.cardId as string,
+                            front: card.front,
+                            back: card.back,
+                        }),
+                    ),
+                );
+            }
+
+            let createdCards: FlashCard[] | undefined;
+            if (newCards.length) {
+                createdCards = await createCardMutation.mutateAsync({
+                    deckId,
+                    cards: newCards.map((card) => ({
+                        front: card.front,
+                        back: card.back,
+                    })),
+                });
+            }
+
+            if (removedCardIds.length) {
+                await Promise.all(
+                    removedCardIds.map((cardId) =>
+                        deleteCardMutation.mutateAsync({ cardId }),
+                    ),
+                );
+            }
+
+            if (typeof window !== 'undefined') {
+                const deckSnapshot: DeckCard = initialDeck
+                    ? { ...initialDeck }
+                    : {
+                          id: deckId,
+                          title: data.title,
+                          description: data.description ?? '',
+                          learnerNumber: 0,
+                          createdAt: new Date().toISOString(),
+                          authorName: '',
+                          public: data.public,
+                          cards: [],
+                      };
+
+                const updatedCards: FlashCard[] = [
+                    ...existingCards
+                        .filter((card) => card.cardId)
+                        .map((card) => ({
+                            id: card.cardId as string,
+                            front: card.front,
+                            back: card.back,
+                        })),
+                    ...(createdCards ?? []),
+                ];
+
+                deckSnapshot.title = data.title;
+                deckSnapshot.description = data.description ?? '';
+                deckSnapshot.public = data.public;
+                deckSnapshot.cards = updatedCards;
+
+                window.localStorage.setItem(
+                    `deck:${deckId}`,
+                    JSON.stringify(deckSnapshot),
+                );
+            }
+
+            toast.success('Deck updated successfully');
+            router.push('/flashcard');
+        } catch (error) {
+            toast.error('Cập nhật thất bại, vui lòng thử lại.');
+            console.error('Failed to update deck or cards', error);
+        }
     };
 
     useEffect(() => {
@@ -49,6 +172,7 @@ export default function EditDeckForm({ deckId }: EditDeckFormProps) {
 
     const addCard = () => {
         append({
+            cardId: '',
             front: '',
             back: '',
         });
@@ -72,13 +196,19 @@ export default function EditDeckForm({ deckId }: EditDeckFormProps) {
                         </div>
                         <div className="flex gap-2">
                             <Button
+                                type="button"
+                                variant="outline"
+                                disabled={isSaving}
+                                onClick={() => router.push(`/flashcard/${deckId}`)}
+                            >
+                                Cancel
+                            </Button>
+                            <Button
                                 type="submit"
-                                disabled={mutation.isPending}
+                                disabled={isSaving}
                                 className="bg-primary hover:bg-primary/90"
                             >
-                                {mutation.isPending
-                                    ? 'Saving...'
-                                    : 'Save Changes'}
+                                {isSaving ? 'Saving...' : 'Save Changes'}
                             </Button>
                         </div>
                     </div>
