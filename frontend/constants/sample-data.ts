@@ -159,7 +159,7 @@ export const speakingTest: Test = {
     ],
 };
 
-export const comments: Comment[] = [
+export const comments = [
     {
         id: 'c1',
         content: 'Bài viết này thực sự rất hữu ích. Cảm ơn tác giả!',
