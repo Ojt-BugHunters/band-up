@@ -107,7 +107,7 @@ export function OtpVerificationForm() {
 
 export function ForgetPassword() {
     const searchParams = useSearchParams();
-    const email = searchParams.get('variables') ?? '';
+    const email = searchParams.get('email') ?? '';
     const resend = useForgetPassword();
 
     const handleResend = () => {
