@@ -20,7 +20,7 @@ export const useCreateTest = () => {
     const queryClient = useQueryClient();
     const mutation = useMutation({
         mutationFn: async (values: z.infer<typeof TestCreateSchema>) => {
-            const response = await fetchWrapper('/api/tests', {
+            const response = await fetchWrapper('/tests', {
                 method: 'POST',
                 headers: {
                     Accept: 'application/json',
