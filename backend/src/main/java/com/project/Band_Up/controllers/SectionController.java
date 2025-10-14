@@ -3,6 +3,7 @@ package com.project.Band_Up.controllers;
 import com.project.Band_Up.dtos.section.SectionCreateRequest;
 import com.project.Band_Up.dtos.section.SectionResponse;
 import com.project.Band_Up.dtos.section.SectionUpdateRequest;
+import com.project.Band_Up.enums.Status;
 import com.project.Band_Up.services.section.SectionService;
 import com.project.Band_Up.utils.JwtUserDetails;
 import com.project.Band_Up.utils.JwtUtil;
@@ -13,6 +14,7 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.repository.query.Param;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -130,4 +132,20 @@ public class SectionController {
         sectionService.deleteSection(id, accountId);
         return ResponseEntity.noContent().build();
     }
+    @Operation(
+            summary = "Xóa tất cả section theo TestId với Status",
+            description = "Xóa Section theo TestId và StatusDraft. Trả về 204 No Content khi xóa thành công, 404 nếu không tìm thấy."
+    )
+    @ApiResponses({
+            @ApiResponse(responseCode = "204", description = "Xóa thành công"),
+            @ApiResponse(responseCode = "404", description = "Section không tồn tại")
+    })
+    @DeleteMapping("/{testId}")
+    public ResponseEntity<Void> deletedSectionByTestIdandStatus(
+        @PathVariable UUID testId,
+        @RequestParam Status status){
+        sectionService.deleteSectionsByStatus(testId, status);
+        return ResponseEntity.noContent().build();
+    }
+
 }

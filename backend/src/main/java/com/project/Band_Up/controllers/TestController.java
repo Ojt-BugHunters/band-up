@@ -3,6 +3,7 @@ package com.project.Band_Up.controllers;
 import com.project.Band_Up.dtos.test.TestCreateRequest;
 import com.project.Band_Up.dtos.test.TestResponse;
 import com.project.Band_Up.dtos.test.TestUpdateRequest;
+import com.project.Band_Up.enums.Status;
 import com.project.Band_Up.services.test.TestService;
 import com.project.Band_Up.utils.JwtUserDetails;
 import com.project.Band_Up.utils.JwtUtil;
@@ -169,6 +170,21 @@ public class TestController {
     public ResponseEntity<Void> deleteTest(
             @Parameter(description = "UUID của Test cần xóa", required = true) @PathVariable("id") UUID id) {
         testService.deleteTest(id);
+        return ResponseEntity.noContent().build();
+    }
+    @Operation(
+            summary = "Xóa Test theo id",
+            description = "Xóa Test theo UUID. Trả về 204 No Content khi xóa thành công, 404 nếu không tìm thấy."
+    )
+    @ApiResponses({
+            @ApiResponse(responseCode = "204", description = "Xóa thành công"),
+            @ApiResponse(responseCode = "404", description = "Test không tồn tại")
+    })
+    @DeleteMapping("/{userId}/by-status")
+    public ResponseEntity<Void> deleteAllTestsByUserIdAndStatus(
+            @PathVariable UUID userId,
+            @RequestParam Status status) {
+        testService.deleteAllTestsByUserIdAndStatus(userId, status);
         return ResponseEntity.noContent().build();
     }
 }

@@ -4,9 +4,10 @@ import com.project.Band_Up.entities.Media;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
+import java.util.List;
 import java.util.UUID;
 @Repository
 public interface MediaRepository extends JpaRepository<Media, UUID> {
     // Lấy tất cả media theo sectionId
-
+    List<Media> findAllBySection_Id(UUID sectionId);
 }
