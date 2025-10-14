@@ -11,6 +11,6 @@ import java.time.Instant;
 @Builder
 public class MediaResponse {
     private String key;
-    private String CloudFrontUrl;
+    private String cloudFrontUrl;
     private Instant expiresAt;
 }
