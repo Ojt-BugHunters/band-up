@@ -1,7 +1,6 @@
 'use client';
-import Link from 'next/link';
-import { useState } from 'react';
 import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
 import {
     Card,
     CardContent,
@@ -26,23 +25,15 @@ import {
     FormMessage,
 } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
-import { Button } from '@/components/ui/button';
-import { Globe, Lock, User, Eye, EyeOff } from 'lucide-react';
-import { cn } from '@/lib/utils';
 import { useJoinPrivateDeck } from '@/hooks/use-join-private-deck';
-import { Deck } from '@/lib/api/dto/flashcard';
 import { useLearnDeck } from '@/hooks/use-learn-deck';
 import { useUser } from '@/hooks/use-user';
-import {
-    AlertDialog,
-    AlertDialogAction,
-    AlertDialogCancel,
-    AlertDialogContent,
-    AlertDialogDescription,
-    AlertDialogFooter,
-    AlertDialogHeader,
-    AlertDialogTitle,
-} from './ui/alert-dialog';
+import { Deck } from '@/lib/api/dto/flashcard';
+import { cn } from '@/lib/utils';
+import { Eye, EyeOff, Globe, Lock, User } from 'lucide-react';
+import Link from 'next/link';
+import { useState } from 'react';
+import { ConfirmDialog } from './confirm-dialog';
 
 export default function FlashcardCard({ card }: { card: Deck }) {
     const user = useUser();
@@ -73,6 +64,7 @@ export default function FlashcardCard({ card }: { card: Deck }) {
     };
 
     const handleLearnCard = () => {
+        if (!user) return;
         learnMutate();
     };
 
@@ -246,28 +238,15 @@ export default function FlashcardCard({ card }: { card: Deck }) {
                     </Form>
                 </DialogContent>
             </Dialog>
-
-            <AlertDialog
+            <ConfirmDialog
                 open={loginPromptOpen}
                 onOpenChange={setLoginPromptOpen}
-            >
-                <AlertDialogContent>
-                    <AlertDialogHeader>
-                        <AlertDialogTitle>Login Required</AlertDialogTitle>
-                        <AlertDialogDescription>
-                            You need to login to learn this deck
-                        </AlertDialogDescription>
-                    </AlertDialogHeader>
-                    <AlertDialogFooter>
-                        <AlertDialogCancel>Cancel</AlertDialogCancel>
-                        <Link href="/auth/login" passHref>
-                            <AlertDialogAction asChild>
-                                <Button>Login</Button>
-                            </AlertDialogAction>
-                        </Link>
-                    </AlertDialogFooter>
-                </AlertDialogContent>
-            </AlertDialog>
+                title="Login Required"
+                description="You need to login to learn this deck"
+                cancelText="Cancel"
+                confirmText="Login"
+                confirmHref="/auth/login"
+            />
         </>
     );
 }

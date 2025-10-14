@@ -1,32 +1,44 @@
 'use client';
-import { Card, CardContent } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import {
-    BookOpenCheck,
-    GraduationCap,
-    ClipboardCheck,
-    Settings,
-    Edit,
-    Trash2,
-} from 'lucide-react';
-import { Badge } from '@/components/ui/badge';
-import Link from 'next/link';
+import { ConfirmDialog } from '@/components/confirm-dialog';
 import FlashcardPlayer from '@/components/flashcard-player';
 import { AccountPicture } from '@/components/ui/account-picture';
+import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent } from '@/components/ui/card';
 import {
     DropdownMenu,
     DropdownMenuContent,
     DropdownMenuItem,
     DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
-import { useParams } from 'next/navigation';
+import { useDeleteDeck } from '@/hooks/use-delete-deck';
+import { useUser } from '@/hooks/use-user';
 import { DeckCard } from '@/lib/api/dto/flashcard';
+import {
+    BookOpenCheck,
+    ClipboardCheck,
+    Edit,
+    GraduationCap,
+    Settings,
+    Trash2,
+} from 'lucide-react';
+import Link from 'next/link';
+import { useParams, useRouter } from 'next/navigation';
+import { useState } from 'react';
 
 export default function FlashcardDetailPage() {
+    const [open, setOpen] = useState(false);
+    const router = useRouter();
     const { id } = useParams<{ id: string }>();
     const raw = localStorage.getItem(`deck:${id}`);
     const deckCard: DeckCard = raw ? JSON.parse(raw) : null;
     const totalCards = deckCard?.cards.length;
+    const deleteMutation = useDeleteDeck();
+    const user = useUser();
+    const isOwner = user?.id === deckCard?.authorId ? true : false;
+    const handleDelete = () => {
+        setOpen(true);
+    };
 
     return (
         <div className="mt-20 min-h-screen bg-gray-50 dark:bg-[#0a092d]">
@@ -67,42 +79,59 @@ export default function FlashcardDetailPage() {
                                 </Badge>
                             </div>
                         </div>
-                        <div className="flex gap-2">
-                            <DropdownMenu>
-                                <DropdownMenuTrigger asChild>
-                                    <Button
-                                        variant="outline"
-                                        size="sm"
-                                        className="transition-colors dark:border-gray-700 dark:bg-[#2e3856] dark:text-white dark:hover:bg-[#3d4a6b]"
+                        {isOwner && (
+                            <div className="flex gap-2">
+                                <DropdownMenu>
+                                    <DropdownMenuTrigger asChild>
+                                        <Button
+                                            variant="outline"
+                                            size="sm"
+                                            className="transition-colors dark:border-gray-700 dark:bg-[#2e3856] dark:text-white dark:hover:bg-[#3d4a6b]"
+                                        >
+                                            <Settings className="h-4 w-4" />
+                                        </Button>
+                                    </DropdownMenuTrigger>
+                                    <DropdownMenuContent
+                                        align="end"
+                                        className="w-48 dark:border-gray-700 dark:bg-[#2e3856]"
                                     >
-                                        <Settings className="h-4 w-4" />
-                                    </Button>
-                                </DropdownMenuTrigger>
-                                <DropdownMenuContent
-                                    align="end"
-                                    className="w-48 dark:border-gray-700 dark:bg-[#2e3856]"
-                                >
-                                    <DropdownMenuItem
-                                        onClick={() =>
-                                            console.log('Edit clicked')
-                                        }
-                                        className="cursor-pointer transition-colors dark:text-white dark:hover:bg-[#3d4a6b] dark:focus:bg-[#3d4a6b]"
-                                    >
-                                        <Edit className="mr-2 h-4 w-4" />
-                                        <span>Edit</span>
-                                    </DropdownMenuItem>
-                                    <DropdownMenuItem
-                                        onClick={() =>
-                                            console.log('Delete clicked')
-                                        }
-                                        className="cursor-pointer text-red-600 transition-colors dark:text-red-400 dark:hover:bg-[#3d4a6b] dark:focus:bg-[#3d4a6b] dark:focus:text-red-400"
-                                    >
-                                        <Trash2 className="mr-2 h-4 w-4" />
-                                        <span>Delete</span>
-                                    </DropdownMenuItem>
-                                </DropdownMenuContent>
-                            </DropdownMenu>
-                        </div>
+                                        <DropdownMenuItem
+                                            onClick={() =>
+                                                router.push(
+                                                    `/flashcard/${id}/edit`,
+                                                )
+                                            }
+                                            className="cursor-pointer transition-colors dark:text-white dark:hover:bg-[#3d4a6b] dark:focus:bg-[#3d4a6b]"
+                                        >
+                                            <Edit className="mr-2 h-4 w-4" />
+                                            <span>Edit</span>
+                                        </DropdownMenuItem>
+                                        <DropdownMenuItem
+                                            onClick={handleDelete}
+                                            className="cursor-pointer text-red-600 transition-colors dark:text-red-400 dark:hover:bg-[#3d4a6b] dark:focus:bg-[#3d4a6b] dark:focus:text-red-400"
+                                        >
+                                            <Trash2 className="mr-2 h-4 w-4" />
+                                            <span>Delete</span>
+                                        </DropdownMenuItem>
+                                    </DropdownMenuContent>
+                                </DropdownMenu>
+                            </div>
+                        )}
+                        <ConfirmDialog
+                            open={open}
+                            onOpenChange={setOpen}
+                            title="Do you want to delete this deck ?"
+                            description="This action cannot be undone"
+                            confirmText={
+                                deleteMutation.isPending
+                                    ? 'Delete...'
+                                    : 'Delete'
+                            }
+                            cancelText="Cancel"
+                            destructive
+                            loading={deleteMutation.isPending}
+                            onConfirm={() => deleteMutation.mutate(id)}
+                        />
                     </div>
 
                     <div className="mt-6 flex gap-4">

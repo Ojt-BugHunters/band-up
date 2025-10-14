@@ -2,7 +2,12 @@ import {
     CreateDeckFormValues,
     useCreateDeck,
 } from '@/hooks/use-create-deck-card';
+import { useUpdateDeck } from '@/hooks/use-update-deck-card';
+import { Eye, EyeOff, GripVertical, Plus, Trash2 } from 'lucide-react';
+import { useEffect, useMemo, useState } from 'react';
 import { useFieldArray } from 'react-hook-form';
+import { Button } from './ui/button';
+import { Card } from './ui/card';
 import {
     Form,
     FormControl,
@@ -11,26 +16,63 @@ import {
     FormLabel,
     FormMessage,
 } from './ui/form';
-import { Button } from './ui/button';
-import { Card } from './ui/card';
 import { Input } from './ui/input';
-import { Textarea } from './ui/textarea';
 import { Switch } from './ui/switch';
-import { Eye, EyeOff, GripVertical, Plus, Trash2 } from 'lucide-react';
-import { useEffect, useState } from 'react';
+import { Textarea } from './ui/textarea';
 
-export default function CreateDeckForm() {
+type DeckFormMode = 'create' | 'update';
+
+type DeckFormProps = {
+    mode: DeckFormMode;
+    initialValues?: Partial<CreateDeckFormValues> & { id?: string };
+    submitText?: string;
+};
+
+export default function DeckForm({
+    mode,
+    initialValues,
+    submitText,
+}: DeckFormProps) {
+    const isUpdate = mode === 'update';
     const [showPassword, setShowPassword] = useState(false);
-    const { form, mutation } = useCreateDeck();
+    const create = useCreateDeck();
+    const update = useUpdateDeck(initialValues?.id ?? '');
+    const { form, mutation } = isUpdate ? update : create;
+
+    const safeDefaults: CreateDeckFormValues = useMemo(
+        () => ({
+            title: initialValues?.title ?? '',
+            description: initialValues?.description ?? '',
+            public: initialValues?.public ?? true,
+            password: initialValues?.password ?? '',
+            cards:
+                initialValues?.cards && initialValues.cards.length > 0
+                    ? initialValues.cards
+                    : [{ front: '', back: '' }],
+        }),
+        [initialValues],
+    );
+
+    useEffect(() => {
+        form.reset(safeDefaults, {
+            keepDirty: false,
+            keepTouched: false,
+        });
+    }, [isUpdate, safeDefaults, form]);
+
     const isPublic = form.watch('public');
+
     const { fields, append, remove } = useFieldArray({
         control: form.control,
         name: 'cards',
     });
 
     const onSubmit = (data: CreateDeckFormValues) => {
-        mutation.mutate(data);
-        console.log(data);
+        if (isUpdate && initialValues?.id) {
+            mutation.mutate(data);
+        } else {
+            mutation.mutate(data);
+        }
     };
 
     useEffect(() => {
@@ -52,6 +94,8 @@ export default function CreateDeckForm() {
         });
     };
 
+    const pending = mutation.isPending;
+
     return (
         <div className="mx-auto max-w-6xl p-6 md:p-8">
             <Form {...form}>
@@ -62,21 +106,30 @@ export default function CreateDeckForm() {
                     <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
                         <div>
                             <h1 className="text-3xl font-bold tracking-tight">
-                                Create New Deck
+                                {isUpdate
+                                    ? 'Update Deck'
+                                    : 'Create New Deck'}{' '}
                             </h1>
                             <p className="text-muted-foreground">
-                                Start building your flashcard collection
+                                {isUpdate
+                                    ? 'Modify your flashcard collection'
+                                    : 'Start building your flashcard collection'}{' '}
                             </p>
                         </div>
                         <div className="flex gap-2">
                             <Button
                                 type="submit"
-                                disabled={mutation.isPending}
+                                disabled={pending}
                                 className="bg-primary hover:bg-primary/90"
                             >
-                                {mutation.isPending
-                                    ? 'Creating...'
-                                    : 'Create & Study'}
+                                {pending
+                                    ? isUpdate
+                                        ? 'Updating...'
+                                        : 'Creating...'
+                                    : submitText ||
+                                      (isUpdate
+                                          ? 'Update'
+                                          : 'Create & Study')}{' '}
                             </Button>
                         </div>
                     </div>
