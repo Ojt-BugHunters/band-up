@@ -3,6 +3,7 @@ package com.project.Band_Up.services.section;
 import com.project.Band_Up.dtos.section.SectionCreateRequest;
 import com.project.Band_Up.dtos.section.SectionResponse;
 import com.project.Band_Up.dtos.section.SectionUpdateRequest;
+import com.project.Band_Up.enums.Status;
 
 import java.util.List;
 import java.util.UUID;
@@ -18,4 +19,6 @@ public interface SectionService {
     SectionResponse updateSection(UUID sectionId, SectionUpdateRequest request, UUID actorId);
     // Xóa section
     void deleteSection(UUID sectionId, UUID actorId);
+    //xóa tất cả section theo status
+    void deleteSectionsByStatus(UUID testId, Status status);
 }
