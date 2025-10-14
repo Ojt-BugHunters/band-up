@@ -3,6 +3,7 @@ package com.project.Band_Up.services.test;
 import com.project.Band_Up.dtos.test.TestCreateRequest;
 import com.project.Band_Up.dtos.test.TestUpdateRequest;
 import com.project.Band_Up.dtos.test.TestResponse;
+import com.project.Band_Up.enums.Status;
 
 import java.util.List;
 import java.util.UUID;
@@ -30,4 +31,6 @@ public interface TestService {
 
     //  Xóa Test
     void deleteTest(UUID id);
+    // Xóa tất cả test của user theo Status
+    void deleteAllTestsByUserIdAndStatus(UUID userId, Status status);
 }
