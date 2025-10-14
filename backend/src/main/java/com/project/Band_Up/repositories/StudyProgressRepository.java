@@ -11,4 +11,6 @@ import java.util.UUID;
 @Repository
 public interface StudyProgressRepository extends JpaRepository<StudyProgress, UUID> {
     boolean existsByDeckAndAccount(Deck deck, Account account);
+
+    void deleteAllByDeck(Deck deck);
 }
