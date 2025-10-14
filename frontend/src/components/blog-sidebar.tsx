@@ -1,3 +1,5 @@
+'use client';
+
 import { Bookmark, Heart, Home, Tag } from 'lucide-react';
 import { Button } from './ui/button';
 

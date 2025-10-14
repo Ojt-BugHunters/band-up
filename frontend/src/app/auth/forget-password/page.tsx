@@ -1,7 +1,5 @@
 'use client';
 
-import { Suspense } from 'react';
-import { Loader2, CheckCircle2, Shield } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import {
     Form,
@@ -16,16 +14,20 @@ import {
     InputOTPGroup,
     InputOTPSlot,
 } from '@/components/ui/input-otp';
-import { toast } from 'sonner';
-import { useSearchParams } from 'next/navigation';
-import { OtpFormValues } from '@/hooks/use-verify-otp';
-import { useVerifyOtp } from '@/hooks/use-verify-otp';
 import { useForgetPassword } from '@/hooks/use-forget-password';
+import { useVerifyUser } from '@/hooks/use-verify-account';
+import { OtpFormValues, useVerifyOtp } from '@/hooks/use-verify-otp';
+import { CheckCircle2, Loader2, Shield } from 'lucide-react';
+import { useSearchParams } from 'next/navigation';
+import { Suspense } from 'react';
+import { toast } from 'sonner';
 
 export function OtpVerificationForm() {
     const searchParams = useSearchParams();
-    const email = searchParams.get('variables') ?? '';
+    const email = searchParams.get('email') ?? '';
+    const state = searchParams.get('state') ?? '';
     const { form, mutation } = useVerifyOtp();
+    const { mutation: accountVerifyMutation } = useVerifyUser();
 
     const onSubmit = (values: OtpFormValues) => {
         if (!email) {
@@ -34,7 +36,11 @@ export function OtpVerificationForm() {
             );
             return;
         }
-        mutation.mutate({ email, otp: values.otp });
+        if (state === 'forget') {
+            mutation.mutate({ email, otp: values.otp });
+        } else {
+            accountVerifyMutation.mutate({ email, otp: values.otp });
+        }
     };
 
     const disabled =
@@ -101,7 +107,7 @@ export function OtpVerificationForm() {
 
 export function ForgetPassword() {
     const searchParams = useSearchParams();
-    const email = searchParams.get('variables') ?? '';
+    const email = searchParams.get('email') ?? '';
     const resend = useForgetPassword();
 
     const handleResend = () => {
