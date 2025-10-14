@@ -35,7 +35,7 @@ export default function FlashcardDetailPage() {
     const totalCards = deckCard?.cards.length;
     const deleteMutation = useDeleteDeck();
     const user = useUser();
-    const isOwner = user?.id === deckCard.authorId ? true : false;
+    const isOwner = user?.id === deckCard?.authorId ? true : false;
     const handleDelete = () => {
         setOpen(true);
     };
