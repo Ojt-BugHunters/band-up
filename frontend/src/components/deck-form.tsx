@@ -69,7 +69,7 @@ export default function DeckForm({
 
     const onSubmit = (data: CreateDeckFormValues) => {
         if (isUpdate && initialValues?.id) {
-            mutation.mutate({ id: initialValues?.id });
+            mutation.mutate(data);
         } else {
             mutation.mutate(data);
         }
