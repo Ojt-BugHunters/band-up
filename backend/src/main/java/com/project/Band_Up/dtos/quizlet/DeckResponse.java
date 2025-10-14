@@ -19,5 +19,6 @@ public class DeckResponse {
     private boolean isPublic;
     private LocalDateTime createdAt;
     private String authorName;
+    private UUID authorId;
     private List<CardDto> cards;
 }
