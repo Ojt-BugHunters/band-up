@@ -152,9 +152,8 @@ export default function EditDeckForm({ deckId }: EditDeckFormProps) {
 
             toast.success('Deck updated successfully');
             router.push('/flashcard');
-        } catch (error) {
-            toast.error('Cập nhật thất bại, vui lòng thử lại.');
-            console.error('Failed to update deck or cards', error);
+        } catch {
+            toast.error('Failed to update deck or cards.');
         }
     };
 
@@ -199,7 +198,9 @@ export default function EditDeckForm({ deckId }: EditDeckFormProps) {
                                 type="button"
                                 variant="outline"
                                 disabled={isSaving}
-                                onClick={() => router.push(`/flashcard/${deckId}`)}
+                                onClick={() =>
+                                    router.push(`/flashcard/${deckId}`)
+                                }
                             >
                                 Cancel
                             </Button>
