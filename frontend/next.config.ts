@@ -9,6 +9,7 @@ const nextConfig: NextConfig = {
                 hostname: 'randomuser.me',
             },
         ],
+        domains: ['d33qmu3lctvpye.cloudfront.net'],
     },
 };
 
