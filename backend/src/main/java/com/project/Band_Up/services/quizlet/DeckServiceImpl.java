@@ -132,6 +132,7 @@ public class DeckServiceImpl implements DeckService {
                 .orElseThrow(() -> new ResourceNotFoundException(deckId.toString()));
         if (!deck.getAccount().getId().equals(accountId))
             throw new AuthenticationFailedException("Unauthorized");
+        studyProgressRepository.deleteAllByDeck(deck);
         deckRepository.delete(deck);
         return modelMapper.map(deck, DeckDto.class);
     }
