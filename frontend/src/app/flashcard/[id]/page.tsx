@@ -12,6 +12,7 @@ import {
     DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { useDeleteDeck } from '@/hooks/use-delete-deck';
+import { useUser } from '@/hooks/use-user';
 import { DeckCard } from '@/lib/api/dto/flashcard';
 import {
     BookOpenCheck,
@@ -33,6 +34,8 @@ export default function FlashcardDetailPage() {
     const deckCard: DeckCard = raw ? JSON.parse(raw) : null;
     const totalCards = deckCard?.cards.length;
     const deleteMutation = useDeleteDeck();
+    const user = useUser();
+    const isOwner = user?.id === deckCard.authorId ? true : false;
     const handleDelete = () => {
         setOpen(true);
     };
@@ -76,40 +79,44 @@ export default function FlashcardDetailPage() {
                                 </Badge>
                             </div>
                         </div>
-                        <div className="flex gap-2">
-                            <DropdownMenu>
-                                <DropdownMenuTrigger asChild>
-                                    <Button
-                                        variant="outline"
-                                        size="sm"
-                                        className="transition-colors dark:border-gray-700 dark:bg-[#2e3856] dark:text-white dark:hover:bg-[#3d4a6b]"
+                        {isOwner && (
+                            <div className="flex gap-2">
+                                <DropdownMenu>
+                                    <DropdownMenuTrigger asChild>
+                                        <Button
+                                            variant="outline"
+                                            size="sm"
+                                            className="transition-colors dark:border-gray-700 dark:bg-[#2e3856] dark:text-white dark:hover:bg-[#3d4a6b]"
+                                        >
+                                            <Settings className="h-4 w-4" />
+                                        </Button>
+                                    </DropdownMenuTrigger>
+                                    <DropdownMenuContent
+                                        align="end"
+                                        className="w-48 dark:border-gray-700 dark:bg-[#2e3856]"
                                     >
-                                        <Settings className="h-4 w-4" />
-                                    </Button>
-                                </DropdownMenuTrigger>
-                                <DropdownMenuContent
-                                    align="end"
-                                    className="w-48 dark:border-gray-700 dark:bg-[#2e3856]"
-                                >
-                                    <DropdownMenuItem
-                                        onClick={() =>
-                                            router.push(`/flashcard/${id}/edit`)
-                                        }
-                                        className="cursor-pointer transition-colors dark:text-white dark:hover:bg-[#3d4a6b] dark:focus:bg-[#3d4a6b]"
-                                    >
-                                        <Edit className="mr-2 h-4 w-4" />
-                                        <span>Edit</span>
-                                    </DropdownMenuItem>
-                                    <DropdownMenuItem
-                                        onClick={handleDelete}
-                                        className="cursor-pointer text-red-600 transition-colors dark:text-red-400 dark:hover:bg-[#3d4a6b] dark:focus:bg-[#3d4a6b] dark:focus:text-red-400"
-                                    >
-                                        <Trash2 className="mr-2 h-4 w-4" />
-                                        <span>Delete</span>
-                                    </DropdownMenuItem>
-                                </DropdownMenuContent>
-                            </DropdownMenu>
-                        </div>
+                                        <DropdownMenuItem
+                                            onClick={() =>
+                                                router.push(
+                                                    `/flashcard/${id}/edit`,
+                                                )
+                                            }
+                                            className="cursor-pointer transition-colors dark:text-white dark:hover:bg-[#3d4a6b] dark:focus:bg-[#3d4a6b]"
+                                        >
+                                            <Edit className="mr-2 h-4 w-4" />
+                                            <span>Edit</span>
+                                        </DropdownMenuItem>
+                                        <DropdownMenuItem
+                                            onClick={handleDelete}
+                                            className="cursor-pointer text-red-600 transition-colors dark:text-red-400 dark:hover:bg-[#3d4a6b] dark:focus:bg-[#3d4a6b] dark:focus:text-red-400"
+                                        >
+                                            <Trash2 className="mr-2 h-4 w-4" />
+                                            <span>Delete</span>
+                                        </DropdownMenuItem>
+                                    </DropdownMenuContent>
+                                </DropdownMenu>
+                            </div>
+                        )}
                         <ConfirmDialog
                             open={open}
                             onOpenChange={setOpen}

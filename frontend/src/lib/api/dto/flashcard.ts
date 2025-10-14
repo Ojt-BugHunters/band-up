@@ -17,6 +17,7 @@ export interface DeckCard {
     id: string;
     title: string;
     description: string;
+    authorId: string;
     learnerNumber: number;
     createdAt: string;
     authorName: string;
