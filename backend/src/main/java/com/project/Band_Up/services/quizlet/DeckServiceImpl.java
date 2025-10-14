@@ -73,12 +73,15 @@ public class DeckServiceImpl implements DeckService {
     public DeckResponse getDeck(UUID deckId, String password) {
         Deck deck = deckRepository.findById(deckId)
                 .orElseThrow(() -> new ResourceNotFoundException(deckId.toString()));
+        DeckResponse deckResponse = modelMapper.map(deck, DeckResponse.class);
+        deckResponse.setAuthorId(deck.getAccount().getId());
+        deckResponse.setAuthorName(deck.getAccount().getName());
         if(!deck.isPublic()) {
             if (passwordEncoder.matches(password, deck.getPassword())) {
-                return modelMapper.map(deck, DeckResponse.class);
+                return deckResponse;
             } else throw new AuthenticationFailedException("Invalid password");
         }
-        return modelMapper.map(deck, DeckResponse.class);
+        return deckResponse;
     }
 
     @Override

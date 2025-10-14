@@ -1,8 +1,8 @@
 'use client';
 
-import { fetchWrapper, throwIfError } from '@/lib/api';
+import { buildParams, fetchWrapper, throwIfError } from '@/lib/api';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { useMutation } from '@tanstack/react-query';
 import { useRouter } from 'next/navigation';
 import { useForm } from 'react-hook-form';
 import { toast } from 'sonner';
@@ -39,7 +39,6 @@ export const schema = z
 
 export const useRegisterForm = () => {
     const router = useRouter();
-    const queryClient = useQueryClient();
     const form = useForm<z.infer<typeof schema>>({
         resolver: zodResolver(schema),
         defaultValues: {
@@ -49,7 +48,7 @@ export const useRegisterForm = () => {
         },
     });
 
-        const mutation = useMutation({
+    const mutation = useMutation({
         mutationFn: async (values: z.infer<typeof schema>) => {
             const response = await fetchWrapper('/auth/register', {
                 method: 'POST',
@@ -66,11 +65,16 @@ export const useRegisterForm = () => {
         onError: (error) => {
             toast.error(error.message);
         },
-        onSuccess: (data) => {
-            queryClient.setQueryData(['user'], data);
-            localStorage.setItem('user', JSON.stringify(data));
-            console.log('saved user', queryClient.getQueryData(['user']));
-            router.push('/auth/register/profile');
+        onSuccess: (ok, data, email) => {
+            if (ok) {
+                toast.success('Send OTP to email success');
+                const qs = buildParams({
+                    email: data.email,
+                }).toString();
+                router.push(`/auth/forget-password?${qs}&state=register`);
+            } else {
+                toast.error('Error when send OTP to email');
+            }
         },
     });
 
