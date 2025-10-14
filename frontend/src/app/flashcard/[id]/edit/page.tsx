@@ -6,7 +6,7 @@ export default function EditDeckPage() {
     const { id } = useParams() as { id?: string };
 
     if (!id) {
-        return <div className="p-8">Deck ID không hợp lệ.</div>;
+        return <div className="p-8">Invalid Deck ID</div>;
     }
 
     return (

@@ -1,29 +1,32 @@
 'use client';
-import { Card, CardContent } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import {
-    BookOpenCheck,
-    GraduationCap,
-    ClipboardCheck,
-    Settings,
-    Edit,
-    Trash2,
-} from 'lucide-react';
-import { Badge } from '@/components/ui/badge';
-import Link from 'next/link';
+import { ConfirmDialog } from '@/components/confirm-dialog';
 import FlashcardPlayer from '@/components/flashcard-player';
 import { AccountPicture } from '@/components/ui/account-picture';
+import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent } from '@/components/ui/card';
 import {
     DropdownMenu,
     DropdownMenuContent,
     DropdownMenuItem,
     DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
-import { useParams, useRouter } from 'next/navigation';
-import { DeckCard } from '@/lib/api/dto/flashcard';
 import { useDeleteDeck } from '@/hooks/use-delete-deck';
+import { DeckCard } from '@/lib/api/dto/flashcard';
+import {
+    BookOpenCheck,
+    ClipboardCheck,
+    Edit,
+    GraduationCap,
+    Settings,
+    Trash2,
+} from 'lucide-react';
+import Link from 'next/link';
+import { useParams, useRouter } from 'next/navigation';
+import { useState } from 'react';
 
 export default function FlashcardDetailPage() {
+    const [open, setOpen] = useState(false);
     const router = useRouter();
     const { id } = useParams<{ id: string }>();
     const raw = localStorage.getItem(`deck:${id}`);
@@ -31,9 +34,7 @@ export default function FlashcardDetailPage() {
     const totalCards = deckCard?.cards.length;
     const deleteMutation = useDeleteDeck();
     const handleDelete = () => {
-        if (confirm('Are you sure you want to delete this deck?')) {
-            deleteMutation.mutate(id);
-        }
+        setOpen(true);
     };
 
     return (
@@ -109,6 +110,21 @@ export default function FlashcardDetailPage() {
                                 </DropdownMenuContent>
                             </DropdownMenu>
                         </div>
+                        <ConfirmDialog
+                            open={open}
+                            onOpenChange={setOpen}
+                            title="Do you want to delete this deck ?"
+                            description="This action cannot be undone"
+                            confirmText={
+                                deleteMutation.isPending
+                                    ? 'Delete...'
+                                    : 'Delete'
+                            }
+                            cancelText="Cancel"
+                            destructive
+                            loading={deleteMutation.isPending}
+                            onConfirm={() => deleteMutation.mutate(id)}
+                        />
                     </div>
 
                     <div className="mt-6 flex gap-4">

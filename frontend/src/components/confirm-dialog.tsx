@@ -1,6 +1,7 @@
 'use client';
 
 import { cn } from '@/lib/utils';
+import Link from 'next/link';
 import {
     AlertDialog,
     AlertDialogAction,
@@ -11,7 +12,6 @@ import {
     AlertDialogHeader,
     AlertDialogTitle,
 } from './ui/alert-dialog';
-import Link from 'next/link';
 
 type ConfirmDialogProps = {
     open: boolean;
@@ -20,7 +20,7 @@ type ConfirmDialogProps = {
     description?: React.ReactNode;
     confirmText?: string;
     cancelText?: string;
-    destructive: boolean;
+    destructive?: boolean;
     loading?: boolean;
     onConfirm?: () => void | Promise<void>;
     confirmHref?: string;
