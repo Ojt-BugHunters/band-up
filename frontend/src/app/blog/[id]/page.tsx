@@ -4,13 +4,25 @@ import { useEffect, useMemo, useState } from 'react';
 import { blogPostDetail } from '../../../../constants/sample-data';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Button } from '@/components/ui/button';
-import { useRouter } from 'next/navigation';
+import { useParams, useRouter } from 'next/navigation';
 import { Heart, Share2, Calendar, User as UserIcon } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { toast } from 'sonner';
 import Image from 'next/image';
 import { formatDate } from '@/lib/utils';
+import {
+    Dialog,
+    DialogClose,
+    DialogContent,
+    DialogDescription,
+    DialogFooter,
+    DialogHeader,
+    DialogTitle,
+    DialogTrigger,
+} from '@/components/ui/dialog';
+import { Label } from '@/components/ui/label';
+import { Input } from '@/components/ui/input';
 
 function initials(name: string) {
     return name
@@ -23,7 +35,7 @@ function initials(name: string) {
 
 export default function BlogPostPage() {
     const router = useRouter();
-    // const params = useParams<{ id: string }>();
+    const id = useParams<{ id: string }>();
     const detail = blogPostDetail;
     const [isLoading, setIsLoading] = useState(true);
 
@@ -177,9 +189,45 @@ export default function BlogPostPage() {
                             <span>{likes}</span>
                         </Button>
 
-                        <Button variant="ghost" size="sm" onClick={handleShare}>
-                            <Share2 className="h-4 w-4" />
-                        </Button>
+                        <Dialog>
+                            <DialogTrigger asChild>
+                                <Share2 className="h-4 w-4" />
+                            </DialogTrigger>
+                            <DialogContent className="sm:max-w-md">
+                                <DialogHeader>
+                                    <DialogTitle>Share Link</DialogTitle>
+                                    <DialogDescription>
+                                        Anyone who has this link will be able to
+                                        view this blog!
+                                    </DialogDescription>
+                                </DialogHeader>
+                                <div className="flex items-center gap-2">
+                                    <div className="grid flex-1 gap-2">
+                                        <Label
+                                            htmlFor="link"
+                                            className="sr-only"
+                                        >
+                                            Link
+                                        </Label>
+                                        <Input
+                                            id="link"
+                                            defaultValue={`https://band-up-psi.vercel.app/blog/${id}`}
+                                            readOnly
+                                        />
+                                    </div>
+                                </div>
+                                <DialogFooter className="sm:justify-start">
+                                    <DialogClose asChild>
+                                        <Button
+                                            type="button"
+                                            variant="secondary"
+                                        >
+                                            Close
+                                        </Button>
+                                    </DialogClose>
+                                </DialogFooter>
+                            </DialogContent>
+                        </Dialog>
                     </div>
                 </div>
                 {blogPost.titleImg && (
