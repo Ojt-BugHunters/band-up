@@ -52,7 +52,7 @@ export default function BlogListPage() {
     }, [categoryName, sortOrder, search]);
 
     return (
-        <div className="bg-background min-h-screen">
+        <div className="bg-background min-h-screen p-8">
             <section className="mt-8 px-4 pt-25 pb-16 sm:px-6 lg:px-8">
                 <div className="mx-auto max-w-7xl">
                     <div className="mb-12 text-center">
