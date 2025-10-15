@@ -1,6 +1,7 @@
 package com.project.Band_Up.repositories;
 
 import com.project.Band_Up.entities.Test;
+import com.project.Band_Up.enums.Status;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
@@ -22,5 +23,7 @@ public interface TestRepository extends JpaRepository<Test, UUID> {
     // 4. Lấy tất cả Test của một user
     List<Test> findByUser_Id(UUID userId);
 
+    // Lấy tất cả  Test của một user theo UserId và Status
+    List<Test> findByUser_IdAndStatus(UUID userId, Status status);
 
 }

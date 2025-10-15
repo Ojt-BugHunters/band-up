@@ -8,8 +8,8 @@ import lombok.*;
 @NoArgsConstructor
 @Builder
 public class MediaRequest {
-    private String EntityType;
-    private String EntityId;
-    private String FileName;
+    private String entityType;
+    private String entityId;
+    private String fileName;
     private String contentType;
 }

@@ -1,5 +1,6 @@
 package com.project.Band_Up.entities;
 
+import com.project.Band_Up.enums.Status;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 import lombok.*;
@@ -37,4 +38,5 @@ public class Section {
     @Column(columnDefinition = "jsonb")
     @JdbcTypeCode(SqlTypes.JSON)
     private Map<String, Object> metadata;
+    private Status status;
 }

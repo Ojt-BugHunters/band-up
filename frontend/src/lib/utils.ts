@@ -31,3 +31,14 @@ export function useDebounce<T>(value: T, delay = 1000) {
     }, [value, delay]);
     return debounced;
 }
+
+export function formatDate(input: string) {
+    const d = new Date(input);
+    return isNaN(d.getTime())
+        ? input
+        : d.toLocaleDateString(undefined, {
+              year: 'numeric',
+              month: 'short',
+              day: 'numeric',
+          });
+}

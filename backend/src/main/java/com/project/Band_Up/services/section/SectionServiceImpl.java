@@ -5,6 +5,7 @@ import com.project.Band_Up.dtos.section.SectionResponse;
 import com.project.Band_Up.dtos.section.SectionUpdateRequest;
 import com.project.Band_Up.entities.Section;
 import com.project.Band_Up.entities.Test;
+import com.project.Band_Up.enums.Status;
 import com.project.Band_Up.repositories.SectionRepository;
 import com.project.Band_Up.repositories.TestRepository;
 import lombok.RequiredArgsConstructor;
@@ -33,6 +34,7 @@ public class SectionServiceImpl implements SectionService {
         }
 
         Section section = modelMapper.map(request, Section.class);
+        section.setStatus(Status.Draft);
         section.setTest(test);
 
         Section saved = sectionRepository.save(section);
@@ -67,6 +69,7 @@ public class SectionServiceImpl implements SectionService {
         }
         section.setTitle(request.getTitle());
         section.setOrderIndex(request.getOrderIndex());
+        section.setStatus(Status.Published);
         section.setMetadata(request.getMetadata());
 
         Section updated = sectionRepository.save(section);
@@ -85,5 +88,10 @@ public class SectionServiceImpl implements SectionService {
         }
 
         sectionRepository.deleteById(id);
+    }
+    @Override
+    public void deleteSectionsByStatus (UUID testId, Status status) {
+        List<Section> sections = sectionRepository.findAllByTest_IdAndStatusOrderByOrderIndexAsc(testId, Status.Draft);
+        sectionRepository.deleteAll(sections);
     }
 }

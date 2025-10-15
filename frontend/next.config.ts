@@ -8,8 +8,21 @@ const nextConfig: NextConfig = {
                 protocol: 'https',
                 hostname: 'randomuser.me',
             },
+            {
+                protocol: 'https',
+                hostname: 'images.unsplash.com',
+            },
+            {
+                protocol: 'https',
+                hostname: 'picsum.photos',
+            },
+            {
+                protocol: 'https',
+                hostname: 'i.pravatar.cc',
+            },
         ],
         domains: ['d33qmu3lctvpye.cloudfront.net'],
+        domains: ['api.microlink.io'],
     },
 };
 
