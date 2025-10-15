@@ -1,7 +1,14 @@
 import { User } from '@/lib/api/dto/account';
-import { Post } from '@/lib/api/dto/blog';
+import {
+    BlogPost,
+    FeatureBlogs,
+    BlogPostDetail,
+    BlogReact,
+    Author,
+    ReactType,
+} from '@/lib/api/dto/blog';
 import { Tag } from '@/lib/api/dto/category';
-import { Comment } from '@/lib/api/dto/comment';
+import { Comment, Reply } from '@/lib/api/dto/comment';
 import { ListeningSection, Passage, WritingTask } from '@/lib/api/dto/question';
 import { Test, TestHistory, TestOverview } from '@/lib/api/dto/test';
 import { SpeakingSection } from './../src/lib/api/dto/question';
@@ -992,119 +999,413 @@ export const mockAccountBlogs = [
         date: 'Feb 20, 2024',
     },
 ];
-export const mockTags: Tag[] = [
-    { id: 'all', name: 'All' },
-    { id: 'tech', name: 'Technology' },
-    { id: 'wri', name: 'Writing' },
-    { id: 'lis', name: 'Listening' },
-    { id: 'read', name: 'Reading' },
-    { id: 'speak', name: 'Speaking' },
-    { id: 'life', name: 'Lifestyle' },
-    { id: 'edu', name: 'Education' },
-    { id: 'dev', name: 'Development' },
-    { id: 'cloud', name: 'Cloud' },
-    { id: 'aws', name: 'AWS' },
-    { id: 'db', name: 'Database' },
+
+export const tags: Tag[] = [
+    { id: 't1', name: 'JavaScript' },
+    { id: 't2', name: 'TypeScript' },
+    { id: 't3', name: 'AWS' },
+    { id: 't4', name: 'DevOps' },
+    { id: 't5', name: 'Database' },
+    { id: 't6', name: 'UI/UX' },
+    { id: 't7', name: 'Performance' },
+    { id: 't8', name: 'Security' },
+    { id: 't9', name: 'Networking' },
+    { id: 't10', name: 'Open Source' },
 ];
 
-export const posts: Post[] = [
+const T = {
+    js: tags[0],
+    ts: tags[1],
+    aws: tags[2],
+    devops: tags[3],
+    db: tags[4],
+    ui: tags[5],
+    perf: tags[6],
+    sec: tags[7],
+    net: tags[8],
+    oss: tags[9],
+};
+
+export const authors: Author[] = [
+    { id: 'a1', name: 'Nam Dang', avatar: 'https://i.pravatar.cc/80?img=1' },
+    { id: 'a2', name: 'Linh Nguyen', avatar: 'https://i.pravatar.cc/80?img=2' },
+    { id: 'a3', name: 'Minh Tran', avatar: 'https://i.pravatar.cc/80?img=3' },
+    { id: 'a4', name: 'An Pham', avatar: 'https://i.pravatar.cc/80?img=4' },
+    { id: 'a5', name: 'Khanh Le', avatar: 'https://i.pravatar.cc/80?img=5' },
+    { id: 'a6', name: 'Hoa Do', avatar: 'https://i.pravatar.cc/80?img=6' },
+    { id: 'a7', name: 'Quang Bui', avatar: 'https://i.pravatar.cc/80?img=7' },
+    { id: 'a8', name: 'Lan Phan', avatar: 'https://i.pravatar.cc/80?img=8' },
+    { id: 'a9', name: 'Duc Hoang', avatar: 'https://i.pravatar.cc/80?img=9' },
+    { id: 'a10', name: 'My Vu', avatar: 'https://i.pravatar.cc/80?img=10' },
     {
-        id: '1',
-        author: {
-            id: '1',
-            name: 'Sarah Chen',
-            avatar: '/woman-developer.png',
-        },
-        title: 'Building Scalable React Applications with Server Components',
-        content:
-            "React Server Components are revolutionizing how we build web applications. By moving rendering to the server, we can significantly reduce bundle sizes and improve initial page load times. In this post, I'll share my experience migrating a large-scale application to use Server Components and the performance improvements we achieved. The key is understanding when to use server vs client components and how to properly handle data fetching patterns.",
-        coverImage: '/react-code-editor.jpg',
-        tag: mockTags,
-        reactions: 142,
-        comments: 28,
-        publishedAt: 'Dec 8',
+        id: 'a11',
+        name: 'Tien Nguyen',
+        avatar: 'https://i.pravatar.cc/80?img=11',
+    },
+    { id: 'a12', name: 'Thu Ha', avatar: 'https://i.pravatar.cc/80?img=12' },
+];
+
+const A = {
+    nam: authors[0],
+    linh: authors[1],
+    minh: authors[2],
+    an: authors[3],
+    khanh: authors[4],
+    hoa: authors[5],
+    quang: authors[6],
+    lan: authors[7],
+    duc: authors[8],
+    my: authors[9],
+    tien: authors[10],
+    ha: authors[11],
+};
+
+const pick = <T>(arr: T[], count: number) =>
+    arr.slice(0, Math.max(0, Math.min(count, arr.length)));
+
+const reactTypes: ReactType[] = ['like', 'love', 'wow', 'haha', 'sad', 'angry'];
+
+function makeReacts(postId: string, count = 5): BlogReact[] {
+    const chosenAuthors = pick(
+        [...authors].sort(() => Math.random() - 0.5),
+        count,
+    );
+    return chosenAuthors.map((u, i) => ({
+        id: `${postId}-r${i + 1}`,
+        reactAuthor: u,
+        reactType: reactTypes[(i + postId.length) % reactTypes.length],
+    }));
+}
+
+export const featureBlogs: FeatureBlogs[] = [
+    {
+        id: 'fb1',
+        title: 'From Monolith to Microfrontends: A Pragmatic Journey',
+        subContent:
+            'We migrated a sprawling FE into modular microfrontends without breaking developer velocity. Here’s the playbook and traps.',
+        tags: [T.ui, T.ts, T.perf],
+        image: 'https://images.unsplash.com/photo-1555066931-4365d14bab8c?q=80&w=1400',
+        numberOfReader: 12890,
+        numberOfComments: 42,
     },
     {
-        id: '2',
-        author: {
-            id: '2',
-            name: 'Marcus Johnson',
-            avatar: '/man-developer.png',
-        },
-        title: 'TypeScript Best Practices for Large-Scale Applications',
-        content:
-            "After working on enterprise TypeScript projects for the past 5 years, I've learned that proper type safety is crucial for maintainability. Here are my top recommendations: Use strict mode always, leverage utility types like Pick and Omit, create custom type guards for runtime validation, and organize your types in a centralized location. These practices have saved our team countless hours of debugging and made our codebase much more reliable.",
-        coverImage: '/typescript-code.png',
-        tag: [
-            { id: 'typescript', name: 'typescript' },
-            { id: 'programming', name: 'programming' },
-            { id: 'webdev', name: 'webdev' },
-        ],
-        reactions: 89,
-        comments: 15,
-        publishedAt: 'Dec 7',
+        id: 'fb2',
+        title: 'Observability on AWS: Tracing Beyond Logs',
+        subContent:
+            'Correlate traces, metrics, and logs using X-Ray, OpenTelemetry, and managed services—real-world configs included.',
+        tags: [T.aws, T.devops, T.sec],
+        image: 'https://images.unsplash.com/photo-1518779578993-ec3579fee39f?q=80&w=1400',
+        numberOfReader: 10221,
+        numberOfComments: 33,
     },
     {
-        id: '3',
-        author: {
-            id: '3',
-            name: 'Emily Rodriguez',
-            avatar: '/woman-engineer-at-work.png',
-        },
-        title: 'CSS Grid vs Flexbox: When to Use Each',
-        content:
-            'The eternal debate! Both CSS Grid and Flexbox are powerful layout tools, but they excel in different scenarios. Use Flexbox for one-dimensional layouts (rows or columns) and when you need items to wrap naturally. Use Grid for two-dimensional layouts where you need precise control over both rows and columns. In practice, I often use both together - Grid for the overall page structure and Flexbox for component internals. Understanding both will make you a much more effective frontend developer.',
-        coverImage: '/css-grid-vs-flexbox.png',
-        tag: [
-            { id: 'css', name: 'css' },
-            { id: 'webdev', name: 'webdev' },
-            { id: 'frontend', name: 'frontend' },
-            { id: 'design', name: 'design' },
-        ],
-        reactions: 234,
-        comments: 42,
-        publishedAt: 'Dec 6',
+        id: 'fb3',
+        title: 'SQL Patterns for High-Throughput Feeds',
+        subContent:
+            'Pagination, fan-out on write vs read, and practical indexing strategies for real-time timelines.',
+        tags: [T.db, T.perf],
+        image: 'https://images.unsplash.com/photo-1517433456452-f9633a875f6f?q=80&w=1400',
+        numberOfReader: 8760,
+        numberOfComments: 19,
     },
     {
-        id: '4',
-        author: {
-            id: '4',
-            name: 'David Kim',
-            avatar: '/man-programmer.jpg',
-        },
-        title: 'Mastering API Design: RESTful Best Practices',
-        content:
-            "Good API design is an art form. After building APIs for various companies, here's what I've learned: Use consistent naming conventions, implement proper versioning from day one, provide clear error messages with appropriate status codes, and always document your endpoints thoroughly. A well-designed API makes integration a breeze for other developers and reduces support requests significantly. Remember, your API is a product that other developers will use - treat it with the same care as your user-facing features.",
-        coverImage: '/api-architecture.png',
-        tag: [
-            { id: 'api', name: 'api' },
-            { id: 'backend', name: 'backend' },
-            { id: 'nodejs', name: 'nodejs' },
-            { id: 'architecture', name: 'architecture' },
-        ],
-        reactions: 167,
-        comments: 31,
-        publishedAt: 'Dec 5',
+        id: 'fb4',
+        title: 'Designing Delight: Tiny UI Details That Matter',
+        subContent:
+            'Micro-interactions, motion, and copywriting that quietly increase conversion and retention.',
+        tags: [T.ui],
+        image: 'https://images.unsplash.com/photo-1498050108023-c5249f4df085?q=80&w=1400',
+        numberOfReader: 9532,
+        numberOfComments: 28,
     },
     {
-        id: '5',
-        author: {
-            id: '5',
-            name: 'Aisha Patel',
-            avatar: '/woman-coder.png',
-        },
-        title: 'Getting Started with Docker for Web Developers',
-        content:
-            "Docker transformed how I develop and deploy applications. It solves the 'works on my machine' problem by containerizing your entire application environment. Start with a simple Dockerfile, learn about layers and caching, then move on to docker-compose for multi-container applications. The learning curve is worth it - you'll have consistent environments across development, staging, and production. Plus, your onboarding process for new developers becomes incredibly smooth when they can just run 'docker-compose up' and have everything working.",
-        coverImage: '/docker-containers.png',
-        tag: [
-            { id: 'docker', name: 'docker' },
-            { id: 'devops', name: 'devops' },
-            { id: 'tutorial', name: 'tutorial' },
-            { id: 'beginners', name: 'beginners' },
-        ],
-        reactions: 312,
-        comments: 56,
-        publishedAt: 'Dec 4',
+        id: 'fb5',
+        title: 'Hardening Your CI/CD Pipeline',
+        subContent:
+            'Supply-chain risks are rising. We lock down build steps, secrets, and artifact trust with minimal friction.',
+        tags: [T.devops, T.sec, T.oss],
+        image: 'https://images.unsplash.com/photo-1519389950473-47ba0277781c?q=80&w=1400',
+        numberOfReader: 11004,
+        numberOfComments: 37,
     },
 ];
+
+const lorem =
+    'This article walks through practical patterns, trade-offs, and code snippets you can apply today. We focus on clarity and measurable impact, keeping the stack approachable while respecting constraints.';
+
+function mkPost(
+    id: string,
+    author: Author,
+    title: string,
+    tagsArr: Tag[],
+    readers: number,
+    comments: number,
+    dateISO: string,
+    hasImg = true,
+): BlogPost {
+    return {
+        id,
+        author,
+        title,
+        titleImg: hasImg
+            ? `https://picsum.photos/seed/${encodeURIComponent(id)}/1200/630`
+            : undefined,
+        subContent: `${title}\n\n${lorem}\n\nKey takeaways:\n- Keep interfaces small and explicit.\n- Measure before you optimize.\n- Automate checks, but keep humans in the loop.\n`,
+        tags: tagsArr,
+        numberOfReaders: readers,
+        numberOfComments: comments,
+        publishedDate: dateISO,
+        reacts: makeReacts(id, 6),
+    };
+}
+
+export const blogPosts: BlogPost[] = [
+    mkPost(
+        'bp1',
+        A.nam,
+        'Edge Caching Strategies for Next.js',
+        [T.perf, T.aws, T.ui],
+        3821,
+        14,
+        '2025-08-02T09:00:00.000Z',
+    ),
+    mkPost(
+        'bp2',
+        A.linh,
+        'Incremental Static Regen in Practice',
+        [T.ts, T.ui],
+        4412,
+        22,
+        '2025-07-28T07:30:00.000Z',
+    ),
+    mkPost(
+        'bp3',
+        A.minh,
+        'Tuning Postgres for Feeds & Reactions',
+        [T.db, T.perf],
+        5120,
+        31,
+        '2025-06-15T11:00:00.000Z',
+    ),
+    mkPost(
+        'bp4',
+        A.an,
+        'S3 + CloudFront: Private Content Done Right',
+        [T.aws, T.sec],
+        6933,
+        45,
+        '2025-09-20T10:20:00.000Z',
+    ),
+    mkPost(
+        'bp5',
+        A.khanh,
+        'CI as Code: Policy Gates with OPA',
+        [T.devops, T.sec],
+        2740,
+        12,
+        '2025-05-03T08:40:00.000Z',
+    ),
+    mkPost(
+        'bp6',
+        A.hoa,
+        'Design Tokens that Scale',
+        [T.ui, T.ts],
+        2981,
+        9,
+        '2025-04-11T06:10:00.000Z',
+        false,
+    ),
+    mkPost(
+        'bp7',
+        A.quang,
+        'From REST to tRPC: Trade-offs',
+        [T.ts, T.perf, T.oss],
+        3501,
+        18,
+        '2025-03-22T13:15:00.000Z',
+    ),
+    mkPost(
+        'bp8',
+        A.lan,
+        'Secure Secrets in Containers on AWS',
+        [T.aws, T.sec, T.devops],
+        6112,
+        27,
+        '2025-09-01T09:55:00.000Z',
+    ),
+    mkPost(
+        'bp9',
+        A.duc,
+        'Network ACLs vs SGs: Mental Model',
+        [T.net, T.sec, T.aws],
+        4822,
+        21,
+        '2025-07-02T04:30:00.000Z',
+    ),
+    mkPost(
+        'bp10',
+        A.my,
+        'Realtime UX without Overfetching',
+        [T.ui, T.perf],
+        2604,
+        8,
+        '2025-02-17T02:05:00.000Z',
+        false,
+    ),
+    mkPost(
+        'bp11',
+        A.tien,
+        'Zod + React Hook Form: Clean Validation',
+        [T.ts, T.ui],
+        4309,
+        17,
+        '2025-08-29T15:42:00.000Z',
+    ),
+    mkPost(
+        'bp12',
+        A.ha,
+        'Threat Modeling for Small Teams',
+        [T.sec],
+        1998,
+        6,
+        '2025-01-25T09:12:00.000Z',
+    ),
+    mkPost(
+        'bp13',
+        A.nam,
+        'Cost-Aware Architectures on AWS',
+        [T.aws, T.devops],
+        7220,
+        39,
+        '2025-10-03T08:00:00.000Z',
+    ),
+    mkPost(
+        'bp14',
+        A.linh,
+        'Optimizing Images the Right Way',
+        [T.ui, T.perf],
+        3833,
+        13,
+        '2025-05-26T05:45:00.000Z',
+    ),
+    mkPost(
+        'bp15',
+        A.minh,
+        'The Case for Feature Flags',
+        [T.perf, T.oss],
+        2440,
+        7,
+        '2025-02-02T14:30:00.000Z',
+    ),
+    mkPost(
+        'bp16',
+        A.an,
+        'Infrastructure Tests: From Bash to CDK',
+        [T.devops, T.aws],
+        3666,
+        16,
+        '2025-06-01T01:20:00.000Z',
+    ),
+    mkPost(
+        'bp17',
+        A.khanh,
+        'API Rate Limits: Design & UX',
+        [T.ts, T.ui, T.perf],
+        3111,
+        11,
+        '2025-03-10T12:10:00.000Z',
+        false,
+    ),
+    mkPost(
+        'bp18',
+        A.hoa,
+        'RBAC vs ABAC: Practical Guide',
+        [T.sec, T.devops],
+        2988,
+        10,
+        '2025-01-12T09:05:00.000Z',
+    ),
+    mkPost(
+        'bp19',
+        A.quang,
+        'Server Actions: Caution & Power',
+        [T.ts, T.ui],
+        4050,
+        19,
+        '2025-09-12T16:25:00.000Z',
+    ),
+    mkPost(
+        'bp20',
+        A.lan,
+        'Event Sourcing Lite for Side Projects',
+        [T.db, T.ts],
+        2777,
+        9,
+        '2025-04-30T20:00:00.000Z',
+    ),
+];
+
+const detailed = mkPost(
+    'bp-detail-1',
+    A.nam,
+    'End-to-End S3 Uploads with Presigned URLs + CloudFront',
+    [T.aws, T.sec, T.ui],
+    10422,
+    52,
+    '2025-10-10T07:45:00.000Z',
+);
+
+export const blogPostDetail: BlogPostDetail = {
+    blogPost: detailed,
+    content: `
+<h1>End-to-End S3 Uploads with Presigned URLs + CloudFront</h1>
+<p>This deep dive shows a robust, low-latency upload flow:</p>
+<ol>
+  <li>Client requests a presigned URL (scoped to content-type &amp; key).</li>
+  <li>Client PUTs directly to S3 using that URL (no BE data plane).</li>
+  <li>CloudFront serves private content via OAC or signed cookies.</li>
+  <li>Metadata and access policies are validated on the server.</li>
+</ol>
+
+<h2>Why this pattern?</h2>
+<ul>
+  <li>Minimizes backend load and keeps binaries off your app server.</li>
+  <li>Clear separation of concerns (control plane vs data plane).</li>
+  <li>Works great with multipart uploads and mobile networks.</li>
+</ul>
+
+<h2>Security notes</h2>
+<ul>
+  <li>Use short expirations for presigned URLs.</li>
+  <li>Enforce content-type &amp; key prefix on the server when generating URLs.</li>
+  <li>Prefer Origin Access Control (OAC) for private buckets.</li>
+  <li>Return a canonical <code>cloudfrontUrl</code> for viewing after successful upload.</li>
+</ul>
+
+<h2>Frontend snippet (pseudo)</h2>
+<pre><code class="language-ts">const { key, uploadUrl, cloudfrontUrl, expiresAt } = await api.presign({ fileName, contentType });
+await fetch(uploadUrl, { method: 'PUT', body: file, headers: { 'Content-Type': file.type } });
+// then persist key/urls in your app state and render preview via cloudfrontUrl
+</code></pre>
+
+<p>In production, measure:</p>
+<ul>
+  <li>95p upload latency</li>
+  <li>error rates per content-type</li>
+  <li>cache hit ratio at the edge</li>
+</ul>
+
+<p>Happy shipping!</p>`.trim(),
+};
+
+export async function fetchTags(searchText?: string): Promise<Tag[]> {
+    const query = (searchText || '').toLowerCase().trim();
+
+    await new Promise((resolve) => setTimeout(resolve, 300));
+
+    if (!query) {
+        return tags;
+    }
+
+    return tags.filter((tag) => tag.name.toLowerCase().includes(query));
+}
