@@ -118,7 +118,7 @@ export const useUploadAvatar = (opts?: {
                 expiresAt: presign.expiresAt,
             };
         },
-        onError: (err: any) => {
+        onError: (err) => {
             const message = err?.message ?? 'Upload thất bại';
             toast.error(message);
         },

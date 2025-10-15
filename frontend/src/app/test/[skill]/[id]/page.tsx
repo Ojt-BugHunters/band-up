@@ -8,8 +8,6 @@ import {
     LayoutPanelTop,
     MessageCircle,
     Play,
-    ReplyIcon,
-    Send,
     User,
 } from 'lucide-react';
 import {
@@ -39,11 +37,8 @@ import { Badge } from '@/components/ui/badge';
 import { Checkbox } from '@/components/ui/checkbox';
 import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
-import { Separator } from '@/components/ui/separator';
 import { Content } from '@tiptap/react';
-import { MinimalTiptapEditor } from '@/components/ui/minimal-tiptap';
 import { TooltipProvider } from '@/components/ui/tooltip';
-import { AccountPicture } from '@/components/ui/account-picture';
 import Link from 'next/link';
 import CommentSection from '@/components/comment-section';
 

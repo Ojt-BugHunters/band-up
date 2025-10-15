@@ -11,13 +11,10 @@ import {
     FileUploadItemDelete,
     FileUploadItemMetadata,
     FileUploadItemPreview,
-    FileUploadItemProgress, // (sẽ không nhúc nhích nếu không dùng onUpload callbacks)
     FileUploadList,
-    type FileUploadProps,
     FileUploadTrigger,
 } from '@/components/ui/file-upload';
 import { usePresignAvatar } from '@/hooks/use-get-presign-avatar';
-import Image from 'next/image';
 
 function putFileToS3WithProgress(opts: {
     url: string;
@@ -70,7 +67,6 @@ export default function FileUploadDirectUploadDemo() {
     >({});
     const presignMutation = usePresignAvatar();
 
-    // Auto-start upload whenever files are selected
     const handleValueChange = React.useCallback(
         async (newFiles: File[]) => {
             setFiles(newFiles);
@@ -86,7 +82,7 @@ export default function FileUploadDirectUploadDemo() {
                                 file.type || 'application/octet-stream',
                         });
 
-                        // 2) PUT S3 (progress — ta tự quản lý state để nhìn thấy %)
+                        // 2) PUT S3
                         await putFileToS3WithProgress({
                             url: presign.uploadUrl,
                             file,
@@ -95,10 +91,12 @@ export default function FileUploadDirectUploadDemo() {
                         });
 
                         toast.success(`Uploaded: ${file.name}`);
-                    } catch (e: any) {
-                        toast.error(
-                            e?.message || `Upload failed: ${file.name}`,
-                        );
+                    } catch (e: unknown) {
+                        const message =
+                            e instanceof Error
+                                ? e.message
+                                : `Upload failed: ${file.name}`;
+                        toast.error(message);
                     } finally {
                         setProgressMap((m) => ({ ...m, [id]: 100 }));
                     }
