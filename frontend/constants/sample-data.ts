@@ -1150,7 +1150,7 @@ function mkPost(
         titleImg: hasImg
             ? `https://picsum.photos/seed/${encodeURIComponent(id)}/1200/630`
             : undefined,
-        content: `${title}\n\n${lorem}\n\nKey takeaways:\n- Keep interfaces small and explicit.\n- Measure before you optimize.\n- Automate checks, but keep humans in the loop.\n`,
+        subContent: `${title}\n\n${lorem}\n\nKey takeaways:\n- Keep interfaces small and explicit.\n- Measure before you optimize.\n- Automate checks, but keep humans in the loop.\n`,
         tags: tagsArr,
         numberOfReaders: readers,
         numberOfComments: comments,
@@ -1397,3 +1397,15 @@ await fetch(uploadUrl, { method: 'PUT', body: file, headers: { 'Content-Type': f
 
 <p>Happy shipping!</p>`.trim(),
 };
+
+export async function fetchTags(searchText?: string): Promise<Tag[]> {
+    const query = (searchText || '').toLowerCase().trim();
+
+    await new Promise((resolve) => setTimeout(resolve, 300));
+
+    if (!query) {
+        return tags;
+    }
+
+    return tags.filter((tag) => tag.name.toLowerCase().includes(query));
+}

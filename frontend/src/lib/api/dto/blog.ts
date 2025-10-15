@@ -19,7 +19,7 @@ export interface BlogPost {
     author: Author;
     title: string;
     titleImg?: string;
-    content: string;
+    subContent: string; // sub string from content
     tags: Tag[];
     numberOfReaders: number;
     numberOfComments: number;
