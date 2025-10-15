@@ -45,6 +45,7 @@ import { MinimalTiptapEditor } from '@/components/ui/minimal-tiptap';
 import { TooltipProvider } from '@/components/ui/tooltip';
 import { AccountPicture } from '@/components/ui/account-picture';
 import Link from 'next/link';
+import CommentSection from '@/components/comment-section';
 
 interface PageProps {
     params: Promise<{
@@ -106,8 +107,14 @@ export default function TestOverview({ params }: PageProps) {
     const { skill } = React.use(params);
     const dataConfig = skillConfig[skill as keyof typeof skillConfig];
     const [value, setValue] = useState<Content>('');
-    const [selectedSections, setSelectedSections] = useState<string[]>([]);
+    const [submitting, setSubmitting] = useState(false);
 
+    const [selectedSections, setSelectedSections] = useState<string[]>([]);
+    const handleSubmit = async () => {
+        // mutation
+        setValue(null);
+        setSubmitting(true);
+    };
     const handleSectionToggle = (sectionId: string) => {
         setSelectedSections((prev) =>
             prev.includes(sectionId)
@@ -358,96 +365,14 @@ export default function TestOverview({ params }: PageProps) {
                         </TabsContent>
                     </Tabs>
 
-                    <Separator className="my-8 dark:bg-slate-800" />
-
-                    <section className="mb-8">
-                        <h2 className="text-foreground mb-6 flex items-center space-x-2 text-xl font-semibold dark:text-white">
-                            <MessageCircle className="h-6 w-6" />
-                            <span>Comments ({comments.length})</span>
-                        </h2>
-                    </section>
-                    <div className="space-y-4">
-                        <div className="flex items-start gap-3">
-                            <div className="flex-1 space-y-3">
-                                <MinimalTiptapEditor
-                                    value={value}
-                                    onChange={setValue}
-                                    className="h-full min-h-40 w-full"
-                                    output="html"
-                                    placeholder="What do you feel about the test..."
-                                    autofocus={false}
-                                    editable={true}
-                                    editorContentClassName="p-5 min-h-40 cursor-text"
-                                    editorClassName="focus:outline-hidden min-h-40"
-                                />
-                                <div className="flex justify-end">
-                                    <Button
-                                        size="sm"
-                                        className="rounded-lg bg-zinc-800 hover:bg-zinc-900 dark:bg-white dark:text-black dark:hover:bg-slate-100"
-                                    >
-                                        <Send className="mr-2 h-4 w-4" />
-                                        Post comment
-                                    </Button>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    <Separator className="my-8 dark:bg-slate-800" />
-                    <div className="space-y-6">
-                        {comments.map((comment) => (
-                            <div
-                                key={comment.id}
-                                className="rounded-xl border border-slate-200 bg-white p-5 shadow-md transition hover:shadow-lg dark:border-slate-800 dark:bg-black dark:hover:border-slate-700"
-                            >
-                                <div className="flex items-start gap-3">
-                                    <div className="h-10 w-10">
-                                        <AccountPicture
-                                            name={comment.author_name}
-                                        />
-                                    </div>
-
-                                    <div className="flex-1">
-                                        <h4 className="flex items-center gap-2 font-semibold text-slate-900 dark:text-white">
-                                            {comment.author_name}
-                                            <MessageCircle className="h-4 w-4 text-rose-500 dark:text-rose-400" />
-                                        </h4>
-                                        <p className="mt-1 leading-relaxed text-slate-700 dark:text-slate-300">
-                                            {comment.content}
-                                        </p>
-                                        {comment.reply?.length > 0 && (
-                                            <div className="mt-4 rounded-lg border border-zinc-100 bg-zinc-50/80 p-3 dark:border-slate-800 dark:bg-slate-950">
-                                                {comment.reply.map((reply) => (
-                                                    <div
-                                                        key={reply.id}
-                                                        className="flex items-start gap-3"
-                                                    >
-                                                        <div className="h-9 w-9">
-                                                            <AccountPicture
-                                                                name={
-                                                                    reply.author_name
-                                                                }
-                                                            />
-                                                        </div>
-                                                        <div className="flex-1">
-                                                            <h5 className="flex items-center gap-2 font-medium text-zinc-700 dark:text-slate-300">
-                                                                {
-                                                                    reply.author_name
-                                                                }
-                                                                <ReplyIcon className="h-4 w-4 text-zinc-500 dark:text-slate-500" />
-                                                            </h5>
-                                                            <p className="mt-1 leading-relaxed text-zinc-900 dark:text-white">
-                                                                {reply.content}
-                                                            </p>
-                                                        </div>
-                                                    </div>
-                                                ))}
-                                            </div>
-                                        )}
-                                    </div>
-                                </div>
-                            </div>
-                        ))}
-                    </div>
+                    <CommentSection
+                        comments={comments}
+                        value={value}
+                        onChange={setValue}
+                        onSubmit={handleSubmit}
+                        submitting={submitting}
+                        postButtonText="Post comment"
+                    />
                 </div>
             </div>
         </TooltipProvider>

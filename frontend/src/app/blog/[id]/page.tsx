@@ -1,16 +1,31 @@
 'use client';
 
 import { useEffect, useMemo, useState } from 'react';
-import { blogPostDetail } from '../../../../constants/sample-data';
+import { blogPostDetail, comments } from '../../../../constants/sample-data';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Button } from '@/components/ui/button';
-import { useRouter } from 'next/navigation';
+import { useParams, useRouter } from 'next/navigation';
 import { Heart, Share2, Calendar, User as UserIcon } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { toast } from 'sonner';
 import Image from 'next/image';
 import { formatDate } from '@/lib/utils';
+import {
+    Dialog,
+    DialogClose,
+    DialogContent,
+    DialogDescription,
+    DialogFooter,
+    DialogHeader,
+    DialogTitle,
+    DialogTrigger,
+} from '@/components/ui/dialog';
+import { Label } from '@/components/ui/label';
+import { Input } from '@/components/ui/input';
+import { Separator } from '@/components/ui/separator';
+import CommentSection from '@/components/comment-section';
+import { Content } from '@tiptap/react';
 
 function initials(name: string) {
     return name
@@ -23,10 +38,16 @@ function initials(name: string) {
 
 export default function BlogPostPage() {
     const router = useRouter();
-    // const params = useParams<{ id: string }>();
+    const { id } = useParams<{ id: string }>();
     const detail = blogPostDetail;
     const [isLoading, setIsLoading] = useState(true);
-
+    const [value, setValue] = useState<Content | null>(null);
+    const [submitting, setSubmitting] = useState(false);
+    const [comment, setComment] = useState(comments);
+    const handleSubmit = () => {
+        setSubmitting(true);
+        setValue(null);
+    };
     const initialLikes = useMemo(
         () => blogPostDetail.blogPost.reacts?.length ?? 0,
         [],
@@ -47,24 +68,6 @@ export default function BlogPostPage() {
         toast.success(
             isLiked ? 'Removed from favorites' : 'Added to favorites',
         );
-    };
-
-    const handleShare = async () => {
-        if (!detail) return;
-        const { blogPost } = detail;
-        const shareData = {
-            title: blogPost.title,
-            text: blogPost.subContent,
-            url: typeof window !== 'undefined' ? window.location.href : '',
-        };
-        try {
-            if (navigator.share) {
-                await navigator.share(shareData);
-            } else {
-                await navigator.clipboard.writeText(shareData.url);
-                toast.success('Link copied to clipboard');
-            }
-        } catch {}
     };
 
     if (isLoading) {
@@ -118,7 +121,6 @@ export default function BlogPostPage() {
     }
 
     const { blogPost, content } = detail;
-    console.log(content);
     const dateText = formatDate(blogPost.publishedDate);
 
     return (
@@ -177,9 +179,45 @@ export default function BlogPostPage() {
                             <span>{likes}</span>
                         </Button>
 
-                        <Button variant="ghost" size="sm" onClick={handleShare}>
-                            <Share2 className="h-4 w-4" />
-                        </Button>
+                        <Dialog>
+                            <DialogTrigger asChild>
+                                <Share2 className="h-4 w-4" />
+                            </DialogTrigger>
+                            <DialogContent className="sm:max-w-md">
+                                <DialogHeader>
+                                    <DialogTitle>Share Link</DialogTitle>
+                                    <DialogDescription>
+                                        Anyone who has this link will be able to
+                                        view this blog!
+                                    </DialogDescription>
+                                </DialogHeader>
+                                <div className="flex items-center gap-2">
+                                    <div className="grid flex-1 gap-2">
+                                        <Label
+                                            htmlFor="link"
+                                            className="sr-only"
+                                        >
+                                            Link
+                                        </Label>
+                                        <Input
+                                            id="link"
+                                            defaultValue={`https://band-up-psi.vercel.app/blog/${id}`}
+                                            readOnly
+                                        />
+                                    </div>
+                                </div>
+                                <DialogFooter className="sm:justify-start">
+                                    <DialogClose asChild>
+                                        <Button
+                                            type="button"
+                                            variant="secondary"
+                                        >
+                                            Close
+                                        </Button>
+                                    </DialogClose>
+                                </DialogFooter>
+                            </DialogContent>
+                        </Dialog>
                     </div>
                 </div>
                 {blogPost.titleImg && (
@@ -200,6 +238,16 @@ export default function BlogPostPage() {
                     }}
                 />{' '}
             </article>
+            <div className="mx-auto max-w-4xl">
+                <CommentSection
+                    comments={comment}
+                    value={value}
+                    onChange={setValue}
+                    onSubmit={handleSubmit}
+                    submitting={submitting}
+                    postButtonText="Post comment"
+                />
+            </div>
         </div>
     );
 }
