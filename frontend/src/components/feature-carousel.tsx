@@ -3,12 +3,12 @@ import { useState, useEffect } from 'react';
 import { ChevronLeft, ChevronRight, Users } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
-import { featuredPosts } from '../../constants/sample-data';
+import { featureBlogs } from '../../constants/sample-data';
 import Image from 'next/image';
 
 export function FeaturedCarousel() {
     const [currentSlide, setCurrentSlide] = useState(0);
-    const total = featuredPosts.length;
+    const total = featureBlogs.length;
 
     useEffect(() => {
         const timer = setInterval(() => {
@@ -23,7 +23,7 @@ export function FeaturedCarousel() {
 
     return (
         <div className="relative h-[500px] w-full overflow-hidden rounded-xl">
-            {featuredPosts.map((post, index) => (
+            {featureBlogs.map((post, index) => (
                 <div
                     key={post.id}
                     className={`absolute inset-0 transition-transform duration-500 ease-in-out ${
@@ -35,7 +35,6 @@ export function FeaturedCarousel() {
                     }`}
                 >
                     <Card className="relative h-full w-full overflow-hidden border-0 shadow-2xl">
-                        {/* Ảnh: dùng fill + quality cao để hết mờ */}
                         <Image
                             src={post.image || '/placeholder.svg'}
                             alt={post.title}
@@ -46,22 +45,26 @@ export function FeaturedCarousel() {
                             className="absolute inset-0 object-cover"
                         />
 
-                        {/* phủ màu tối, KHÔNG làm mờ ảnh */}
                         <div className="absolute inset-0 bg-black/60" />
 
                         <div className="relative z-20 flex h-full flex-col justify-end p-8">
                             <div className="mb-4">
-                                <span className="bg-primary text-primary-foreground mb-4 inline-block rounded-full px-3 py-1 text-sm font-medium">
-                                    {post.category}
-                                </span>
+                                <div className="mb-4 flex flex-wrap gap-2">
+                                    {post.tags.map((tag) => (
+                                        <span
+                                            key={tag.id}
+                                            className="bg-primary text-primary-foreground inline-block rounded-full px-3 py-1 text-sm font-medium"
+                                        >
+                                            {tag.name}
+                                        </span>
+                                    ))}
+                                </div>{' '}
                                 <h2 className="mb-4 text-4xl leading-tight font-bold text-balance text-white drop-shadow-lg">
                                     {post.title}
                                 </h2>
                                 <p className="mb-4 max-w-2xl text-lg text-pretty text-white/95 drop-shadow-md">
-                                    {post.summary}
+                                    {post.subContent}
                                 </p>
-
-                                {/* Thêm icon + format số */}
                                 <div className="flex items-center gap-6 text-sm text-white/90 drop-shadow-md">
                                     <span className="inline-flex items-center gap-2">
                                         <Users className="h-4 w-4" />
@@ -96,7 +99,7 @@ export function FeaturedCarousel() {
             </Button>
 
             <div className="absolute bottom-4 left-1/2 z-30 flex -translate-x-1/2 transform space-x-2">
-                {featuredPosts.map((_, index) => (
+                {featureBlogs.map((_, index) => (
                     <button
                         key={index}
                         aria-label={`Go to slide ${index + 1}`}
