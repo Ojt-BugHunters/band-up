@@ -46,6 +46,8 @@ public class Account {
 
     private String address;
 
+    private String avatarKey;
+
     @DateTimeFormat(pattern = "dd-MM-yyyy")
     private LocalDate birthday;
 

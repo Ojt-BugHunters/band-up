@@ -1,5 +1,6 @@
 'use client';
 
+import FlashcardCard from '@/components/flash-card';
 import {
     Hero,
     HeroDescription,
@@ -7,6 +8,7 @@ import {
     HeroSummary,
     HeroTitle,
 } from '@/components/hero';
+import { NotFound } from '@/components/not-found';
 import {
     Stats,
     StatsDescription,
@@ -15,21 +17,11 @@ import {
     StatsLabel,
     StatsValue,
 } from '@/components/stats';
-import { Input } from '@/components/ui/input';
-import {
-    Clock,
-    FileText,
-    Search,
-    User,
-    BookOpenCheck,
-    Plus,
-    ClipboardX,
-} from 'lucide-react';
-import { useEffect, useMemo, useState } from 'react';
-import FlashcardCard from '@/components/flash-card';
-import { PaginationState } from '@tanstack/react-table';
-import { PaginationControl } from '@/components/ui/pagination-control';
 import { Button } from '@/components/ui/button';
+import { EmptyState } from '@/components/ui/empty-state';
+import { Input } from '@/components/ui/input';
+import LiquidLoading from '@/components/ui/liquid-loader';
+import { PaginationControl } from '@/components/ui/pagination-control';
 import {
     Select,
     SelectContent,
@@ -37,13 +29,21 @@ import {
     SelectTrigger,
     SelectValue,
 } from '@/components/ui/select';
-import Link from 'next/link';
-import { useGetDeck } from '@/hooks/use-get-deck';
-import LiquidLoading from '@/components/ui/liquid-loader';
-import { EmptyState } from '@/components/ui/empty-state';
-import { NotFound } from '@/components/not-found';
 import { useGetFlashcardStats } from '@/hooks/use-flashcard-stats';
+import { useGetDeck } from '@/hooks/use-get-deck';
 import { useUser } from '@/hooks/use-user';
+import { PaginationState } from '@tanstack/react-table';
+import {
+    BookOpenCheck,
+    ClipboardX,
+    Clock,
+    FileText,
+    Plus,
+    Search,
+    User,
+} from 'lucide-react';
+import Link from 'next/link';
+import { useEffect, useMemo, useState } from 'react';
 
 function useDebounce<T>(value: T, delay = 1000) {
     const [debounced, setDebounced] = useState(value);

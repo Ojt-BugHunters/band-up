@@ -5,6 +5,7 @@ import com.project.Band_Up.dtos.test.TestResponse;
 import com.project.Band_Up.dtos.test.TestUpdateRequest;
 import com.project.Band_Up.entities.Account;
 import com.project.Band_Up.entities.Test;
+import com.project.Band_Up.enums.Status;
 import com.project.Band_Up.repositories.AccountRepository;
 import com.project.Band_Up.repositories.TestRepository;
 import lombok.RequiredArgsConstructor;
@@ -31,6 +32,7 @@ public class TestServiceImpl implements TestService {
                 .orElseThrow(() -> new RuntimeException("User not found"));
         Test test = modelMapper.map(request, Test.class);
         test.setUser(user);
+        test.setStatus(Status.Draft);
         Test saved = testRepository.save(test);
         return toResponse(saved);
     }
@@ -78,7 +80,7 @@ public class TestServiceImpl implements TestService {
         if (request.getTitle() != null) test.setTitle(request.getTitle());
         if (request.getNumberOfPeople() != null) test.setNumberOfPeople(request.getNumberOfPeople());
         if (request.getDurationSeconds() != null) test.setDurationSeconds(request.getDurationSeconds());
-
+        test.setStatus(Status.Published);
         Test updated = testRepository.save(test);
         return toResponse(updated);
     }
@@ -90,6 +92,13 @@ public class TestServiceImpl implements TestService {
             throw new RuntimeException("Test not found");
         }
         testRepository.deleteById(id);
+    }
+    @Override
+    public void deleteAllTestsByUserIdAndStatus(UUID userId, Status status) {
+        Account user = accountRepository.findById(userId)
+                .orElseThrow(() -> new RuntimeException("User not found"));
+        List<Test> testsToDelete = testRepository.findByUser_IdAndStatus(userId, status);
+        testRepository.deleteAll(testsToDelete);
     }
 
     // ----------------- HELPER -----------------

@@ -5,12 +5,10 @@ export interface Comment {
     content: string;
     author: Author;
     reply: Reply[];
-    timestamp: string;
 }
 
 export interface Reply {
     id: string;
     content: string;
     author: Author;
-    timestamp: string;
 }

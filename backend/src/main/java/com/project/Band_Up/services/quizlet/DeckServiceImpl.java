@@ -48,8 +48,9 @@ public class DeckServiceImpl implements DeckService {
                 .orElseThrow(() -> new ResourceNotFoundException(account_id.toString()));
 
         Deck deck = modelMapper.map(deckDto, Deck.class);
-        if(!deck.isPublic() && !deckDto.getPassword().isEmpty())
+        if(!deck.isPublic())
             deck.setPassword(passwordEncoder.encode(deck.getPassword()));
+        else deck.setPassword(null);
         deck.setAccount(account);
 
         if (deckDto.getCards() != null) {
@@ -131,6 +132,7 @@ public class DeckServiceImpl implements DeckService {
                 .orElseThrow(() -> new ResourceNotFoundException(deckId.toString()));
         if (!deck.getAccount().getId().equals(accountId))
             throw new AuthenticationFailedException("Unauthorized");
+        studyProgressRepository.deleteAllByDeck(deck);
         deckRepository.delete(deck);
         return modelMapper.map(deck, DeckDto.class);
     }
@@ -142,8 +144,13 @@ public class DeckServiceImpl implements DeckService {
         if(!deck.getAccount().getId().equals(accountId))
             throw new AuthenticationFailedException("Unauthorized");
         Deck updatedDeck = modelMapper.map(deckDto, Deck.class);
-        if(deckDto.getCards() != null && !deckDto.getCards().isEmpty())
-            deck.setCards(updatedDeck.getCards());
+        if(deckDto.getCards() != null && !deckDto.getCards().isEmpty()) {
+            deck.getCards().clear();
+            for (Card card : updatedDeck.getCards()) {
+                card.setDeck(deck);
+                deck.getCards().add(card);
+            }
+        }
         deck.setPublic(updatedDeck.isPublic());
         if(!deck.isPublic()) {
             deck.setPassword(passwordEncoder.encode(deckDto.getPassword()));
