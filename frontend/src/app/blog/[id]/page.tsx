@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useMemo, useState } from 'react';
-import { blogPostDetail } from '../../../../constants/sample-data';
+import { blogPostDetail, comments } from '../../../../constants/sample-data';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Button } from '@/components/ui/button';
 import { useParams, useRouter } from 'next/navigation';
@@ -23,6 +23,9 @@ import {
 } from '@/components/ui/dialog';
 import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
+import { Separator } from '@/components/ui/separator';
+import CommentSection from '@/components/comment-section';
+import { Content } from '@tiptap/react';
 
 function initials(name: string) {
     return name
@@ -35,10 +38,16 @@ function initials(name: string) {
 
 export default function BlogPostPage() {
     const router = useRouter();
-    const id = useParams<{ id: string }>();
+    const { id } = useParams<{ id: string }>();
     const detail = blogPostDetail;
     const [isLoading, setIsLoading] = useState(true);
-
+    const [value, setValue] = useState<Content | null>(null);
+    const [submitting, setSubmitting] = useState(false);
+    const [comment, setComment] = useState(comments);
+    const handleSubmit = () => {
+        setSubmitting(true);
+        setValue(null);
+    };
     const initialLikes = useMemo(
         () => blogPostDetail.blogPost.reacts?.length ?? 0,
         [],
@@ -59,24 +68,6 @@ export default function BlogPostPage() {
         toast.success(
             isLiked ? 'Removed from favorites' : 'Added to favorites',
         );
-    };
-
-    const handleShare = async () => {
-        if (!detail) return;
-        const { blogPost } = detail;
-        const shareData = {
-            title: blogPost.title,
-            text: blogPost.subContent,
-            url: typeof window !== 'undefined' ? window.location.href : '',
-        };
-        try {
-            if (navigator.share) {
-                await navigator.share(shareData);
-            } else {
-                await navigator.clipboard.writeText(shareData.url);
-                toast.success('Link copied to clipboard');
-            }
-        } catch {}
     };
 
     if (isLoading) {
@@ -130,7 +121,6 @@ export default function BlogPostPage() {
     }
 
     const { blogPost, content } = detail;
-    console.log(content);
     const dateText = formatDate(blogPost.publishedDate);
 
     return (
@@ -248,6 +238,16 @@ export default function BlogPostPage() {
                     }}
                 />{' '}
             </article>
+            <div className="mx-auto max-w-4xl">
+                <CommentSection
+                    comments={comment}
+                    value={value}
+                    onChange={setValue}
+                    onSubmit={handleSubmit}
+                    submitting={submitting}
+                    postButtonText="Post comment"
+                />
+            </div>
         </div>
     );
 }
