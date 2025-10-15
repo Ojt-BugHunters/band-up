@@ -62,3 +62,49 @@ export async function parseBoolean(res: Response): Promise<boolean> {
         return false;
     }
 }
+
+export function putFileToS3WithProgress(opts: {
+    url: string;
+    file: File;
+    onProgress?: (pct: number) => void;
+    signal?: AbortSignal;
+}): Promise<void> {
+    const { url, file, onProgress, signal } = opts;
+    return new Promise((resolve, reject) => {
+        const xhr = new XMLHttpRequest();
+
+        xhr.upload.onprogress = (evt) => {
+            if (evt.lengthComputable && onProgress) {
+                const pct = Math.round((evt.loaded / evt.total) * 100);
+                onProgress(pct);
+            }
+        };
+
+        xhr.onload = () => {
+            if (xhr.status >= 200 && xhr.status < 300) return resolve();
+            reject(
+                new Error(`S3 upload failed: ${xhr.status} ${xhr.statusText}`),
+            );
+        };
+
+        xhr.onerror = () =>
+            reject(new Error('Network error while uploading to S3'));
+        xhr.onabort = () => reject(new Error('Upload aborted'));
+
+        xhr.open('PUT', url);
+        xhr.setRequestHeader(
+            'Content-Type',
+            file.type || 'application/octet-stream',
+        );
+
+        if (signal) {
+            signal.addEventListener('abort', () => {
+                try {
+                    xhr.abort();
+                } catch {}
+            });
+        }
+
+        xhr.send(file);
+    });
+}
