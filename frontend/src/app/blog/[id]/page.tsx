@@ -24,7 +24,6 @@ function initials(name: string) {
 export default function BlogPostPage() {
     const router = useRouter();
     // const params = useParams<{ id: string }>();
-    //
     const detail = blogPostDetail;
     const [isLoading, setIsLoading] = useState(true);
 
