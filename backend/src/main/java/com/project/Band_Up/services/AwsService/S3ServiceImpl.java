@@ -6,6 +6,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import software.amazon.awssdk.core.exception.SdkClientException;
+import software.amazon.awssdk.services.cloudfront.CloudFrontUtilities;
+import software.amazon.awssdk.services.cloudfront.model.CannedSignerRequest;
 import software.amazon.awssdk.services.s3.S3Client;
 import software.amazon.awssdk.services.s3.model.*;
 
@@ -33,6 +35,8 @@ public class S3ServiceImpl implements S3Service {
     private final String cloudFrontDomain;
     private final String cloudFrontKeyPairId;
     private final PrivateKey cloudFrontPrivateKey;
+    private final String cloudFrontPrivateKeyPath; // thêm dòng này
+
 
     @Value("${aws.s3.presign.ttl-seconds:600}")
     private long presignTtlSeconds;
@@ -51,6 +55,7 @@ public class S3ServiceImpl implements S3Service {
         this.bucket = bucket;
         this.cloudFrontDomain = cloudFrontDomain;
         this.cloudFrontKeyPairId = cloudFrontKeyPairId;
+        this.cloudFrontPrivateKeyPath = cloudFrontPrivateKeyPath;
         try {
             String pemContent = Files.readString(Paths.get(cloudFrontPrivateKeyPath));
             this.cloudFrontPrivateKey = parsePrivateKeyPem(pemContent);
@@ -101,17 +106,21 @@ public class S3ServiceImpl implements S3Service {
         try {
             Duration ttlCf = Duration.ofSeconds(cloudFrontTtlSeconds);
             String resource = String.format("https://%s/%s", cloudFrontDomain, key);
-            long expiresEpoch = (System.currentTimeMillis() / 1000L) + ttlCf.getSeconds();
-            Date expires = new Date(expiresEpoch * 1000L);
 
-            String signedUrl = CloudFrontUrlSigner.getSignedURLWithCannedPolicy(
-                    resource,
-                    cloudFrontKeyPairId,
-                    cloudFrontPrivateKey,
-                    expires
-            );
+            CloudFrontUtilities cfUtils = CloudFrontUtilities.create();
+            Instant expiration = Instant.now().plus(Duration.ofSeconds(cloudFrontTtlSeconds));
 
-            log.info("[CloudFront] Signed URL generated for resource={} (expires at {})", resource, expires);
+            CannedSignerRequest req = CannedSignerRequest.builder()
+                    .resourceUrl(String.format("https://%s/%s", cloudFrontDomain, key))
+                    .keyPairId(cloudFrontKeyPairId)
+                    .privateKey(cloudFrontPrivateKey)
+                    .expirationDate(expiration)
+                    .build();
+
+            String signedUrl = cfUtils.getSignedUrlWithCannedPolicy(req).url();
+
+
+            log.info("[CloudFront] Signed URL generated for resource={} (expires at {})", resource, expiration);
             return signedUrl;
         } catch (Exception e) {
             log.error("[CloudFront] Failed to sign URL for key={}: {}", key, e.getMessage(), e);
