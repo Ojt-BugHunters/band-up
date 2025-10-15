@@ -5,6 +5,7 @@ import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { featureBlogs } from '../../constants/sample-data';
 import Image from 'next/image';
+import Link from 'next/link';
 
 export function FeaturedCarousel() {
     const [currentSlide, setCurrentSlide] = useState(0);
@@ -19,64 +20,66 @@ export function FeaturedCarousel() {
 
     const nextSlide = () => setCurrentSlide((prev) => (prev + 1) % total);
     const prevSlide = () =>
-        setCurrentSlide((prev) => (prev - 1 + total) % total); // tránh -1 % n = -1
+        setCurrentSlide((prev) => (prev - 1 + total) % total);
 
     return (
         <div className="relative h-[500px] w-full overflow-hidden rounded-xl">
             {featureBlogs.map((post, index) => (
-                <div
-                    key={post.id}
-                    className={`absolute inset-0 transition-transform duration-500 ease-in-out ${
-                        index === currentSlide
-                            ? 'translate-x-0'
-                            : index < currentSlide
-                              ? '-translate-x-full'
-                              : 'translate-x-full'
-                    }`}
-                >
-                    <Card className="relative h-full w-full overflow-hidden border-0 shadow-2xl">
-                        <Image
-                            src={post.image || '/placeholder.svg'}
-                            alt={post.title}
-                            fill
-                            sizes="100vw"
-                            priority={index === currentSlide}
-                            quality={90}
-                            className="absolute inset-0 object-cover"
-                        />
+                <Link href={`/blog/${post.id}`} key={post.id}>
+                    <div
+                        key={post.id}
+                        className={`absolute inset-0 transition-transform duration-500 ease-in-out ${
+                            index === currentSlide
+                                ? 'translate-x-0'
+                                : index < currentSlide
+                                  ? '-translate-x-full'
+                                  : 'translate-x-full'
+                        }`}
+                    >
+                        <Card className="relative h-full w-full overflow-hidden border-0 shadow-2xl">
+                            <Image
+                                src={post.image || '/placeholder.svg'}
+                                alt={post.title}
+                                fill
+                                sizes="100vw"
+                                priority={index === currentSlide}
+                                quality={90}
+                                className="absolute inset-0 object-cover"
+                            />
 
-                        <div className="absolute inset-0 bg-black/60" />
+                            <div className="absolute inset-0 bg-black/60" />
 
-                        <div className="relative z-20 flex h-full flex-col justify-end p-8">
-                            <div className="mb-4">
-                                <div className="mb-4 flex flex-wrap gap-2">
-                                    {post.tags.map((tag) => (
-                                        <span
-                                            key={tag.id}
-                                            className="bg-primary text-primary-foreground inline-block rounded-full px-3 py-1 text-sm font-medium"
-                                        >
-                                            {tag.name}
+                            <div className="relative z-20 flex h-full flex-col justify-end p-8">
+                                <div className="mb-4">
+                                    <div className="mb-4 flex flex-wrap gap-2">
+                                        {post.tags.map((tag) => (
+                                            <span
+                                                key={tag.id}
+                                                className="bg-primary text-primary-foreground inline-block rounded-full px-3 py-1 text-sm font-medium"
+                                            >
+                                                {tag.name}
+                                            </span>
+                                        ))}
+                                    </div>{' '}
+                                    <h2 className="mb-4 text-4xl leading-tight font-bold text-balance text-white drop-shadow-lg">
+                                        {post.title}
+                                    </h2>
+                                    <p className="mb-4 max-w-2xl text-lg text-pretty text-white/95 drop-shadow-md">
+                                        {post.subContent}
+                                    </p>
+                                    <div className="flex items-center gap-6 text-sm text-white/90 drop-shadow-md">
+                                        <span className="inline-flex items-center gap-2">
+                                            <Users className="h-4 w-4" />
+                                            {post.numberOfReader.toLocaleString(
+                                                'en-US',
+                                            )}
                                         </span>
-                                    ))}
-                                </div>{' '}
-                                <h2 className="mb-4 text-4xl leading-tight font-bold text-balance text-white drop-shadow-lg">
-                                    {post.title}
-                                </h2>
-                                <p className="mb-4 max-w-2xl text-lg text-pretty text-white/95 drop-shadow-md">
-                                    {post.subContent}
-                                </p>
-                                <div className="flex items-center gap-6 text-sm text-white/90 drop-shadow-md">
-                                    <span className="inline-flex items-center gap-2">
-                                        <Users className="h-4 w-4" />
-                                        {post.numberOfReader.toLocaleString(
-                                            'en-US',
-                                        )}
-                                    </span>
+                                    </div>
                                 </div>
                             </div>
-                        </div>
-                    </Card>
-                </div>
+                        </Card>
+                    </div>
+                </Link>
             ))}
 
             <Button

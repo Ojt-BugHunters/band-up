@@ -42,7 +42,6 @@ export function BlogCard({
     return (
         <Link href={`/blog/${id}`} aria-label={`Read more: ${title}`}>
             <Card className="group border-border bg-card overflow-hidden transition-all duration-300 hover:-translate-y-1 hover:shadow-lg">
-                {/* Cover image */}
                 <div className="relative h-48">
                     <Image
                         src={imgSrc}
@@ -56,7 +55,6 @@ export function BlogCard({
                 </div>
 
                 <CardContent className="p-6">
-                    {/* Meta: author + date */}
                     <div className="text-muted-foreground mb-3 flex flex-wrap items-center gap-x-4 gap-y-2 text-sm">
                         <div className="flex min-w-0 items-center gap-2">
                             {author?.avatar ? (
@@ -78,17 +76,14 @@ export function BlogCard({
                         </div>
                     </div>
 
-                    {/* Title */}
                     <h3 className="text-card-foreground group-hover:text-primary mb-2 text-xl leading-tight font-bold text-balance transition-colors">
                         {title}
                     </h3>
 
-                    {/* Sub content / summary */}
                     <p className="text-muted-foreground mb-4 line-clamp-3 leading-relaxed text-pretty">
                         {subContent}
                     </p>
 
-                    {/* Tags */}
                     <div className="mb-4 flex flex-wrap items-center gap-2">
                         {tags?.map((tag) => (
                             <span
@@ -100,7 +95,6 @@ export function BlogCard({
                         ))}
                     </div>
 
-                    {/* Footer: readers, comments, reacts, CTA */}
                     <div className="border-border flex items-center justify-between border-t pt-4">
                         <div className="text-muted-foreground flex items-center gap-4 text-sm">
                             <div className="flex items-center gap-1">
