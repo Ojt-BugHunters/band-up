@@ -22,7 +22,6 @@ export type ProfileFormValues = z.infer<typeof schema>;
 
 export const useProfile = () => {
     const router = useRouter();
-    const queryClient = useQueryClient();
 
     const mutation = useMutation({
         mutationFn: async (values: z.infer<typeof schema>) => {

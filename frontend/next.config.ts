@@ -21,6 +21,7 @@ const nextConfig: NextConfig = {
                 hostname: 'i.pravatar.cc',
             },
         ],
+        domains: ['api.microlink.io'],
     },
 };
 
