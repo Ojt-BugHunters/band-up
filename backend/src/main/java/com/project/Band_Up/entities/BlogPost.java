@@ -23,6 +23,10 @@ public class BlogPost {
 
     private String title;
 
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "account_id")
+    private Account author;
+
     private String titleImg;
 
     private String content;
@@ -30,11 +34,17 @@ public class BlogPost {
     private long numberOfReader;
 
     @CreationTimestamp
-    private LocalDateTime publishDate;
+    private LocalDateTime publishedDate;
 
     @UpdateTimestamp
-    private LocalDateTime updateDate;
+    private LocalDateTime updatedDate;
 
     @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     private List<Comment> comments;
+
+    @ManyToMany(cascade = {CascadeType.PERSIST, CascadeType.MERGE}, fetch = FetchType.LAZY)
+    private List<Tag> tags;
+
+    @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    private List<BlogReact> blogReacts;
 }
