@@ -61,6 +61,7 @@ export default function TestPage() {
                 <TestInterface
                     questions={sampleQuestions}
                     onComplete={handleComplete}
+                    title="Kiến thức Việt Nam"
                 />
             )}
         </div>

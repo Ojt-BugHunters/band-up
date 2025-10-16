@@ -4,7 +4,24 @@ import { useState, useRef } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
-import { CheckCircle2, XCircle, Trophy } from 'lucide-react';
+import {
+    DropdownMenu,
+    DropdownMenuContent,
+    DropdownMenuItem,
+    DropdownMenuLabel,
+    DropdownMenuSeparator,
+    DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
+import {
+    CheckCircle2,
+    XCircle,
+    Trophy,
+    X,
+    BookOpen,
+    Brain,
+    TestTubes,
+    ChevronDown,
+} from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 interface Question {
@@ -14,17 +31,22 @@ interface Question {
     options: string[];
 }
 
-interface TestInterfaceProps {
-    questions: Question[];
-    onComplete: () => void;
-}
-
 interface Answer {
     questionId: string;
     selectedAnswer: string;
 }
 
-export function TestInterface({ questions, onComplete }: TestInterfaceProps) {
+interface TestInterfaceProps {
+    questions: Question[];
+    onComplete: () => void;
+    title?: string;
+}
+
+export function TestInterface({
+    questions,
+    onComplete,
+    title = 'Bài kiểm tra',
+}: TestInterfaceProps) {
     const [answers, setAnswers] = useState<Answer[]>([]);
     const [showResults, setShowResults] = useState(false);
     const questionRefs = useRef<(HTMLDivElement | null)[]>([]);
@@ -151,25 +173,81 @@ export function TestInterface({ questions, onComplete }: TestInterfaceProps) {
     }
 
     return (
-        <div className="min-h-screen p-4 py-8">
-            <div className="mx-auto max-w-3xl space-y-6">
-                {/* Progress Header */}
-                <div className="bg-card sticky top-4 z-10 rounded-lg border p-4 shadow-md">
-                    <div className="space-y-2">
-                        <div className="flex items-center justify-between">
-                            <h2 className="text-lg font-semibold">
-                                Tiến độ làm bài
-                            </h2>
-                            <span className="text-muted-foreground text-sm">
-                                {answeredCount} / {questions.length} câu
-                            </span>
-                        </div>
-                        <Progress value={progress} className="h-2" />
+        <div className="bg-background flex min-h-screen flex-col">
+            <header className="bg-background border-b px-10 py-5 shadow-sm">
+                <div className="mx-auto flex max-w-6xl items-center justify-between">
+                    <div className="flex items-center gap-4">
+                        <DropdownMenu>
+                            <DropdownMenuTrigger asChild>
+                                <Button
+                                    variant="outline"
+                                    className="border-muted hover:bg-muted/30 flex items-center gap-2 rounded-xl bg-transparent px-4 py-2 text-base font-medium"
+                                >
+                                    <BookOpen className="h-5 w-5 text-rose-500" />
+                                    Flashcards
+                                    <ChevronDown className="h-4 w-4 opacity-70" />
+                                </Button>
+                            </DropdownMenuTrigger>
+
+                            <DropdownMenuContent
+                                align="start"
+                                className="w-48 rounded-xl shadow-md"
+                            >
+                                <DropdownMenuLabel className="text-muted-foreground">
+                                    Study Modes
+                                </DropdownMenuLabel>
+                                <DropdownMenuSeparator />
+                                <DropdownMenuItem className="hover:bg-muted/40 focus:bg-muted/40 flex cursor-pointer items-center gap-2">
+                                    <Brain className="h-4 w-4 text-blue-500" />
+                                    <span className="text-sm font-semibold">
+                                        Learn
+                                    </span>
+                                </DropdownMenuItem>
+                                <DropdownMenuItem className="hover:bg-muted/40 focus:bg-muted/40 flex cursor-pointer items-center gap-2">
+                                    <TestTubes className="h-4 w-4 text-green-500" />
+                                    <span className="text-sm font-semibold">
+                                        Test
+                                    </span>
+                                </DropdownMenuItem>
+                            </DropdownMenuContent>
+                        </DropdownMenu>
+                    </div>
+
+                    <div className="absolute left-1/2 -translate-x-1/2">
+                        <h1 className="text-foreground text-lg font-semibold tracking-tight">
+                            {title}
+                        </h1>
+                    </div>
+
+                    <div className="flex items-center gap-3">
+                        <Button
+                            variant="ghost"
+                            size="icon"
+                            onClick={onComplete}
+                            className="h-10 w-10"
+                        >
+                            <X className="h-6 w-6" />
+                        </Button>
                     </div>
                 </div>
+            </header>
 
-                {/* Questions */}
-                <div className="space-y-6">
+            <main className="flex-grow p-4 py-8">
+                <div className="mx-auto max-w-3xl space-y-6">
+                    <div className="bg-card sticky top-4 z-10 rounded-lg border p-4 shadow-md">
+                        <div className="space-y-2">
+                            <div className="flex items-center justify-between">
+                                <h2 className="text-lg font-semibold">
+                                    Tiến độ làm bài
+                                </h2>
+                                <span className="text-muted-foreground text-sm">
+                                    {answeredCount} / {questions.length} câu
+                                </span>
+                            </div>
+                            <Progress value={progress} className="h-2" />
+                        </div>
+                    </div>
+
                     {questions.map((question, index) => {
                         const answer = answers.find(
                             (a) => a.questionId === question.id,
@@ -249,20 +327,19 @@ export function TestInterface({ questions, onComplete }: TestInterfaceProps) {
                             </div>
                         );
                     })}
-                </div>
 
-                {/* Submit Button */}
-                <div className="sticky bottom-4 flex justify-center">
-                    <Button
-                        onClick={handleSubmit}
-                        size="lg"
-                        disabled={answeredCount < questions.length}
-                        className="min-w-[200px] shadow-lg"
-                    >
-                        Nộp bài ({answeredCount}/{questions.length})
-                    </Button>
+                    <div className="sticky bottom-4 flex justify-center">
+                        <Button
+                            onClick={handleSubmit}
+                            size="lg"
+                            disabled={answeredCount < questions.length}
+                            className="min-w-[200px] shadow-lg"
+                        >
+                            Nộp bài ({answeredCount}/{questions.length})
+                        </Button>
+                    </div>
                 </div>
-            </div>
+            </main>
         </div>
     );
 }

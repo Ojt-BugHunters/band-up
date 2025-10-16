@@ -19,7 +19,7 @@ export default function ClientLayout({
     children: React.ReactNode;
 }) {
     const pathname = usePathname();
-    const hideLayout = ['/do', '/memorize'].some((path) =>
+    const hideLayout = ['/do', '/memorize', '/test'].some((path) =>
         pathname.includes(path),
     );
     useEffect(() => {
