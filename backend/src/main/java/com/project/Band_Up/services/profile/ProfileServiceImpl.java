@@ -27,9 +27,7 @@ public class ProfileServiceImpl implements ProfileService {
     @Value("${aws.cloudfront.ttl-seconds:86400}")
     private long cloudFrontTtlSeconds;
 
-    // -----------------------------
     // Cập nhật thông tin cá nhân (không liên quan avatar)
-    // -----------------------------
     @Override
     public ProfileDto updateProfile(ProfileDto profile, UUID accountId) {
         Account account = accountRepository.findById(accountId)
@@ -44,10 +42,7 @@ public class ProfileServiceImpl implements ProfileService {
         accountRepository.save(account);
         return modelMapper.map(account, ProfileDto.class);
     }
-
-    // -----------------------------
     // Sinh Presigned URL để FE upload avatar lên S3
-    // -----------------------------
     @Override
     public AvatarDto createAvatarPresignedUrl(String fileName, String contentType, UUID accountId) {
         log.info("[Profile] Creating presigned URL for avatar upload: user={}", accountId);
@@ -63,10 +58,7 @@ public class ProfileServiceImpl implements ProfileService {
                 .expiresAt(uploadInfo.getExpiresAt())
                 .build();
     }
-
-    // -----------------------------
     // Lưu avatarKey vào Account sau khi FE upload xong
-    // -----------------------------
     @Override
     public AvatarDto saveAvatar(String key, UUID accountId) {
         Account account = accountRepository.findById(accountId)
@@ -80,15 +72,12 @@ public class ProfileServiceImpl implements ProfileService {
 
         return AvatarDto.builder()
                 .key(key)
-                .cloudFrontUrl(signedUrl)  // field hiển thị ảnh
+                .cloudFrontUrl(signedUrl)
                 .expiresAt(expiresAt)
                 .build();
     }
 
-
-    // -----------------------------
     // Lấy avatar CloudFront URL để hiển thị
-    // -----------------------------
     @Override
     public AvatarDto getAvatar(UUID accountId) {
         Account account = accountRepository.findById(accountId)

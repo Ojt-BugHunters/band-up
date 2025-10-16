@@ -1,6 +1,5 @@
 package com.project.Band_Up.services.AwsService;
 
-import com.amazonaws.services.cloudfront.CloudFrontUrlSigner;
 import com.project.Band_Up.dtos.media.UploadInfo;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
@@ -23,7 +22,6 @@ import java.security.spec.PKCS8EncodedKeySpec;
 import java.time.Duration;
 import java.time.Instant;
 import java.util.Base64;
-import java.util.Date;
 
 @Slf4j
 @Service
@@ -35,7 +33,6 @@ public class S3ServiceImpl implements S3Service {
     private final String cloudFrontDomain;
     private final String cloudFrontKeyPairId;
     private final PrivateKey cloudFrontPrivateKey;
-    private final String cloudFrontPrivateKeyPath; // thêm dòng này
 
 
     @Value("${aws.s3.presign.ttl-seconds:600}")
@@ -55,7 +52,7 @@ public class S3ServiceImpl implements S3Service {
         this.bucket = bucket;
         this.cloudFrontDomain = cloudFrontDomain;
         this.cloudFrontKeyPairId = cloudFrontKeyPairId;
-        this.cloudFrontPrivateKeyPath = cloudFrontPrivateKeyPath;
+        
         try {
             String pemContent = Files.readString(Paths.get(cloudFrontPrivateKeyPath));
             this.cloudFrontPrivateKey = parsePrivateKeyPem(pemContent);
@@ -118,8 +115,6 @@ public class S3ServiceImpl implements S3Service {
                     .build();
 
             String signedUrl = cfUtils.getSignedUrlWithCannedPolicy(req).url();
-
-
             log.info("[CloudFront] Signed URL generated for resource={} (expires at {})", resource, expiration);
             return signedUrl;
         } catch (Exception e) {
