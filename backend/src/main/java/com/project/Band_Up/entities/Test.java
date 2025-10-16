@@ -44,6 +44,7 @@ public class Test {
     @Column(name = "create_at", nullable = false, updatable = false)
     private LocalDateTime createAt;
 
+    @Enumerated(EnumType.STRING)
     private Status status;
 
 }

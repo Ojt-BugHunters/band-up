@@ -38,5 +38,7 @@ public class Section {
     @Column(columnDefinition = "jsonb")
     @JdbcTypeCode(SqlTypes.JSON)
     private Map<String, Object> metadata;
+
+    @Enumerated(EnumType.STRING)
     private Status status;
 }

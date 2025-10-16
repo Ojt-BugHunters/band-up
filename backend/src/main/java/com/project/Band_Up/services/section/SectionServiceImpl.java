@@ -90,7 +90,7 @@ public class SectionServiceImpl implements SectionService {
         sectionRepository.deleteById(id);
     }
     @Override
-    public void deleteSectionsByStatus (UUID testId, Status status) {
+    public void deleteAllDraftSections (UUID testId, Status status) {
         List<Section> sections = sectionRepository.findAllByTest_IdAndStatusOrderByOrderIndexAsc(testId, Status.Draft);
         sectionRepository.deleteAll(sections);
     }

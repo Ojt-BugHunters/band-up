@@ -52,7 +52,7 @@ public class S3ServiceImpl implements S3Service {
         this.bucket = bucket;
         this.cloudFrontDomain = cloudFrontDomain;
         this.cloudFrontKeyPairId = cloudFrontKeyPairId;
-        
+
         try {
             String pemContent = Files.readString(Paths.get(cloudFrontPrivateKeyPath));
             this.cloudFrontPrivateKey = parsePrivateKeyPem(pemContent);
