@@ -30,13 +30,13 @@ export function TestStartDialog({
                         <ClipboardList className="text-primary h-8 w-8" />
                     </div>
                     <DialogTitle className="text-center text-2xl font-bold">
-                        Bắt đầu làm bài trắc nghiệm
+                        Start the Quiz
                     </DialogTitle>
 
                     <DialogDescription className="text-center text-base">
-                        Bài kiểm tra có{' '}
+                        This test has{' '}
                         <span className="text-foreground font-semibold">
-                            {questionCount} câu hỏi
+                            {questionCount} questions
                         </span>
                     </DialogDescription>
                 </DialogHeader>
@@ -44,15 +44,15 @@ export function TestStartDialog({
                 <div className="space-y-4 py-4">
                     <div className="bg-muted/50 rounded-lg border p-4">
                         <ul className="text-muted-foreground space-y-2 text-sm">
-                            <li>• Chọn đáp án cho mỗi câu hỏi</li>
-                            <li>• Không có phản hồi ngay lập tức</li>
-                            <li>• Nhấn Nộp Bài khi hoàn thành</li>
-                            <li>• Xem kết quả sau khi nộp bài</li>
+                            <li>• Choose an answer for each question</li>
+                            <li>• Immediate feedback is not available</li>
+                            <li>• Submit when you finish all questions</li>
+                            <li>• Review your results after submission</li>
                         </ul>
                     </div>
 
                     <Button onClick={onStart} className="w-full" size="lg">
-                        Bắt đầu làm bài
+                        Start Quiz
                     </Button>
                     <Link href={`/flashcard/${id}`} className="flex-1">
                         <Button variant="outline" className="w-full" size="lg">

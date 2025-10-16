@@ -186,7 +186,7 @@ export function TestInterface({
                             <Trophy className="text-primary h-10 w-10" />
                         </div>
                         <CardTitle className="text-3xl font-bold">
-                            Kết quả bài kiểm tra
+                            Your test result
                         </CardTitle>
                     </CardHeader>
 
@@ -199,7 +199,7 @@ export function TestInterface({
                                         {results.correct}
                                     </span>
                                     <span className="text-muted-foreground">
-                                        câu đúng
+                                        Right answer
                                     </span>
                                 </div>
                             </div>
@@ -211,17 +211,18 @@ export function TestInterface({
                                         {results.incorrect}
                                     </span>
                                     <span className="text-muted-foreground">
-                                        câu sai
+                                        Wrong answer
                                     </span>
                                 </div>
                             </div>
 
                             <div className="bg-muted/50 rounded-lg border p-4">
                                 <p className="text-lg font-semibold">
-                                    Điểm số: {percentage}%
+                                    Points: {percentage}%
                                 </p>
                                 <p className="text-muted-foreground text-sm">
-                                    {results.correct} / {results.total} câu
+                                    {results.correct} / {results.total}{' '}
+                                    Questions
                                 </p>
                             </div>
                         </div>
@@ -231,7 +232,7 @@ export function TestInterface({
                             className="w-full"
                             size="lg"
                         >
-                            Hoàn thành
+                            Finish
                         </Button>
                     </CardContent>
                 </Card>
@@ -305,10 +306,11 @@ export function TestInterface({
                         <div className="space-y-2">
                             <div className="flex items-center justify-between">
                                 <h2 className="text-lg font-semibold">
-                                    Tiến độ làm bài
+                                    Progress
                                 </h2>
                                 <span className="text-muted-foreground text-sm">
-                                    {answeredCount} / {deck.cards.length} câu
+                                    {answeredCount} / {deck.cards.length}{' '}
+                                    Questions
                                 </span>
                             </div>
                             <Progress value={progress} className="h-2" />
@@ -402,7 +404,7 @@ export function TestInterface({
                             disabled={answeredCount < questions.length}
                             className="min-w-[200px] shadow-lg"
                         >
-                            Nộp bài ({answeredCount}/{questions.length})
+                            Submit ({answeredCount}/{questions.length})
                         </Button>
                     </div>
                 </div>
