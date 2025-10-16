@@ -2,7 +2,7 @@
 
 import { fetchWrapper, throwIfError } from '@/lib/api';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { useMutation } from '@tanstack/react-query';
 import { useRouter } from 'next/navigation';
 import { useForm } from 'react-hook-form';
 import { toast } from 'sonner';
@@ -22,7 +22,6 @@ export type ProfileFormValues = z.infer<typeof schema>;
 
 export const useProfile = () => {
     const router = useRouter();
-    const queryClient = useQueryClient();
 
     const mutation = useMutation({
         mutationFn: async (values: z.infer<typeof schema>) => {

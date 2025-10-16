@@ -11,17 +11,7 @@ import { Button } from '@/components/ui/button';
 import Link from 'next/link';
 import Image from 'next/image';
 import type { BlogPost } from '@/lib/api/dto/blog';
-
-function formatDate(input: string) {
-    const d = new Date(input);
-    return isNaN(d.getTime())
-        ? input
-        : d.toLocaleDateString(undefined, {
-              year: 'numeric',
-              month: 'short',
-              day: 'numeric',
-          });
-}
+import { formatDate } from '@/lib/utils';
 
 export function BlogCard({
     id,

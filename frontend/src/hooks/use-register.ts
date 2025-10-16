@@ -65,7 +65,7 @@ export const useRegisterForm = () => {
         onError: (error) => {
             toast.error(error.message);
         },
-        onSuccess: (ok, data, email) => {
+        onSuccess: (ok, data) => {
             if (ok) {
                 toast.success('Send OTP to email success');
                 const qs = buildParams({
