@@ -1,6 +1,7 @@
 'use client';
 
 import { Button } from '@/components/ui/button';
+import { useParams } from 'next/navigation';
 import {
     Dialog,
     DialogContent,
@@ -9,6 +10,7 @@ import {
     DialogTitle,
 } from '@/components/ui/dialog';
 import { ClipboardList } from 'lucide-react';
+import Link from 'next/link';
 
 interface TestStartDialogProps {
     onStart: () => void;
@@ -19,6 +21,7 @@ export function TestStartDialog({
     onStart,
     questionCount,
 }: TestStartDialogProps) {
+    const { id } = useParams<{ id: string }>();
     return (
         <Dialog open={true}>
             <DialogContent className="sm:max-w-md">
@@ -29,6 +32,7 @@ export function TestStartDialog({
                     <DialogTitle className="text-center text-2xl font-bold">
                         Bắt đầu làm bài trắc nghiệm
                     </DialogTitle>
+
                     <DialogDescription className="text-center text-base">
                         Bài kiểm tra có{' '}
                         <span className="text-foreground font-semibold">
@@ -50,6 +54,11 @@ export function TestStartDialog({
                     <Button onClick={onStart} className="w-full" size="lg">
                         Bắt đầu làm bài
                     </Button>
+                    <Link href={`/flashcard/${id}`} className="flex-1">
+                        <Button variant="outline" className="w-full" size="lg">
+                            Back
+                        </Button>
+                    </Link>
                 </div>
             </DialogContent>
         </Dialog>
