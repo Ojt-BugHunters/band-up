@@ -20,5 +20,5 @@ public interface SectionService {
     // Xóa section
     void deleteSection(UUID sectionId, UUID actorId);
     //xóa tất cả section theo status
-    void deleteSectionsByStatus(UUID testId, Status status);
+    void deleteAllDraftSections(UUID testId, Status status);
 }
