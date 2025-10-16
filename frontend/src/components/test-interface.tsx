@@ -1,9 +1,10 @@
 'use client';
 
-import { useState, useRef } from 'react';
+import { useState, useRef, useCallback, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
+import { DeckCard, Card as FlashCard } from '@/lib/api/dto/flashcard';
 import {
     DropdownMenu,
     DropdownMenuContent,
@@ -29,6 +30,7 @@ interface Question {
     question: string;
     correctAnswer: string;
     options: string[];
+    cardId: string;
 }
 
 interface Answer {
@@ -37,19 +39,84 @@ interface Answer {
 }
 
 interface TestInterfaceProps {
-    questions: Question[];
+    deck: DeckCard;
     onComplete: () => void;
     title?: string;
 }
 
 export function TestInterface({
-    questions,
+    deck,
     onComplete,
     title = 'Bài kiểm tra',
 }: TestInterfaceProps) {
     const [answers, setAnswers] = useState<Answer[]>([]);
     const [showResults, setShowResults] = useState(false);
     const questionRefs = useRef<(HTMLDivElement | null)[]>([]);
+    const [questions, setQuestions] = useState<Question[]>([]);
+    const shuffleArray = <T,>(array: T[]): T[] => {
+        const newArray = [...array];
+        for (let i = newArray.length - 1; i > 0; i--) {
+            const j = Math.floor(Math.random() * (i + 1));
+            [newArray[i], newArray[j]] = [newArray[j], newArray[i]];
+        }
+        return newArray;
+    };
+
+    const generateQuestions = useCallback((cards: FlashCard[]): Question[] => {
+        const questions: Question[] = [];
+
+        cards.forEach((card) => {
+            const backAnswers = cards
+                .map((c) => c.back)
+                .filter((b) => b !== card.back);
+
+            questions.push({
+                id: `${card.id}-definition`,
+                question: `What is the definition of "${card.front}"?`,
+                correctAnswer: card.back,
+                options: shuffleArray([
+                    card.back,
+                    ...shuffleArray(backAnswers).slice(0, 3),
+                ]),
+                cardId: card.id,
+            });
+
+            if (cards.length >= 4) {
+                questions.push({
+                    id: `${card.id}-select-correct`,
+                    question: `Select the correct answer for: ${card.front}`,
+                    correctAnswer: card.back,
+                    options: shuffleArray([
+                        card.back,
+                        ...shuffleArray(backAnswers).slice(0, 3),
+                    ]),
+                    cardId: card.id,
+                });
+            }
+
+            if (cards.length >= 4) {
+                questions.push({
+                    id: `${card.id}-complete-pair`,
+                    question: `Complete the pair: ${card.front} → ?`,
+                    correctAnswer: card.back,
+                    options: shuffleArray([
+                        card.back,
+                        ...shuffleArray(backAnswers).slice(0, 3),
+                    ]),
+                    cardId: card.id,
+                });
+            }
+        });
+
+        return shuffleArray(questions);
+    }, []);
+
+    useEffect(() => {
+        const generatedQuestions = generateQuestions(deck.cards);
+        setQuestions(generatedQuestions);
+    }, [deck, generateQuestions]);
+
+    console.log(deck);
 
     const handleAnswerSelect = (
         questionId: string,
@@ -70,7 +137,7 @@ export function TestInterface({
 
         // Auto-scroll to next question
         setTimeout(() => {
-            if (index < questions.length - 1) {
+            if (index < deck.cards.length - 1) {
                 questionRefs.current[index + 1]?.scrollIntoView({
                     behavior: 'smooth',
                     block: 'center',
@@ -241,7 +308,7 @@ export function TestInterface({
                                     Tiến độ làm bài
                                 </h2>
                                 <span className="text-muted-foreground text-sm">
-                                    {answeredCount} / {questions.length} câu
+                                    {answeredCount} / {deck.cards.length} câu
                                 </span>
                             </div>
                             <Progress value={progress} className="h-2" />
