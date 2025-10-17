@@ -19,9 +19,10 @@ export default function ClientLayout({
     children: React.ReactNode;
 }) {
     const pathname = usePathname();
-    const hideLayout = ['/do', '/memorize', '/test'].some((path) =>
-        pathname.includes(path),
-    );
+    const hideLayout =
+        pathname.startsWith('/do') ||
+        pathname.startsWith('/memorize') ||
+        /^\/flashcard\/[^/]+\/test$/.test(pathname);
     useEffect(() => {
         initDeckAutoClear();
     }, []);
