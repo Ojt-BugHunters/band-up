@@ -15,7 +15,19 @@ import {
     FormMessage,
 } from './ui/form';
 import { Input } from './ui/input';
-import { Textarea } from './ui/textarea';
+import { MinimalTiptapEditor } from './ui/minimal-tiptap';
+import { Content } from '@tiptap/react';
+import {
+    FileUpload,
+    FileUploadDropzone,
+    FileUploadItem,
+    FileUploadItemDelete,
+    FileUploadItemMetadata,
+    FileUploadItemPreview,
+    FileUploadList,
+    FileUploadTrigger,
+} from '@/components/ui/file-upload';
+import React from 'react';
 
 type DeckFormMode = 'create' | 'update';
 
@@ -30,6 +42,7 @@ export default function BlogForm({
     initialValues,
     submitText,
 }: DeckFormProps) {
+    const [files, setFiles] = React.useState<File[]>([]);
     const isUpdate = mode === 'update';
     const create = useCreateDeck();
     const update = useUpdateDeck(initialValues?.id ?? '');
@@ -76,14 +89,12 @@ export default function BlogForm({
                     <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
                         <div>
                             <h1 className="text-3xl font-bold tracking-tight">
-                                {isUpdate
-                                    ? 'Update Blog'
-                                    : 'Create New Blog'}{' '}
+                                {isUpdate ? 'Update Blog' : 'Create New Blog'}
                             </h1>
                             <p className="text-muted-foreground">
                                 {isUpdate
                                     ? 'Modify your blog'
-                                    : 'Start creating your blog'}{' '}
+                                    : 'Start creating your blog'}
                             </p>
                         </div>
                         <div className="flex gap-2">
@@ -97,7 +108,7 @@ export default function BlogForm({
                                         ? 'Updating...'
                                         : 'Creating...'
                                     : submitText ||
-                                      (isUpdate ? 'Update' : 'Create')}{' '}
+                                      (isUpdate ? 'Update' : 'Create')}
                             </Button>
                         </div>
                     </div>
@@ -130,13 +141,22 @@ export default function BlogForm({
                                 render={({ field }) => (
                                     <FormItem>
                                         <FormLabel className="text-base font-semibold">
-                                            Description
+                                            Content
                                         </FormLabel>
                                         <FormControl>
-                                            <Textarea
-                                                placeholder="Add a description..."
-                                                className="bg-background min-h-[100px] resize-none"
-                                                {...field}
+                                            <MinimalTiptapEditor
+                                                value={field.value as Content}
+                                                onChange={(
+                                                    content: Content,
+                                                ) => {
+                                                    field.onChange(content);
+                                                }}
+                                                output="html"
+                                                placeholder="Write contents..."
+                                                autofocus={false}
+                                                editable={true}
+                                                editorContentClassName="p-4"
+                                                className="min-h-[200px]"
                                             />
                                         </FormControl>
                                         <FormMessage />
@@ -147,6 +167,79 @@ export default function BlogForm({
                     </Card>
                 </form>
             </Form>
+
+            <FileUpload
+                value={files}
+                onValueChange={handleValueChange}
+                // onUpload KHÔNG dùng nữa vì ta auto-run ở onValueChange:
+                // onUpload={...}
+                accept="image/*,audio/*,video/*"
+                maxFiles={2}
+                className="w-full max-w-md"
+                multiple
+            >
+                <FileUploadDropzone>
+                    <div className="flex flex-col items-center gap-1 text-center">
+                        <div className="flex items-center justify-center rounded-full border p-2.5">
+                            <Upload className="text-muted-foreground size-6" />
+                        </div>
+                        <p className="text-sm font-medium">
+                            Drag & drop files here
+                        </p>
+                        <p className="text-muted-foreground text-xs">
+                            Or click to browse (max 2 files)
+                        </p>
+                    </div>
+                    <FileUploadTrigger asChild>
+                        <Button
+                            variant="outline"
+                            size="sm"
+                            className="mt-2 w-fit"
+                        >
+                            Browse files
+                        </Button>
+                    </FileUploadTrigger>
+                </FileUploadDropzone>
+
+                <FileUploadList>
+                    {files.map((file, index) => {
+                        const id = `${file.name}-${file.size}-${file.lastModified}`;
+                        const pct = progressMap[id] ?? 0;
+                        return (
+                            <FileUploadItem
+                                key={index}
+                                value={file}
+                                className="flex-col"
+                            >
+                                <div className="flex w-full items-center gap-2">
+                                    <FileUploadItemPreview />
+                                    <FileUploadItemMetadata />
+                                    <div className="ml-auto text-xs tabular-nums">
+                                        {pct}%
+                                    </div>
+                                    <FileUploadItemDelete asChild>
+                                        <Button
+                                            variant="ghost"
+                                            size="icon"
+                                            className="size-7"
+                                        >
+                                            <X />
+                                        </Button>
+                                    </FileUploadItemDelete>
+                                </div>
+                                {/* FileUploadItemProgress dùng context của lib; ở flow này ta hiển thị % đơn giản ở trên */}
+                                {/* <FileUploadItemProgress /> */}
+                                <div className="bg-muted h-1 w-full rounded">
+                                    <div
+                                        className="bg-primary h-1 rounded"
+                                        style={{ width: `${pct}%` }}
+                                    />
+                                </div>
+                            </FileUploadItem>
+                        );
+                    })}
+                </FileUploadList>
+            </FileUpload>
         </div>
     );
 }
