@@ -1,0 +1,70 @@
+services:
+  postgres:
+    image: postgres:16
+    ports:
+      - "${POSTGRES_PORT:-5432}:5432"
+    environment:
+      POSTGRES_USER: ${PG_USER}
+      POSTGRES_PASSWORD: ${PG_PASS}
+      POSTGRES_DB: ${PG_DB}
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${PG_USER} -d ${PG_DB}"]
+      interval: 5s
+      timeout: 3s
+      retries: 20
+
+  redis:
+    image: redis:7
+    command: ["redis-server", "--appendonly", "yes"]
+    ports:
+      - "${REDIS_PORT:-6379}:6379"
+    environment:
+      REDIS_PASSWORD: ${REDIS_PASSWORD:-}
+    volumes:
+      - redisdata:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 20
+
+  backend:
+    image: ${REGISTRY}/band-up-backend:${BACKEND_TAG}
+    ports:
+      - "${BACKEND_PORT:-8080}:8080"
+    env_file:
+      - ./backend/.env.backend
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/${PG_DB}
+      SPRING_DATASOURCE_USERNAME: ${PG_USER}
+      SPRING_DATASOURCE_PASSWORD: ${PG_PASS}
+      SPRING_DATA_REDIS_HOST: redis
+      SPRING_DATA_REDIS_PORT: "${REDIS_PORT:-6379}"
+      CORS_FRONTEND_ORIGIN: ${CORS_FRONTEND_ORIGIN}
+      CLOUDFRONT_PRIVATE_KEY_PATH: ${CLOUDFRONT_PRIVATE_KEY_CONTAINER_PATH}
+    volumes:
+      - ${CLOUDFRONT_PRIVATE_KEY_HOST_PATH}:${CLOUDFRONT_PRIVATE_KEY_CONTAINER_PATH}:ro
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+
+  frontend:
+    image: ${REGISTRY}/band-up-frontend:${FRONTEND_TAG}
+    ports:
+      - "${FRONTEND_PORT:-3000}:3000"
+    env_file:
+      - ./frontend/.env.frontend
+    environment:
+      NEXT_PUBLIC_BACKEND_URL: "http://backend:8080"
+    depends_on:
+      - backend
+
+volumes:
+  pgdata:
+    name: ${PG_VOL:-pgdata}
+  redisdata:
+    name: ${REDIS_VOL:-redisdata}
