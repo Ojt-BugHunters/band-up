@@ -42,6 +42,7 @@ public class QuestionServiceImpl implements QuestionService {
         Question question = questionRepository.findById(questionId)
                 .orElseThrow(() -> new IllegalArgumentException("Question not found"));
         modelMapper.map(request, question);
+        question.setStatus(Status.Published);
         Question updated = questionRepository.save(question);
         return toResponse(updated);
     }
