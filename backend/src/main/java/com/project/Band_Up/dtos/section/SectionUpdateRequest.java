@@ -5,6 +5,7 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.math.BigInteger;
 import java.util.Map;
 
 @Data
@@ -14,5 +15,6 @@ import java.util.Map;
 public class SectionUpdateRequest {
     private String title;
     private Integer orderIndex;
+    private BigInteger timeLimitSeconds;
     private Map<String, Object> metadata;
 }

@@ -8,6 +8,7 @@ import org.hibernate.annotations.JdbcTypeCode;
 import org.hibernate.annotations.UuidGenerator;
 import org.hibernate.type.SqlTypes;
 
+import java.math.BigInteger;
 import java.util.Map;
 import java.util.UUID;
 
@@ -33,6 +34,7 @@ public class Section {
 
     @NotNull
     private Integer orderIndex;
+    private BigInteger timeLimitSeconds;
 
 
     @Column(columnDefinition = "jsonb")
