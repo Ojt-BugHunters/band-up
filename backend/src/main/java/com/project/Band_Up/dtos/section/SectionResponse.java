@@ -5,6 +5,7 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.math.BigInteger;
 import java.util.Map;
 import java.util.UUID;
 
@@ -17,5 +18,6 @@ public class SectionResponse {
     private UUID testId;
     private String title;
     private Integer orderIndex;
+    private BigInteger timeLimitSeconds;
     private Map<String, Object> metadata;
 }
