@@ -19,5 +19,5 @@ public class SectionResponse {
     private String title;
     private Integer orderIndex;
     private BigInteger timeLimitSeconds;
-    private Map<String, Object> metadata;
+    private String metadata;
 }

@@ -36,10 +36,7 @@ public class Section {
     private Integer orderIndex;
     private BigInteger timeLimitSeconds;
 
-
-    @Column(columnDefinition = "jsonb")
-    @JdbcTypeCode(SqlTypes.JSON)
-    private Map<String, Object> metadata;
+    private String metadata;
 
     @Enumerated(EnumType.STRING)
     private Status status;
