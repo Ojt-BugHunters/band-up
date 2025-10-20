@@ -1,30 +1,19 @@
 'use client';
 
-import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { useMutation } from '@tanstack/react-query';
 import { toast } from 'sonner';
 import { fetchWrapper, throwIfError } from '@/lib/api';
-
-export type AvatarPresign = {
-    key: string;
-    uploadUrl: string;
-    cloudfrontUrl: string;
-    expiresAt: string;
-};
+import { buildParams } from '@/lib/api';
 
 export interface PresignParams {
     fileName: string;
-    contentType: 'image' | 'audio' | 'video' | string;
+    contentType: 'image' | 'audio';
 }
 
 export function usePresignAvatar() {
-    const queryClient = useQueryClient();
-
     const mutation = useMutation({
         mutationFn: async ({ fileName, contentType }: PresignParams) => {
-            const qs = new URLSearchParams({
-                fileName,
-                contentType,
-            }).toString();
+            const qs = buildParams({ fileName, contentType }).toString();
 
             const response = await fetchWrapper(
                 `/profile/avatar/presign?${qs}`,
@@ -37,12 +26,10 @@ export function usePresignAvatar() {
             );
 
             await throwIfError(response);
-            return response.json() as Promise<AvatarPresign>;
+            return response.json();
         },
         onSuccess: (data) => {
             toast.success('Presign URL created successfully');
-            // Invalidate nếu cần cập nhật thông tin hồ sơ
-            queryClient.invalidateQueries({ queryKey: ['profile.me'] });
             console.log('Presign response:', data);
         },
         onError: (error) => {
