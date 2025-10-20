@@ -1,5 +1,6 @@
 package com.project.Band_Up.services.profile;
 
+import com.project.Band_Up.dtos.profile.AvatarCreateRequest;
 import com.project.Band_Up.dtos.profile.AvatarDto;
 import com.project.Band_Up.dtos.profile.ProfileDto;
 import com.project.Band_Up.entities.Account;
@@ -44,13 +45,13 @@ public class ProfileServiceImpl implements ProfileService {
     }
     // Sinh Presigned URL để FE upload avatar lên S3
     @Override
-    public AvatarDto createAvatarPresignedUrl(String fileName, String contentType, UUID accountId) {
+    public AvatarDto createAvatarPresignedUrl(AvatarCreateRequest request, UUID accountId) {
         log.info("[Profile] Creating presigned URL for avatar upload: user={}", accountId);
 
         String key = String.format("avatars/%s/avatar-%s-%s",
-                accountId, UUID.randomUUID(), fileName);
+                accountId, UUID.randomUUID(), request.getFileName());
 
-        var uploadInfo = s3Service.createUploadPresignedUrl(key, contentType);
+        var uploadInfo = s3Service.createUploadPresignedUrl(key, request.getContentType());
 
         return AvatarDto.builder()
                 .key(uploadInfo.getKey())

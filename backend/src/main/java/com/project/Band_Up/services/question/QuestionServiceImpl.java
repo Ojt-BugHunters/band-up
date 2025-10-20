@@ -6,6 +6,7 @@ import com.project.Band_Up.dtos.question.QuestionUpdateRequest;
 import com.project.Band_Up.dtos.test.TestResponse;
 import com.project.Band_Up.entities.Question;
 import com.project.Band_Up.entities.Section;
+import com.project.Band_Up.enums.Status;
 import com.project.Band_Up.repositories.QuestionRepository;
 import com.project.Band_Up.repositories.SectionRepository;
 import lombok.RequiredArgsConstructor;
@@ -27,6 +28,7 @@ public class QuestionServiceImpl implements QuestionService {
                 .orElseThrow(() -> new IllegalArgumentException("Section not found"));
         Question question = modelMapper.map(request, Question.class);
         question.setSection(section);
+        question.setStatus(Status.Draft);
         Question saved = questionRepository.save(question);
         return toResponse(saved);
     }
@@ -40,6 +42,7 @@ public class QuestionServiceImpl implements QuestionService {
         Question question = questionRepository.findById(questionId)
                 .orElseThrow(() -> new IllegalArgumentException("Question not found"));
         modelMapper.map(request, question);
+        question.setStatus(Status.Published);
         Question updated = questionRepository.save(question);
         return toResponse(updated);
     }
