@@ -14,104 +14,19 @@ import {
     FileUploadList,
     FileUploadTrigger,
 } from '@/components/ui/file-upload';
-import { usePresignAvatar } from '@/hooks/use-get-presign-avatar';
-
-function putFileToS3WithProgress(opts: {
-    url: string;
-    file: File;
-    onProgress?: (pct: number) => void;
-    signal?: AbortSignal;
-}) {
-    const { url, file, onProgress, signal } = opts;
-    return new Promise<void>((resolve, reject) => {
-        const xhr = new XMLHttpRequest();
-        xhr.upload.onprogress = (evt) => {
-            if (evt.lengthComputable && onProgress) {
-                onProgress(Math.round((evt.loaded / evt.total) * 100));
-            }
-        };
-        xhr.onload = () => {
-            if (xhr.status >= 200 && xhr.status < 300) resolve();
-            else
-                reject(
-                    new Error(
-                        `S3 upload failed: ${xhr.status} ${xhr.statusText}`,
-                    ),
-                );
-        };
-        xhr.onerror = () =>
-            reject(new Error('Network error while uploading to S3'));
-        xhr.onabort = () => reject(new Error('Upload aborted'));
-
-        xhr.open('PUT', url);
-        xhr.setRequestHeader(
-            'Content-Type',
-            file.type || 'application/octet-stream',
-        );
-        xhr.send(file);
-
-        if (signal) {
-            signal.addEventListener('abort', () => {
-                try {
-                    xhr.abort();
-                } catch {}
-            });
-        }
-    });
-}
+import { usePresignUpload } from '@/hooks/use-get-presign-upload';
+import { putFileToS3WithProgress } from '@/lib/api/index';
 
 export default function FileUploadDirectUploadDemo() {
     const [files, setFiles] = React.useState<File[]>([]);
     const [progressMap, setProgressMap] = React.useState<
         Record<string, number>
     >({});
-    const presignMutation = usePresignAvatar();
-
-    const handleValueChange = React.useCallback(
-        async (newFiles: File[]) => {
-            setFiles(newFiles);
-
-            await Promise.all(
-                newFiles.map(async (file) => {
-                    const id = `${file.name}-${file.size}-${file.lastModified}`;
-                    try {
-                        // 1) presign
-                        const presign = await presignMutation.mutateAsync({
-                            fileName: file.name,
-                            contentType:
-                                file.type || 'application/octet-stream',
-                        });
-
-                        // 2) PUT S3
-                        await putFileToS3WithProgress({
-                            url: presign.uploadUrl,
-                            file,
-                            onProgress: (pct) =>
-                                setProgressMap((m) => ({ ...m, [id]: pct })),
-                        });
-
-                        toast.success(`Uploaded: ${file.name}`);
-                    } catch (e: unknown) {
-                        const message =
-                            e instanceof Error
-                                ? e.message
-                                : `Upload failed: ${file.name}`;
-                        toast.error(message);
-                    } finally {
-                        setProgressMap((m) => ({ ...m, [id]: 100 }));
-                    }
-                }),
-            );
-        },
-        [presignMutation],
-    );
 
     return (
         <FileUpload
             value={files}
-            onValueChange={handleValueChange}
-            // onUpload KHÔNG dùng nữa vì ta auto-run ở onValueChange:
-            // onUpload={...}
+            // onValueChange={handleValueChange}
             accept="image/*,audio/*,video/*"
             maxFiles={2}
             className="w-full max-w-md"

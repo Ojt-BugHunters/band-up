@@ -79,13 +79,17 @@ RUN adduser \
     --no-create-home \
     --uid "${UID}" \
     appuser
-USER appuser
+RUN mkdir -p /app/keys && chown appuser:appuser /app/keys
+COPY key/private_key.pem /app/keys/cloudfront-private-key.pem
+RUN chown appuser:appuser /app/keys/cloudfront-private-key.pem && chmod 600 /app/keys/cloudfront-private-key.pem
 
 # Copy the executable from the "package" stage.
 COPY --from=extract build/target/extracted/dependencies/ ./
 COPY --from=extract build/target/extracted/spring-boot-loader/ ./
 COPY --from=extract build/target/extracted/snapshot-dependencies/ ./
 COPY --from=extract build/target/extracted/application/ ./
+
+USER appuser
 
 EXPOSE 8080
 
