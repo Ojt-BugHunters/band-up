@@ -36,7 +36,6 @@ public class SectionServiceImpl implements SectionService {
         Section section = modelMapper.map(request, Section.class);
         section.setStatus(Status.Draft);
         section.setTest(test);
-
         Section saved = sectionRepository.save(section);
         SectionResponse response = modelMapper.map(saved, SectionResponse.class);
         response.setTestId(test.getId());
