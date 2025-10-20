@@ -36,7 +36,6 @@ export const useCreateTest = () => {
         },
         onSuccess: (data) => {
             queryClient.setQueryData(['testId'], data.id);
-            console.log(data);
             localStorage.setItem('testId', JSON.stringify(data.id));
             toast.success('Create new test successfully');
             router.push(
