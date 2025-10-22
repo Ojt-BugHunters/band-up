@@ -36,7 +36,6 @@ public class SectionServiceImpl implements SectionService {
         Section section = modelMapper.map(request, Section.class);
         section.setStatus(Status.Draft);
         section.setTest(test);
-
         Section saved = sectionRepository.save(section);
         SectionResponse response = modelMapper.map(saved, SectionResponse.class);
         response.setTestId(test.getId());
@@ -90,7 +89,7 @@ public class SectionServiceImpl implements SectionService {
         sectionRepository.deleteById(id);
     }
     @Override
-    public void deleteSectionsByStatus (UUID testId, Status status) {
+    public void deleteAllDraftSections (UUID testId, Status status) {
         List<Section> sections = sectionRepository.findAllByTest_IdAndStatusOrderByOrderIndexAsc(testId, Status.Draft);
         sectionRepository.deleteAll(sections);
     }

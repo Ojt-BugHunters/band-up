@@ -1,5 +1,6 @@
 package com.project.Band_Up.controllers;
 
+import com.project.Band_Up.dtos.profile.AvatarCreateRequest;
 import com.project.Band_Up.dtos.profile.AvatarDto;
 import com.project.Band_Up.dtos.profile.ProfileDto;
 import com.project.Band_Up.services.profile.ProfileService;
@@ -10,6 +11,7 @@ import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -31,7 +33,7 @@ public class ProfileController {
     private JwtUtil jwtUtil;
 
     // -----------------------------
-    // 1️⃣ Cập nhật thông tin cá nhân
+    // Cập nhật thông tin cá nhân
     // -----------------------------
     @PostMapping("/update")
     @Operation(summary = "Cập nhật thông tin tài khoản",
@@ -78,11 +80,12 @@ public class ProfileController {
             @ApiResponse(responseCode = "200", description = "Sinh URL thành công")
     })
     public ResponseEntity<AvatarDto> createAvatarPresignedUrl(
-            @Parameter(description = "Tên file gốc, ví dụ: avatar.png") @RequestParam String fileName,
-            @Parameter(description = "MIME type, ví dụ: image/png") @RequestParam String contentType,
+//            @Parameter(description = "Tên file gốc, ví dụ: avatar.png") @RequestParam String fileName,
+//            @Parameter(description = "MIME type, ví dụ: image/png") @RequestParam String contentType,
+            @RequestBody @Valid AvatarCreateRequest request,
             @AuthenticationPrincipal JwtUserDetails userDetails) {
 
-        AvatarDto dto = profileService.createAvatarPresignedUrl(fileName, contentType, userDetails.getAccountId());
+        AvatarDto dto = profileService.createAvatarPresignedUrl(request, userDetails.getAccountId());
         return ResponseEntity.ok(dto);
     }
 

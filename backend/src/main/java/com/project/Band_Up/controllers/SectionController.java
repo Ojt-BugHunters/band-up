@@ -144,7 +144,7 @@ public class SectionController {
     public ResponseEntity<Void> deletedSectionByTestIdandStatus(
         @PathVariable UUID testId,
         @RequestParam Status status){
-        sectionService.deleteSectionsByStatus(testId, status);
+        sectionService.deleteAllDraftSections(testId, status);
         return ResponseEntity.noContent().build();
     }
 

@@ -1,1 +1,4 @@
 .idea/workspace.xml
+.env
+backend/.env.backend
+frontend/.env.frontend

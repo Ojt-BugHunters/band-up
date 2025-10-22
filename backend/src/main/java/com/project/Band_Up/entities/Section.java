@@ -8,6 +8,7 @@ import org.hibernate.annotations.JdbcTypeCode;
 import org.hibernate.annotations.UuidGenerator;
 import org.hibernate.type.SqlTypes;
 
+import java.math.BigInteger;
 import java.util.Map;
 import java.util.UUID;
 
@@ -33,10 +34,10 @@ public class Section {
 
     @NotNull
     private Integer orderIndex;
+    private BigInteger timeLimitSeconds;
 
+    private String metadata;
 
-    @Column(columnDefinition = "jsonb")
-    @JdbcTypeCode(SqlTypes.JSON)
-    private Map<String, Object> metadata;
+    @Enumerated(EnumType.STRING)
     private Status status;
 }

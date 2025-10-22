@@ -23,7 +23,6 @@ import {
 } from '@/components/ui/dialog';
 import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
-import { Separator } from '@/components/ui/separator';
 import CommentSection from '@/components/comment-section';
 import { Content } from '@tiptap/react';
 
@@ -47,6 +46,7 @@ export default function BlogPostPage() {
     const handleSubmit = () => {
         setSubmitting(true);
         setValue(null);
+        setComment(comments);
     };
     const initialLikes = useMemo(
         () => blogPostDetail.blogPost.reacts?.length ?? 0,

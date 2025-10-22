@@ -1,5 +1,6 @@
 package com.project.Band_Up.entities;
 
+import com.project.Band_Up.enums.Status;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 import lombok.*;
@@ -41,5 +42,6 @@ public class Question {
     @Column(name = "create_at", nullable = false, updatable = false)
     private LocalDateTime createAt;
 
-
+    @Enumerated(EnumType.STRING)
+    private Status status;
 }
