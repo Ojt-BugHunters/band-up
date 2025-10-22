@@ -1,21 +1,20 @@
 package com.project.Band_Up.services.blog;
 
+import com.project.Band_Up.dtos.blog.BlogAuthor;
 import com.project.Band_Up.dtos.blog.BlogPostDetails;
 import com.project.Band_Up.dtos.blog.BlogPosts;
 import com.project.Band_Up.dtos.blog.BlogRequest;
-import com.project.Band_Up.entities.Account;
-import com.project.Band_Up.entities.BlogPost;
-import com.project.Band_Up.entities.Comment;
-import com.project.Band_Up.entities.Reply;
+import com.project.Band_Up.entities.*;
 import com.project.Band_Up.exceptions.ResourceNotFoundException;
-import com.project.Band_Up.repositories.AccountRepository;
-import com.project.Band_Up.repositories.BlogRepository;
-import com.project.Band_Up.repositories.CommentRepository;
-import com.project.Band_Up.repositories.ReplyRepository;
+import com.project.Band_Up.repositories.*;
 import com.project.Band_Up.services.AwsService.S3Service;
 import com.project.Band_Up.services.AwsService.S3ServiceImpl;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -36,6 +35,8 @@ public class BlogServiceImpl implements BlogService {
     private ReplyRepository replyRepository;
     @Autowired
     private S3Service s3Service;
+    @Autowired
+    private TagRepository tagRepository;
 
     @Override
     public BlogPosts createBlogPost(BlogRequest blogRequest, UUID accountId) {
@@ -64,5 +65,94 @@ public class BlogServiceImpl implements BlogService {
         return blogPostDetails;
     }
 
+    @Override
+    public void addNumberOfReader(UUID blogPostId) {
+        BlogPost blogPost = blogRepository.findById(blogPostId)
+                .orElseThrow(() -> new ResourceNotFoundException("Blog post not found"));
+        blogPost.setNumberOfReader(blogPost.getNumberOfReader()+1);
+        blogRepository.save(blogPost);
+    }
+
+    @Override
+    public Page<BlogPosts> getBlogPosts(Integer pageNo, Integer pageSize,
+                                        String queryBy, Boolean ascending,
+                                        UUID tagId) {
+        Pageable pageable = PageRequest.of(pageNo, pageSize, ascending ? Sort.by("numberOfReader").ascending() : Sort.by("numberOfReader").descending());
+
+        Page<BlogPost> blogPostPage;
+
+        if (tagId != null) {
+            Tag tag = tagRepository.findById(tagId)
+                    .orElseThrow(() -> new ResourceNotFoundException("Tag not found"));
+
+            if(queryBy != null && !queryBy.isEmpty()){
+                blogPostPage = blogRepository.findByTitleContainingIgnoreCaseAndTags(queryBy, List.of(tag), pageable);
+            } else {
+                blogPostPage = blogRepository.findByTags(List.of(tag), pageable);
+            }
+        } else {
+            if(queryBy != null && !queryBy.isEmpty()){
+                blogPostPage = blogRepository.findByTitleContainingIgnoreCase(queryBy, pageable);
+            } else {
+                blogPostPage = blogRepository.findAll(pageable);
+            }
+        }
+
+        return blogPostPage.map(blogPost -> {
+            BlogPosts posts = modelMapper.map(blogPost, BlogPosts.class);
+
+            posts.setTitleImg(s3Service.createCloudFrontSignedUrl(blogPost.getTitleImg()));
+
+            if (blogPost.getAuthor() != null) {
+                BlogAuthor author = BlogAuthor.builder()
+                        .id(blogPost.getAuthor().getId())
+                        .name(blogPost.getAuthor().getName())
+                        .avatar(blogPost.getAuthor().getAvatarKey() != null ?
+                                s3Service.createCloudFrontSignedUrl(blogPost.getAuthor().getAvatarKey()) : null)
+                        .build();
+                posts.setAuthor(author);
+            }
+
+            int totalComments = blogPost.getComments().size();
+            int totalReplies = 0;
+            for (Comment comment : blogPost.getComments()) {
+                totalReplies += comment.getReplies().size();
+            }
+            posts.setNumberOfComments(totalComments + totalReplies);
+
+            return posts;
+        });
+    }
+
+    @Override
+    public List<BlogPosts> getFeaturedBlogPosts() {
+        Pageable pageable = PageRequest.of(0, 5, Sort.by("numberOfReader").descending());
+        Page<BlogPost> blogPostPage = blogRepository.findAll(pageable);
+
+        return blogPostPage.map(blogPost -> {
+            BlogPosts posts = modelMapper.map(blogPost, BlogPosts.class);
+
+            posts.setTitleImg(s3Service.createCloudFrontSignedUrl(blogPost.getTitleImg()));
+
+            if (blogPost.getAuthor() != null) {
+                BlogAuthor author = BlogAuthor.builder()
+                        .id(blogPost.getAuthor().getId())
+                        .name(blogPost.getAuthor().getName())
+                        .avatar(blogPost.getAuthor().getAvatarKey() != null ?
+                                s3Service.createCloudFrontSignedUrl(blogPost.getAuthor().getAvatarKey()) : null)
+                        .build();
+                posts.setAuthor(author);
+            }
+
+            int totalComments = blogPost.getComments().size();
+            int totalReplies = 0;
+            for (Comment comment : blogPost.getComments()) {
+                totalReplies += comment.getReplies().size();
+            }
+            posts.setNumberOfComments(totalComments + totalReplies);
+
+            return posts;
+        }).getContent();
+    }
 
 }
