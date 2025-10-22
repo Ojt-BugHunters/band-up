@@ -1,9 +1,6 @@
 package com.project.Band_Up.services.blog;
 
-import com.project.Band_Up.dtos.blog.BlogAuthor;
-import com.project.Band_Up.dtos.blog.BlogPostDetails;
-import com.project.Band_Up.dtos.blog.BlogPosts;
-import com.project.Band_Up.dtos.blog.BlogRequest;
+import com.project.Band_Up.dtos.blog.*;
 import com.project.Band_Up.entities.*;
 import com.project.Band_Up.exceptions.ResourceNotFoundException;
 import com.project.Band_Up.repositories.*;
@@ -19,6 +16,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 @Service
 public class BlogServiceImpl implements BlogService {
@@ -153,6 +151,11 @@ public class BlogServiceImpl implements BlogService {
 
             return posts;
         }).getContent();
+    }
+
+    @Override
+    public List<TagDto> getAllTags() {
+        return tagRepository.findAll().stream().map(tag -> modelMapper.map(tag, TagDto.class)).collect(Collectors.toList());
     }
 
 }
