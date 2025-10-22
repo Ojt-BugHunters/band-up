@@ -3,12 +3,24 @@
 import { Avatar, AvatarImage } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { CalendarDays, Edit, Mail, Phone, User } from 'lucide-react';
+import { CalendarDays, Edit, Mail, Pencil, Phone, User } from 'lucide-react';
 import { user } from '../../../constants/sample-data';
 import { useMemo, useState } from 'react';
 import AccountBlogSection from '@/components/account-blog';
 import { Button } from '@/components/ui/button';
 import EditDialog from '@/components/edit-dialog';
+import { useSaveFile } from '@/hooks/use-save-file';
+import {
+    Dialog,
+    DialogClose,
+    DialogContent,
+    DialogFooter,
+    DialogHeader,
+    DialogTitle,
+    DialogTrigger,
+} from '@/components/ui/dialog';
+import S3FileUploader from '@/components/s3-file-uploader';
+import { useGetAvatar } from '@/hooks/use-get-avatar';
 
 const bgGradients = [
     'from-blue-50 to-indigo-50',
@@ -32,6 +44,10 @@ const quotes = [
 
 export default function ViewProfilePage() {
     const [openDialog, setOpenDialog] = useState(false);
+    const [openEditAvatar, setOpenEditAvatar] = useState(false);
+    const mutation = useSaveFile();
+    const { data, isLoading, refetch } = useGetAvatar();
+
     const bgClass = useMemo(
         () => bgGradients[Math.floor(Math.random() * bgGradients.length)],
         [],
@@ -41,6 +57,18 @@ export default function ViewProfilePage() {
         () => quotes[Math.floor(Math.random() * quotes.length)],
         [],
     );
+
+    const handleSave = async () => {
+        const key = localStorage.getItem('uploadedKey');
+        if (!key) return;
+        await mutation.mutateAsync({ key });
+        localStorage.removeItem('uploadedKey');
+    };
+
+    const handleUploaded = async () => {
+        await handleSave();
+        setOpenEditAvatar(false);
+    };
 
     return (
         <div className="mx-auto flex-1 space-y-6 p-6">
@@ -59,7 +87,12 @@ export default function ViewProfilePage() {
                             <div className="flex w-full items-center justify-between gap-3">
                                 <div className="flex items-center gap-3">
                                     <Avatar className="size-20 rounded-lg border-4 border-white shadow-md">
-                                        <AvatarImage src="/test.png" />
+                                        <AvatarImage
+                                            src={
+                                                data?.cloudFrontUrl ??
+                                                '/writing.png'
+                                            }
+                                        />
                                     </Avatar>
                                     <Badge
                                         variant="outline"
@@ -71,6 +104,51 @@ export default function ViewProfilePage() {
                                     >
                                         {user?.role}
                                     </Badge>
+                                    <Dialog
+                                        open={openEditAvatar}
+                                        onOpenChange={setOpenEditAvatar}
+                                    >
+                                        <DialogTrigger asChild>
+                                            <Button
+                                                type="button"
+                                                variant="outline"
+                                                size="icon"
+                                                className="ml-2"
+                                            >
+                                                <Pencil className="size-4" />
+                                            </Button>
+                                        </DialogTrigger>
+
+                                        <DialogContent className="sm:max-w-md">
+                                            <DialogHeader>
+                                                <DialogTitle>
+                                                    Edit your avatar
+                                                </DialogTitle>
+                                            </DialogHeader>
+
+                                            <S3FileUploader
+                                                presignEndpoint="/profile/avatar/presign"
+                                                accept="image/*"
+                                                maxFiles={1}
+                                                multiple={false}
+                                                onUploaded={async () => {
+                                                    handleUploaded();
+                                                    refetch();
+                                                }}
+                                            />
+
+                                            <DialogFooter className="sm:justify-end">
+                                                <DialogClose asChild>
+                                                    <Button
+                                                        type="button"
+                                                        variant="secondary"
+                                                    >
+                                                        Close
+                                                    </Button>
+                                                </DialogClose>
+                                            </DialogFooter>
+                                        </DialogContent>
+                                    </Dialog>
                                 </div>
                                 <Button
                                     variant="outline"
