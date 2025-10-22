@@ -3,11 +3,13 @@ package com.project.Band_Up.controllers;
 import com.project.Band_Up.dtos.blog.BlogPostDetails;
 import com.project.Band_Up.dtos.blog.BlogPosts;
 import com.project.Band_Up.dtos.blog.BlogRequest;
+import com.project.Band_Up.dtos.blog.TagDto;
 import com.project.Band_Up.services.blog.BlogService;
 import com.project.Band_Up.utils.JwtUserDetails;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
@@ -25,6 +27,9 @@ public class BlogController {
 
     @Autowired
     private BlogService blogService;
+
+    @Autowired
+    private ModelMapper modelMapper;
 
     @PostMapping("/create")
     @Operation(
@@ -90,5 +95,15 @@ public class BlogController {
     public ResponseEntity<List<BlogPosts>> getFeaturedBlogPosts() {
         List<BlogPosts> featuredPosts = blogService.getFeaturedBlogPosts();
         return ResponseEntity.ok(featuredPosts);
+    }
+
+    @GetMapping("/tags")
+    @Operation(
+            summary = "Get all tags",
+            description = "Retrieves all available tags for blog posts"
+    )
+    public ResponseEntity<List<TagDto>> getAllTags() {
+        List<TagDto> tags = blogService.getAllTags();
+        return ResponseEntity.ok(tags);
     }
 }
