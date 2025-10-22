@@ -94,14 +94,14 @@ export default function BlogForm({
     submitText,
 }: BlogFormProps) {
     const [files, setFiles] = React.useState<File[]>([]);
-    const isUpdate = mode === 'update';
-    const create = useCreateBlog();
-    const update = useUpdateBlog(initialValues?.id ?? '');
-    const { form, mutation } = isUpdate ? update : create;
     const [tags, setTags] = React.useState<Tag[]>([]);
     const [activeTagIndex, setActiveTagIndex] = React.useState<number | null>(
         null,
     );
+    const isUpdate = mode === 'update';
+    const create = useCreateBlog();
+    const update = useUpdateBlog(initialValues?.id ?? '');
+    const { form, mutation } = isUpdate ? update : create;
     const { setValue } = form;
     const [progressMap, setProgressMap] = React.useState<
         Record<string, number>
@@ -121,7 +121,12 @@ export default function BlogForm({
             keepDirty: false,
             keepTouched: false,
         });
+        setTags(safeDefaults.topics ?? []);
     }, [isUpdate, safeDefaults, form]);
+
+    useEffect(() => {
+        setValue('topics', tags);
+    }, [setValue, tags]);
 
     const onSubmit = (data: CreateBlogFormValues) => {
         if (isUpdate && initialValues?.id) {
@@ -337,17 +342,15 @@ export default function BlogForm({
                                     </FormLabel>
                                     <FormControl>
                                         <TagInput
-                                            {...field}
                                             placeholder="Enter a topic"
                                             tags={tags}
+                                            setTags={setTags}
+                                            activeTagIndex={activeTagIndex}
+                                            setActiveTagIndex={
+                                                setActiveTagIndex
+                                            }
                                             className="sm:min-w-[450px]"
-                                            setTags={(newTags) => {
-                                                setTags(newTags);
-                                                setValue(
-                                                    'topics',
-                                                    newTags as [Tag, ...Tag[]],
-                                                );
-                                            }}
+                                            {...field}
                                         />
                                     </FormControl>
                                     <FormDescription>
