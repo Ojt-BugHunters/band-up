@@ -10,6 +10,7 @@ type Options = {
     entityType?: string;
     entityId?: string;
     presignEndpoint?: string;
+    saveEndpoint?: string;
 };
 
 export function fileIdOf(file: File) {
@@ -23,6 +24,7 @@ export function useS3Upload({
     entityType,
     entityId,
     presignEndpoint = 'media/presign',
+    saveEndpoint,
 }: Options = {}) {
     const [progressMap, setProgressMap] = useState<ProgressMap>({});
     const [errors, setErrors] = useState<ErrorMap>({});
@@ -104,7 +106,7 @@ export function useS3Upload({
                         delete controllersRef.current[id];
 
                         await saveFileMutation.mutateAsync({
-                            apiUrl: '/profile/avatar/save',
+                            apiUrl: `${saveEndpoint}`,
                             key: media.key,
                         });
                     } catch (err) {
@@ -120,7 +122,7 @@ export function useS3Upload({
 
             setIsUploading(false);
         },
-        [entityType, entityId, presignMutation],
+        [entityType, entityId, presignMutation, saveFileMutation],
     );
 
     return {
