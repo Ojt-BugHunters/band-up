@@ -1,155 +1,25 @@
 'use client';
-import { useState } from 'react';
-import { Upload, X } from 'lucide-react';
-import * as React from 'react';
-import { Button } from '@/components/ui/button';
-import {
-    FileUpload,
-    FileUploadDropzone,
-    FileUploadItem,
-    FileUploadItemDelete,
-    FileUploadItemMetadata,
-    FileUploadItemPreview,
-    FileUploadList,
-    FileUploadTrigger,
-} from '@/components/ui/file-upload';
-import { useS3Upload, fileIdOf } from '@/hooks/use-s3-upload';
+import S3FileUploader from '@/components/s3-file-uploader';
+import { useSaveFile } from '@/hooks/use-save-file';
 
-export default function FileUploadDirectUploadDemo() {
-    const [files, setFiles] = useState<File[]>([]);
+export default function Page() {
+    const mutation = useSaveFile();
 
-    const { uploadFiles, cancel, cancelAll, isUploading, progressMap, errors } =
-        useS3Upload({
-            presignEndpoint: '/profile/avatar/presign',
-        });
+    const handleSave = async () => {
+        const key = localStorage.getItem('uploadedKeys');
+        if (!key) return;
 
-    const handleValueChange = (next: File[]) => setFiles(next);
-
-    const handleStartUpload = async () => {
-        await uploadFiles(files);
+        await mutation.mutateAsync({ key });
+        localStorage.removeItem('uploadedKeys');
     };
 
     return (
-        <div className="flex w-full max-w-md flex-col gap-3">
-            <FileUpload
-                value={files}
-                onValueChange={handleValueChange}
-                accept="image/*,audio/*,video/*"
-                maxFiles={2}
-                className="w-full"
-                multiple
-            >
-                <FileUploadDropzone>
-                    <div className="flex flex-col items-center gap-1 text-center">
-                        <div className="flex items-center justify-center rounded-full border p-2.5">
-                            <Upload className="text-muted-foreground size-6" />
-                        </div>
-                        <p className="text-sm font-medium">
-                            Drag & drop files here
-                        </p>
-                        <p className="text-muted-foreground text-xs">
-                            Or click to browse (max 2 files)
-                        </p>
-                    </div>
-                    <FileUploadTrigger asChild>
-                        <Button
-                            variant="outline"
-                            size="sm"
-                            className="mt-2 w-fit"
-                        >
-                            Browse files
-                        </Button>
-                    </FileUploadTrigger>
-                </FileUploadDropzone>
-
-                <FileUploadList>
-                    {files.map((file, index) => {
-                        const id = fileIdOf(file);
-                        const pct = progressMap[id] ?? 0;
-                        const err = errors[id];
-
-                        return (
-                            <FileUploadItem
-                                key={index}
-                                value={file}
-                                className="flex-col gap-2 rounded-lg border p-2"
-                            >
-                                <div className="flex w-full items-center gap-2">
-                                    <FileUploadItemPreview />
-                                    <FileUploadItemMetadata />
-                                    <div className="ml-auto text-xs tabular-nums">
-                                        {pct}%
-                                    </div>
-                                    <FileUploadItemDelete asChild>
-                                        <Button
-                                            variant="ghost"
-                                            size="icon"
-                                            className="size-7"
-                                            disabled={
-                                                isUploading &&
-                                                pct > 0 &&
-                                                pct < 100
-                                            }
-                                        >
-                                            <X />
-                                        </Button>
-                                    </FileUploadItemDelete>
-                                </div>
-
-                                <div className="bg-muted h-1 w-full rounded">
-                                    <div
-                                        className="bg-primary h-1 rounded"
-                                        style={{ width: `${pct}%` }}
-                                    />
-                                </div>
-
-                                <div className="flex w-full items-center justify-between">
-                                    {err ? (
-                                        <span className="text-destructive text-xs">
-                                            {err}
-                                        </span>
-                                    ) : (
-                                        <span className="text-muted-foreground text-xs">
-                                            {pct === 100
-                                                ? 'Done'
-                                                : isUploading
-                                                  ? 'Uploading…'
-                                                  : 'Ready'}
-                                        </span>
-                                    )}
-
-                                    {pct > 0 && pct < 100 ? (
-                                        <Button
-                                            variant="ghost"
-                                            size="sm"
-                                            className="h-7 px-2 text-xs"
-                                            onClick={() => cancel(id)}
-                                        >
-                                            Cancel
-                                        </Button>
-                                    ) : null}
-                                </div>
-                            </FileUploadItem>
-                        );
-                    })}
-                </FileUploadList>
-            </FileUpload>
-
-            <div className="flex items-center gap-2">
-                <Button
-                    onClick={handleStartUpload}
-                    disabled={!files.length || isUploading}
-                >
-                    {isUploading ? 'Uploading…' : 'Start upload'}
-                </Button>
-                <Button
-                    variant="outline"
-                    onClick={cancelAll}
-                    disabled={!isUploading}
-                >
-                    Cancel all
-                </Button>
-            </div>
+        <div>
+            <S3FileUploader
+                presignEndpoint="/profile/avatar/presign"
+                maxFiles={1}
+                onUploaded={handleSave}
+            />
         </div>
     );
 }

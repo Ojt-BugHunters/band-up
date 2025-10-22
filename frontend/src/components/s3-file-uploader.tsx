@@ -22,7 +22,8 @@ export type S3FileUploadedProps = {
     multiple?: boolean;
     className?: string;
     onFilesChange?: (files: File[]) => void;
-    onUploadComplete?: (files: File[]) => void;
+    onUploadComplete?: (files: File[]) => Promise<void>;
+    onUploaded?: () => Promise<void>;
 };
 
 export default function S3FileUploader({
@@ -32,7 +33,7 @@ export default function S3FileUploader({
     multiple = true,
     className,
     onFilesChange,
-    onUploadComplete,
+    onUploaded,
 }: S3FileUploadedProps) {
     const [files, setFiles] = useState<File[]>([]);
 
@@ -47,8 +48,9 @@ export default function S3FileUploader({
     const handleStartUpload = async () => {
         if (!files.length) return;
         await uploadFiles(files);
-        onUploadComplete?.(files);
+        await onUploaded?.();
     };
+
     return (
         <div
             className={['flex w-full max-w-md flex-col gap-3', className]

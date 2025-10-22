@@ -5,14 +5,13 @@ import { useMutation } from '@tanstack/react-query';
 import { toast } from 'sonner';
 
 interface SaveFileVars {
-    apiUrl: string;
     key: string;
 }
 
 export function useSaveFile() {
     const mutation = useMutation({
-        mutationFn: async ({ apiUrl, key }: SaveFileVars) => {
-            const url = `${apiUrl}?key=${encodeURIComponent(key)}`;
+        mutationFn: async ({ key }: SaveFileVars) => {
+            const url = `/profile/avatar/save?key=${encodeURIComponent(key)}`;
             const response = await fetchWrapper(url, {
                 method: 'POST',
                 headers: {

@@ -21,8 +21,8 @@ export function usePresignUpload(endpoint: string = 'media/presign') {
             return response.json();
         },
         onSuccess: (data) => {
+            localStorage.setItem('uploadedKeys', data.key);
             toast.success('Presign URL created successfully');
-            console.log('Presign response:', data);
         },
         onError: (error) => {
             toast.error(error?.message || 'Failed to presign avatar');
