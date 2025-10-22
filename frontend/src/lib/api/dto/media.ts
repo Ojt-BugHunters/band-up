@@ -6,8 +6,8 @@ export type MediaResponse = {
 };
 
 export interface MediaRequest {
-    entityType: string;
-    entityId: string;
+    entityType?: string;
+    entityId?: string;
     fileName: string;
     contentType: string;
 }
