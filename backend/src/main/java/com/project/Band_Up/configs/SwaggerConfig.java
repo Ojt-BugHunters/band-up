@@ -25,8 +25,9 @@ public class SwaggerConfig {
                         .description("Spring Boot REST API with Swagger")
                         .version("1.0.0"))
                 .servers(List.of(
-                        new Server().url("https://bandupdb.bughunters.site"),
-                        new Server().url("http://localhost:8080")
+                        new Server().url("https://bandupdb.bughunters.site").description("On-prem server"),
+                        new Server().url("http://localhost:8080").description("Local server"),
+                        new Server().url("https://bandup.bughunters.site").description("AWS Server")
                 ));
     }
 }

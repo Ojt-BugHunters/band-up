@@ -1,17 +1,11 @@
 'use client';
 import { Suspense } from 'react';
-import { useRouter, useSearchParams } from 'next/navigation';
+import { useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { BookOpen } from 'lucide-react';
-import { TestTypeSelection } from '@/components/test-type-selection';
-import { CreateSectionForm } from '@/components/create-passage-form';
-import { TestType } from '@/lib/api/dto/test';
 
 function CreateTestPageContent() {
     const router = useRouter();
-    const searchParams = useSearchParams();
-    const step = searchParams.get('step') || 'type';
-    const type = searchParams.get('type');
 
     return (
         <div className="flex-1 space-y-6 p-6">
@@ -38,15 +32,7 @@ function CreateTestPageContent() {
 
                 <div className="container mx-auto p-8">
                     <div className="mx-auto max-w-7xl">
-                        <div className="animate-in fade-in slide-in-from-bottom-8 duration-600">
-                            {step === 'type' ? (
-                                <TestTypeSelection />
-                            ) : step === 'section' ? (
-                                <CreateSectionForm
-                                    testType={type as TestType}
-                                />
-                            ) : null}
-                        </div>
+                        <div className="animate-in fade-in slide-in-from-bottom-8 duration-600"></div>
                     </div>
                 </div>
             </div>
