@@ -1,9 +1,11 @@
 package com.project.Band_Up.repositories;
 
+import com.project.Band_Up.entities.Comment;
 import com.project.Band_Up.entities.Reply;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
+import java.util.Collection;
 import java.util.List;
 import java.util.UUID;
 @Repository
@@ -14,4 +16,6 @@ public interface ReplyRepository extends JpaRepository<Reply, UUID> {
     void deleteAllByComment_Id(UUID commentId);
     //đếm số lượng reply theo commentId
     Integer countByComment_Id(UUID commentId);
+
+    double countByCommentIn(Collection<Comment> comments);
 }

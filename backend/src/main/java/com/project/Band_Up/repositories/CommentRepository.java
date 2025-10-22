@@ -1,5 +1,6 @@
 package com.project.Band_Up.repositories;
 
+import com.project.Band_Up.entities.BlogPost;
 import com.project.Band_Up.entities.Comment;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
@@ -13,4 +14,6 @@ public interface CommentRepository extends JpaRepository<Comment, UUID> {
     List<Comment> findAllByTest_IdOrderByCreateAtDesc(UUID testId);
     // Count comments by test ID
     Integer countByTest_Id(UUID testId);
+
+    long countByBlogPost(BlogPost blogPost);
 }
