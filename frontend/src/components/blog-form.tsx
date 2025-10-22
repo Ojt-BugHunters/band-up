@@ -1,11 +1,11 @@
 'use client';
 
 import {
-    type CreateDeckFormValues,
-    useCreateDeck,
-} from '@/hooks/use-create-deck-card';
+    type CreateBlogFormValues,
+    useCreateBlog,
+} from '@/hooks/use-create-blog';
 import { Upload, X } from 'lucide-react';
-import { useUpdateDeck } from '@/hooks/use-update-deck-card';
+import { useUpdateBlog } from '@/hooks/use-update-blog';
 import { useEffect, useMemo } from 'react';
 import { Button } from './ui/button';
 import { type Tag, TagInput } from 'emblor';
@@ -34,13 +34,13 @@ import {
 } from '@/components/ui/file-upload';
 import React from 'react';
 import { toast } from 'sonner';
-import { usePresignAvatar } from '@/hooks/use-get-presign-avatar';
+import { usePresignUpload } from '@/hooks/use-get-presign-upload';
 
-type DeckFormMode = 'create' | 'update';
+type BlogFormMode = 'create' | 'update';
 
-type DeckFormProps = {
-    mode: DeckFormMode;
-    initialValues?: Partial<CreateDeckFormValues> & { id?: string };
+type BlogFormProps = {
+    mode: BlogFormMode;
+    initialValues?: Partial<CreateBlogFormValues> & { id?: string };
     submitText?: string;
 };
 
@@ -92,11 +92,11 @@ export default function BlogForm({
     mode,
     initialValues,
     submitText,
-}: DeckFormProps) {
+}: BlogFormProps) {
     const [files, setFiles] = React.useState<File[]>([]);
     const isUpdate = mode === 'update';
-    const create = useCreateDeck();
-    const update = useUpdateDeck(initialValues?.id ?? '');
+    const create = useCreateBlog();
+    const update = useUpdateBlog(initialValues?.id ?? '');
     const { form, mutation } = isUpdate ? update : create;
     const [tags, setTags] = React.useState<Tag[]>([]);
     const [activeTagIndex, setActiveTagIndex] = React.useState<number | null>(
@@ -107,16 +107,11 @@ export default function BlogForm({
         Record<string, number>
     >({});
 
-    const safeDefaults: CreateDeckFormValues = useMemo(
+    const safeDefaults: CreateBlogFormValues = useMemo(
         () => ({
             title: initialValues?.title ?? '',
             description: initialValues?.description ?? '',
-            public: initialValues?.public ?? true,
-            password: initialValues?.password ?? '',
-            cards:
-                initialValues?.cards && initialValues.cards.length > 0
-                    ? initialValues.cards
-                    : [{ front: '', back: '' }],
+            topics: initialValues?.topics ?? [],
         }),
         [initialValues],
     );
@@ -128,7 +123,7 @@ export default function BlogForm({
         });
     }, [isUpdate, safeDefaults, form]);
 
-    const onSubmit = (data: CreateDeckFormValues) => {
+    const onSubmit = (data: CreateBlogFormValues) => {
         if (isUpdate && initialValues?.id) {
             mutation.mutate(data);
         } else {
@@ -137,7 +132,7 @@ export default function BlogForm({
     };
 
     const pending = mutation.isPending;
-    const presignMutation = usePresignAvatar();
+    const presignMutation = usePresignUpload();
 
     const handleValueChange = React.useCallback(
         async (newFiles: File[]) => {

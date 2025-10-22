@@ -7,7 +7,7 @@ import { toast } from 'sonner';
 import { z } from 'zod';
 import { TagSchema } from './use-tag';
 
-const blogBaseSchema = z.object({
+export const blogBaseSchema = z.object({
     title: z.string().min(1, 'Title is required'),
     description: z
         .string()
@@ -22,7 +22,7 @@ export function useCreateBlog() {
     const router = useRouter();
 
     const mutation = useMutation({
-        mutationFn: async (values: CreateBlogFormValues) => {
+        mutationFn: async (values: z.infer<typeof blogBaseSchema>) => {
             const response = await fetchWrapper('/blog/create', {
                 method: 'POST',
                 headers: {
