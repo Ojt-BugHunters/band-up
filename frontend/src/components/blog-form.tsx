@@ -1,15 +1,19 @@
+'use client';
+
 import {
-    CreateDeckFormValues,
+    type CreateDeckFormValues,
     useCreateDeck,
 } from '@/hooks/use-create-deck-card';
 import { Upload, X } from 'lucide-react';
 import { useUpdateDeck } from '@/hooks/use-update-deck-card';
 import { useEffect, useMemo } from 'react';
 import { Button } from './ui/button';
+import { type Tag, TagInput } from 'emblor';
 import { Card } from './ui/card';
 import {
     Form,
     FormControl,
+    FormDescription,
     FormField,
     FormItem,
     FormLabel,
@@ -17,7 +21,7 @@ import {
 } from './ui/form';
 import { Input } from './ui/input';
 import { MinimalTiptapEditor } from './ui/minimal-tiptap';
-import { Content } from '@tiptap/react';
+import type { Content } from '@tiptap/react';
 import {
     FileUpload,
     FileUploadDropzone,
@@ -94,6 +98,11 @@ export default function BlogForm({
     const create = useCreateDeck();
     const update = useUpdateDeck(initialValues?.id ?? '');
     const { form, mutation } = isUpdate ? update : create;
+    const [tags, setTags] = React.useState<Tag[]>([]);
+    const [activeTagIndex, setActiveTagIndex] = React.useState<number | null>(
+        null,
+    );
+    const { setValue } = form;
     const [progressMap, setProgressMap] = React.useState<
         Record<string, number>
     >({});
@@ -257,8 +266,6 @@ export default function BlogForm({
                         <FileUpload
                             value={files}
                             onValueChange={handleValueChange}
-                            // onUpload KHÔNG dùng nữa vì ta auto-run ở onValueChange:
-                            // onUpload={...}
                             accept="image/*,audio/*,video/*"
                             maxFiles={2}
                             className="w-full"
@@ -280,7 +287,7 @@ export default function BlogForm({
                                     <Button
                                         variant="outline"
                                         size="sm"
-                                        className="mt-2 w-fit"
+                                        className="mt-2 w-fit bg-transparent"
                                     >
                                         Browse files
                                     </Button>
@@ -313,8 +320,6 @@ export default function BlogForm({
                                                     </Button>
                                                 </FileUploadItemDelete>
                                             </div>
-                                            {/* FileUploadItemProgress dùng context của lib; ở flow này ta hiển thị % đơn giản ở trên */}
-                                            {/* <FileUploadItemProgress /> */}
                                             <div className="bg-muted h-1 w-full rounded">
                                                 <div
                                                     className="bg-primary h-1 rounded"
@@ -326,6 +331,38 @@ export default function BlogForm({
                                 })}
                             </FileUploadList>
                         </FileUpload>
+
+                        <FormField
+                            control={form.control}
+                            name="topics"
+                            render={({ field }) => (
+                                <FormItem className="mt-6 flex flex-col items-start">
+                                    <FormLabel className="text-base font-semibold">
+                                        Topics
+                                    </FormLabel>
+                                    <FormControl>
+                                        <TagInput
+                                            {...field}
+                                            placeholder="Enter a topic"
+                                            tags={tags}
+                                            className="sm:min-w-[450px]"
+                                            setTags={(newTags) => {
+                                                setTags(newTags);
+                                                setValue(
+                                                    'topics',
+                                                    newTags as [Tag, ...Tag[]],
+                                                );
+                                            }}
+                                        />
+                                    </FormControl>
+                                    <FormDescription>
+                                        These are the topics that you&apos;re
+                                        interested in.
+                                    </FormDescription>
+                                    <FormMessage />
+                                </FormItem>
+                            )}
+                        />
                     </Card>
                 </form>
             </Form>
