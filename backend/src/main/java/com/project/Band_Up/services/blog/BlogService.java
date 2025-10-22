@@ -1,5 +1,4 @@
 package com.project.Band_Up.services.blog;
-package com.project.Band_Up.services.blog;
 
 import com.project.Band_Up.dtos.blog.BlogPostDetails;
 import com.project.Band_Up.dtos.blog.BlogPosts;
@@ -20,5 +19,4 @@ public interface BlogService {
                                         UUID tagId);
     public List<BlogPosts> getFeaturedBlogPosts();
     public List<TagDto> getAllTags();
-}
 }
