@@ -62,7 +62,7 @@ public class MediaServiceImpl implements MediaService {
 
         return MediaResponse.builder()
                 .key(uploadInfo.getKey())
-                .cloudFrontUrl(uploadInfo.getPresignedUrl()) // URL upload trực tiếp
+                .uploadUrl(uploadInfo.getPresignedUrl()) // URL upload trực tiếp
                 .expiresAt(uploadInfo.getExpiresAt())
                 .build();
     }

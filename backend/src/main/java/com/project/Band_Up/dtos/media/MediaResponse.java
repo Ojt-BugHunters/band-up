@@ -10,7 +10,8 @@ import java.time.Instant;
 @NoArgsConstructor
 @Builder
 public class MediaResponse {
-    private String key;
-    private String cloudFrontUrl;
+    private String key;            // key trong S3 (users/{id}/avatar-{uuid}.png)
+    private String uploadUrl;      // presigned URL để FE upload lên S3
+    private String cloudFrontUrl;  // URL CloudFront để FE hiển thị ảnh
     private Instant expiresAt;
 }
