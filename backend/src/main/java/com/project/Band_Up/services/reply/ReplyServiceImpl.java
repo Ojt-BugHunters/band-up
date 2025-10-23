@@ -37,14 +37,14 @@ public class ReplyServiceImpl implements ReplyService {
         reply.setComment(comment);
 
         Reply saved = replyRepository.save(reply);
-        return modelMapper.map(saved, ReplyResponse.class);
+        return toResponse(saved);
     }
 
     @Override
     public List<ReplyResponse> getAllRepliesByCommentId(UUID commentId) {
         return replyRepository.findAllByComment_IdOrderByCreateAtDesc(commentId)
                 .stream()
-                .map(reply -> modelMapper.map(reply, ReplyResponse.class))
+                .map(this::toResponse)
                 .collect(Collectors.toList());
     }
 
@@ -60,7 +60,7 @@ public class ReplyServiceImpl implements ReplyService {
         reply.setContent(request.getContent());
         Reply updated = replyRepository.save(reply);
 
-        return modelMapper.map(updated, ReplyResponse.class);
+        return toResponse(updated);
     }
 
     @Override
@@ -73,5 +73,11 @@ public class ReplyServiceImpl implements ReplyService {
         }
 
         replyRepository.delete(reply);
+    }
+    private ReplyResponse toResponse(Reply reply) {
+        ReplyResponse replyResponse = modelMapper.map(reply, ReplyResponse.class);
+        replyResponse.setUserId(reply.getUser().getId());
+        replyResponse.setCommentId(reply.getComment().getId());
+        return replyResponse;
     }
 }
