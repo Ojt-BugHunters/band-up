@@ -18,6 +18,8 @@ public class BlogPostDetails {
     private String content;
     private List<TagDto> tags;
     private List<BlogCommentResponse> comments;
+    private List<ReactDto> reacts;
     private long numberOfReaders;
     private long numberOfComments;
+    private long numberOfReacts;
 }

@@ -1,5 +1,6 @@
 package com.project.Band_Up.controllers;
 
+import com.project.Band_Up.dtos.comment.BlogCommentResponse;
 import com.project.Band_Up.dtos.comment.CommentCreateRequest;
 import com.project.Band_Up.dtos.comment.CommentResponse;
 import com.project.Band_Up.dtos.comment.CommentUpdateRequest;
@@ -121,4 +122,24 @@ public class CommentController {
         return ResponseEntity.ok(count);
     }
 
+    @Operation(
+            summary = "Tạo Comment mới cho blog",
+            description = "Tạo một Comment mới cho Blog. " +
+                    "Cần `blogId` và `AccessToken` trong cookie để xác định user. " +
+                    "Trả về CommentResponse sau khi tạo."
+    )
+    @ApiResponses({
+            @ApiResponse(responseCode = "201", description = "Tạo thành công"),
+            @ApiResponse(responseCode = "400", description = "Yêu cầu không hợp lệ"),
+            @ApiResponse(responseCode = "404", description = "User hoặc Blog không tồn tại")
+    })
+    @PostMapping(value = "/blog/{blogId}", consumes = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<BlogCommentResponse> createBlogComment(
+            @Parameter(description = "UUID của Blog", required = true) @PathVariable("blogId") UUID blogId,
+            @Valid @RequestBody CommentCreateRequest request,
+            @AuthenticationPrincipal JwtUserDetails userDetails) {
+
+        BlogCommentResponse created = commentService.createBlogComment(userDetails.getAccountId(), blogId, request);
+        return ResponseEntity.status(HttpStatus.CREATED).body(created);
+    }
 }

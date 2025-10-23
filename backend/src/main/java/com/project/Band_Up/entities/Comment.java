@@ -30,12 +30,12 @@ public class Comment {
     private Account user ;
 
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
-    @JoinColumn (name= "test_id", nullable = false,
+    @JoinColumn (name= "test_id", nullable = true,
             foreignKey = @ForeignKey(name = "fk_comment_test"))
     private Test test ;
 
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
-    @JoinColumn(name = "blog_post_id")
+    @JoinColumn(name = "blog_post_id", nullable = true)
     private BlogPost blogPost;
 
     @NotNull
@@ -45,6 +45,6 @@ public class Comment {
     @Column(name = "create_at", nullable = false, updatable = false)
     private LocalDateTime createAt;
 
-    @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "comment", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     private List<Reply> replies;
 }
