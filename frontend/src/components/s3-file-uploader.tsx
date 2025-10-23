@@ -18,6 +18,8 @@ import { useS3Upload, fileIdOf } from '@/hooks/use-s3-upload';
 export type S3FileUploadedProps = {
     presignEndpoint: string;
     accept?: string;
+    entityType?: string;
+    entityId?: string;
     maxFiles?: number;
     multiple?: boolean;
     className?: string;
@@ -33,12 +35,14 @@ export default function S3FileUploader({
     multiple = true,
     className,
     onFilesChange,
+    entityType,
+    entityId,
     onUploaded,
 }: S3FileUploadedProps) {
     const [files, setFiles] = useState<File[]>([]);
 
     const { uploadFiles, cancel, cancelAll, isUploading, progressMap, errors } =
-        useS3Upload({ presignEndpoint });
+        useS3Upload({ presignEndpoint, entityId, entityType });
 
     const handleValueChange = (next: File[]) => {
         setFiles(next);

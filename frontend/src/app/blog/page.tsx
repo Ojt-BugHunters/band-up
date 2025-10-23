@@ -2,11 +2,10 @@
 
 import { BlogCard } from '@/components/blog-card';
 import { FeaturedCarousel } from '@/components/feature-carousel';
-import { blogPosts, fetchTags } from '../../../constants/sample-data';
 import { Highlight } from '@/components/ui/highlight';
 import { Plus, Search } from 'lucide-react';
 import { Input } from '@/components/ui/input';
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import {
     Select,
     SelectContent,
@@ -18,14 +17,40 @@ import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { AsyncSelect } from '@/components/ui/async-select';
 import { Tag } from '@/lib/api/dto/category';
+import { PaginationState } from '@tanstack/react-table';
+import { useDebounce } from '@/lib/utils';
+import { useGetBlogs } from '@/hooks/use-get-blogs';
+import { PaginationControl } from '@/components/ui/pagination-control';
+import LiquidLoading from '@/components/ui/liquid-loader';
+import { NotFound } from '@/components/not-found';
+import { fetchTags } from '../../../constants/sample-data';
 
 export default function BlogListPage() {
     const [search, setSearch] = useState('');
     const [categoryName, setCategoryName] = useState<string>('');
     const [sortOrder, setSortOrder] = useState<'latest' | 'oldest'>('latest');
+    const [pagination, setPagination] = useState<PaginationState>({
+        pageSize: 9,
+        pageIndex: 0,
+    });
+    const debouncedSearch = useDebounce(search, 400);
+    const apiPaging = useMemo(
+        () => ({
+            pageNo: pagination.pageIndex,
+            pageSize: pagination.pageSize,
+            queryBy: debouncedSearch.trim() || '',
+            ascending: false,
+        }),
+        [pagination.pageIndex, pagination.pageSize, debouncedSearch],
+    );
+    useEffect(() => {
+        setPagination((prev) => ({ ...prev, pageIndex: 0 }));
+    }, [debouncedSearch, categoryName, sortOrder]);
+
+    const { data, isPending, isError } = useGetBlogs(apiPaging);
 
     const filteredBlogs = useMemo(() => {
-        return blogPosts
+        return data?.content
             .filter((post) => {
                 const byTag =
                     !categoryName ||
@@ -36,20 +61,27 @@ export default function BlogListPage() {
                 if (!search) return true;
 
                 const inTitle = post.title.includes(search);
-                const inSubContent = post.subContent || ''.includes(search);
-                const inAuthor = post.author?.name || ''.includes(search);
+                const inAuthor = (post.author?.name || '').includes(search);
                 const inTagNames = (post.tags || []).some((t) =>
                     t.name.includes(search),
                 );
 
-                return inTitle || inSubContent || inAuthor || inTagNames;
+                return inTitle || inAuthor || inTagNames;
             })
             .sort((a, b) => {
                 const da = new Date(a.publishedDate).getTime();
                 const db = new Date(b.publishedDate).getTime();
                 return sortOrder === 'latest' ? db - da : da - db;
             });
-    }, [categoryName, sortOrder, search]);
+    }, [categoryName, sortOrder, search, data]);
+
+    if (isPending) {
+        return <LiquidLoading />;
+    }
+
+    if (isError) {
+        return <NotFound />;
+    }
 
     return (
         <div className="bg-background min-h-screen p-8">
@@ -133,9 +165,18 @@ export default function BlogListPage() {
                 </div>
 
                 <div className="mb-16 grid grid-cols-1 gap-8 md:grid-cols-2 lg:grid-cols-3">
-                    {filteredBlogs.map((post) => (
+                    {filteredBlogs?.map((post) => (
                         <BlogCard key={post.id} {...post} />
                     ))}
+                </div>
+
+                <div className="mx-auto max-w-7xl">
+                    <PaginationControl
+                        className="mt-6"
+                        itemCount={data?.totalElements ?? 0}
+                        pagination={pagination}
+                        setPagination={setPagination}
+                    />
                 </div>
             </div>
         </div>
