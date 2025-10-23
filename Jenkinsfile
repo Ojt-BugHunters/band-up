@@ -45,6 +45,7 @@ pipeline {
             steps {
                 dir('frontend') {
                     sh '''
+                        cd frontend
                         docker build -t $FRONTEND_REPO:$FRONTEND_IMAGE_TAG .
                         docker tag $FRONTEND_REPO:$FRONTEND_IMAGE_TAG $ECR_URL/$FRONTEND_REPO:$FRONTEND_IMAGE_TAG
                     '''
@@ -56,6 +57,7 @@ pipeline {
             steps {
                 dir('backend') {
                     sh '''
+                        cd backend
                         docker build -t $BACKEND_REPO:$BACKEND_IMAGE_TAG .
                         docker tag $BACKEND_REPO:$BACKEND_IMAGE_TAG $ECR_URL/$BACKEND_REPO:$BACKEND_IMAGE_TAG
                     '''
