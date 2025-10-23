@@ -22,7 +22,8 @@ export default function ClientLayout({
     const hideLayout =
         pathname.startsWith('/do') ||
         pathname.startsWith('/memorize') ||
-        /^\/flashcard\/[^/]+\/test$/.test(pathname);
+        /^\/flashcard\/[^/]+\/test$/.test(pathname) ||
+        pathname.startsWith('/admin');
     useEffect(() => {
         initDeckAutoClear();
     }, []);
