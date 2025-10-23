@@ -13,6 +13,7 @@ import java.util.UUID;
 @Builder
 public class BlogPosts {
     private UUID id;
+    private String title;
     private String titleImg;
     private BlogAuthor author;
     private List<TagDto> tags;
