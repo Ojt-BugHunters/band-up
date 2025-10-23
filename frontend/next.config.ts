@@ -21,7 +21,7 @@ const nextConfig: NextConfig = {
                 hostname: 'i.pravatar.cc',
             },
         ],
-        domains: ['d33qmu3lctvpye.cloudfront.net', 'api.microlink.io'],
+        domains: ['d2ay3or9h1yhxx.cloudfront.net', 'api.microlink.io'],
     },
 };
 
