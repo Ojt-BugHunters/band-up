@@ -59,10 +59,10 @@ export default function ViewProfilePage() {
     );
 
     const handleSave = async () => {
-        const key = localStorage.getItem('uploadedKey');
+        const key = localStorage.getItem('uploadedKeys');
         if (!key) return;
         await mutation.mutateAsync({ key });
-        localStorage.removeItem('uploadedKey');
+        localStorage.removeItem('uploadedKeys');
     };
 
     const handleUploaded = async () => {
