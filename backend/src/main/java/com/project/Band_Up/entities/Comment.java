@@ -2,6 +2,7 @@ package com.project.Band_Up.entities;
 
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Null;
 import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UuidGenerator;
@@ -29,13 +30,14 @@ public class Comment {
             foreignKey = @ForeignKey(name = "fk_comment_user"))
     private Account user ;
 
-    @ManyToOne(fetch = FetchType.LAZY, optional = false)
-    @JoinColumn (name= "test_id", nullable = false,
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn (name= "test_id", nullable = true,
             foreignKey = @ForeignKey(name = "fk_comment_test"))
     private Test test ;
 
-    @ManyToOne(fetch = FetchType.LAZY, optional = false)
-    @JoinColumn(name = "blog_post_id")
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "blog_post_id", nullable = true,
+            foreignKey = @ForeignKey(name = "fk_comment_blog_post"))
     private BlogPost blogPost;
 
     @NotNull
