@@ -1,6 +1,7 @@
 package com.project.Band_Up.dtos.comment;
 
 import com.project.Band_Up.dtos.reply.BlogReplyResponse;
+import com.project.Band_Up.entities.Comment;
 import lombok.*;
 
 import java.time.LocalDateTime;
@@ -14,7 +15,8 @@ import java.util.UUID;
 @Builder
 public class BlogCommentResponse {
     private UUID id;
-    private UUID userId;
+    private CommentAuthor author;
+    private UUID blogId;
     private String content;
     private List<BlogReplyResponse> replies;
     private LocalDateTime createAt;
