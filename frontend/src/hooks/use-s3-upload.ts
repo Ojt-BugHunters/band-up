@@ -4,7 +4,6 @@ import { useCallback, useRef, useState } from 'react';
 import { putFileToS3WithProgress } from '@/lib/api';
 import { usePresignUpload } from './use-get-presign-upload';
 import type { MediaRequest, MediaResponse } from '@/lib/api/dto/media';
-import { useSaveFile } from './use-save-file';
 
 type Options = {
     entityType?: string;
@@ -27,7 +26,6 @@ export function useS3Upload({
     const [progressMap, setProgressMap] = useState<ProgressMap>({});
     const [errors, setErrors] = useState<ErrorMap>({});
     const [isUploading, setIsUploading] = useState(false);
-    const saveFileMutation = useSaveFile();
     const controllersRef = useRef<Record<string, AbortController>>({});
 
     const presignMutation = usePresignUpload(presignEndpoint);
@@ -102,11 +100,6 @@ export function useS3Upload({
 
                         setProgressMap((m) => ({ ...m, [id]: 100 }));
                         delete controllersRef.current[id];
-
-                        await saveFileMutation.mutateAsync({
-                            apiUrl: '/profile/avatar/save',
-                            key: media.key,
-                        });
                     } catch (err) {
                         const message =
                             err instanceof Error
