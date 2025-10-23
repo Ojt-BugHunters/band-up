@@ -1,5 +1,5 @@
 'use client';
-import { AppSidebar } from '@/components/app-sidebar';
+import { AppSidebar, useBreadcrumb } from '@/components/app-sidebar';
 import {
     Breadcrumb,
     BreadcrumbItem,
@@ -14,12 +14,15 @@ import {
     SidebarProvider,
     SidebarTrigger,
 } from '@/components/ui/sidebar';
+import React from 'react';
 
 export default function AdminLayout({
     children,
 }: {
     children: React.ReactNode;
 }) {
+    const breadcrumbs = useBreadcrumb();
+
     return (
         <SidebarProvider>
             <AppSidebar />
@@ -33,17 +36,39 @@ export default function AdminLayout({
                         />
                         <Breadcrumb>
                             <BreadcrumbList>
-                                <BreadcrumbItem className="hidden md:block">
-                                    <BreadcrumbLink href="#">
-                                        Building Your Application
-                                    </BreadcrumbLink>
-                                </BreadcrumbItem>
-                                <BreadcrumbSeparator className="hidden md:block" />
-                                <BreadcrumbItem>
-                                    <BreadcrumbPage>
-                                        Data Fetching
-                                    </BreadcrumbPage>
-                                </BreadcrumbItem>
+                                {breadcrumbs.map((crumb, index) => (
+                                    <React.Fragment key={crumb.url}>
+                                        <BreadcrumbItem
+                                            className={
+                                                index === 0
+                                                    ? 'hidden md:block'
+                                                    : ''
+                                            }
+                                        >
+                                            {index ===
+                                            breadcrumbs.length - 1 ? (
+                                                <BreadcrumbPage>
+                                                    {crumb.title}
+                                                </BreadcrumbPage>
+                                            ) : (
+                                                <BreadcrumbLink
+                                                    href={crumb.url}
+                                                >
+                                                    {crumb.title}
+                                                </BreadcrumbLink>
+                                            )}
+                                        </BreadcrumbItem>
+                                        {index < breadcrumbs.length - 1 && (
+                                            <BreadcrumbSeparator
+                                                className={
+                                                    index === 0
+                                                        ? 'hidden md:block'
+                                                        : ''
+                                                }
+                                            />
+                                        )}
+                                    </React.Fragment>
+                                ))}
                             </BreadcrumbList>
                         </Breadcrumb>
                     </div>

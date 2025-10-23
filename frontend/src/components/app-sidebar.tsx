@@ -5,33 +5,20 @@ import {
     DropdownMenuItem,
     DropdownMenuSeparator,
     DropdownMenuTrigger,
-    DropdownMenuGroup,
     DropdownMenuLabel,
 } from '@/components/ui/dropdown-menu';
 import * as React from 'react';
 import {
-    BookOpen,
-    Bot,
-    Command,
-    Frame,
-    LifeBuoy,
-    Map,
-    PieChart,
-    Send,
-    Settings2,
-    SquareTerminal,
     ChevronRight,
     type LucideIcon,
-    Folder,
-    MoreHorizontal,
-    Share,
-    Trash2,
-    BadgeCheck,
-    Bell,
     ChevronsUpDown,
     CreditCard,
     LogOut,
-    Sparkles,
+    LayoutDashboard,
+    Users,
+    PenTool,
+    MessagesSquare,
+    FileText,
 } from 'lucide-react';
 import {
     Collapsible,
@@ -53,200 +40,61 @@ import {
     SidebarFooter,
     SidebarHeader,
     useSidebar,
-    SidebarGroupContent,
 } from '@/components/ui/sidebar';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-
-export function NavMain({
-    items,
-}: {
-    items: {
-        title: string;
-        url: string;
-        icon: LucideIcon;
-        isActive?: boolean;
-        items?: {
-            title: string;
-            url: string;
-        }[];
-    }[];
-}) {
-    return (
-        <SidebarGroup>
-            <SidebarGroupLabel>Platform</SidebarGroupLabel>
-            <SidebarMenu>
-                {items.map((item) => (
-                    <Collapsible
-                        key={item.title}
-                        asChild
-                        defaultOpen={item.isActive}
-                    >
-                        <SidebarMenuItem>
-                            <SidebarMenuButton asChild tooltip={item.title}>
-                                <a href={item.url}>
-                                    <item.icon />
-                                    <span>{item.title}</span>
-                                </a>
-                            </SidebarMenuButton>
-                            {item.items?.length ? (
-                                <>
-                                    <CollapsibleTrigger asChild>
-                                        <SidebarMenuAction className="data-[state=open]:rotate-90">
-                                            <ChevronRight />
-                                            <span className="sr-only">
-                                                Toggle
-                                            </span>
-                                        </SidebarMenuAction>
-                                    </CollapsibleTrigger>
-                                    <CollapsibleContent>
-                                        <SidebarMenuSub>
-                                            {item.items?.map((subItem) => (
-                                                <SidebarMenuSubItem
-                                                    key={subItem.title}
-                                                >
-                                                    <SidebarMenuSubButton
-                                                        asChild
-                                                    >
-                                                        <a href={subItem.url}>
-                                                            <span>
-                                                                {subItem.title}
-                                                            </span>
-                                                        </a>
-                                                    </SidebarMenuSubButton>
-                                                </SidebarMenuSubItem>
-                                            ))}
-                                        </SidebarMenuSub>
-                                    </CollapsibleContent>
-                                </>
-                            ) : null}
-                        </SidebarMenuItem>
-                    </Collapsible>
-                ))}
-            </SidebarMenu>
-        </SidebarGroup>
-    );
-}
+import { AccountPicture } from './ui/account-picture';
+import { usePathname } from 'next/navigation';
 
 const data = {
     user: {
-        name: 'shadcn',
-        email: 'm@example.com',
-        avatar: '/avatars/shadcn.jpg',
+        name: 'Admin BandUp',
+        email: 'admin@bandup.com',
+        avatar: '/band-up-logo.png',
     },
     navMain: [
         {
-            title: 'Playground',
-            url: '#',
-            icon: SquareTerminal,
-            isActive: true,
-            items: [
-                {
-                    title: 'History',
-                    url: '#',
-                },
-                {
-                    title: 'Starred',
-                    url: '#',
-                },
-                {
-                    title: 'Settings',
-                    url: '#',
-                },
-            ],
-        },
-        {
-            title: 'Models',
-            url: '#',
-            icon: Bot,
-            items: [
-                {
-                    title: 'Genesis',
-                    url: '#',
-                },
-                {
-                    title: 'Explorer',
-                    url: '#',
-                },
-                {
-                    title: 'Quantum',
-                    url: '#',
-                },
-            ],
-        },
-        {
-            title: 'Documentation',
-            url: '#',
-            icon: BookOpen,
-            items: [
-                {
-                    title: 'Introduction',
-                    url: '#',
-                },
-                {
-                    title: 'Get Started',
-                    url: '#',
-                },
-                {
-                    title: 'Tutorials',
-                    url: '#',
-                },
-                {
-                    title: 'Changelog',
-                    url: '#',
-                },
-            ],
-        },
-        {
-            title: 'Settings',
-            url: '#',
-            icon: Settings2,
+            title: 'Dashboard',
+            url: '/admin/dashboard',
+            icon: LayoutDashboard,
             items: [
                 {
                     title: 'General',
-                    url: '#',
+                    url: '/admin/dashboard/general',
                 },
                 {
-                    title: 'Team',
-                    url: '#',
+                    title: 'Statistics',
+                    url: '/admin/dashboard/statistics',
                 },
                 {
-                    title: 'Billing',
-                    url: '#',
-                },
-                {
-                    title: 'Limits',
-                    url: '#',
+                    title: 'Report',
+                    url: '/admin/dashboard/report',
                 },
             ],
         },
-    ],
-    navSecondary: [
         {
-            title: 'Support',
-            url: '#',
-            icon: LifeBuoy,
+            title: 'Users',
+            url: '/admin/users',
+            icon: Users,
         },
         {
-            title: 'Feedback',
-            url: '#',
-            icon: Send,
-        },
-    ],
-    projects: [
-        {
-            name: 'Design Engineering',
-            url: '#',
-            icon: Frame,
+            title: 'Flashcard',
+            url: '/admin/flashcard',
+            icon: CreditCard,
         },
         {
-            name: 'Sales & Marketing',
-            url: '#',
-            icon: PieChart,
+            title: 'Blog',
+            url: '/admin/blog',
+            icon: PenTool,
         },
         {
-            name: 'Travel',
-            url: '#',
-            icon: Map,
+            title: 'Room',
+            url: '/admin/room',
+            icon: MessagesSquare,
+        },
+        {
+            title: 'Test',
+            url: '/admin/test',
+            icon: FileText,
         },
     ],
 };
@@ -258,16 +106,16 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
                 <SidebarMenu>
                     <SidebarMenuItem>
                         <SidebarMenuButton size="lg" asChild>
-                            <a href="#">
-                                <div className="bg-sidebar-primary text-sidebar-primary-foreground flex aspect-square size-8 items-center justify-center rounded-lg">
-                                    <Command className="size-4" />
+                            <a href="/admin">
+                                <div className="h-8 w-8">
+                                    <AccountPicture name="Admin" />
                                 </div>
                                 <div className="grid flex-1 text-left text-sm leading-tight">
                                     <span className="truncate font-medium">
-                                        Acme Inc
+                                        BandUp
                                     </span>
                                     <span className="truncate text-xs">
-                                        Enterprise
+                                        BandUp IELTS
                                     </span>
                                 </div>
                             </a>
@@ -277,8 +125,6 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
             </SidebarHeader>
             <SidebarContent>
                 <NavMain items={data.navMain} />
-                <NavProjects projects={data.projects} />
-                <NavSecondary items={data.navSecondary} className="mt-auto" />
             </SidebarContent>
             <SidebarFooter>
                 <NavUser user={data.user} />
@@ -287,95 +133,101 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
     );
 }
 
-export function NavProjects({
-    projects,
-}: {
-    projects: {
-        name: string;
-        url: string;
-        icon: LucideIcon;
-    }[];
-}) {
-    const { isMobile } = useSidebar();
-
-    return (
-        <SidebarGroup className="group-data-[collapsible=icon]:hidden">
-            <SidebarGroupLabel>Projects</SidebarGroupLabel>
-            <SidebarMenu>
-                {projects.map((item) => (
-                    <SidebarMenuItem key={item.name}>
-                        <SidebarMenuButton asChild>
-                            <a href={item.url}>
-                                <item.icon />
-                                <span>{item.name}</span>
-                            </a>
-                        </SidebarMenuButton>
-                        <DropdownMenu>
-                            <DropdownMenuTrigger asChild>
-                                <SidebarMenuAction showOnHover>
-                                    <MoreHorizontal />
-                                    <span className="sr-only">More</span>
-                                </SidebarMenuAction>
-                            </DropdownMenuTrigger>
-                            <DropdownMenuContent
-                                className="w-48"
-                                side={isMobile ? 'bottom' : 'right'}
-                                align={isMobile ? 'end' : 'start'}
-                            >
-                                <DropdownMenuItem>
-                                    <Folder className="text-muted-foreground" />
-                                    <span>View Project</span>
-                                </DropdownMenuItem>
-                                <DropdownMenuItem>
-                                    <Share className="text-muted-foreground" />
-                                    <span>Share Project</span>
-                                </DropdownMenuItem>
-                                <DropdownMenuSeparator />
-                                <DropdownMenuItem>
-                                    <Trash2 className="text-muted-foreground" />
-                                    <span>Delete Project</span>
-                                </DropdownMenuItem>
-                            </DropdownMenuContent>
-                        </DropdownMenu>
-                    </SidebarMenuItem>
-                ))}
-                <SidebarMenuItem>
-                    <SidebarMenuButton>
-                        <MoreHorizontal />
-                        <span>More</span>
-                    </SidebarMenuButton>
-                </SidebarMenuItem>
-            </SidebarMenu>
-        </SidebarGroup>
-    );
-}
-
-export function NavSecondary({
+export function NavMain({
     items,
-    ...props
 }: {
     items: {
         title: string;
         url: string;
         icon: LucideIcon;
+        items?: {
+            title: string;
+            url: string;
+        }[];
     }[];
-} & React.ComponentPropsWithoutRef<typeof SidebarGroup>) {
+}) {
+    const pathname = usePathname();
+
+    const isActiveItem = (itemUrl: string, subItems?: { url: string }[]) => {
+        if (pathname === itemUrl) return true;
+        if (subItems) {
+            return subItems.some((sub) => pathname === sub.url);
+        }
+        return pathname.startsWith(itemUrl + '/');
+    };
+
+    const isActiveSubItem = (subUrl: string) => {
+        return pathname === subUrl;
+    };
+
     return (
-        <SidebarGroup {...props}>
-            <SidebarGroupContent>
-                <SidebarMenu>
-                    {items.map((item) => (
-                        <SidebarMenuItem key={item.title}>
-                            <SidebarMenuButton asChild size="sm">
-                                <a href={item.url}>
-                                    <item.icon />
-                                    <span>{item.title}</span>
-                                </a>
-                            </SidebarMenuButton>
-                        </SidebarMenuItem>
-                    ))}
-                </SidebarMenu>
-            </SidebarGroupContent>
+        <SidebarGroup>
+            <SidebarGroupLabel>Manage</SidebarGroupLabel>
+            <SidebarMenu>
+                {items.map((item) => {
+                    const isActive = isActiveItem(item.url, item.items);
+                    return (
+                        <Collapsible
+                            key={item.title}
+                            asChild
+                            defaultOpen={isActive}
+                        >
+                            <SidebarMenuItem>
+                                <SidebarMenuButton
+                                    asChild
+                                    tooltip={item.title}
+                                    isActive={isActive}
+                                >
+                                    <a href={item.url}>
+                                        <item.icon />
+                                        <span>{item.title}</span>
+                                    </a>
+                                </SidebarMenuButton>
+                                {item.items?.length ? (
+                                    <>
+                                        <CollapsibleTrigger asChild>
+                                            <SidebarMenuAction className="data-[state=open]:rotate-90">
+                                                <ChevronRight />
+                                                <span className="sr-only">
+                                                    Toggle
+                                                </span>
+                                            </SidebarMenuAction>
+                                        </CollapsibleTrigger>
+                                        <CollapsibleContent>
+                                            <SidebarMenuSub>
+                                                {item.items?.map((subItem) => (
+                                                    <SidebarMenuSubItem
+                                                        key={subItem.title}
+                                                    >
+                                                        <SidebarMenuSubButton
+                                                            asChild
+                                                            isActive={isActiveSubItem(
+                                                                subItem.url,
+                                                            )}
+                                                        >
+                                                            <a
+                                                                href={
+                                                                    subItem.url
+                                                                }
+                                                            >
+                                                                <span>
+                                                                    {
+                                                                        subItem.title
+                                                                    }
+                                                                </span>
+                                                            </a>
+                                                        </SidebarMenuSubButton>
+                                                    </SidebarMenuSubItem>
+                                                ))}
+                                            </SidebarMenuSub>
+                                        </CollapsibleContent>
+                                    </>
+                                ) : null}
+                            </SidebarMenuItem>
+                        </Collapsible>
+                    );
+                })}
+            </SidebarMenu>
         </SidebarGroup>
     );
 }
@@ -448,28 +300,6 @@ export function NavUser({
                             </div>
                         </DropdownMenuLabel>
                         <DropdownMenuSeparator />
-                        <DropdownMenuGroup>
-                            <DropdownMenuItem>
-                                <Sparkles />
-                                Upgrade to Pro
-                            </DropdownMenuItem>
-                        </DropdownMenuGroup>
-                        <DropdownMenuSeparator />
-                        <DropdownMenuGroup>
-                            <DropdownMenuItem>
-                                <BadgeCheck />
-                                Account
-                            </DropdownMenuItem>
-                            <DropdownMenuItem>
-                                <CreditCard />
-                                Billing
-                            </DropdownMenuItem>
-                            <DropdownMenuItem>
-                                <Bell />
-                                Notifications
-                            </DropdownMenuItem>
-                        </DropdownMenuGroup>
-                        <DropdownMenuSeparator />
                         <DropdownMenuItem>
                             <LogOut />
                             Log out
@@ -479,4 +309,55 @@ export function NavUser({
             </SidebarMenuItem>
         </SidebarMenu>
     );
+}
+
+export function useBreadcrumb() {
+    const pathname = usePathname();
+
+    const generateBreadcrumb = () => {
+        const segments = pathname.split('/').filter(Boolean);
+        const breadcrumbs = [{ title: 'Home', url: '/admin' }];
+
+        let currentPath = '';
+        segments.forEach((segment, index) => {
+            if (segment === 'admin' && index === 0) return;
+
+            currentPath += `/${segment}`;
+            const fullPath = `/admin${currentPath}`;
+
+            const navItem = data.navMain.find((item) => item.url === fullPath);
+            if (navItem) {
+                breadcrumbs.push({ title: navItem.title, url: fullPath });
+                return;
+            }
+
+            for (const item of data.navMain) {
+                if (item.items) {
+                    const subItem = item.items.find(
+                        (sub) => sub.url === fullPath,
+                    );
+                    if (subItem) {
+                        if (!breadcrumbs.find((b) => b.url === item.url)) {
+                            breadcrumbs.push({
+                                title: item.title,
+                                url: item.url,
+                            });
+                        }
+                        breadcrumbs.push({
+                            title: subItem.title,
+                            url: fullPath,
+                        });
+                        return;
+                    }
+                }
+            }
+
+            const title = segment.charAt(0).toUpperCase() + segment.slice(1);
+            breadcrumbs.push({ title, url: fullPath });
+        });
+
+        return breadcrumbs;
+    };
+
+    return generateBreadcrumb();
 }
