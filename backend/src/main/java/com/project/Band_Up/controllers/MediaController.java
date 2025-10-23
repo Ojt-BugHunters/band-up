@@ -27,7 +27,6 @@ import java.util.UUID;
 @RequestMapping(value = "/api/media", produces = MediaType.APPLICATION_JSON_VALUE)
 @Tag(name = "MEDIA API", description = "Các endpoint để quản lý upload, lưu và lấy media từ S3/CloudFront.")
 @RequiredArgsConstructor
-@Validated
 @CrossOrigin
 public class MediaController {
 
@@ -54,9 +53,11 @@ public class MediaController {
             @ApiResponse(responseCode = "200", description = "Tạo presigned URL thành công"),
             @ApiResponse(responseCode = "400", description = "Yêu cầu không hợp lệ")
     })
-    @PostMapping(value = "/presign", consumes = MediaType.APPLICATION_JSON_VALUE)
+    @PostMapping(value = "/presign")
     public ResponseEntity<MediaResponse> createPresignedUploadUrl(
-            @Valid @RequestBody MediaRequest request) {
+            @org.springframework.web.bind.annotation.RequestBody @Valid MediaRequest request) {
+        System.out.println(request.getEntityType() + request.getContentType() + request.getEntityId());
+        System.out.println("iam here");
         MediaResponse response = mediaService.createPresignedUploadUrl(request);
         return ResponseEntity.ok(response);
     }
@@ -84,7 +85,7 @@ public class MediaController {
     })
     @PostMapping(consumes = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<MediaResponse> saveMediaRecord(
-            @Valid @RequestBody MediaCreateRequest request) {
+            @Valid @org.springframework.web.bind.annotation.RequestBody MediaCreateRequest request) {
         MediaResponse response = mediaService.saveMediaRecord(request);
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
