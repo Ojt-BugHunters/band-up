@@ -43,6 +43,7 @@ public class MediaServiceImpl implements MediaService {
             case "section" -> "sections";
             case "question" -> "questions";
             case "user" -> "users";
+            case "blog" -> "blogs";
             default -> "misc";
         };
 
