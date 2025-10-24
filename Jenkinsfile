@@ -30,24 +30,22 @@ pipeline {
         ECS_CLUSTER = 'my-ecs-cluster'
     }
 
+    stage('Initialize Tags') {
+        steps {
+            script {
+                env.FRONTEND_IMAGE_TAG = env.RELEASE_TAG
+                env.BACKEND_IMAGE_TAG  = env.RELEASE_TAG
+
+                echo "Release tag detected: ${release_tag}"
+                echo "Using image tag: ${env.RELEASE_TAG}"
+            }
+        }
+    }
+
     stages {
         stage('Checkout') {
             steps {
                 checkout scm
-            }
-        }
-
-        stage('Detect Git Tag') {
-            steps {
-                script {
-                    def tag = sh(
-                        script: "echo ${GIT_BRANCH} | sed -E 's|.*/tags/||'",
-                        returnStdout: true
-                    ).trim()
-                    env.TAG_NAME = tag
-                    env.FRONTEND_IMAGE_TAG = "${tag}"
-                    env.BACKEND_IMAGE_TAG  = "${tag}"
-                }
             }
         }
 
