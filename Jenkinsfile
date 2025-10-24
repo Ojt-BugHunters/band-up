@@ -25,9 +25,10 @@ pipeline {
         stage('Detect Git Tag') {
             steps {
                 script {
-                    def tag = sh(script: "echo ${GIT_BRANCH} | sed 's|refs/tags/||'", returnStdout: true).trim()
-                    echo "Detected tag: ${tag}"
-
+                    def tag = sh(
+                        script: "echo ${GIT_BRANCH} | sed -E 's|.*/tags/||'",
+                        returnStdout: true
+                    ).trim()
                     env.TAG_NAME = tag
                     env.FRONTEND_IMAGE_TAG = "${tag}"
                     env.BACKEND_IMAGE_TAG  = "${tag}"
