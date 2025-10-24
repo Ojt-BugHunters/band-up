@@ -1,6 +1,21 @@
 pipeline {
     agent any
 
+    triggers {
+        GenericTrigger(
+            genericVariables: [
+                [key: 'release_tag', value: '$.release.tag_name'],
+                [key: 'release_action', value: '$.action']
+            ],
+            causeString: 'Triggered by GitHub release: $release_tag',
+            token: 'github-release',
+            printContributedVariables: true,
+            printPostContent: true,
+            regexpFilterText: '$release_action',
+            regexpFilterExpression: '^published$'
+        )
+    }
+
     environment {
         AWS_DEFAULT_REGION = 'ap-southeast-1'
         AWS_ACCOUNT_ID = '243826067806'
