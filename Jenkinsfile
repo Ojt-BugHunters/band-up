@@ -13,15 +13,25 @@ pipeline {
         FRONTEND_SERVICE = 'frontend-service'
         BACKEND_SERVICE = 'backend-service'
         ECS_CLUSTER = 'my-ecs-cluster'
-
-        FRONTEND_IMAGE_TAG = "frontend-${BUILD_NUMBER}"
-        BACKEND_IMAGE_TAG = "backend-${BUILD_NUMBER}"
     }
 
     stages {
         stage('Checkout') {
             steps {
                 checkout scm
+            }
+        }
+
+        stage('Detect Git Tag') {
+            steps {
+                script {
+                    def tag = sh(script: "echo ${GIT_BRANCH} | sed 's|refs/tags/||'", returnStdout: true).trim()
+                    echo "Detected tag: ${tag}"
+
+                    env.TAG_NAME = tag
+                    env.FRONTEND_IMAGE_TAG = "${tag}"
+                    env.BACKEND_IMAGE_TAG  = "${tag}"
+                }
             }
         }
 
