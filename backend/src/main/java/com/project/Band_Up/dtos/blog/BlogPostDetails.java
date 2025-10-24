@@ -15,6 +15,7 @@ public class BlogPostDetails {
     private UUID id;
     private String title;
     private String titleImg;
+    private BlogAuthor author;
     private String content;
     private List<TagDto> tags;
     private List<BlogCommentResponse> comments;
