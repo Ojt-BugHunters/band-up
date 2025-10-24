@@ -5,12 +5,9 @@ env:
     AWS_DEFAULT_REGION: "ap-southeast-1"
     BACKEND_ECR_REPO: "$AWS_ACCOUNT_ID.dkr.ecr.$AWS_DEFAULT_REGION/backend"
 phases:
-  install:
-    commands:
-      - cd backend
-      - mvn clean package -DskipTests
   build:
     commands:
+      - cd backend
       - docker build -t $BACKEND_ECR_REPO:$CODEBUILD_RESOLVED_SOURCE_VERSION .
       - aws ecr get-login-password --region $AWS_DEFAULT_REGION | docker login --username AWS --password-stdin $BACKEND_ECR_REPO
       - docker push $BACKEND_ECR_REPO:$CODEBUILD_RESOLVED_SOURCE_VERSION
