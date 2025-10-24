@@ -82,7 +82,7 @@ public class BlogServiceImpl implements BlogService {
                         CommentAuthor author = CommentAuthor.builder()
                                 .id(comment.getUser().getId())
                                 .name(comment.getUser().getName())
-                                .avatar(comment.getUser().getAvatarKey() != null ?g
+                                .avatar(comment.getUser().getAvatarKey() != null ?
                                         s3Service.createCloudFrontSignedUrl(comment.getUser().getAvatarKey()) : null)
                                 .build();
                         commentResponse.setAuthor(author);
