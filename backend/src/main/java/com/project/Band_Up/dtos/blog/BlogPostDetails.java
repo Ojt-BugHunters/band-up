@@ -20,7 +20,7 @@ public class BlogPostDetails {
     private List<TagDto> tags;
     private List<BlogCommentResponse> comments;
     private List<ReactDto> reacts;
-    private long numberOfReaders;
+    private long numberOfReader;
     private long numberOfComments;
     private long numberOfReacts;
 }

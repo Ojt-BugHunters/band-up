@@ -18,7 +18,7 @@ public class BlogPosts {
     private BlogAuthor author;
     private List<TagDto> tags;
     private List<ReactDto> blogReacts;
-    private long numberOfReaders;
+    private long numberOfReader;
     private long numberOfComments;
     private LocalDateTime publishedDate;
 }
