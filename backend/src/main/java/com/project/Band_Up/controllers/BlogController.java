@@ -29,9 +29,6 @@ public class BlogController {
     @Autowired
     private BlogService blogService;
 
-    @Autowired
-    private ModelMapper modelMapper;
-
     @PostMapping("/create")
     @Operation(
             summary = "Create a new blog post",

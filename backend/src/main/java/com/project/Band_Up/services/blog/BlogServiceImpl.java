@@ -123,6 +123,7 @@ public class BlogServiceImpl implements BlogService {
     }
 
     @Override
+    @Transactional
     public void addNumberOfReader(UUID blogPostId) {
         BlogPost blogPost = blogRepository.findById(blogPostId)
                 .orElseThrow(() -> new ResourceNotFoundException("Blog post not found"));
