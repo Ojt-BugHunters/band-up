@@ -1,17 +1,25 @@
 version: 0.2
+
 env:
   variables:
-    BACKEND_ECR_NAME: $BACKEND_ECR_NAME
     AWS_ACCOUNT_ID: "243826067806"
     AWS_DEFAULT_REGION: "ap-southeast-1"
-    BACKEND_ECR_REPO: "$AWS_ACCOUNT_ID.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com/$BACKEND_ECR_NAME"
+    BACKEND_ECR_NAME: "bandup/backend"
+
 phases:
+  pre_build:
+    commands:
+      - BACKEND_ECR_REPO="$AWS_ACCOUNT_ID.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com/$BACKEND_ECR_NAME"
+      - echo Logging in to ECR...
+      - aws ecr get-login-password --region $AWS_DEFAULT_REGION | docker login --username AWS --password-stdin "$AWS_ACCOUNT_ID.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com"
+
   build:
     commands:
       - cd backend
-      - aws ecr get-login-password --region $AWS_DEFAULT_REGION | docker login --username AWS --password-stdin $BACKEND_ECR_REPO
+      - echo Building image: $BACKEND_ECR_REPO:$CODEBUILD_RESOLVED_SOURCE_VERSION
       - docker build -t $BACKEND_ECR_REPO:$CODEBUILD_RESOLVED_SOURCE_VERSION .
       - docker push $BACKEND_ECR_REPO:$CODEBUILD_RESOLVED_SOURCE_VERSION
+
 artifacts:
   files:
     - '**/*'
