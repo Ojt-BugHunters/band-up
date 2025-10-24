@@ -1,5 +1,6 @@
 package com.project.Band_Up.services.comment;
 
+import com.project.Band_Up.dtos.comment.BlogCommentResponse;
 import com.project.Band_Up.dtos.comment.CommentCreateRequest;
 import com.project.Band_Up.dtos.comment.CommentResponse;
 import com.project.Band_Up.dtos.comment.CommentUpdateRequest;
@@ -18,4 +19,6 @@ public interface CommentService {
     void deleteComment(UUID commentId, UUID userId);
     // Count Comments by TestId
     Integer countCommentsByTestId(UUID testId);
+    // Create Blog Comment
+    BlogCommentResponse createBlogComment(UUID userId, UUID blogId, CommentCreateRequest commentCreateRequest);
 }

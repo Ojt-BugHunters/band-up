@@ -3,6 +3,7 @@ package com.project.Band_Up.controllers;
 import com.project.Band_Up.dtos.blog.BlogPostDetails;
 import com.project.Band_Up.dtos.blog.BlogPosts;
 import com.project.Band_Up.dtos.blog.BlogRequest;
+import com.project.Band_Up.dtos.blog.ReactDto;
 import com.project.Band_Up.dtos.blog.TagDto;
 import com.project.Band_Up.services.blog.BlogService;
 import com.project.Band_Up.utils.JwtUserDetails;
@@ -27,9 +28,6 @@ public class BlogController {
 
     @Autowired
     private BlogService blogService;
-
-    @Autowired
-    private ModelMapper modelMapper;
 
     @PostMapping("/create")
     @Operation(
@@ -105,5 +103,22 @@ public class BlogController {
     public ResponseEntity<List<TagDto>> getAllTags() {
         List<TagDto> tags = blogService.getAllTags();
         return ResponseEntity.ok(tags);
+    }
+
+    @PostMapping("/{blogPostId}/react")
+    @Operation(
+            summary = "React or unreact to a blog post",
+            description = "Adds a reaction (Like, Love, Sad, Angry, Haha, Wow) to a blog post. If the same reaction type is sent again, it removes the reaction. If a different reaction type is sent, it updates to the new reaction type. Requires authentication."
+    )
+    public ResponseEntity<ReactDto> reactToBlogPost(
+            @Parameter(description = "ID of the blog post to react to")
+            @PathVariable UUID blogPostId,
+            @RequestBody ReactDto reactDto,
+            @AuthenticationPrincipal JwtUserDetails userDetails) {
+        ReactDto result = blogService.reactToBlogPost(userDetails.getAccountId(), blogPostId, reactDto);
+        if (result == null) {
+            return ResponseEntity.noContent().build();
+        }
+        return ResponseEntity.ok(result);
     }
 }

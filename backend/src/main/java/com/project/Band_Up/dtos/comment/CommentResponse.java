@@ -14,6 +14,7 @@ public class CommentResponse {
     private UUID id;
     private UUID userId;
     private UUID testId;
+    private UUID blogId;
     private String content;
     private LocalDateTime createAt;
 }

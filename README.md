@@ -21,24 +21,28 @@
 
 ## 📑 Table of Contents
 
-- [About The Project](#-about-the-project)
-  - [Key Features](#-key-features)
-  - [Built With](#️-built-with)
-- [Getting Started](#-getting-started)
-  - [Prerequisites](#-prerequisites)
-  - [Installation Guide (Docker Compose)](#️-installation-guide-docker-compose-setup)
-    - [Step 1: Create Environment Files](#-step-1--create-environment-files)
-    - [Step 2: Pull Docker Images](#-step-2--pull-docker-images)
-    - [Step 3: Start the Application](#-step-3--start-the-application)
-    - [Step 4: Verify URLs](#-step-4--verify-urls)
-- [AWS Deployment](#️-aws-deployment)
+- [📑 Table of Contents](#-table-of-contents)
+- [🌟 About The Project](#-about-the-project)
+  - [✨ Key Features](#-key-features)
+  - [🛠️ Built With](#️-built-with)
+- [🚀 Getting Started](#-getting-started)
+  - [🧰 Prerequisites](#-prerequisites)
+- [⚙️ Installation Guide (Docker Compose Setup)](#️-installation-guide-docker-compose-setup)
+  - [🧩 Step 1 — Create Environment Files](#-step-1--create-environment-files)
+    - [**1 `.env` (root-level for Compose)**](#1-env-root-level-for-compose)
+    - [**2 `.env.backend` (in folder backend)**](#2-envbackend-in-folder-backend)
+    - [**3 `.env.frontend` (in folder frontend)**](#3-envfrontend-in-folder-frontend)
+  - [🐳 Step 2 — Pull Docker Images](#-step-2--pull-docker-images)
+  - [🚀 Step 3 — Start the Application](#-step-3--start-the-application)
+  - [🌐 Step 4 — Verify URLs](#-step-4--verify-urls)
+- [☁️ AWS Deployment](#️-aws-deployment)
   - [AWS Services Used](#aws-services-used)
   - [Architecture Diagram](#architecture-diagram)
-- [Usage](#-usage)
-- [Roadmap](#-roadmap)
-- [Contributing](#-contributing)
-- [License](#-license)
-- [Contact](#-contact)
+- [📖 Usage](#-usage)
+- [🗺️ Roadmap](#️-roadmap)
+- [🤝 Contributing](#-contributing)
+- [📄 License](#-license)
+- [📧 Contact](#-contact)
 
 ---
 
@@ -407,3 +411,4 @@ Project Link: [https://github.com/your-username/ielts-trial-test](https://github
   <p>Made with ❤️ for IELTS learners worldwide</p>
   <p>⭐ Star this repo if you find it helpful!</p>
 </div>
+

@@ -1,4 +1,5 @@
 import { Tag } from './category';
+import { Comment } from './comment';
 
 export type ReactType = 'like' | 'love' | 'sad' | 'angry' | 'haha' | 'wow';
 
@@ -19,17 +20,13 @@ export interface BlogPost {
     author: Author;
     title: string;
     titleImg?: string;
-    subContent: string; // sub string from content
     tags: Tag[];
     numberOfReaders: number;
     numberOfComments: number;
     publishedDate: string;
     reacts?: BlogReact[];
-}
-
-export interface BlogPostDetail {
-    blogPost: BlogPost;
-    content: string;
+    content?: string;
+    comments: Comment[];
 }
 
 export interface FeatureBlogs {
