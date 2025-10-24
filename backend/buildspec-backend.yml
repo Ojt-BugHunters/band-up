@@ -1,9 +1,10 @@
 version: 0.2
 env:
   variables:
+    BACKEND_ECR_NAME: $BACKEND_ECR_NAME
     AWS_ACCOUNT_ID: "243826067806"
     AWS_DEFAULT_REGION: "ap-southeast-1"
-    BACKEND_ECR_REPO: "$AWS_ACCOUNT_ID.dkr.ecr.$AWS_DEFAULT_REGION/backend"
+    BACKEND_ECR_REPO: "$AWS_ACCOUNT_ID.dkr.ecr.$AWS_DEFAULT_REGION/$BACKEND_ECR_NAME"
 phases:
   build:
     commands:
