@@ -5,12 +5,11 @@ import { comments } from '../../../../constants/sample-data';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Button } from '@/components/ui/button';
 import { useParams, useRouter } from 'next/navigation';
-import { Heart, Share2, Calendar, User as UserIcon } from 'lucide-react';
+import { Heart, Share2, User as UserIcon, Calendar } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { toast } from 'sonner';
 import Image from 'next/image';
-import { formatDate } from '@/lib/utils';
 import {
     Dialog,
     DialogClose,
@@ -26,6 +25,7 @@ import { Input } from '@/components/ui/input';
 import CommentSection from '@/components/comment-section';
 import { Content } from '@tiptap/react';
 import { useGetBlogDetail } from '@/hooks/use-get-blog-content';
+import { formatDate } from '@/lib/utils';
 
 function initials(name: string) {
     return name
@@ -44,7 +44,6 @@ export default function BlogPostPage() {
     const [submitting, setSubmitting] = useState(false);
     const [comment, setComment] = useState(comments);
     const { data: blogPost } = useGetBlogDetail(id);
-    console.log(blogPost);
     const handleSubmit = () => {
         setSubmitting(true);
         setValue(null);
@@ -123,9 +122,7 @@ export default function BlogPostPage() {
             </div>
         );
     }
-
     const dateText = formatDate(blogPost?.publishedDate ?? '');
-
     return (
         <div className="bg-background mt-8 min-h-screen">
             <article className="container mx-auto max-w-4xl px-4 py-24">
@@ -141,28 +138,28 @@ export default function BlogPostPage() {
                 </h1>
                 <div className="mb-6 flex flex-wrap items-center justify-between gap-6">
                     <div className="flex items-start">
-                        {/* <Avatar className="h-12 w-12"> */}
-                        {/*     {blogPost?.author.avatar ? ( */}
-                        {/*         <AvatarImage */}
-                        {/*             src={blogPost.author.avatar} */}
-                        {/*             alt={blogPost.author.name} */}
-                        {/*         /> */}
-                        {/*     ) : ( */}
-                        {/*         <UserIcon className="m-auto h-5 w-5 opacity-70" /> */}
-                        {/*     )} */}
-                        {/*     <AvatarFallback> */}
-                        {/*         {initials(blogPost?.author.name ?? '')} */}
-                        {/*     </AvatarFallback> */}
-                        {/* </Avatar> */}
-                        {/* <div className="mt-2 ml-4 flex flex-wrap items-center gap-4"> */}
-                        {/*     <p className="text-foreground font-semibold"> */}
-                        {/*         {blogPost?.author.name} */}
-                        {/*     </p> */}
-                        {/*     <div className="text-muted-foreground flex items-center gap-2 text-sm"> */}
-                        {/*         <Calendar className="h-4 w-4" /> */}
-                        {/*         <span>{dateText}</span> */}
-                        {/*     </div> */}
-                        {/* </div> */}
+                        <Avatar className="h-12 w-12">
+                            {blogPost?.author.avatar ? (
+                                <AvatarImage
+                                    src={blogPost.author.avatar}
+                                    alt={blogPost.author.name}
+                                />
+                            ) : (
+                                <UserIcon className="m-auto h-5 w-5 opacity-70" />
+                            )}
+                            <AvatarFallback>
+                                {initials(blogPost?.author.name ?? '')}
+                            </AvatarFallback>
+                        </Avatar>
+                        <div className="mt-2 ml-4 flex flex-wrap items-center gap-4">
+                            <p className="text-foreground font-semibold">
+                                {blogPost?.author.name}
+                            </p>
+                            <div className="text-muted-foreground flex items-center gap-2 text-sm">
+                                <Calendar className="h-4 w-4" />
+                                <span>{dateText}</span>
+                            </div>
+                        </div>
                     </div>
 
                     <div className="mt-8 flex items-center gap-2">
