@@ -6,13 +6,7 @@ pipeline {
             genericVariables: [
                 [key: 'release_tag', value: '$.release.tag_name'],
                 [key: 'release_action', value: '$.action']
-            ],
-            causeString: 'Triggered by GitHub release: $release_tag',
-            token: 'github-release',
-            printContributedVariables: true,
-            printPostContent: true,
-            regexpFilterText: '$release_action',
-            regexpFilterExpression: '^published$'
+            ]
         )
     }
 
