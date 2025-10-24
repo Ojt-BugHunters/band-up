@@ -16,7 +16,7 @@ phases:
   build:
     commands:
       - cd backend
-      - echo Building image: $BACKEND_ECR_REPO:$CODEBUILD_RESOLVED_SOURCE_VERSION
+      - echo Building image:$BACKEND_ECR_REPO:$CODEBUILD_RESOLVED_SOURCE_VERSION
       - docker build -t $BACKEND_ECR_REPO:$CODEBUILD_RESOLVED_SOURCE_VERSION .
       - docker push $BACKEND_ECR_REPO:$CODEBUILD_RESOLVED_SOURCE_VERSION
 
