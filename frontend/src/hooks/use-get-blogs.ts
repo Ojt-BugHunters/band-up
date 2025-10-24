@@ -9,6 +9,7 @@ interface PaginationInfo {
     pageSize?: number;
     queryBy?: string;
     ascending?: boolean;
+    tagId?: string;
 }
 
 export const useGetBlogs = (paginationInfo: PaginationInfo) => {

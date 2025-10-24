@@ -5,7 +5,7 @@ import { FeaturedCarousel } from '@/components/feature-carousel';
 import { Highlight } from '@/components/ui/highlight';
 import { Plus, Search } from 'lucide-react';
 import { Input } from '@/components/ui/input';
-import { useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import {
     Select,
     SelectContent,
@@ -18,62 +18,65 @@ import { Button } from '@/components/ui/button';
 import { AsyncSelect } from '@/components/ui/async-select';
 import { Tag } from '@/lib/api/dto/category';
 import { PaginationState } from '@tanstack/react-table';
-import { useDebounce } from '@/lib/utils';
+import { fetchTagsApi, useDebounce } from '@/lib/utils';
 import { useGetBlogs } from '@/hooks/use-get-blogs';
 import { PaginationControl } from '@/components/ui/pagination-control';
 import LiquidLoading from '@/components/ui/liquid-loader';
 import { NotFound } from '@/components/not-found';
-import { fetchTags } from '../../../constants/sample-data';
+import { useQueryClient } from '@tanstack/react-query';
 
 export default function BlogListPage() {
+    const queryClient = useQueryClient();
     const [search, setSearch] = useState('');
-    const [categoryName, setCategoryName] = useState<string>('');
     const [sortOrder, setSortOrder] = useState<'latest' | 'oldest'>('latest');
     const [pagination, setPagination] = useState<PaginationState>({
         pageSize: 9,
         pageIndex: 0,
     });
+    const [selectedTagId, setSelectedTagId] = useState<string>('');
     const debouncedSearch = useDebounce(search, 400);
     const apiPaging = useMemo(
         () => ({
             pageNo: pagination.pageIndex,
             pageSize: pagination.pageSize,
             queryBy: debouncedSearch.trim() || '',
-            ascending: false,
+            ascending: sortOrder === 'oldest',
+            tagId: selectedTagId || undefined,
         }),
-        [pagination.pageIndex, pagination.pageSize, debouncedSearch],
+        [
+            pagination.pageIndex,
+            pagination.pageSize,
+            debouncedSearch,
+            sortOrder,
+            selectedTagId,
+        ],
     );
     useEffect(() => {
         setPagination((prev) => ({ ...prev, pageIndex: 0 }));
-    }, [debouncedSearch, categoryName, sortOrder]);
+    }, [debouncedSearch, selectedTagId, sortOrder]);
 
     const { data, isPending, isError } = useGetBlogs(apiPaging);
 
-    const filteredBlogs = useMemo(() => {
-        return data?.content
-            .filter((post) => {
-                const byTag =
-                    !categoryName ||
-                    categoryName === 'All' ||
-                    (post.tags ?? []).some((t: Tag) => t.name === categoryName);
-                if (!byTag) return false;
-
-                if (!search) return true;
-
-                const inTitle = post.title.includes(search);
-                const inAuthor = (post.author?.name || '').includes(search);
-                const inTagNames = (post.tags || []).some((t) =>
-                    t.name.includes(search),
-                );
-
-                return inTitle || inAuthor || inTagNames;
-            })
-            .sort((a, b) => {
-                const da = new Date(a.publishedDate).getTime();
-                const db = new Date(b.publishedDate).getTime();
-                return sortOrder === 'latest' ? db - da : da - db;
+    const fetchTags = useCallback(
+        (keyword?: string) => {
+            const kw = keyword ?? '';
+            return queryClient.fetchQuery({
+                queryKey: ['tags', kw],
+                queryFn: () => fetchTagsApi(kw),
+                staleTime: 5 * 60_000,
+                gcTime: 10 * 60_000,
             });
-    }, [categoryName, sortOrder, search, data]);
+        },
+        [queryClient],
+    );
+    const blogs = useMemo(() => {
+        if (!data?.content) return [];
+        return [...data.content].sort((a, b) => {
+            const da = new Date(a.publishedDate).getTime();
+            const db = new Date(b.publishedDate).getTime();
+            return sortOrder === 'latest' ? db - da : da - db;
+        });
+    }, [data, sortOrder]);
 
     if (isPending) {
         return <LiquidLoading />;
@@ -125,9 +128,9 @@ export default function BlogListPage() {
 
                     <AsyncSelect<Tag>
                         fetcher={fetchTags}
-                        preload={false}
+                        preload
                         renderOption={(tag) => <span>{tag.name}</span>}
-                        getOptionValue={(tag) => tag.name}
+                        getOptionValue={(tag) => tag.id}
                         getDisplayValue={(tag) => (
                             <div className="flex items-center gap-2">
                                 <span className="truncate">{tag.name}</span>
@@ -135,8 +138,8 @@ export default function BlogListPage() {
                         )}
                         label="Tag"
                         placeholder="Filter by tag..."
-                        value={categoryName}
-                        onChange={(val) => setCategoryName(val ?? '')}
+                        value={selectedTagId}
+                        onChange={(val?: string) => setSelectedTagId(val ?? '')}
                         width={240}
                         triggerClassName="rounded-lg border-slate-200 focus:ring-blue-200"
                     />
@@ -165,7 +168,7 @@ export default function BlogListPage() {
                 </div>
 
                 <div className="mb-16 grid grid-cols-1 gap-8 md:grid-cols-2 lg:grid-cols-3">
-                    {filteredBlogs?.map((post) => (
+                    {blogs?.map((post) => (
                         <BlogCard key={post.id} {...post} />
                     ))}
                 </div>

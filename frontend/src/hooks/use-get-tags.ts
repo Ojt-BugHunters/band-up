@@ -1,15 +1,14 @@
 'use client';
-
-import { deserialize, fetchWrapper } from '@/lib/api';
-import { Tag } from '@/lib/api/dto/category';
 import { useQuery } from '@tanstack/react-query';
+import { Tag } from '@/lib/api/dto/category';
+import { fetchTagsApi } from '@/lib/utils';
 
-export const useGetTags = () => {
-    return useQuery({
-        queryKey: ['tags'],
-        queryFn: async () => {
-            const response = await fetchWrapper('/blog/tags');
-            return await deserialize<Tag[]>(response);
-        },
+export const useGetTags = (keyword = '', enabled = true) => {
+    return useQuery<Tag[]>({
+        queryKey: ['tags', keyword],
+        queryFn: () => fetchTagsApi(keyword),
+        enabled,
+        staleTime: 5 * 60_000,
+        gcTime: 10 * 60_000,
     });
 };
