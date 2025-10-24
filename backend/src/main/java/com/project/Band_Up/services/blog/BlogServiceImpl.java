@@ -70,7 +70,11 @@ public class BlogServiceImpl implements BlogService {
         }
         blogPostDetails.setTitleImg(s3Service.createCloudFrontSignedUrl(blogPost.getTitleImg()));
         blogPostDetails.setNumberOfComments(totalComment+totalReplies);
-
+        blogPostDetails.setAuthor(BlogAuthor.builder()
+                .id(blogPost.getAuthor().getId())
+                .avatar(blogPost.getAuthor() != null ? s3Service.createCloudFrontSignedUrl(blogPost.getAuthor().getAvatarKey()) : null)
+                .name(blogPost.getAuthor() != null ? blogPost.getAuthor().getName() : "")
+                .build());
         List<BlogCommentResponse> commentResponses = blogPost.getComments().stream()
                 .map(comment -> {
                     BlogCommentResponse commentResponse = modelMapper.map(comment, BlogCommentResponse.class);
