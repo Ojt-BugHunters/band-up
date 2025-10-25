@@ -2,13 +2,12 @@ import { User } from '@/lib/api/dto/account';
 import {
     BlogPost,
     FeatureBlogs,
-    BlogPostDetail,
     BlogReact,
     Author,
     ReactType,
 } from '@/lib/api/dto/blog';
 import { Tag } from '@/lib/api/dto/category';
-import { Comment, Reply } from '@/lib/api/dto/comment';
+import { Comment } from '@/lib/api/dto/comment';
 import { ListeningSection, Passage, WritingTask } from '@/lib/api/dto/question';
 import { Test, TestHistory, TestOverview } from '@/lib/api/dto/test';
 import { SpeakingSection } from './../src/lib/api/dto/question';
@@ -1176,12 +1175,12 @@ function mkPost(
         titleImg: hasImg
             ? `https://picsum.photos/seed/${encodeURIComponent(id)}/1200/630`
             : undefined,
-        subContent: `${title}\n\n${lorem}\n\nKey takeaways:\n- Keep interfaces small and explicit.\n- Measure before you optimize.\n- Automate checks, but keep humans in the loop.\n`,
         tags: tagsArr,
         numberOfReaders: readers,
         numberOfComments: comments,
         publishedDate: dateISO,
         reacts: makeReacts(id, 6),
+        comments: [],
     };
 }
 
@@ -1380,203 +1379,6 @@ const detailed = mkPost(
     52,
     '2025-10-10T07:45:00.000Z',
 );
-
-export const blogPostDetail: BlogPostDetail = {
-    blogPost: detailed,
-    content: `
-<h1>End-to-End S3 Uploads with Presigned URLs + CloudFront</h1>
-
-<p>
-  <img
-    src="https://miro.medium.com/v2/resize:fit:1400/1*9y3U2B5ePyfOGaCUMjF2Hw.png"
-    alt="AWS S3 Presigned URLs architecture"
-    style="width:100%;border-radius:12px;margin:20px 0;"
-  />
-</p>
-
-<p>
-  Handling file uploads efficiently is one of the most critical challenges
-  in modern applications. Whether you’re building a <strong>TikTok-like app (Shortify)</strong>,
-  a document management system, or an online learning platform, 
-  you’ll eventually need a robust and scalable solution to handle user-generated media.
-</p>
-
-<blockquote>
-  <p>
-    This post walks you through how to implement secure, low-latency, 
-    end-to-end uploads to <strong>Amazon S3</strong> and deliver them via 
-    <strong>CloudFront</strong> — no heavy backend traffic, no public buckets, no pain.
-  </p>
-</blockquote>
-
-<h2>Architecture Overview</h2>
-
-<p>
-  The flow uses a clean separation between your <strong>control plane</strong> 
-  (API issuing presigned URLs) and the <strong>data plane</strong> (direct upload 
-  from browser → S3). Here’s a simplified diagram:
-</p>
-
-<p>
-  <img
-    src="https://d1.awsstatic.com/architecture-diagrams/ArchitectureDiagrams/amazon-s3-upload-diagram.4baf74cc3ec0a0d4a5ecbc0dd5a1bdeaeae10e56.png"
-    alt="S3 upload flow diagram"
-    style="width:100%;border-radius:12px;margin:20px 0;"
-  />
-</p>
-
-<ol>
-  <li>Client requests a <strong>presigned URL</strong> from your backend with file metadata.</li>
-  <li>Backend validates content-type, user permission, and S3 key prefix.</li>
-  <li>Client uploads directly to S3 using <code>PUT</code> and that presigned URL.</li>
-  <li>CloudFront (with OAC) securely serves private content back to clients.</li>
-  <li>Backend stores metadata (S3 key, CloudFront URL, expiry, user ID, etc.).</li>
-</ol>
-
-<h2>Why This Pattern Rocks</h2>
-<ul>
-  <li>🚀 Removes binary data flow from your backend (no load balancer choke).</li>
-  <li>💸 Reduces infrastructure cost — S3 handles scaling natively.</li>
-  <li>📦 Keeps backend pure for business logic (control plane only).</li>
-  <li>⚡ Supports multipart uploads for files >5GB and mobile resumability.</li>
-  <li>🧭 Works seamlessly with React, Next.js, and Spring Boot APIs.</li>
-</ul>
-
-<h2>Security Considerations</h2>
-
-<p>
-  Presigned URLs are powerful but sensitive. Follow these rules:
-</p>
-
-<ul>
-  <li>⏳ Keep URLs short-lived (1–3 mins max).</li>
-  <li>🧾 Always validate <code>Content-Type</code> and <code>key</code> prefix server-side.</li>
-  <li>🪶 Use <strong>Origin Access Control (OAC)</strong> or signed cookies for private buckets.</li>
-  <li>🚫 Never expose your bucket publicly, and remove <code>public-read</code> ACLs.</li>
-  <li>🧹 Sanitize file names and restrict upload paths per user.</li>
-</ul>
-
-<pre><code class="language-json">{
-  "Effect": "Allow",
-  "Action": ["s3:PutObject", "s3:GetObject"],
-  "Resource": "arn:aws:s3:::bandup-uploads/*"
-}
-</code></pre>
-
-<h2>Frontend Implementation (TypeScript)</h2>
-
-<pre><code class="language-ts">const handleUpload = async (file: File) =&gt; {
-  const { key, uploadUrl, cloudfrontUrl, expiresAt } = await api.presign({
-    fileName: file.name,
-    contentType: file.type,
-  });
-
-  await fetch(uploadUrl, {
-    method: 'PUT',
-    body: file,
-    headers: { 'Content-Type': file.type },
-  });
-
-  // Store metadata or display preview
-  setFilePreview(cloudfrontUrl);
-  toast.success('Upload successful!');
-};
-</code></pre>
-
-<p>
-  For larger files, check out
-  <a href="https://docs.aws.amazon.com/AmazonS3/latest/userguide/using-multipart-upload.html" target="_blank">
-    AWS Multipart Upload
-  </a> and progress tracking via 
-  <code>XMLHttpRequest</code> or <code>axios.onUploadProgress</code>.
-</p>
-
-<h2>CloudFront Integration</h2>
-
-<p>
-  Once uploaded, your content lives in a private S3 bucket. 
-  Use CloudFront with OAC for secured, cached delivery at the edge:
-</p>
-
-<p>
-  <img
-    src="https://aws.amazon.com/blogs/media/cloudfront-oac-diagram.png"
-    alt="CloudFront OAC Diagram"
-    style="width:100%;border-radius:10px;margin:16px 0;"
-  />
-</p>
-
-<pre><code class="language-json">{
-  "key": "uploads/user123/avatar.png",
-  "uploadUrl": "https://s3.amazonaws.com/bandup-uploads/uploads/user123/avatar.png?...",
-  "cloudfrontUrl": "https://d33qmu3lctvpye.cloudfront.net/uploads/user123/avatar.png",
-  "expiresAt": "2025-10-15T12:34:56Z"
-}
-</code></pre>
-
-<h2>Performance & Monitoring</h2>
-
-<p>
-  Once in production, track:
-</p>
-
-<ul>
-  <li>📈 Upload latency (P95, P99)</li>
-  <li>🚨 S3 error rates by content-type</li>
-  <li>🧊 CloudFront cache hit ratio</li>
-  <li>💰 Bandwidth savings vs direct backend uploads</li>
-</ul>
-
-<p>
-  Visualize metrics using 
-  <a href="https://aws.amazon.com/cloudwatch/" target="_blank">CloudWatch</a>,
-  <a href="https://grafana.com/" target="_blank">Grafana</a>, or
-  <a href="https://datadoghq.com/" target="_blank">Datadog</a>.
-</p>
-
-<h2>Real-World Example</h2>
-
-<p>
-  Below is a real upload result using this pattern in the <strong>Shortify</strong> app:
-</p>
-
-<p>
-  <img
-    src="https://cdn.dribbble.com/userupload/8928475/file/original-fab73356b34f1ecb1efc.png"
-    alt="Shortify S3 upload preview"
-    style="width:100%;border-radius:12px;margin:16px 0;"
-  />
-</p>
-
-<p>
-  The upload finished in <strong>~250ms</strong> (edge region Singapore) 
-  and was instantly available via CloudFront cache.
-</p>
-
-<h2>Conclusion</h2>
-<p>
-  This pattern provides the perfect balance of <strong>security</strong>, <strong>scalability</strong>, 
-  and <strong>performance</strong>. Your backend focuses on authentication and control, 
-  while AWS handles the heavy lifting of file transfer and delivery.
-</p>
-
-<p>
-  For a working reference, explore:
-  <a href="https://github.com/aws-samples/amazon-s3-presigned-urls-example" target="_blank">
-    aws-samples/amazon-s3-presigned-urls-example
-  </a> or 
-  <a href="https://dev.to/aws-builders/uploading-files-securely-to-s3-with-cloudfront-3k4b" target="_blank">
-    AWS Builders Blog
-  </a>.
-</p>
-
-<p>
-  <strong>Happy shipping! 🚀</strong>  
-  <br />
-  <em>— Written by Nam Dang, exploring AWS architecture for modern media apps.</em>
-</p>
-    `.trim(),
-};
 
 export async function fetchTags(searchText?: string): Promise<Tag[]> {
     const query = (searchText || '').toLowerCase().trim();
