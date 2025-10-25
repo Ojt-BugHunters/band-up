@@ -18,11 +18,11 @@ phases:
       - echo Build started on `date`
       - echo Building the Docker image...
       - cd backend  
-      - docker build -t $BACKEND_ECR_REPO:$CODEBUILD_RESOLVED_SOURCE_VERSION .
+      - docker build -t $BACKEND_ECR_REPO:$CODEBUILD_SOURCE_VERSION .
       - echo Pushing the Docker image...
-      - docker push $BACKEND_ECR_REPO:$CODEBUILD_RESOLVED_SOURCE_VERSION
+      - docker push $BACKEND_ECR_REPO:$CODEBUILD_SOURCE_VERSION
       - cd ..
-      - printf '[{"name":"bandup-backend","imageUri":"%s"}]' "$BACKEND_ECR_REPO:$CODEBUILD_RESOLVED_SOURCE_VERSION" > backend-imagedefinitions.json
+      - printf '[{"name":"bandup-backend","imageUri":"%s"}]' "$BACKEND_ECR_REPO:$CODEBUILD_SOURCE_VERSION" > backend-imagedefinitions.json
 
   post_build:
     commands:
