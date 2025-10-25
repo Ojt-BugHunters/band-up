@@ -22,7 +22,7 @@ phases:
       - echo Pushing the Docker image...
       - docker push $FRONTEND_ECR_REPO:$CODEBUILD_RESOLVED_SOURCE_VERSION
       - cd ..
-      - printf '[{"name":"frontend","imageUri":"%s"}]' "$FRONTEND_ECR_REPO:$CODEBUILD_RESOLVED_SOURCE_VERSION" > frontend-imagedefinitions.json
+      - printf '[{"name":"frontend-container","imageUri":"%s"}]' "$FRONTEND_ECR_REPO:$CODEBUILD_RESOLVED_SOURCE_VERSION" > frontend-imagedefinitions.json
 
   post_build:
     commands:
