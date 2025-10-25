@@ -12,20 +12,17 @@ phases:
       - BACKEND_ECR_REPO="$AWS_ACCOUNT_ID.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com/$BACKEND_ECR_NAME"
       - echo Logging in to Amazon ECR...
       - aws ecr get-login-password --region $AWS_DEFAULT_REGION | docker login --username AWS --password-stdin "$AWS_ACCOUNT_ID.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com"
-      - echo "Extracting tag..."
-      - GIT_TAG=$(git describe --tags --always)
-      - echo "Using tag $GIT_TAG"
 
   build:
     commands:
       - echo Build started on `date`
       - echo Building the Docker image...
       - cd backend  
-      - docker build -t $BACKEND_ECR_REPO:$GIT_TAG .
+      - docker build -t $BACKEND_ECR_REPO:$CODEBUILD_RESOLVED_SOURCE_VERSION .
       - echo Pushing the Docker image...
-      - docker push $BACKEND_ECR_REPO:$GIT_TAG
+      - docker push $BACKEND_ECR_REPO:$CODEBUILD_RESOLVED_SOURCE_VERSION
       - cd ..
-      - printf '[{"name":"bandup-backend","imageUri":"%s"}]' "$BACKEND_ECR_REPO:$GIT_TAG" > backend-imagedefinitions.json
+      - printf '[{"name":"bandup-backend","imageUri":"%s"}]' "$BACKEND_ECR_REPO:$CODEBUILD_RESOLVED_SOURCE_VERSION" > backend-imagedefinitions.json
 
   post_build:
     commands:
