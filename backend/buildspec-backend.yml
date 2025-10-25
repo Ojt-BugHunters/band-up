@@ -14,7 +14,7 @@ phases:
       - aws ecr get-login-password --region $AWS_DEFAULT_REGION | docker login --username AWS --password-stdin "$AWS_ACCOUNT_ID.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com"
       - echo "Extracting tag..."
       - GIT_TAG=$(git describe --tags --always)
-      - echo "Using tag: $GIT_TAG"
+      - echo "Using tag $GIT_TAG"
 
   build:
     commands:
