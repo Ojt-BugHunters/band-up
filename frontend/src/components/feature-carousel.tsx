@@ -75,9 +75,6 @@ export function FeaturedCarousel() {
                                     <h2 className="mb-4 text-4xl leading-tight font-bold text-balance text-white drop-shadow-lg">
                                         {post.title}
                                     </h2>
-                                    <p className="mb-4 max-w-2xl text-lg text-pretty text-white/95 drop-shadow-md">
-                                        {post.subContent}
-                                    </p>
                                     <div className="flex items-center gap-6 text-sm text-white/90 drop-shadow-md">
                                         <span className="inline-flex items-center gap-2">
                                             <Users className="h-4 w-4" />
