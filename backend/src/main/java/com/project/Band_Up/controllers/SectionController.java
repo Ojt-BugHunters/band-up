@@ -64,6 +64,28 @@ public class SectionController {
 
         return ResponseEntity.created(location).body(created);
     }
+    @Operation(
+            summary = "Tạo nhiều Sections cùng lúc cho 1 Test",
+            description = "Tạo danh sách Section mới thuộc Test (theo testId). Trả về List<SectionResponse>."
+    )
+    @ApiResponses({
+            @ApiResponse(responseCode = "201", description = "Tạo thành công"),
+            @ApiResponse(responseCode = "400", description = "Yêu cầu không hợp lệ"),
+            @ApiResponse(responseCode = "404", description = "Test không tồn tại")
+    })
+    @PostMapping(value = "/test/{testId}/bulk", consumes = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<List<SectionResponse>> createMultipleSections(
+            @Parameter(description = "UUID của Test mà các section sẽ thuộc về", required = true)
+            @PathVariable("testId") UUID testId,
+            @Valid @RequestBody List<SectionCreateRequest> requests,
+            @AuthenticationPrincipal JwtUserDetails userDetails) {
+
+        UUID accountId = userDetails.getAccountId();
+        List<SectionResponse> createdList = sectionService.createMultipleSections(requests, testId, accountId);
+
+        return ResponseEntity.status(201).body(createdList);
+    }
+
 
     @Operation(
             summary = "Lấy Section theo id",
