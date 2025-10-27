@@ -11,6 +11,7 @@ import { Comment } from '@/lib/api/dto/comment';
 import { ListeningSection, Passage, WritingTask } from '@/lib/api/dto/question';
 import { Test, TestHistory, TestOverview } from '@/lib/api/dto/test';
 import { SpeakingSection } from './../src/lib/api/dto/question';
+import { DictationDTO } from '@/lib/api/dto/dictation';
 
 export const mockTests: TestOverview[] = [
     {
@@ -1392,77 +1393,54 @@ export async function fetchTags(searchText?: string): Promise<Tag[]> {
     return tags.filter((tag) => tag.name.toLowerCase().includes(query));
 }
 
-export const mockDictations = [
+export const mockDictations: DictationDTO[] = [
     {
         id: '1',
         title: 'IELTS Listening Section 1 - Social Needs',
-        description:
-            'Practice everyday conversations and social situations. Includes phone bookings, arrangements, and general inquiries.',
-        section: 'Section 1',
         duration: 240,
         difficulty: 'Easy',
         completions: 1234,
-        audioUrl: '/audio/section1.mp3',
         createdAt: new Date('2024-01-15'),
     },
     {
         id: '2',
         title: 'IELTS Listening Section 2 - Monologue',
-        description:
-            'Listen to a single speaker discussing a general topic. Focus on main ideas and supporting details.',
-        section: 'Section 2',
         duration: 300,
-        difficulty: 'Medium',
+        difficulty: 'Easy',
         completions: 892,
-        audioUrl: '/audio/section2.mp3',
         createdAt: new Date('2024-01-20'),
     },
     {
         id: '3',
         title: 'IELTS Listening Section 3 - Academic Discussion',
-        description:
-            'Multiple speakers in an educational context. Practice identifying different viewpoints and academic vocabulary.',
-        section: 'Section 3',
         duration: 270,
-        difficulty: 'Medium',
+        difficulty: 'Easy',
         completions: 756,
-        audioUrl: '/audio/section3.mp3',
         createdAt: new Date('2024-02-01'),
     },
     {
         id: '4',
         title: 'IELTS Listening Section 4 - Academic Lecture',
-        description:
-            'Advanced academic monologue on a specialized topic. Focus on complex ideas and technical vocabulary.',
-        section: 'Section 4',
         duration: 360,
-        difficulty: 'Hard',
+        difficulty: 'Easy',
+
         completions: 543,
-        audioUrl: '/audio/section4.mp3',
         createdAt: new Date('2024-02-10'),
     },
     {
         id: '5',
         title: 'Business English - Conference Call',
-        description:
-            'Professional business conversation with multiple participants discussing quarterly results.',
-        section: 'Section 3',
         duration: 420,
-        difficulty: 'Hard',
+        difficulty: 'Easy',
         completions: 321,
-        audioUrl: '/audio/business1.mp3',
         createdAt: new Date('2024-02-15'),
     },
     {
         id: '6',
         title: 'Travel and Tourism - Airport Announcements',
-        description:
-            'Practice listening to announcements, gate changes, and travel information in a busy airport.',
-        section: 'Section 1',
         duration: 180,
         difficulty: 'Easy',
         completions: 1567,
-        audioUrl: '/audio/travel1.mp3',
         createdAt: new Date('2024-02-20'),
     },
 ];
