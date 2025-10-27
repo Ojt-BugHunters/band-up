@@ -33,7 +33,6 @@ public class Question {
 
     @Column(columnDefinition = "jsonb")
     @JdbcTypeCode(SqlTypes.JSON)
-    
     private Map<String, Object> content;
     @NotNull
     private String difficult;
@@ -42,7 +41,6 @@ public class Question {
     @CreationTimestamp
     @Column(name = "create_at", nullable = false, updatable = false)
     private LocalDateTime createAt;
-
     @Enumerated(EnumType.STRING)
     private Status status;
 }
