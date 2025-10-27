@@ -1,12 +1,7 @@
 import { z } from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useForm } from 'react-hook-form';
-import { useRouter } from 'next/navigation';
-import { useMutation, useQueryClient } from '@tanstack/react-query';
-import { fetchWrapper, throwIfError } from '@/lib/api';
-import { toast } from 'sonner';
 
-// single file schema
 export const fileSchema = z.object({
     files: z
         .array(z.custom<File>())
@@ -46,28 +41,7 @@ export const sectionFormSchema = z.object({
 export type CreateSingleSectionFormValues = z.infer<typeof sectionSchema>;
 export type CreateFullSectionFormValues = z.infer<typeof sectionFormSchema>;
 
-export const useCreatePassage = (testId: string) => {
-    const mutation = useMutation({
-        mutationFn: async (values: CreateSingleSectionFormValues) => {
-            const response = await fetchWrapper(`/sections/test/${testId}`, {
-                method: 'POST',
-                headers: {
-                    Accept: 'application/json',
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify(values),
-            });
-            await throwIfError(response);
-            return response.json();
-        },
-        onError: (error) => {
-            toast.error(error.message);
-        },
-        onSuccess: () => {
-            toast.success('Create new default section');
-        },
-    });
-
+export const useCreatePassage = () => {
     const fullSectionForm = useForm<CreateFullSectionFormValues>({
         resolver: zodResolver(sectionFormSchema),
         defaultValues: {},
@@ -88,6 +62,5 @@ export const useCreatePassage = (testId: string) => {
     return {
         fullSectionForm,
         singleSectionForm,
-        mutation,
     };
 };
