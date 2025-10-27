@@ -68,6 +68,7 @@ public class QuestionServiceImpl implements QuestionService {
 
                     QuestionResponse resp = toResponse(q);
                     resp.setUploadUrl(presigned.getUploadUrl());
+                    resp.setKey(presigned.getKey());
                     return resp;
                 })
                 .toList();

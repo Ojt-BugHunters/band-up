@@ -19,6 +19,7 @@ public class QuestionResponse {
     private String difficult;
     private Boolean isActive;
     private String uploadUrl;
+    private String key;
     private String script;
     private LocalDateTime createdAt;
 }

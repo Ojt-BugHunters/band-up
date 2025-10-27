@@ -21,6 +21,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
 import java.util.UUID;
 
 @RestController
@@ -89,6 +90,17 @@ public class MediaController {
         MediaResponse response = mediaService.saveMediaRecord(request);
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
+    @PostMapping("/media/bulk-save")
+    public ResponseEntity<List<MediaResponse>> saveMultipleMedia(
+            @RequestBody List<MediaCreateRequest> requests) {
+
+        List<MediaResponse> result = requests.stream()
+                .map(mediaService::saveMediaRecord)
+                .toList();
+
+        return ResponseEntity.ok(result);
+    }
+
 
     // -------------------------------------------------------
     // 3️⃣ Lấy CloudFront signed URL để FE hiển thị file (ảnh/video)
