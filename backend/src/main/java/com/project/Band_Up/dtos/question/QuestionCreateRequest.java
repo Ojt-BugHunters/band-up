@@ -10,7 +10,9 @@ import java.util.Map;
 @NoArgsConstructor
 @Builder
 public class QuestionCreateRequest {
-    private Integer difficult;
+    private String difficult;
     private String type;
+    private String fileName;
+    private String script;
     private Map<String, Object> content;
 }
