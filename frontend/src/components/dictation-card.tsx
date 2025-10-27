@@ -11,7 +11,7 @@ interface DictationCardProps {
         id: string;
         title: string;
         duration: number;
-        difficulty: string;
+        difficulty: 'Easy' | 'Medium' | 'Hard';
         completions: number;
         createdAt: Date;
     };

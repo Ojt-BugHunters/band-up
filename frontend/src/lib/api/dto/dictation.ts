@@ -2,7 +2,7 @@ export interface DictationDTO {
     id: string;
     title: string;
     duration: number;
-    difficulty: 'Easy' | 'Medium' | 'Hard';
+    difficulty: 'Easy';
     completions: number;
     createdAt: Date;
 }
