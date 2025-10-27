@@ -15,7 +15,10 @@ export type TestCreateFormValues = z.infer<typeof TestCreateSchema>;
 export const useCreateTest = () => {
     const createTestForm = useForm<z.infer<typeof TestCreateSchema>>({
         resolver: zodResolver(TestCreateSchema),
-        defaultValues: {},
+        defaultValues: {
+            skillName: 'Dictation',
+            title: '',
+        },
     });
 
     return {
