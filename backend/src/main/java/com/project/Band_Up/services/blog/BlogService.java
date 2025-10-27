@@ -3,6 +3,7 @@ package com.project.Band_Up.services.blog;
 import com.project.Band_Up.dtos.blog.BlogPostDetails;
 import com.project.Band_Up.dtos.blog.BlogPosts;
 import com.project.Band_Up.dtos.blog.BlogRequest;
+import com.project.Band_Up.dtos.blog.ReactDto;
 import com.project.Band_Up.dtos.blog.TagDto;
 import org.springframework.data.domain.Page;
 
@@ -19,4 +20,5 @@ public interface BlogService {
                                         UUID tagId);
     public List<BlogPosts> getFeaturedBlogPosts();
     public List<TagDto> getAllTags();
+    public ReactDto reactToBlogPost(UUID userId, UUID blogId, ReactDto reactDto);
 }

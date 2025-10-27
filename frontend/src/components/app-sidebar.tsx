@@ -95,6 +95,12 @@ const data = {
             title: 'Test',
             url: '/admin/test',
             icon: FileText,
+            items: [
+                {
+                    title: 'Dictation',
+                    url: '/admin/test/dictation',
+                },
+            ],
         },
     ],
 };

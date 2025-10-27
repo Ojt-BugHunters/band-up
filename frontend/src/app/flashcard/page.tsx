@@ -44,15 +44,7 @@ import {
 } from 'lucide-react';
 import Link from 'next/link';
 import { useEffect, useMemo, useState } from 'react';
-
-function useDebounce<T>(value: T, delay = 1000) {
-    const [debounced, setDebounced] = useState(value);
-    useEffect(() => {
-        const t = setTimeout(() => setDebounced(value), delay);
-        return () => clearTimeout(t);
-    }, [value, delay]);
-    return debounced;
-}
+import { useDebounce } from '@/lib/utils';
 
 export default function FlashcardPage() {
     const [search, setSearch] = useState('');

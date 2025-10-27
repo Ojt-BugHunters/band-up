@@ -47,6 +47,6 @@ public class Comment {
     @Column(name = "create_at", nullable = false, updatable = false)
     private LocalDateTime createAt;
 
-    @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "comment", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     private List<Reply> replies;
 }

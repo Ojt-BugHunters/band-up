@@ -12,6 +12,7 @@ import Link from 'next/link';
 import Image from 'next/image';
 import type { BlogPost } from '@/lib/api/dto/blog';
 import { formatDate } from '@/lib/utils';
+import { useReadBlog } from '@/hooks/use-read-blog';
 
 export function BlogCard({
     id,
@@ -23,14 +24,22 @@ export function BlogCard({
     numberOfComments,
     reacts,
     tags,
-    subContent,
 }: BlogPost) {
     const dateText = useMemo(() => formatDate(publishedDate), [publishedDate]);
     const reactsCount = useMemo(() => reacts?.length ?? 0, [reacts]);
     const imgSrc = titleImg ?? '/placeholder.svg';
+    const { mutate: readMutate } = useReadBlog();
+
+    const handleBlogClick = () => {
+        readMutate(id);
+    };
 
     return (
-        <Link href={`/blog/${id}`} aria-label={`Read more: ${title}`}>
+        <Link
+            href={`/blog/${id}`}
+            aria-label={`Read more: ${title}`}
+            onClick={() => handleBlogClick()}
+        >
             <Card className="group border-border bg-card overflow-hidden transition-all duration-300 hover:-translate-y-1 hover:shadow-lg">
                 <div className="relative h-48">
                     <Image
@@ -71,7 +80,7 @@ export function BlogCard({
                     </h3>
 
                     <p className="text-muted-foreground mb-4 line-clamp-3 leading-relaxed text-pretty">
-                        {subContent}
+                        {title}
                     </p>
 
                     <div className="mb-4 flex flex-wrap items-center gap-2">

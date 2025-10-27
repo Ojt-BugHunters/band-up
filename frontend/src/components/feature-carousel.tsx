@@ -3,13 +3,16 @@ import { useState, useEffect } from 'react';
 import { ChevronLeft, ChevronRight, Users } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
-import { featureBlogs } from '../../constants/sample-data';
 import Image from 'next/image';
 import Link from 'next/link';
+import { useGetFeaturedBlog } from '@/hooks/use-get-feature-blog';
+import LiquidLoading from './ui/liquid-loader';
+import { NotFound } from './not-found';
 
 export function FeaturedCarousel() {
     const [currentSlide, setCurrentSlide] = useState(0);
-    const total = featureBlogs.length;
+    const { data: featureBlogs, isPending, isError } = useGetFeaturedBlog();
+    const total = featureBlogs?.length ?? 0;
 
     useEffect(() => {
         const timer = setInterval(() => {
@@ -21,6 +24,14 @@ export function FeaturedCarousel() {
     const nextSlide = () => setCurrentSlide((prev) => (prev + 1) % total);
     const prevSlide = () =>
         setCurrentSlide((prev) => (prev - 1 + total) % total);
+
+    if (isPending) {
+        return <LiquidLoading />;
+    }
+
+    if (isError) {
+        return <NotFound />;
+    }
 
     return (
         <div className="relative h-[500px] w-full overflow-hidden rounded-xl">
@@ -38,7 +49,7 @@ export function FeaturedCarousel() {
                     >
                         <Card className="relative h-full w-full overflow-hidden border-0 shadow-2xl">
                             <Image
-                                src={post.image || '/placeholder.svg'}
+                                src={post.titleImg || '/placeholder.svg'}
                                 alt={post.title}
                                 fill
                                 sizes="100vw"
@@ -64,13 +75,10 @@ export function FeaturedCarousel() {
                                     <h2 className="mb-4 text-4xl leading-tight font-bold text-balance text-white drop-shadow-lg">
                                         {post.title}
                                     </h2>
-                                    <p className="mb-4 max-w-2xl text-lg text-pretty text-white/95 drop-shadow-md">
-                                        {post.subContent}
-                                    </p>
                                     <div className="flex items-center gap-6 text-sm text-white/90 drop-shadow-md">
                                         <span className="inline-flex items-center gap-2">
                                             <Users className="h-4 w-4" />
-                                            {post.numberOfReader.toLocaleString(
+                                            {post.numberOfReaders.toLocaleString(
                                                 'en-US',
                                             )}
                                         </span>

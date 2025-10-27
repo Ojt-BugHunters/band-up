@@ -1,16 +1,15 @@
 'use client';
 
 import { useEffect, useMemo, useState } from 'react';
-import { blogPostDetail, comments } from '../../../../constants/sample-data';
+import { comments } from '../../../../constants/sample-data';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Button } from '@/components/ui/button';
 import { useParams, useRouter } from 'next/navigation';
-import { Heart, Share2, Calendar, User as UserIcon } from 'lucide-react';
+import { Heart, Share2, User as UserIcon, Calendar } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { toast } from 'sonner';
 import Image from 'next/image';
-import { formatDate } from '@/lib/utils';
 import {
     Dialog,
     DialogClose,
@@ -25,6 +24,8 @@ import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
 import CommentSection from '@/components/comment-section';
 import { Content } from '@tiptap/react';
+import { useGetBlogDetail } from '@/hooks/use-get-blog-content';
+import { formatDate } from '@/lib/utils';
 
 function initials(name: string) {
     return name
@@ -38,19 +39,19 @@ function initials(name: string) {
 export default function BlogPostPage() {
     const router = useRouter();
     const { id } = useParams<{ id: string }>();
-    const detail = blogPostDetail;
     const [isLoading, setIsLoading] = useState(true);
     const [value, setValue] = useState<Content | null>(null);
     const [submitting, setSubmitting] = useState(false);
     const [comment, setComment] = useState(comments);
+    const { data: blogPost } = useGetBlogDetail(id);
     const handleSubmit = () => {
         setSubmitting(true);
         setValue(null);
         setComment(comments);
     };
     const initialLikes = useMemo(
-        () => blogPostDetail.blogPost.reacts?.length ?? 0,
-        [],
+        () => blogPost?.reacts?.length ?? 0,
+        [blogPost],
     );
 
     const [isLiked, setIsLiked] = useState(false);
@@ -64,7 +65,9 @@ export default function BlogPostPage() {
 
     const handleLike = () => {
         setIsLiked((prev) => !prev);
-        setLikes((prev) => (isLiked ? Math.max(0, prev - 1) : prev + 1));
+        setLikes((prev: number) =>
+            isLiked ? Math.max(0, prev - 1) : prev + 1,
+        );
         toast.success(
             isLiked ? 'Removed from favorites' : 'Added to favorites',
         );
@@ -102,7 +105,7 @@ export default function BlogPostPage() {
         );
     }
 
-    if (!detail) {
+    if (!blogPost) {
         return (
             <div className="flex min-h-screen items-center justify-center">
                 <div className="text-center">
@@ -119,27 +122,24 @@ export default function BlogPostPage() {
             </div>
         );
     }
-
-    const { blogPost, content } = detail;
-    const dateText = formatDate(blogPost.publishedDate);
-
+    const dateText = formatDate(blogPost?.publishedDate ?? '');
     return (
         <div className="bg-background mt-8 min-h-screen">
             <article className="container mx-auto max-w-4xl px-4 py-24">
                 <div className="mb-4 flex flex-wrap gap-2">
-                    {blogPost.tags.map((t) => (
+                    {blogPost?.tags.map((t) => (
                         <Badge key={t.id} variant="secondary">
                             {t.name}
                         </Badge>
                     ))}
                 </div>
                 <h1 className="text-foreground mb-6 text-4xl leading-tight font-bold text-balance md:text-5xl">
-                    {blogPost.title}
+                    {blogPost?.title}
                 </h1>
                 <div className="mb-6 flex flex-wrap items-center justify-between gap-6">
                     <div className="flex items-start">
                         <Avatar className="h-12 w-12">
-                            {blogPost.author.avatar ? (
+                            {blogPost?.author.avatar ? (
                                 <AvatarImage
                                     src={blogPost.author.avatar}
                                     alt={blogPost.author.name}
@@ -148,12 +148,12 @@ export default function BlogPostPage() {
                                 <UserIcon className="m-auto h-5 w-5 opacity-70" />
                             )}
                             <AvatarFallback>
-                                {initials(blogPost.author.name)}
+                                {initials(blogPost?.author.name ?? '')}
                             </AvatarFallback>
                         </Avatar>
                         <div className="mt-2 ml-4 flex flex-wrap items-center gap-4">
                             <p className="text-foreground font-semibold">
-                                {blogPost.author.name}
+                                {blogPost?.author.name}
                             </p>
                             <div className="text-muted-foreground flex items-center gap-2 text-sm">
                                 <Calendar className="h-4 w-4" />
@@ -220,7 +220,7 @@ export default function BlogPostPage() {
                         </Dialog>
                     </div>
                 </div>
-                {blogPost.titleImg && (
+                {blogPost?.titleImg && (
                     <div className="mb-8 overflow-hidden rounded-lg">
                         <Image
                             src={blogPost.titleImg}
@@ -234,13 +234,13 @@ export default function BlogPostPage() {
                 <div
                     className="text-foreground max-w-none leading-relaxed [&_h1]:mb-4 [&_h1]:text-3xl [&_h1]:font-bold [&_h2]:mb-3 [&_h2]:text-2xl [&_h2]:font-bold [&_ol]:ml-6 [&_ol]:list-decimal [&_p]:mb-4 [&_ul]:ml-6 [&_ul]:list-disc"
                     dangerouslySetInnerHTML={{
-                        __html: content || '',
+                        __html: blogPost?.content || '',
                     }}
                 />{' '}
             </article>
             <div className="mx-auto max-w-4xl">
                 <CommentSection
-                    comments={comment}
+                    comments={blogPost?.comments}
                     value={value}
                     onChange={setValue}
                     onSubmit={handleSubmit}
