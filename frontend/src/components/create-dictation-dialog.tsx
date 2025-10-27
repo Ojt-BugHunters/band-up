@@ -186,7 +186,7 @@ export function CreateDictationDialog({
                     Create New Dictation
                 </Button>
             </DialogTrigger>
-            <DialogContent className="max-h-[90vh] max-w-3xl overflow-y-auto">
+            <DialogContent className="max-h-[90vh] w-[95vw] !max-w-none overflow-y-auto p-8 sm:!max-w-none sm:rounded-xl lg:!max-w-[1100px]">
                 <DialogHeader>
                     <DialogTitle className="text-2xl font-semibold">
                         Create Dictation Test
