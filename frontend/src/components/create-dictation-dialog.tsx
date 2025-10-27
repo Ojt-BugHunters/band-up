@@ -1,5 +1,7 @@
 import {
-    CreateFullSectionFormValues,
+    CreateFullSectionFormInput,
+    CreateFullSectionPayload,
+    sectionFormSchema,
     useCreatePassage,
 } from '@/hooks/use-create-passage';
 import {
@@ -8,7 +10,7 @@ import {
 } from '@/hooks/use-create-question';
 import { useCreateTest, TestCreateFormValues } from '@/hooks/use-create-test';
 import { useState } from 'react';
-import { useFieldArray } from 'react-hook-form';
+import { SubmitHandler, useFieldArray } from 'react-hook-form';
 import {
     Dialog,
     DialogContent,
@@ -92,40 +94,6 @@ export function CreateDictationDialog({
         onError: () => {},
     });
 
-    const createSectionsMutation = useMutation({
-        mutationFn: async (
-            sections: CreateFullSectionFormValues['section'],
-        ) => {
-            const promises = sections.map((section) =>
-                fetch(`/api/sections/test/${testId}`, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({
-                        title: section.title,
-                        orderIndex: section.orderIndex,
-                        timeLimitSeconds: 0, // Not in user's schema, using default
-                        metadata: JSON.stringify(section.metadata), // Convert object to string for API
-                    }),
-                }).then((res) => res.json()),
-            );
-            return Promise.all(promises);
-        },
-        onSuccess: (data) => {
-            setSectionIds(data.map((section) => section.id));
-            // Initialize questions for each section
-            const initialQuestions = data.map((_, index) => ({
-                sectionIndex: index + 1, // 1-indexed to match orderIndex
-                difficult: 1,
-                type: 'Dictation',
-                audioUrl: '',
-                script: '',
-            }));
-            dictationQuestionForm.setValue('questions', initialQuestions);
-            setStep(3);
-        },
-        onError: () => {},
-    });
-
     const createQuestionsMutation = useMutation({
         mutationFn: async (
             questions: DictationQuestionFormData['questions'],
@@ -170,8 +138,11 @@ export function CreateDictationDialog({
         setStep(2);
     };
 
-    const onSectionSubmit = (data: CreateFullSectionFormValues) => {
-        console.log(data);
+    const onSectionSubmit: SubmitHandler<CreateFullSectionFormInput> = (
+        data,
+    ) => {
+        const payload: CreateFullSectionPayload = sectionFormSchema.parse(data);
+        console.log(payload);
         setStep(3);
     };
 
@@ -341,112 +312,30 @@ export function CreateDictationDialog({
                                                 )}
                                             </div>
 
-                                            <div className="space-y-4">
-                                                <FormField
-                                                    control={
-                                                        fullSectionForm.control
-                                                    }
-                                                    name={`section.${index}.title`}
-                                                    render={({ field }) => (
-                                                        <FormItem>
-                                                            <FormLabel>
-                                                                Section Title
-                                                            </FormLabel>
-                                                            <FormControl>
-                                                                <Input
-                                                                    {...field}
-                                                                    placeholder="Enter section title"
-                                                                />
-                                                            </FormControl>
-                                                            <FormMessage />
-                                                        </FormItem>
-                                                    )}
-                                                />
+                                            <FormField
+                                                control={
+                                                    fullSectionForm.control
+                                                }
+                                                name={`section.${index}.title`}
+                                                render={({ field }) => (
+                                                    <FormItem>
+                                                        <FormLabel>
+                                                            Section Title
+                                                        </FormLabel>
+                                                        <FormControl>
+                                                            <Input
+                                                                {...field}
+                                                                placeholder="Enter section title"
+                                                            />
+                                                        </FormControl>
+                                                        <FormMessage />
+                                                    </FormItem>
+                                                )}
+                                            />
 
-                                                <FormField
-                                                    control={
-                                                        fullSectionForm.control
-                                                    }
-                                                    name={`section.${index}.orderIndex`}
-                                                    render={({ field }) => (
-                                                        <FormItem>
-                                                            <FormLabel>
-                                                                Order Index
-                                                            </FormLabel>
-                                                            <FormControl>
-                                                                <Input
-                                                                    {...field}
-                                                                    type="number"
-                                                                    value={
-                                                                        index +
-                                                                        1
-                                                                    }
-                                                                    disabled
-                                                                    className="bg-muted"
-                                                                />
-                                                            </FormControl>
-                                                            <FormDescription>
-                                                                Automatically
-                                                                assigned based
-                                                                on order
-                                                            </FormDescription>
-                                                        </FormItem>
-                                                    )}
-                                                />
-
-                                                <div className="space-y-3">
-                                                    <FormLabel>
-                                                        Metadata
-                                                    </FormLabel>
-                                                    <FormField
-                                                        control={
-                                                            fullSectionForm.control
-                                                        }
-                                                        name={`section.${index}.metadata.additionalProp1`}
-                                                        render={({ field }) => (
-                                                            <FormItem>
-                                                                <FormControl>
-                                                                    <Input
-                                                                        {...field}
-                                                                        placeholder="Additional Property 1"
-                                                                    />
-                                                                </FormControl>
-                                                            </FormItem>
-                                                        )}
-                                                    />
-                                                    <FormField
-                                                        control={
-                                                            fullSectionForm.control
-                                                        }
-                                                        name={`section.${index}.metadata.additionalProp2`}
-                                                        render={({ field }) => (
-                                                            <FormItem>
-                                                                <FormControl>
-                                                                    <Input
-                                                                        {...field}
-                                                                        placeholder="Additional Property 2"
-                                                                    />
-                                                                </FormControl>
-                                                            </FormItem>
-                                                        )}
-                                                    />
-                                                    <FormField
-                                                        control={
-                                                            fullSectionForm.control
-                                                        }
-                                                        name={`section.${index}.metadata.additionalProp3`}
-                                                        render={({ field }) => (
-                                                            <FormItem>
-                                                                <FormControl>
-                                                                    <Input
-                                                                        {...field}
-                                                                        placeholder="Additional Property 3"
-                                                                    />
-                                                                </FormControl>
-                                                            </FormItem>
-                                                        )}
-                                                    />
-                                                </div>
+                                            {/* Nếu muốn hiển thị order index (read-only) chỉ để nhìn */}
+                                            <div className="text-muted-foreground mt-2 text-xs">
+                                                Order Index: {index + 1}
                                             </div>
                                         </CardContent>
                                     </Card>
@@ -458,23 +347,10 @@ export function CreateDictationDialog({
                                     type="button"
                                     variant="outline"
                                     className="w-full bg-transparent"
-                                    onClick={() =>
-                                        appendSection({
-                                            title: '',
-                                            orderIndex:
-                                                sectionFields.length + 1,
-                                            metadata: {
-                                                additionalProp1: '',
-                                                additionalProp2: '',
-                                                additionalProp3: '',
-                                            },
-                                        })
-                                    }
+                                    onClick={() => appendSection({ title: '' })} // chỉ cần title
                                 >
                                     <Plus className="mr-2 h-4 w-4" />
-                                    Add Section{' '}
-                                    {sectionFields.length < 4 &&
-                                        `(${sectionFields.length}/4)`}
+                                    Add Section ({sectionFields.length}/4)
                                 </Button>
                             )}
 
@@ -495,15 +371,8 @@ export function CreateDictationDialog({
                                     >
                                         Cancel
                                     </Button>
-                                    <Button
-                                        type="submit"
-                                        disabled={
-                                            createSectionsMutation.isPending
-                                        }
-                                    >
-                                        {createSectionsMutation.isPending
-                                            ? 'Creating...'
-                                            : 'Next'}
+                                    <Button type="submit">
+                                        Next
                                         <ChevronRight className="ml-2 h-4 w-4" />
                                     </Button>
                                 </div>
@@ -511,7 +380,6 @@ export function CreateDictationDialog({
                         </form>
                     </Form>
                 )}
-
                 {step === 3 && (
                     <Form {...dictationQuestionForm}>
                         <form
