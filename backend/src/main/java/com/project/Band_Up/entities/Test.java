@@ -40,6 +40,9 @@ public class Test {
     @NotNull
     private BigInteger durationSeconds; // in seconds
 
+    @NotNull
+    private String difficult;
+
     @CreationTimestamp
     @Column(name = "create_at", nullable = false, updatable = false)
     private LocalDateTime createAt;

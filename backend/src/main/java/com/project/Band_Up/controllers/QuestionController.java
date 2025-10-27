@@ -56,6 +56,27 @@ public class QuestionController {
 
         return ResponseEntity.created(location).body(created);
     }
+    @Operation(
+            summary = "Tạo nhiều Questions trong 1 Section",
+            description = "Nhận danh sách QuestionCreateRequest và tạo nhiều question cùng lúc trong 1 Section. " +
+                    "Trả về list QuestionResponse."
+    )
+    @ApiResponses({
+            @ApiResponse(responseCode = "201", description = "Tạo thành công"),
+            @ApiResponse(responseCode = "400", description = "Yêu cầu không hợp lệ"),
+            @ApiResponse(responseCode = "404", description = "Section không tồn tại")
+    })
+    @PostMapping(value = "/sections/{sectionId}/questions/bulk", consumes = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<List<QuestionResponse>> createMultipleQuestions(
+            @Parameter(description = "UUID của Section để gắn các Question vào", required = true)
+            @PathVariable UUID sectionId,
+            @Valid @RequestBody List<QuestionCreateRequest> requests) {
+
+        List<QuestionResponse> createdList = questionService.createMultipleQuestions(sectionId, requests);
+
+        return ResponseEntity.status(201).body(createdList);
+    }
+
 
     @Operation(
             summary = "Lấy tất cả Questions trong Section",

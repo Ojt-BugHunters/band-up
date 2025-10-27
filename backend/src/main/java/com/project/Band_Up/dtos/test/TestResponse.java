@@ -18,5 +18,6 @@ public class TestResponse {
     private String skillName;
     private Integer numberOfPeople;
     private BigInteger durationSeconds;
+    private String difficult;
     private LocalDateTime createAt;
 }

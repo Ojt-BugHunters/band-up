@@ -16,7 +16,9 @@ public class QuestionResponse {
     private UUID sectionId;
     private String type;
     private Map<String, Object> content;
-    private Integer difficult;
+    private String difficult;
     private Boolean isActive;
+    private String uploadUrl;
+    private String script;
     private LocalDateTime createdAt;
 }
