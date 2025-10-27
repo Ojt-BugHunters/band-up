@@ -1,12 +1,6 @@
 'use client';
 
-import {
-    Card,
-    CardContent,
-    CardDescription,
-    CardHeader,
-    CardTitle,
-} from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Clock, Users, Headphones, Play } from 'lucide-react';
 import Link from 'next/link';
@@ -17,7 +11,7 @@ interface DictationCardProps {
         id: string;
         title: string;
         duration: number;
-        difficulty: 'Easy' | 'Medium' | 'Hard';
+        difficulty: string;
         completions: number;
         createdAt: Date;
     };
