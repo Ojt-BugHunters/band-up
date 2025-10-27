@@ -4,12 +4,12 @@ env:
   variables:
     AWS_ACCOUNT_ID: "243826067806"
     AWS_DEFAULT_REGION: "ap-southeast-1"
-    BACKEND_ECR_NAME: "bandup/backend"
+    FRONTEND_ECR_NAME: "bandup/frontend"
 
 phases:
   pre_build:
     commands:
-      - BACKEND_ECR_REPO="$AWS_ACCOUNT_ID.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com/$BACKEND_ECR_NAME"
+      - FRONTEND_ECR_REPO="$AWS_ACCOUNT_ID.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com/$FRONTEND_ECR_NAME"
       - echo Logging in to Amazon ECR...
       - aws ecr get-login-password --region $AWS_DEFAULT_REGION | docker login --username AWS --password-stdin "$AWS_ACCOUNT_ID.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com"
 
@@ -17,12 +17,12 @@ phases:
     commands:
       - echo Build started on `date`
       - echo Building the Docker image...
-      - cd backend  
-      - docker build -t $BACKEND_ECR_REPO:$CODEBUILD_RESOLVED_SOURCE_VERSION .
+      - cd frontend
+      - docker build -t $FRONTEND_ECR_REPO:$CODEBUILD_RESOLVED_SOURCE_VERSION .
       - echo Pushing the Docker image...
-      - docker push $BACKEND_ECR_REPO:$CODEBUILD_RESOLVED_SOURCE_VERSION
+      - docker push $FRONTEND_ECR_REPO:$CODEBUILD_RESOLVED_SOURCE_VERSION
       - cd ..
-      - printf '[{"name":"bandup-backend","imageUri":"%s"}]' "$BACKEND_ECR_REPO:$CODEBUILD_RESOLVED_SOURCE_VERSION" > backend-imagedefinitions.json
+      - printf '[{"name":"frontend-container","imageUri":"%s"}]' "$FRONTEND_ECR_REPO:$CODEBUILD_RESOLVED_SOURCE_VERSION" > frontend-imagedefinitions.json
 
   post_build:
     commands:
@@ -30,4 +30,4 @@ phases:
 
 artifacts:
   files:
-    - backend-imagedefinitions.json
+    - frontend-imagedefinitions.json

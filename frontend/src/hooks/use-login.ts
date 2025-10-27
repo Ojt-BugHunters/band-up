@@ -38,7 +38,11 @@ export const useLogin = () => {
             queryClient.setQueryData(['user'], data);
             localStorage.setItem('user', JSON.stringify(data));
             toast.success('Login Successfully');
-            router.push('/');
+            if (data.role === 'Member') {
+                router.push('/');
+            } else {
+                router.push('/admin');
+            }
         },
     });
 
