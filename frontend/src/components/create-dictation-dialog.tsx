@@ -47,6 +47,21 @@ interface CreateDictationDialogProps {
     onSuccess?: () => void;
 }
 
+type SectionMap = Record<number, string>;
+
+function readSectionMapFromLocalStorage(max = 4) {
+    const map: SectionMap = {};
+    for (let i = 0; i <= max; i++) {
+        const id = localStorage.getItem(`section-${1}`);
+        if (id) map[i] = id;
+    }
+    return map;
+}
+
+function getSectionId(index: number, map: SectionMap) {
+    const id = map[index];
+    return id;
+}
 export function CreateDictationDialog({
     onSuccess,
 }: CreateDictationDialogProps) {
@@ -319,7 +334,6 @@ export function CreateDictationDialog({
                                                 )}
                                             />
 
-                                            {/* Nếu muốn hiển thị order index (read-only) chỉ để nhìn */}
                                             <div className="text-muted-foreground mt-2 text-xs">
                                                 Order Index: {index + 1}
                                             </div>
@@ -557,17 +571,25 @@ export function CreateDictationDialog({
                                                         control={
                                                             dictationQuestionForm.control
                                                         }
-                                                        name={`questions.${index}.audioUrl`}
+                                                        name={`questions.${index}.file`}
                                                         render={({ field }) => (
                                                             <FormItem>
                                                                 <FormLabel>
-                                                                    Audio URL
+                                                                    Audio File
                                                                 </FormLabel>
                                                                 <FormControl>
                                                                     <Input
-                                                                        {...field}
-                                                                        type="url"
-                                                                        placeholder="https://example.com/audio.mp3"
+                                                                        type="file"
+                                                                        accept="audio/*"
+                                                                        onChange={(
+                                                                            e,
+                                                                        ) =>
+                                                                            field.onChange(
+                                                                                e
+                                                                                    .target
+                                                                                    .files?.[0],
+                                                                            )
+                                                                        }
                                                                     />
                                                                 </FormControl>
                                                                 <FormMessage />
