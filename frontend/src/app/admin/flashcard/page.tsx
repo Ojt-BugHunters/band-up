@@ -10,6 +10,7 @@ import {
 import { DailyLearnersChart } from '@/components/daily-learners-chart';
 import { TopDecksChart } from '@/components/top-decks-chart';
 import { CardStatusChart } from '@/components/card-status-chart';
+import { FlashcardTable } from '@/components/flashcard-table';
 
 export default function FlashcardPage() {
     return (
@@ -25,17 +26,8 @@ export default function FlashcardPage() {
 
             <div className="grid gap-6 lg:grid-cols-1">
                 {/* Daily Learners Chart */}
-                <Card>
-                    <CardHeader>
-                        <CardTitle>Daily Learners</CardTitle>
-                        <CardDescription>
-                            Number of learners per day over the last 30 days
-                        </CardDescription>
-                    </CardHeader>
-                    <CardContent>
-                        <DailyLearnersChart />
-                    </CardContent>
-                </Card>
+
+                <DailyLearnersChart />
 
                 {/* Card Status Chart */}
                 <Card>
@@ -51,15 +43,18 @@ export default function FlashcardPage() {
                 </Card>
 
                 {/* Top Decks Chart */}
+
+                <TopDecksChart />
+
                 <Card>
                     <CardHeader>
-                        <CardTitle>Top 10 Most Learned Decks</CardTitle>
+                        <CardTitle>Flashcards</CardTitle>
                         <CardDescription>
-                            Decks with the highest number of learners
+                            Flashcards created by users
                         </CardDescription>
                     </CardHeader>
                     <CardContent>
-                        <TopDecksChart />
+                        <FlashcardTable />
                     </CardContent>
                 </Card>
             </div>
