@@ -59,7 +59,7 @@ export function BlogCard({
                             {author?.avatar ? (
                                 <Image
                                     src={author.avatar}
-                                    alt={author.name}
+                                    alt={author?.name ?? 'Author avatar'}
                                     width={18}
                                     height={18}
                                     className="h-4 w-4 rounded-full object-cover"
