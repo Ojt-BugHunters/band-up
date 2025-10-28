@@ -18,7 +18,7 @@ export type TestCreateFormValues = z.infer<typeof TestCreateSchema>;
 export const useCreateTest = () => {
     const mutation = useMutation({
         mutationFn: async (values: TestCreateFormValues) => {
-            const response = await fetchWrapper('tests', {
+            const response = await fetchWrapper('/tests', {
                 method: 'POST',
                 headers: {
                     Accept: 'application/json',
@@ -33,7 +33,7 @@ export const useCreateTest = () => {
             toast.error(error.message);
         },
         onSuccess: (data) => {
-            localStorage.setItem('create-test-id', JSON.stringify(data.id));
+            localStorage.setItem('create-test-id', data.id);
             toast.success('Create test successfully');
         },
     });

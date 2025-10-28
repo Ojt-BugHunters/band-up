@@ -1,6 +1,10 @@
 import { z } from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useForm } from 'react-hook-form';
+import { useMutation } from '@tanstack/react-query';
+import { fetchWrapper, throwIfError } from '@/lib/api';
+import { toast } from 'sonner';
+import { DictationSection } from '@/lib/api/dto/dictation';
 
 export const fileSchema = z.object({
     files: z
@@ -34,11 +38,38 @@ export const sectionFormSchema = z
 export type CreateFullSectionFormInput = z.input<typeof sectionFormSchema>;
 export type CreateFullSectionPayload = z.output<typeof sectionFormSchema>;
 
-export const useCreatePassage = () => {
+export const useCreatePassage = (testId: string) => {
+    const mutation = useMutation({
+        mutationFn: async (values: CreateFullSectionPayload) => {
+            const response = await fetchWrapper(
+                `/sections/test/${testId}/bulk`,
+                {
+                    method: 'POST',
+                    headers: {
+                        Accept: 'application/json',
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(values.section),
+                },
+            );
+            await throwIfError(response);
+            return response.json();
+        },
+        onError: (error) => {
+            toast.error(error.message);
+        },
+        onSuccess: (data) => {
+            toast.success('Create section successfully');
+            data.forEach((item: DictationSection, index: number) => {
+                const key = `section-${index + 1}`;
+                localStorage.setItem(key, item.id);
+            });
+        },
+    });
     const fullSectionForm = useForm<CreateFullSectionFormInput>({
         resolver: zodResolver(sectionFormSchema),
         defaultValues: { section: [{ title: '' }] },
     });
 
-    return { fullSectionForm };
+    return { fullSectionForm, mutation };
 };

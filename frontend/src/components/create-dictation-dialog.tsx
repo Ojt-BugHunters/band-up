@@ -52,11 +52,14 @@ export function CreateDictationDialog({
 }: CreateDictationDialogProps) {
     const [open, setOpen] = useState(false);
     const [step, setStep] = useState(1);
-    const [testId, setTestId] = useState<string>('');
+    const [testId, setTestId] = useState<string>(
+        localStorage.getItem('create-test-id') ?? '',
+    );
     const [sectionIds, setSectionIds] = useState<string[]>([]);
 
-    const { createTestForm } = useCreateTest();
-    const { fullSectionForm } = useCreatePassage();
+    const { createTestForm, mutation: createTestMutation } = useCreateTest();
+    const { fullSectionForm, mutation: createSectionMutation } =
+        useCreatePassage(testId);
     const { dictationQuestionForm } = useCreateQuestion();
 
     const {
@@ -75,23 +78,6 @@ export function CreateDictationDialog({
     } = useFieldArray({
         control: dictationQuestionForm.control,
         name: 'questions',
-    });
-
-    const createTestMutation = useMutation({
-        mutationFn: async (data: TestCreateFormValues) => {
-            const response = await fetch('/api/tests', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(data),
-            });
-            if (!response.ok) throw new Error('Failed to create test');
-            return response.json();
-        },
-        onSuccess: (data) => {
-            setTestId(data.id);
-            setStep(2);
-        },
-        onError: () => {},
     });
 
     const createQuestionsMutation = useMutation({
@@ -134,7 +120,7 @@ export function CreateDictationDialog({
     };
 
     const onTestSubmit = (data: TestCreateFormValues) => {
-        console.log(data);
+        createTestMutation.mutate(data);
         setStep(2);
     };
 
@@ -142,7 +128,7 @@ export function CreateDictationDialog({
         data,
     ) => {
         const payload: CreateFullSectionPayload = sectionFormSchema.parse(data);
-        console.log(payload);
+        createSectionMutation.mutate(payload);
         setStep(3);
     };
 
