@@ -40,7 +40,6 @@ public class Test {
     @NotNull
     private BigInteger durationSeconds; // in seconds
 
-    @NotNull
     private String difficult;
 
     @CreationTimestamp
