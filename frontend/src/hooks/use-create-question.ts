@@ -1,5 +1,5 @@
 import { zodResolver } from '@hookform/resolvers/zod';
-import { useForm } from 'react-hook-form';
+import { useFieldArray, useForm } from 'react-hook-form';
 import { z } from 'zod';
 
 export const dictationQuestionSchema = z.object({
@@ -9,7 +9,9 @@ export const dictationQuestionSchema = z.object({
                 sectionIndex: z.number(),
                 difficult: z.number(),
                 type: z.string(),
-                audioUrl: z.string(),
+                file: z
+                    .instanceof(File, { message: 'Audio file is required' })
+                    .refine((f) => f.size <= 5 * 1024 * 1024, 'Max 5MB'),
                 script: z.string().min(1, 'Script is required'),
             }),
         )
@@ -26,7 +28,13 @@ export const useCreateQuestion = () => {
         },
     });
 
+    const questionFA = useFieldArray({
+        control: dictationQuestionForm.control,
+        name: 'questions',
+    });
+
     return {
         dictationQuestionForm,
+        questionFA,
     };
 };
