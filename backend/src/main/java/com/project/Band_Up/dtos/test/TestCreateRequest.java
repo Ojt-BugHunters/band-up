@@ -22,4 +22,7 @@ public class TestCreateRequest {
 
     @NotNull
     private BigInteger durationSeconds;
+
+    @NotNull
+    private String difficult;
 }

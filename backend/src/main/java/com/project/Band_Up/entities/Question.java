@@ -33,15 +33,14 @@ public class Question {
 
     @Column(columnDefinition = "jsonb")
     @JdbcTypeCode(SqlTypes.JSON)
-    @NotNull
     private Map<String, Object> content;
     @NotNull
-    private Integer difficult;
+    private String difficult;
+    private String script;
     private Boolean isActive;
     @CreationTimestamp
     @Column(name = "create_at", nullable = false, updatable = false)
     private LocalDateTime createAt;
-
     @Enumerated(EnumType.STRING)
     private Status status;
 }

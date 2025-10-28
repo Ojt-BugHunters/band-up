@@ -13,6 +13,8 @@ public interface SectionService {
     SectionResponse createSection(SectionCreateRequest request, UUID testId, UUID actorId);
     // Các phương thức khác như cập nhật, xóa, lấy section có thể được thêm vào đây
     SectionResponse getSectionById(UUID sectionId);
+    // Tạo nhiều section cùng 1 lúc và trả về list những section đó
+    List<SectionResponse> createMultipleSections(List<SectionCreateRequest> requests, UUID testId, UUID actorId);
     // Lấy section theo testId
     List<SectionResponse> getSectionsByTestId(UUID testId);
     // Cập nhật section

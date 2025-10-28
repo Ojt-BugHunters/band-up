@@ -9,7 +9,7 @@ import java.util.Map;
 @NoArgsConstructor
 @Builder
 public class QuestionUpdateRequest {
-    private Integer difficult;
+    private String difficult;
     private String type;
     private Map<String, Object> content;
 }

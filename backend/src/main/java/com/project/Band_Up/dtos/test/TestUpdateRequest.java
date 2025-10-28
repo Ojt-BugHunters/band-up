@@ -18,4 +18,5 @@ public class TestUpdateRequest {
     private String title;
     private Integer numberOfPeople;
     private BigInteger durationSeconds;
+    private String difficult;
 }
