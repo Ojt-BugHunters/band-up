@@ -47,16 +47,34 @@ interface CreateDictationDialogProps {
     onSuccess?: () => void;
 }
 
+type SectionMap = Record<number, string>;
+
+function readSectionMapFromLocalStorage(max = 4) {
+    const map: SectionMap = {};
+    for (let i = 0; i <= max; i++) {
+        const id = localStorage.getItem(`section-${1}`);
+        if (id) map[i] = id;
+    }
+    return map;
+}
+
+function getSectionId(index: number, map: SectionMap) {
+    const id = map[index];
+    return id;
+}
 export function CreateDictationDialog({
     onSuccess,
 }: CreateDictationDialogProps) {
     const [open, setOpen] = useState(false);
     const [step, setStep] = useState(1);
-    const [testId, setTestId] = useState<string>('');
+    const [testId, setTestId] = useState<string>(
+        localStorage.getItem('create-test-id') ?? '',
+    );
     const [sectionIds, setSectionIds] = useState<string[]>([]);
 
-    const { createTestForm } = useCreateTest();
-    const { fullSectionForm } = useCreatePassage();
+    const { createTestForm, mutation: createTestMutation } = useCreateTest();
+    const { fullSectionForm, mutation: createSectionMutation } =
+        useCreatePassage(testId);
     const { dictationQuestionForm } = useCreateQuestion();
 
     const {
@@ -75,23 +93,6 @@ export function CreateDictationDialog({
     } = useFieldArray({
         control: dictationQuestionForm.control,
         name: 'questions',
-    });
-
-    const createTestMutation = useMutation({
-        mutationFn: async (data: TestCreateFormValues) => {
-            const response = await fetch('/api/tests', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(data),
-            });
-            if (!response.ok) throw new Error('Failed to create test');
-            return response.json();
-        },
-        onSuccess: (data) => {
-            setTestId(data.id);
-            setStep(2);
-        },
-        onError: () => {},
     });
 
     const createQuestionsMutation = useMutation({
@@ -134,7 +135,7 @@ export function CreateDictationDialog({
     };
 
     const onTestSubmit = (data: TestCreateFormValues) => {
-        console.log(data);
+        createTestMutation.mutate(data);
         setStep(2);
     };
 
@@ -142,7 +143,7 @@ export function CreateDictationDialog({
         data,
     ) => {
         const payload: CreateFullSectionPayload = sectionFormSchema.parse(data);
-        console.log(payload);
+        createSectionMutation.mutate(payload);
         setStep(3);
     };
 
@@ -333,7 +334,6 @@ export function CreateDictationDialog({
                                                 )}
                                             />
 
-                                            {/* Nếu muốn hiển thị order index (read-only) chỉ để nhìn */}
                                             <div className="text-muted-foreground mt-2 text-xs">
                                                 Order Index: {index + 1}
                                             </div>
@@ -571,17 +571,25 @@ export function CreateDictationDialog({
                                                         control={
                                                             dictationQuestionForm.control
                                                         }
-                                                        name={`questions.${index}.audioUrl`}
+                                                        name={`questions.${index}.file`}
                                                         render={({ field }) => (
                                                             <FormItem>
                                                                 <FormLabel>
-                                                                    Audio URL
+                                                                    Audio File
                                                                 </FormLabel>
                                                                 <FormControl>
                                                                     <Input
-                                                                        {...field}
-                                                                        type="url"
-                                                                        placeholder="https://example.com/audio.mp3"
+                                                                        type="file"
+                                                                        accept="audio/*"
+                                                                        onChange={(
+                                                                            e,
+                                                                        ) =>
+                                                                            field.onChange(
+                                                                                e
+                                                                                    .target
+                                                                                    .files?.[0],
+                                                                            )
+                                                                        }
                                                                     />
                                                                 </FormControl>
                                                                 <FormMessage />
