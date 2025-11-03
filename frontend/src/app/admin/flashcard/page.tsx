@@ -46,6 +46,7 @@ export default function FlashcardPage() {
 
                 <TopDecksChart />
 
+                {/* Flashcard table */}
                 <Card>
                     <CardHeader>
                         <CardTitle>Flashcards</CardTitle>
