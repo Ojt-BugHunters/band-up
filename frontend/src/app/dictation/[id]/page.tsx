@@ -1,6 +1,9 @@
+'use client';
 import { DictationAudio } from '@/lib/api/dto/dictation';
 import { useState } from 'react';
 import { sections } from '../../../../constants/sample-data';
+import { DictationSidebar } from '@/components/dictation-sidebar';
+import { DictationContent } from '@/components/dictation-content';
 
 export default function DictationDetail() {
     const [selectedAudio, setSelectedAudio] = useState<DictationAudio>(
@@ -8,7 +11,12 @@ export default function DictationDetail() {
     );
     return (
         <div className="bg-background flex h-screen">
-            <h1>Hello</h1>
+            <DictationSidebar
+                sections={sections}
+                selectedAudio={selectedAudio}
+                onSelectAudio={setSelectedAudio}
+            />
+            <DictationContent selectedAudio={selectedAudio} />
         </div>
     );
 }
