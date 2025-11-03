@@ -143,10 +143,15 @@ public class DictationAnswerServiceImpl extends AbstractAnswerServiceImpl {
                 .answerContent(request.getAnswerContent())
                 .isCorrect(isCorrect)
                 .mistakes(mistakeMaps)
+                .accuracy(accuracy)
                 .build();
 
         answerRepository.save(answer);
-        return modelMapper.map(answer, AnswerResponse.class);
+        AnswerResponse response = modelMapper.map(answer, AnswerResponse.class);
+        response.setCorrectAnswer(question.getScript());
+        response.setAttemptSectionId(attemptSectionId);
+        response.setQuestionId(questionId);
+        return response;
     }
 
     // Chuẩn hóa text (bỏ dấu câu, lowercase, trim)

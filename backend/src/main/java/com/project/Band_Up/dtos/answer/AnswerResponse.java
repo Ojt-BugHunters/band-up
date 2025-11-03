@@ -16,7 +16,9 @@ public class AnswerResponse {
     private UUID attemptSectionId;
     private UUID questionId;
     private String answerContent;
+    private String correctAnswer;
     private boolean isCorrect;
     private List<MistakeDetailDto> mistakes;
+    private double accuracy;
     private LocalDateTime createAt;
 }

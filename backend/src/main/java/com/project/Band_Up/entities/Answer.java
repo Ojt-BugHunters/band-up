@@ -36,6 +36,7 @@
         @JdbcTypeCode(SqlTypes.JSON)
         @Column(columnDefinition = "jsonb")
         private List<Map<String, Object>> mistakes;
+        private double accuracy;
         @CreationTimestamp
         @Column(name = "create_at", nullable = false, updatable = false)
         private LocalDateTime createAt;
