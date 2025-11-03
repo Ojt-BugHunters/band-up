@@ -61,7 +61,7 @@ public class QuestionServiceImpl implements QuestionService {
                             .entityType("question")
                             .entityId(q.getId().toString())
                             .fileName(req.getFileName())
-                            .contentType(req.getContentType())  
+                            .contentType(req.getContentType())
                             .build();
 
                     var presigned = mediaService.createPresignedUploadUrl(mediaReq);

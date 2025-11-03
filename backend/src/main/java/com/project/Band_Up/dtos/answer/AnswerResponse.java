@@ -3,6 +3,7 @@ package com.project.Band_Up.dtos.answer;
 import lombok.*;
 
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.UUID;
 
 @Setter
@@ -16,5 +17,6 @@ public class AnswerResponse {
     private UUID questionId;
     private String answerContent;
     private boolean isCorrect;
+    private List<MistakeDetailDto> mistakes;
     private LocalDateTime createAt;
 }

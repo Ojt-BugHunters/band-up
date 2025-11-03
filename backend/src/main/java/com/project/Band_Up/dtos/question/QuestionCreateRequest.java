@@ -14,5 +14,6 @@ public class QuestionCreateRequest {
     private String type;
     private String fileName;
     private String script;
+    private String contentType;
     private Map<String, Object> content;
 }
