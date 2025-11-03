@@ -1,5 +1,8 @@
+import { fetchWrapper, throwIfError } from '@/lib/api';
 import { zodResolver } from '@hookform/resolvers/zod';
+import { useMutation } from '@tanstack/react-query';
 import { useForm } from 'react-hook-form';
+import { toast } from 'sonner';
 import { z } from 'zod';
 
 export const TestCreateSchema = z.object({
@@ -13,6 +16,27 @@ export const TestCreateSchema = z.object({
 export type TestCreateFormValues = z.infer<typeof TestCreateSchema>;
 
 export const useCreateTest = () => {
+    const mutation = useMutation({
+        mutationFn: async (values: TestCreateFormValues) => {
+            const response = await fetchWrapper('/tests', {
+                method: 'POST',
+                headers: {
+                    Accept: 'application/json',
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(values),
+            });
+            await throwIfError(response);
+            return response.json();
+        },
+        onError: (error) => {
+            toast.error(error.message);
+        },
+        onSuccess: (data) => {
+            localStorage.setItem('create-test-id', data.id);
+            toast.success('Create test successfully');
+        },
+    });
     const createTestForm = useForm<z.infer<typeof TestCreateSchema>>({
         resolver: zodResolver(TestCreateSchema),
         defaultValues: {
@@ -23,5 +47,6 @@ export const useCreateTest = () => {
 
     return {
         createTestForm,
+        mutation,
     };
 };
