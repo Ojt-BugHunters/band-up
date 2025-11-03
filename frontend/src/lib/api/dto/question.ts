@@ -94,3 +94,31 @@ export function enrichSpeakingTestParts(
         };
     });
 }
+
+export type MappedQuestion = {
+    sectionId: string;
+    sectionIndex: number;
+    difficult: number;
+    type: string;
+    file: File;
+    script: string;
+};
+
+export type CreateDictationQuestionReq = {
+    difficult: number | string;
+    type: string;
+    fileName: string;
+    script: string;
+    contentType: string;
+};
+
+export type CreateQuestionRes = {
+    id: string;
+    sectionId: string;
+    type: string;
+    difficult: number | string;
+    uploadUrl: string;
+    key: string;
+    script: string;
+    createdAt: string;
+};

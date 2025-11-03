@@ -1,3 +1,4 @@
+'use client';
 import {
     CreateFullSectionFormInput,
     CreateFullSectionPayload,
@@ -41,7 +42,6 @@ import {
     SelectValue,
 } from './ui/select';
 import { Textarea } from './ui/textarea';
-import { useMutation } from '@tanstack/react-query';
 
 interface CreateDictationDialogProps {
     onSuccess?: () => void;
@@ -51,8 +51,8 @@ type SectionMap = Record<number, string>;
 
 function readSectionMapFromLocalStorage(max = 4) {
     const map: SectionMap = {};
-    for (let i = 0; i <= max; i++) {
-        const id = localStorage.getItem(`section-${1}`);
+    for (let i = 1; i <= max; i++) {
+        const id = localStorage.getItem(`section-${i}`);
         if (id) map[i] = id;
     }
     return map;
@@ -62,6 +62,7 @@ function getSectionId(index: number, map: SectionMap) {
     const id = map[index];
     return id;
 }
+
 export function CreateDictationDialog({
     onSuccess,
 }: CreateDictationDialogProps) {
@@ -75,7 +76,8 @@ export function CreateDictationDialog({
     const { createTestForm, mutation: createTestMutation } = useCreateTest();
     const { fullSectionForm, mutation: createSectionMutation } =
         useCreatePassage(testId);
-    const { dictationQuestionForm } = useCreateQuestion();
+    const { dictationQuestionForm, mutation: createQuestionsMutation } =
+        useCreateQuestion();
 
     const {
         fields: sectionFields,
@@ -93,35 +95,6 @@ export function CreateDictationDialog({
     } = useFieldArray({
         control: dictationQuestionForm.control,
         name: 'questions',
-    });
-
-    const createQuestionsMutation = useMutation({
-        mutationFn: async (
-            questions: DictationQuestionFormData['questions'],
-        ) => {
-            const promises = questions.map((question) => {
-                const sectionId = sectionIds[question.sectionIndex - 1];
-                return fetch(`/api/sections/${sectionId}/questions`, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({
-                        difficult: question.difficult,
-                        type: question.type,
-                        content: {
-                            additionalProp1: question.audioUrl,
-                            additionalProp2: question.script,
-                            additionalProp3: '',
-                        },
-                    }),
-                });
-            });
-            return Promise.all(promises);
-        },
-        onSuccess: () => {
-            handleClose();
-            onSuccess?.();
-        },
-        onError: () => {},
     });
 
     const handleClose = () => {
@@ -148,7 +121,13 @@ export function CreateDictationDialog({
     };
 
     const onQuestionSubmit = (data: DictationQuestionFormData) => {
-        console.log(data);
+        const sectionMap = readSectionMapFromLocalStorage(4);
+        const mappedQuestions = data.questions.map((q) => ({
+            ...q,
+            sectionId: getSectionId(q.sectionIndex, sectionMap),
+        }));
+        createQuestionsMutation.mutate(mappedQuestions);
+        console.log(mappedQuestions);
     };
     return (
         <Dialog open={open} onOpenChange={setOpen}>
@@ -660,16 +639,7 @@ export function CreateDictationDialog({
                                     >
                                         Cancel
                                     </Button>
-                                    <Button
-                                        type="submit"
-                                        disabled={
-                                            createQuestionsMutation.isPending
-                                        }
-                                    >
-                                        {createQuestionsMutation.isPending
-                                            ? 'Creating...'
-                                            : 'Create Test'}
-                                    </Button>
+                                    <Button type="submit">Create Test</Button>
                                 </div>
                             </div>
                         </form>
