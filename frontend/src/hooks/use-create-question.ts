@@ -66,6 +66,7 @@ export const useCreateQuestion = () => {
                         type: q.type,
                         fileName: q.file.name,
                         script: q.script,
+                        contentType: q.file.type,
                     };
 
                     const response = await fetchWrapper(

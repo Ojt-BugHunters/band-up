@@ -109,6 +109,7 @@ export type CreateDictationQuestionReq = {
     type: string;
     fileName: string;
     script: string;
+    contentType: string;
 };
 
 export type CreateQuestionRes = {

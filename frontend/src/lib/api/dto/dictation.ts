@@ -32,3 +32,16 @@ export interface DictationQuestion {
     script: string;
     createdAt: Date;
 }
+
+export type DictationAudio = {
+    id: string;
+    title: string;
+    duration: string;
+    url: string;
+};
+
+export type Section = {
+    id: string;
+    title: string;
+    audioFiles: DictationAudio[];
+};
