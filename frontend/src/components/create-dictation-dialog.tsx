@@ -1,3 +1,4 @@
+'use client';
 import {
     CreateFullSectionFormInput,
     CreateFullSectionPayload,
@@ -41,10 +42,25 @@ import {
     SelectValue,
 } from './ui/select';
 import { Textarea } from './ui/textarea';
-import { useMutation } from '@tanstack/react-query';
 
 interface CreateDictationDialogProps {
     onSuccess?: () => void;
+}
+
+type SectionMap = Record<number, string>;
+
+function readSectionMapFromLocalStorage(max = 4) {
+    const map: SectionMap = {};
+    for (let i = 1; i <= max; i++) {
+        const id = localStorage.getItem(`section-${i}`);
+        if (id) map[i] = id;
+    }
+    return map;
+}
+
+function getSectionId(index: number, map: SectionMap) {
+    const id = map[index];
+    return id;
 }
 
 export function CreateDictationDialog({
@@ -52,12 +68,16 @@ export function CreateDictationDialog({
 }: CreateDictationDialogProps) {
     const [open, setOpen] = useState(false);
     const [step, setStep] = useState(1);
-    const [testId, setTestId] = useState<string>('');
+    const [testId, setTestId] = useState<string>(
+        localStorage.getItem('create-test-id') ?? '',
+    );
     const [sectionIds, setSectionIds] = useState<string[]>([]);
 
-    const { createTestForm } = useCreateTest();
-    const { fullSectionForm } = useCreatePassage();
-    const { dictationQuestionForm } = useCreateQuestion();
+    const { createTestForm, mutation: createTestMutation } = useCreateTest();
+    const { fullSectionForm, mutation: createSectionMutation } =
+        useCreatePassage(testId);
+    const { dictationQuestionForm, mutation: createQuestionsMutation } =
+        useCreateQuestion();
 
     const {
         fields: sectionFields,
@@ -77,52 +97,6 @@ export function CreateDictationDialog({
         name: 'questions',
     });
 
-    const createTestMutation = useMutation({
-        mutationFn: async (data: TestCreateFormValues) => {
-            const response = await fetch('/api/tests', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(data),
-            });
-            if (!response.ok) throw new Error('Failed to create test');
-            return response.json();
-        },
-        onSuccess: (data) => {
-            setTestId(data.id);
-            setStep(2);
-        },
-        onError: () => {},
-    });
-
-    const createQuestionsMutation = useMutation({
-        mutationFn: async (
-            questions: DictationQuestionFormData['questions'],
-        ) => {
-            const promises = questions.map((question) => {
-                const sectionId = sectionIds[question.sectionIndex - 1];
-                return fetch(`/api/sections/${sectionId}/questions`, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({
-                        difficult: question.difficult,
-                        type: question.type,
-                        content: {
-                            additionalProp1: question.audioUrl,
-                            additionalProp2: question.script,
-                            additionalProp3: '',
-                        },
-                    }),
-                });
-            });
-            return Promise.all(promises);
-        },
-        onSuccess: () => {
-            handleClose();
-            onSuccess?.();
-        },
-        onError: () => {},
-    });
-
     const handleClose = () => {
         setOpen(false);
         setStep(1);
@@ -134,7 +108,7 @@ export function CreateDictationDialog({
     };
 
     const onTestSubmit = (data: TestCreateFormValues) => {
-        console.log(data);
+        createTestMutation.mutate(data);
         setStep(2);
     };
 
@@ -142,12 +116,18 @@ export function CreateDictationDialog({
         data,
     ) => {
         const payload: CreateFullSectionPayload = sectionFormSchema.parse(data);
-        console.log(payload);
+        createSectionMutation.mutate(payload);
         setStep(3);
     };
 
     const onQuestionSubmit = (data: DictationQuestionFormData) => {
-        console.log(data);
+        const sectionMap = readSectionMapFromLocalStorage(4);
+        const mappedQuestions = data.questions.map((q) => ({
+            ...q,
+            sectionId: getSectionId(q.sectionIndex, sectionMap),
+        }));
+        createQuestionsMutation.mutate(mappedQuestions);
+        console.log(mappedQuestions);
     };
     return (
         <Dialog open={open} onOpenChange={setOpen}>
@@ -333,7 +313,6 @@ export function CreateDictationDialog({
                                                 )}
                                             />
 
-                                            {/* Nếu muốn hiển thị order index (read-only) chỉ để nhìn */}
                                             <div className="text-muted-foreground mt-2 text-xs">
                                                 Order Index: {index + 1}
                                             </div>
@@ -571,17 +550,25 @@ export function CreateDictationDialog({
                                                         control={
                                                             dictationQuestionForm.control
                                                         }
-                                                        name={`questions.${index}.audioUrl`}
+                                                        name={`questions.${index}.file`}
                                                         render={({ field }) => (
                                                             <FormItem>
                                                                 <FormLabel>
-                                                                    Audio URL
+                                                                    Audio File
                                                                 </FormLabel>
                                                                 <FormControl>
                                                                     <Input
-                                                                        {...field}
-                                                                        type="url"
-                                                                        placeholder="https://example.com/audio.mp3"
+                                                                        type="file"
+                                                                        accept="audio/*"
+                                                                        onChange={(
+                                                                            e,
+                                                                        ) =>
+                                                                            field.onChange(
+                                                                                e
+                                                                                    .target
+                                                                                    .files?.[0],
+                                                                            )
+                                                                        }
                                                                     />
                                                                 </FormControl>
                                                                 <FormMessage />
@@ -652,16 +639,7 @@ export function CreateDictationDialog({
                                     >
                                         Cancel
                                     </Button>
-                                    <Button
-                                        type="submit"
-                                        disabled={
-                                            createQuestionsMutation.isPending
-                                        }
-                                    >
-                                        {createQuestionsMutation.isPending
-                                            ? 'Creating...'
-                                            : 'Create Test'}
-                                    </Button>
+                                    <Button type="submit">Create Test</Button>
                                 </div>
                             </div>
                         </form>

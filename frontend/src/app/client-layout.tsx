@@ -23,7 +23,8 @@ export default function ClientLayout({
         pathname.startsWith('/do') ||
         pathname.startsWith('/memorize') ||
         /^\/flashcard\/[^/]+\/test$/.test(pathname) ||
-        pathname.startsWith('/admin');
+        pathname.startsWith('/admin') ||
+        pathname.startsWith('/dictation/');
     useEffect(() => {
         initDeckAutoClear();
     }, []);
