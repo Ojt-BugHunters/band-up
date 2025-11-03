@@ -11,7 +11,7 @@ import { Comment } from '@/lib/api/dto/comment';
 import { ListeningSection, Passage, WritingTask } from '@/lib/api/dto/question';
 import { Test, TestHistory, TestOverview } from '@/lib/api/dto/test';
 import { SpeakingSection } from './../src/lib/api/dto/question';
-import { DictationDTO } from '@/lib/api/dto/dictation';
+import { DictationDTO, Section } from '@/lib/api/dto/dictation';
 
 export const mockTests: TestOverview[] = [
     {
@@ -1442,5 +1442,87 @@ export const mockDictations: DictationDTO[] = [
         difficulty: 'Easy',
         completions: 1567,
         createdAt: new Date('2024-02-20'),
+    },
+];
+
+// Mock data - replace with your actual data
+export const sections: Section[] = [
+    {
+        id: 'section-1',
+        title: 'Section 1: Social Needs',
+        audioFiles: [
+            {
+                id: 'audio-1-1',
+                title: 'Conversation at a Bank',
+                duration: '3:45',
+                url: '/audio/sample1.mp3',
+            },
+            {
+                id: 'audio-1-2',
+                title: 'Hotel Reservation',
+                duration: '4:12',
+                url: '/audio/sample2.mp3',
+            },
+            {
+                id: 'audio-1-3',
+                title: 'Shopping Dialogue',
+                duration: '3:28',
+                url: '/audio/sample3.mp3',
+            },
+        ],
+    },
+    {
+        id: 'section-2',
+        title: 'Section 2: Social Context',
+        audioFiles: [
+            {
+                id: 'audio-2-1',
+                title: 'University Tour',
+                duration: '5:20',
+                url: '/audio/sample4.mp3',
+            },
+            {
+                id: 'audio-2-2',
+                title: 'Community Event',
+                duration: '4:45',
+                url: '/audio/sample5.mp3',
+            },
+        ],
+    },
+    {
+        id: 'section-3',
+        title: 'Section 3: Educational',
+        audioFiles: [
+            {
+                id: 'audio-3-1',
+                title: 'Academic Discussion',
+                duration: '6:15',
+                url: '/audio/sample6.mp3',
+            },
+            {
+                id: 'audio-3-2',
+                title: 'Research Methods',
+                duration: '5:50',
+                url: '/audio/sample7.mp3',
+            },
+        ],
+    },
+    {
+        id: 'section-4',
+        title: 'Section 4: Academic Lecture',
+        audioFiles: [
+            {
+                id: 'audio-4-1',
+                title: 'Climate Change Lecture',
+                duration: '7:30',
+                url: '/audio/sample8.mp3',
+            },
+            {
+                id: 'audio-4-2',
+                title: 'History of Architecture',
+                duration: '6:45',
+                url: '/audio/sample9.mp3',
+            },
+        ],
     },
 ];
