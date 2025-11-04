@@ -3,7 +3,7 @@ import {
     ChartTooltip,
     ChartTooltipContent,
 } from '@/components/ui/chart';
-import { Dialog, DialogContent } from '@/components/ui/dialog';
+import { Dialog, DialogContent, DialogTitle } from '@/components/ui/dialog';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { motion } from 'framer-motion';
 import {
@@ -47,6 +47,7 @@ export function AnalyticComponent({
 }: AnalyticComponentProps) {
     return (
         <Dialog open={showAnalytics} onOpenChange={setShowAnalytics}>
+            <DialogTitle></DialogTitle>
             <DialogContent className="border-none bg-transparent p-0 text-white shadow-none sm:max-w-4xl [&>button]:hidden">
                 <motion.div
                     initial={{ opacity: 0, scale: 0.98 }}
@@ -55,9 +56,7 @@ export function AnalyticComponent({
                     transition={{ duration: 0.2, ease: 'easeOut' }}
                     className="flex max-h-[90vh] flex-col"
                 >
-                    {/* Liquid-glass header card */}
                     <div className="relative overflow-hidden rounded-[28px] border border-white/10 bg-[#0b0b0f]/70 shadow-[0_30px_80px_rgba(0,0,0,.6)] ring-1 ring-white/10 backdrop-blur-2xl">
-                        {/* glow + sheen */}
                         <div
                             aria-hidden
                             className="pointer-events-none absolute -inset-16 -z-10 opacity-40 blur-3xl"

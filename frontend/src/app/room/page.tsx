@@ -10,11 +10,8 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { toast } from 'sonner';
 import {
     Clock,
-    BarChart3,
     Video,
-    Grid3x3,
     Zap,
-    ListTodo,
     MessageSquare,
     Send,
     Mic,
@@ -37,13 +34,6 @@ import {
     mockAnalyticsData,
     mockStats,
 } from '../../../constants/sample-data';
-import { TimerControlDialog } from './timer-dialog';
-import { MusicMixer } from './music-mixer';
-import { PlayMusicWithLink } from './music-add-link';
-import { BackgroundImage } from './background-image';
-import { ToDoListBox } from './to-do-list';
-import { LeaderBoard } from './leaderboard';
-import { AnalyticComponent } from './analytic-dialog';
 import { PomodoroDisplay } from './pomodoro';
 
 export interface FlyingTask {

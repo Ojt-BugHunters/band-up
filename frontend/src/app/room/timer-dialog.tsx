@@ -1,4 +1,9 @@
-import { Dialog, DialogContent, DialogHeader } from '@/components/ui/dialog';
+import {
+    Dialog,
+    DialogContent,
+    DialogHeader,
+    DialogTitle,
+} from '@/components/ui/dialog';
 import {
     Select,
     SelectContent,
@@ -67,6 +72,7 @@ export function TimerControlDialog({
                     </div>
                 </button>
 
+                <DialogTitle></DialogTitle>
                 <DialogContent className="border-zinc-700/50 bg-zinc-900/95 text-white shadow-2xl shadow-black/40 backdrop-blur-xl sm:max-w-md">
                     <DialogHeader>
                         <div className="flex gap-2">
