@@ -11,7 +11,8 @@ import { Comment } from '@/lib/api/dto/comment';
 import { ListeningSection, Passage, WritingTask } from '@/lib/api/dto/question';
 import { Test, TestHistory, TestOverview } from '@/lib/api/dto/test';
 import { SpeakingSection } from './../src/lib/api/dto/question';
-import { DictationDTO, Section } from '@/lib/api/dto/dictation';
+import { Dictation, Section } from '@/lib/api/dto/dictation';
+import { LeaderboardUser } from '@/lib/api/dto/room';
 
 export const mockTests: TestOverview[] = [
     {
@@ -1156,7 +1157,7 @@ export const featureBlogs: FeatureBlogs[] = [
     },
 ];
 
-const lorem =
+export const lorem =
     'This article walks through practical patterns, trade-offs, and code snippets you can apply today. We focus on clarity and measurable impact, keeping the stack approachable while respecting constraints.';
 
 function mkPost(
@@ -1371,7 +1372,7 @@ export const blogPosts: BlogPost[] = [
     ),
 ];
 
-const detailed = mkPost(
+export const detailed = mkPost(
     'bp-detail-1',
     A.nam,
     'End-to-End S3 Uploads with Presigned URLs + CloudFront',
@@ -1393,7 +1394,7 @@ export async function fetchTags(searchText?: string): Promise<Tag[]> {
     return tags.filter((tag) => tag.name.toLowerCase().includes(query));
 }
 
-export const mockDictations: DictationDTO[] = [
+export const mockDictations: Dictation[] = [
     {
         id: '1',
         title: 'IELTS Listening Section 1 - Social Needs',
@@ -1526,3 +1527,105 @@ export const sections: Section[] = [
         ],
     },
 ];
+// for room
+export const mockLeaderboardData: LeaderboardUser[] = [
+    {
+        rank: 1,
+        username: 'Selva Ri',
+        avatar: 'SR',
+        studyTime: '4h 30m',
+        rankChange: null,
+    },
+    {
+        rank: 2,
+        username: 'Mithun Nandhakumar',
+        avatar: 'MN',
+        studyTime: '4h 10m',
+        rankChange: null,
+    },
+    {
+        rank: 3,
+        username: 'Moni',
+        avatar: 'M',
+        studyTime: '4h 10m',
+        rankChange: 'up',
+    },
+    {
+        rank: 4,
+        username: 'Minh Tiến',
+        avatar: 'MT',
+        studyTime: '3h 50m',
+        rankChange: 'up',
+        country: '🇻🇳',
+        status: 'Ho Chi Minh City',
+    },
+    {
+        rank: 5,
+        username: 'Amaya',
+        avatar: 'A',
+        studyTime: '3h 21m',
+        rankChange: null,
+        status: 'preparing for university entering exam',
+    },
+    {
+        rank: 6,
+        username: 'Ms.Peachblossom',
+        avatar: 'M',
+        studyTime: '3h 20m',
+        rankChange: null,
+    },
+    {
+        rank: 7,
+        username: 'Smith Truong',
+        avatar: 'ST',
+        studyTime: '3h 20m',
+        rankChange: null,
+        country: '🇻🇳',
+    },
+    {
+        rank: 8,
+        username: 'DangDuy Nguyen',
+        avatar: 'DN',
+        studyTime: '3h 0m',
+        rankChange: null,
+    },
+    {
+        rank: 9,
+        username: 'Mai Dang Huy',
+        avatar: 'MDH',
+        studyTime: '3h 0m',
+        rankChange: 'down',
+        country: '🇻🇳',
+    },
+    {
+        rank: 10,
+        username: 'Nguyễn Khánh',
+        avatar: 'NK',
+        studyTime: '2h 55m',
+        rankChange: null,
+    },
+    {
+        rank: 11,
+        username: 'Opstry',
+        avatar: 'O',
+        studyTime: '2h 47m',
+        rankChange: 'down',
+    },
+];
+
+export const mockAnalyticsData = [
+    { time: '12AM', minutes: 0 },
+    { time: '4AM', minutes: 0 },
+    { time: '8AM', minutes: 45 },
+    { time: '12PM', minutes: 120 },
+    { time: '4PM', minutes: 180 },
+    { time: '8PM', minutes: 90 },
+];
+
+export const mockStats = {
+    totalSessions: 0,
+    focusedTime: '0m',
+    bestSessions: 0,
+    tasksCompleted: 0,
+    focusScore: 0,
+};

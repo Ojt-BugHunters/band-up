@@ -67,11 +67,8 @@ export function VoiceInput({
     };
 
     const handleClick = () => {
-        if (!recording) {
-            startRecording();
-        } else {
-            stopRecording();
-        }
+        if (!recording) startRecording();
+        else stopRecording();
     };
 
     const formatTime = (seconds: number) => {
@@ -81,39 +78,37 @@ export function VoiceInput({
     };
 
     return (
-        <div className={cn('w-full py-4', className)}>
-            <div className="relative mx-auto flex w-full max-w-xl flex-col items-center gap-2">
+        <div className={cn('w-full py-4 text-white', className)}>
+            <div className="relative mx-auto flex w-full max-w-xl flex-col items-center gap-3">
                 <button
-                    className={cn(
-                        'group flex h-16 w-16 items-center justify-center rounded-xl transition-colors',
-                        recording
-                            ? 'bg-none'
-                            : 'bg-none hover:bg-black/10 dark:hover:bg-white/10',
-                    )}
                     type="button"
                     onClick={handleClick}
+                    className={cn(
+                        'group flex h-16 w-16 items-center justify-center rounded-xl transition-colors',
+                        recording ? 'bg-none' : 'bg-none hover:bg-white/10',
+                    )}
                 >
                     {recording ? (
                         <div
-                            className="pointer-events-auto h-6 w-6 animate-spin cursor-pointer rounded-sm bg-black dark:bg-white"
+                            className="h-6 w-6 animate-spin rounded-sm bg-white"
                             style={{ animationDuration: '3s' }}
                         />
                     ) : (
-                        <Mic className="h-6 w-6 text-black/70 dark:text-white/70" />
+                        <Mic className="h-7 w-7 text-white/90" />
                     )}
                 </button>
 
+                {/* Timer */}
                 <span
                     className={cn(
                         'font-mono text-sm transition-opacity duration-300',
-                        recording
-                            ? 'text-black/70 dark:text-white/70'
-                            : 'text-black/30 dark:text-white/30',
+                        recording ? 'text-white/80' : 'text-white/40',
                     )}
                 >
                     {formatTime(time)}
                 </span>
 
+                {/* Visualizer */}
                 <div className="flex h-4 w-64 items-center justify-center gap-0.5">
                     {[...Array(visualizerBars)].map((_, i) => (
                         <div
@@ -121,8 +116,8 @@ export function VoiceInput({
                             className={cn(
                                 'w-0.5 rounded-full transition-all duration-300',
                                 recording
-                                    ? 'animate-pulse bg-black/50 dark:bg-white/50'
-                                    : 'h-1 bg-black/10 dark:bg-white/10',
+                                    ? 'animate-pulse bg-white/70'
+                                    : 'h-1 bg-white/15',
                             )}
                             style={
                                 recording && isClient
@@ -136,21 +131,28 @@ export function VoiceInput({
                     ))}
                 </div>
 
-                <p className="h-4 text-xs text-black/70 dark:text-white/70">
+                {/* Status Text */}
+                <p
+                    className={cn(
+                        'h-4 text-xs tracking-wide transition-opacity duration-300',
+                        recording ? 'text-white/80' : 'text-white/60',
+                    )}
+                >
                     {recording ? 'Recording...' : 'Click to speak'}
                 </p>
 
+                {/* Audio Preview */}
                 {audioUrl && (
                     <div className="mt-4 w-full">
-                        <div className="bg-card rounded-lg border p-4 shadow-sm">
-                            <p className="text-foreground mb-2 flex items-center gap-2 text-sm font-medium">
-                                <span className="inline-block h-2 w-2 animate-pulse rounded-full bg-green-500" />
+                        <div className="rounded-lg border border-white/10 bg-black/40 p-4 shadow-md backdrop-blur-xl">
+                            <p className="mb-2 flex items-center gap-2 text-sm font-medium text-white/90">
+                                <span className="inline-block h-2 w-2 animate-pulse rounded-full bg-green-400" />
                                 Recording Preview
                             </p>
                             <audio
                                 controls
                                 src={audioUrl}
-                                className="bg-background w-full rounded-md border"
+                                className="w-full rounded-md border border-white/10 bg-black/30 text-white"
                             />
                         </div>
                     </div>
