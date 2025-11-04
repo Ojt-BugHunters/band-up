@@ -1,12 +1,74 @@
+import SpeakingPractice from '@/components/speaking-practice';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
-import { Input } from '@/components/ui/input';
+import { Button } from '@/components/ui/button';
+import {
+    FileUpload,
+    FileUploadDropzone,
+    FileUploadItem,
+    FileUploadItemDelete,
+    FileUploadItemMetadata,
+    FileUploadItemPreview,
+    FileUploadItemProgress,
+    FileUploadList,
+    FileUploadProps,
+    FileUploadTrigger,
+} from '@/components/ui/file-upload';
+import { VoiceInput } from '@/components/voice-input';
 import WritingPractice from '@/components/writing-practice';
-import { MessageSquare, Mic } from 'lucide-react';
-import { useState } from 'react';
+import { MessageSquare, Mic, Upload, X } from 'lucide-react';
+import { useCallback, useState } from 'react';
+import { toast } from 'sonner';
 
 export function AIChatDisplay() {
     const [chatTab, setChatTab] = useState<'writing' | 'speaking'>('writing');
-    const [message, setMessage] = useState('');
+    const [files, setFiles] = useState<File[]>([]);
+
+    const onUpload: NonNullable<FileUploadProps['onUpload']> = useCallback(
+        async (files, { onProgress, onSuccess, onError }) => {
+            try {
+                const uploadPromises = files.map(async (file) => {
+                    try {
+                        const totalChunks = 10;
+                        let uploadedChunks = 0;
+                        for (let i = 0; i < totalChunks; i++) {
+                            await new Promise((resolve) =>
+                                setTimeout(resolve, Math.random() * 200 + 100),
+                            );
+
+                            uploadedChunks++;
+                            const progress =
+                                (uploadedChunks / totalChunks) * 100;
+                            onProgress(file, progress);
+                        }
+
+                        await new Promise((resolve) =>
+                            setTimeout(resolve, 500),
+                        );
+                        onSuccess(file);
+                    } catch (error) {
+                        onError(
+                            file,
+                            error instanceof Error
+                                ? error
+                                : new Error('Upload failed'),
+                        );
+                    }
+                });
+
+                await Promise.all(uploadPromises);
+            } catch (error) {
+                toast.error('Unexpected error during upload');
+                console.log(error);
+            }
+        },
+        [],
+    );
+
+    const onFileReject = useCallback((file: File, message: string) => {
+        toast(message, {
+            description: `"${file.name.length > 20 ? `${file.name.slice(0, 20)}...` : file.name}" has been rejected`,
+        });
+    }, []);
 
     return (
         <div className="flex h-full flex-col">
@@ -39,12 +101,102 @@ export function AIChatDisplay() {
                 )}
 
                 {chatTab === 'speaking' && (
-                    <div className="flex flex-col items-center justify-center gap-6 rounded-2xl border border-zinc-700/50 bg-zinc-800/80 p-8 shadow-xl shadow-black/20 backdrop-blur-md">
-                        <Mic className="h-16 w-16 text-white" />
-                        <p className="text-white/80">Listening...</p>
-                    </div>
-                )}
+                    <SpeakingPractice
+                        title="IELTS Speaking"
+                        partLabel="Part 2"
+                        questions={[
+                            'Describe a book you recently read and liked.',
+                            'Explain why it impressed you and what you learned from it.',
+                        ]}
+                        notes="Aim to speak for 1–2 minutes. Try to use varied vocabulary and link ideas clearly."
+                        onChangePrompt={() => {
+                            console.log('Change speaking prompt');
+                        }}
+                        voiceInputSlot={
+                            <VoiceInput
+                                onStart={() => console.log('Recording started')}
+                                onStop={(file, duration) => {
+                                    console.log(
+                                        'Recorded file:',
+                                        file,
+                                        'Duration:',
+                                        duration,
+                                    );
+                                }}
+                            />
+                        }
+                        fileUploadSlot={
+                            <div className="w-full">
+                                <div className="flex w-full items-center justify-center">
+                                    <div className="mx-auto w-full max-w-xl">
+                                        <FileUpload
+                                            value={files}
+                                            onValueChange={setFiles}
+                                            onUpload={onUpload}
+                                            onFileReject={onFileReject}
+                                            maxFiles={2}
+                                            multiple
+                                            className="w-full"
+                                        >
+                                            <FileUploadDropzone className="w-full rounded-xl border border-dashed border-white/25 bg-black/30 p-6 text-white/80 backdrop-blur-xl transition hover:border-white/40 hover:bg-black/40">
+                                                <div className="flex flex-col items-center gap-1 text-center">
+                                                    <div className="flex items-center justify-center rounded-full border border-white/20 bg-black/40 p-2.5">
+                                                        <Upload className="size-6 text-white/70" />
+                                                    </div>
+                                                    <p className="text-sm font-medium">
+                                                        Drag &amp; drop files
+                                                        here
+                                                    </p>
+                                                    <p className="text-xs text-white/50">
+                                                        Or click to browse (max
+                                                        2 files)
+                                                    </p>
 
+                                                    <FileUploadTrigger asChild>
+                                                        <Button
+                                                            variant="outline"
+                                                            size="sm"
+                                                            className="mt-3 w-fit rounded-xl border-white/10 bg-black/40 text-white shadow-[0_8px_25px_rgba(0,0,0,0.6),_0_2px_4px_rgba(255,255,255,0.08)_inset] backdrop-blur-xl hover:bg-black/55 hover:text-white"
+                                                        >
+                                                            Browse files
+                                                        </Button>
+                                                    </FileUploadTrigger>
+                                                </div>
+                                            </FileUploadDropzone>
+
+                                            <FileUploadList className="mt-4">
+                                                {files.map((file, index) => (
+                                                    <FileUploadItem
+                                                        key={index}
+                                                        value={file}
+                                                        className="flex-col"
+                                                    >
+                                                        <div className="flex w-full items-center gap-2">
+                                                            <FileUploadItemPreview />
+                                                            <FileUploadItemMetadata />
+                                                            <FileUploadItemDelete
+                                                                asChild
+                                                            >
+                                                                <Button
+                                                                    variant="ghost"
+                                                                    size="icon"
+                                                                    className="size-7"
+                                                                >
+                                                                    <X />
+                                                                </Button>
+                                                            </FileUploadItemDelete>
+                                                        </div>
+                                                        <FileUploadItemProgress />
+                                                    </FileUploadItem>
+                                                ))}
+                                            </FileUploadList>
+                                        </FileUpload>
+                                    </div>
+                                </div>
+                            </div>
+                        }
+                    />
+                )}
                 <div className="fixed bottom-6 left-6 z-50 flex flex-col gap-3">
                     <button
                         onClick={() => setChatTab('writing')}
