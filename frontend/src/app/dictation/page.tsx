@@ -1,6 +1,5 @@
 'use client';
 
-import FlashcardCard from '@/components/flash-card';
 import {
     Hero,
     HeroDescription,

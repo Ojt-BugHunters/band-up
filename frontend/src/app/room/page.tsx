@@ -2,7 +2,7 @@
 
 import type React from 'react';
 
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { toast } from 'sonner';
 import {
@@ -109,48 +109,7 @@ export default function RoomPage() {
             ];
         setBackgroundImage(randomImage);
     }, []);
-
-    useEffect(() => {
-        if (isActive) {
-            intervalRef.current = setInterval(() => {
-                if (isPomodoroMode) {
-                    // Countdown mode for Pomodoro
-                    if (seconds === 0) {
-                        if (minutes === 0) {
-                            // Timer completed
-                            setIsActive(false);
-                            handlePomodoroComplete();
-                        } else {
-                            setMinutes(minutes - 1);
-                            setSeconds(59);
-                        }
-                    } else {
-                        setSeconds(seconds - 1);
-                    }
-                } else {
-                    // Count up mode for Stopwatch
-                    if (seconds === 59) {
-                        setMinutes(minutes + 1);
-                        setSeconds(0);
-                    } else {
-                        setSeconds(seconds + 1);
-                    }
-                }
-            }, 1000);
-        } else {
-            if (intervalRef.current) {
-                clearInterval(intervalRef.current);
-            }
-        }
-
-        return () => {
-            if (intervalRef.current) {
-                clearInterval(intervalRef.current);
-            }
-        };
-    }, [isActive, minutes, seconds, isPomodoroMode]);
-
-    const handlePomodoroComplete = () => {
+    const handlePomodoroComplete = useCallback(() => {
         if (!isPomodoroMode) return;
 
         const settings =
@@ -182,7 +141,50 @@ export default function RoomPage() {
             }
             toast.success('Break is over');
         }
-    };
+    }, [
+        isPomodoroMode,
+        selectedPreset,
+        customSettings,
+        sessionType,
+        pomodoroSession,
+    ]);
+
+    useEffect(() => {
+        if (isActive) {
+            intervalRef.current = setInterval(() => {
+                if (isPomodoroMode) {
+                    if (seconds === 0) {
+                        if (minutes === 0) {
+                            setIsActive(false);
+                            handlePomodoroComplete();
+                        } else {
+                            setMinutes(minutes - 1);
+                            setSeconds(59);
+                        }
+                    } else {
+                        setSeconds(seconds - 1);
+                    }
+                } else {
+                    if (seconds === 59) {
+                        setMinutes(minutes + 1);
+                        setSeconds(0);
+                    } else {
+                        setSeconds(seconds + 1);
+                    }
+                }
+            }, 1000);
+        } else {
+            if (intervalRef.current) {
+                clearInterval(intervalRef.current);
+            }
+        }
+
+        return () => {
+            if (intervalRef.current) {
+                clearInterval(intervalRef.current);
+            }
+        };
+    }, [isActive, minutes, seconds, isPomodoroMode, handlePomodoroComplete]);
 
     const toggleTimer = () => {
         setIsActive(!isActive);

@@ -43,10 +43,6 @@ import {
 } from './ui/select';
 import { Textarea } from './ui/textarea';
 
-interface CreateDictationDialogProps {
-    onSuccess?: () => void;
-}
-
 type SectionMap = Record<number, string>;
 
 function readSectionMapFromLocalStorage(max = 4) {
@@ -63,9 +59,7 @@ function getSectionId(index: number, map: SectionMap) {
     return id;
 }
 
-export function CreateDictationDialog({
-    onSuccess,
-}: CreateDictationDialogProps) {
+export function CreateDictationDialog() {
     const [open, setOpen] = useState(false);
     const [step, setStep] = useState(1);
     const [testId, setTestId] = useState<string>(
@@ -105,6 +99,7 @@ export function CreateDictationDialog({
         createTestForm.reset();
         fullSectionForm.reset();
         dictationQuestionForm.reset();
+        console.log(sectionIds);
     };
 
     const onTestSubmit = (data: TestCreateFormValues) => {
@@ -613,8 +608,10 @@ export function CreateDictationDialog({
                                         sectionIndex: 1,
                                         difficult: 1,
                                         type: 'Dictation',
-                                        audioUrl: '',
                                         script: '',
+                                        file: new File([], 'placeholder.wav', {
+                                            type: 'audio/wav',
+                                        }),
                                     })
                                 }
                             >

@@ -46,7 +46,7 @@ export default function ViewProfilePage() {
     const [openDialog, setOpenDialog] = useState(false);
     const [openEditAvatar, setOpenEditAvatar] = useState(false);
     const mutation = useSaveFile();
-    const { data, isLoading, refetch } = useGetAvatar();
+    const { data, refetch } = useGetAvatar();
 
     const bgClass = useMemo(
         () => bgGradients[Math.floor(Math.random() * bgGradients.length)],

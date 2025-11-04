@@ -45,6 +45,7 @@ export default function BlogPostPage() {
     const [comment, setComment] = useState(comments);
     const { data: blogPost } = useGetBlogDetail(id);
     const handleSubmit = () => {
+        console.log(comment);
         setSubmitting(true);
         setValue(null);
         setComment(comments);
