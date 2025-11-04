@@ -254,6 +254,14 @@ export function ChattingRoomDisplay() {
                 </header>
 
                 <main className="relative flex-1 overflow-y-auto">
+                    <div
+                        className="pointer-events-none absolute inset-0 -z-10 opacity-15"
+                        style={{
+                            background:
+                                'radial-gradient(1200px 600px at 50% -20%, rgba(255,255,255,.06), transparent 65%)',
+                        }}
+                    />
+
                     <div className="mx-auto h-full w-full max-w-[1600px] px-6 py-6">
                         <div className="flex h-full flex-col gap-6">
                             {messages.map((m) => {
