@@ -11,7 +11,7 @@ import { Comment } from '@/lib/api/dto/comment';
 import { ListeningSection, Passage, WritingTask } from '@/lib/api/dto/question';
 import { Test, TestHistory, TestOverview } from '@/lib/api/dto/test';
 import { SpeakingSection } from './../src/lib/api/dto/question';
-import { DictationDTO, Section } from '@/lib/api/dto/dictation';
+import { Dictation, Section } from '@/lib/api/dto/dictation';
 import { LeaderboardUser } from '@/lib/api/dto/room';
 
 export const mockTests: TestOverview[] = [
@@ -1157,7 +1157,7 @@ export const featureBlogs: FeatureBlogs[] = [
     },
 ];
 
-const lorem =
+export const lorem =
     'This article walks through practical patterns, trade-offs, and code snippets you can apply today. We focus on clarity and measurable impact, keeping the stack approachable while respecting constraints.';
 
 function mkPost(
@@ -1372,7 +1372,7 @@ export const blogPosts: BlogPost[] = [
     ),
 ];
 
-const detailed = mkPost(
+export const detailed = mkPost(
     'bp-detail-1',
     A.nam,
     'End-to-End S3 Uploads with Presigned URLs + CloudFront',
@@ -1394,7 +1394,7 @@ export async function fetchTags(searchText?: string): Promise<Tag[]> {
     return tags.filter((tag) => tag.name.toLowerCase().includes(query));
 }
 
-export const mockDictations: DictationDTO[] = [
+export const mockDictations: Dictation[] = [
     {
         id: '1',
         title: 'IELTS Listening Section 1 - Social Needs',

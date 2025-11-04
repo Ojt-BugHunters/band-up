@@ -26,6 +26,7 @@ export interface PomodoroDisplayProps {
     isPomodoroMode: boolean;
     pomodoroSession: number;
     sessionType: SessionType;
+    draggedIndex: number | null;
 
     // Task system
     task: string;
@@ -107,6 +108,7 @@ export interface PomodoroDisplayProps {
 
 export function PomodoroDisplay({
     minutes,
+    draggedIndex,
     seconds,
     isActive,
     isPomodoroMode,
@@ -345,7 +347,7 @@ export function PomodoroDisplay({
                     <ToDoListBox
                         ref={taskButtonRef}
                         taskList={taskList}
-                        draggedIndex={null}
+                        draggedIndex={draggedIndex}
                         handleDragStart={handleDragStart}
                         handleDragOver={handleDragOver}
                         handleDragEnd={handleDragEnd}
