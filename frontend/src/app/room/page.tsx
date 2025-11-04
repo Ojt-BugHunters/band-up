@@ -35,6 +35,7 @@ import {
     mockStats,
 } from '../../../constants/sample-data';
 import { PomodoroDisplay } from './pomodoro';
+import { AIChatDisplay } from './ai-learning-chat';
 
 export interface FlyingTask {
     id: string;
@@ -536,21 +537,12 @@ export default function RoomPage() {
                     {displayMode === 'ai-chat' && (
                         <motion.div
                             key="ai-chat"
-                            initial={{
-                                x:
-                                    displayMode === 'pomodoro'
-                                        ? '100%'
-                                        : '-100%',
-                                opacity: 0,
-                            }}
+                            initial={{ x: 0, opacity: 0 }}
                             animate={{ x: 0, opacity: 1 }}
-                            exit={{
-                                x: displayMode === 'room' ? '-100%' : '100%',
-                                opacity: 0,
-                            }}
+                            exit={{ x: 0, opacity: 0 }}
                             transition={{
                                 duration: 0.5,
-                                ease: [0.4, 0, 0.2, 1],
+                                ease: [0.4, 0.2, 1, 1],
                             }}
                             className="absolute inset-0"
                         >
@@ -634,125 +626,6 @@ export default function RoomPage() {
                     </button>
                 </div>
             </div>
-        </div>
-    );
-}
-
-function AIChatDisplay() {
-    const [chatTab, setChatTab] = useState<'writing' | 'speaking'>('writing');
-    const [message, setMessage] = useState('');
-    const [isMuted, setIsMuted] = useState(false);
-
-    return (
-        <div className="flex h-full flex-col">
-            <header className="flex items-center justify-between p-6">
-                <div className="flex items-center gap-2">
-                    <div className="flex h-10 w-10 items-center justify-center rounded-xl border border-zinc-700/50 bg-zinc-800/80 shadow-lg shadow-black/20 backdrop-blur-md">
-                        <Zap className="h-5 w-5 text-white" />
-                    </div>
-                    <h1 className="text-xl font-semibold text-white drop-shadow-lg">
-                        AI Assistant
-                    </h1>
-                </div>
-
-                <div className="flex items-center gap-4">
-                    <Avatar className="h-10 w-10 border-2 border-zinc-700/50 shadow-lg shadow-black/20">
-                        <AvatarFallback className="bg-zinc-800/80 text-white backdrop-blur-md">
-                            ND
-                        </AvatarFallback>
-                    </Avatar>
-                </div>
-            </header>
-
-            <main className="flex flex-1 flex-col items-center justify-center gap-6 px-6 pb-24">
-                <div className="w-full max-w-4xl rounded-2xl border border-zinc-700/50 bg-zinc-800/80 p-6 shadow-xl shadow-black/20 backdrop-blur-md">
-                    <Tabs
-                        value={chatTab}
-                        onValueChange={(v) =>
-                            setChatTab(v as 'writing' | 'speaking')
-                        }
-                    >
-                        <TabsList className="mb-6 grid w-full grid-cols-2 border border-zinc-700/30 bg-zinc-900/50">
-                            <TabsTrigger
-                                value="writing"
-                                className="data-[state=active]:bg-zinc-700/80 data-[state=active]:text-white"
-                            >
-                                <span className="flex items-center gap-2">
-                                    <MessageSquare className="h-4 w-4" />
-                                    Writing AI
-                                </span>
-                            </TabsTrigger>
-                            <TabsTrigger
-                                value="speaking"
-                                className="data-[state=active]:bg-zinc-700/80 data-[state=active]:text-white"
-                            >
-                                <span className="flex items-center gap-2">
-                                    <Mic className="h-4 w-4" />
-                                    Speaking AI
-                                </span>
-                            </TabsTrigger>
-                        </TabsList>
-
-                        <TabsContent value="writing" className="space-y-4">
-                            <div className="h-[400px] space-y-4 overflow-y-auto rounded-xl border border-zinc-700/30 bg-zinc-900/50 p-4">
-                                <div className="flex gap-3">
-                                    <Avatar className="h-8 w-8 border border-zinc-700/50">
-                                        <AvatarFallback className="bg-zinc-700/80 text-xs text-white">
-                                            AI
-                                        </AvatarFallback>
-                                    </Avatar>
-                                    <div className="flex-1 rounded-xl border border-zinc-700/50 bg-zinc-800/80 p-3 shadow-md shadow-black/10 backdrop-blur-md">
-                                        <p className="text-sm text-white">
-                                            Hello! I'm your AI study assistant.
-                                            How can I help you today?
-                                        </p>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <div className="flex gap-2">
-                                <Input
-                                    type="text"
-                                    placeholder="Type your message..."
-                                    value={message}
-                                    onChange={(e) => setMessage(e.target.value)}
-                                    className="flex-1 border-zinc-700/50 bg-zinc-900/50 text-white placeholder:text-white/50"
-                                />
-                                <Button className="rounded-xl bg-white text-black shadow-lg shadow-black/20 hover:bg-white/90">
-                                    <Send className="h-4 w-4" />
-                                </Button>
-                            </div>
-                        </TabsContent>
-
-                        <TabsContent value="speaking" className="space-y-4">
-                            <div className="flex h-[400px] flex-col items-center justify-center gap-6 rounded-xl border border-zinc-700/30 bg-zinc-900/50 p-4">
-                                <div className="flex h-32 w-32 items-center justify-center rounded-full border-2 border-zinc-700/50 bg-zinc-800/80 shadow-xl shadow-black/20 backdrop-blur-md">
-                                    {isMuted ? (
-                                        <MicOff className="h-16 w-16 text-white/70" />
-                                    ) : (
-                                        <Mic className="h-16 w-16 text-white" />
-                                    )}
-                                </div>
-                                <p className="text-center text-white/70">
-                                    {isMuted
-                                        ? 'Click the microphone to start speaking'
-                                        : 'Listening...'}
-                                </p>
-                                <Button
-                                    onClick={() => setIsMuted(!isMuted)}
-                                    className={`rounded-xl px-8 shadow-lg shadow-black/20 ${
-                                        isMuted
-                                            ? 'bg-white text-black hover:bg-white/90'
-                                            : 'bg-red-500 text-white hover:bg-red-600'
-                                    }`}
-                                >
-                                    {isMuted ? 'Start Speaking' : 'Stop'}
-                                </Button>
-                            </div>
-                        </TabsContent>
-                    </Tabs>
-                </div>
-            </main>
         </div>
     );
 }
