@@ -12,18 +12,31 @@ import { NotFound } from './not-found';
 export function FeaturedCarousel() {
     const [currentSlide, setCurrentSlide] = useState(0);
     const { data: featureBlogs, isPending, isError } = useGetFeaturedBlog();
-    const total = featureBlogs?.length ?? 0;
+    const featureBlogList = featureBlogs ?? [];
+    const total = featureBlogList.length;
 
     useEffect(() => {
+        if (total <= 1) {
+            return;
+        }
         const timer = setInterval(() => {
             setCurrentSlide((prev) => (prev + 1) % total);
         }, 4000);
         return () => clearInterval(timer);
     }, [total]);
 
-    const nextSlide = () => setCurrentSlide((prev) => (prev + 1) % total);
-    const prevSlide = () =>
+    const nextSlide = () => {
+        if (!total) {
+            return;
+        }
+        setCurrentSlide((prev) => (prev + 1) % total);
+    };
+    const prevSlide = () => {
+        if (!total) {
+            return;
+        }
         setCurrentSlide((prev) => (prev - 1 + total) % total);
+    };
 
     if (isPending) {
         return <LiquidLoading />;
@@ -35,7 +48,7 @@ export function FeaturedCarousel() {
 
     return (
         <div className="relative h-[500px] w-full overflow-hidden rounded-xl">
-            {featureBlogs.map((post, index) => (
+            {featureBlogList.map((post, index) => (
                 <Link href={`/blog/${post.id}`} key={post.id}>
                     <div
                         key={post.id}
@@ -63,7 +76,7 @@ export function FeaturedCarousel() {
                             <div className="relative z-20 flex h-full flex-col justify-end p-8">
                                 <div className="mb-4">
                                     <div className="mb-4 flex flex-wrap gap-2">
-                                        {post.tags.map((tag) => (
+                                        {post.tags?.map((tag) => (
                                             <span
                                                 key={tag.id}
                                                 className="bg-primary text-primary-foreground inline-block rounded-full px-3 py-1 text-sm font-medium"
@@ -78,9 +91,9 @@ export function FeaturedCarousel() {
                                     <div className="flex items-center gap-6 text-sm text-white/90 drop-shadow-md">
                                         <span className="inline-flex items-center gap-2">
                                             <Users className="h-4 w-4" />
-                                            {post.numberOfReaders.toLocaleString(
-                                                'en-US',
-                                            )}
+                                            {Number(
+                                                post.numberOfReaders ?? 0,
+                                            ).toLocaleString('en-US')}
                                         </span>
                                     </div>
                                 </div>
@@ -110,7 +123,7 @@ export function FeaturedCarousel() {
             </Button>
 
             <div className="absolute bottom-4 left-1/2 z-30 flex -translate-x-1/2 transform space-x-2">
-                {featureBlogs.map((_, index) => (
+                {featureBlogList.map((_, index) => (
                     <button
                         key={index}
                         aria-label={`Go to slide ${index + 1}`}
