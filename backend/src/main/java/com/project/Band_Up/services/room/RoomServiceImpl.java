@@ -17,6 +17,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
+import java.util.Comparator;
 import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
@@ -75,7 +76,7 @@ public class RoomServiceImpl implements RoomService {
         RoomMember newMember = new RoomMember();
         newMember.setRoom(room);
         newMember.setUser(user);
-        newMember.setRole(Role.Member);
+        newMember.setRole(Role.Guest);
         newMember.setJoinedAt(LocalDateTime.now());
         newMember.setIsActive(true);
         roomMemberRepository.save(newMember);
@@ -117,6 +118,37 @@ public class RoomServiceImpl implements RoomService {
                 .orElseThrow(() -> new EntityNotFoundException("Room not found"));
         roomRepository.delete(room);
     }
+
+    @Override
+    public RoomResponse leaveRoom(UUID roomId, UUID userId) {
+        Room room = roomRepository.findById(roomId)
+                .orElseThrow(() -> new EntityNotFoundException("Room not found"));
+
+        List<RoomMember> members = roomMemberRepository.findByRoom(room);
+        RoomMember leaver = members.stream()
+                .filter(m -> m.getUser().getId().equals(userId))
+                .findFirst()
+                .orElseThrow(() -> new EntityNotFoundException("User not in this room"));
+
+        roomMemberRepository.delete(leaver);
+
+        List<RoomMember> remaining = roomMemberRepository.findByRoom(room);
+
+        if (remaining.isEmpty()) {
+            roomRepository.delete(room);
+            return null;
+        }
+
+        if (leaver.getRole() == Role.Host) {
+            RoomMember earliest = remaining.stream()
+                    .min(Comparator.comparing(RoomMember::getJoinedAt))
+                    .orElseThrow(() -> new EntityNotFoundException("No members left"));
+            earliest.setRole(Role.Host);
+            roomMemberRepository.save(earliest);
+        }
+        return buildRoomResponse(room);
+    }
+
 
     private RoomResponse buildRoomResponse(Room room) {
         List<RoomMember> members = roomMemberRepository.findByRoom(room);

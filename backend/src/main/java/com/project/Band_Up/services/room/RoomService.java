@@ -18,4 +18,6 @@ public interface RoomService {
     RoomResponse updateRoom(UUID roomId, RoomCreateRequest updateRequest);
 
     void deleteRoom(UUID roomId);
+
+    RoomResponse leaveRoom(UUID roomId, UUID userId);
 }
