@@ -13,6 +13,7 @@ import org.hibernate.annotations.UuidGenerator;
 import org.joda.time.DateTime;
 
 import java.math.BigInteger;
+import java.util.UUID;
 
 @Entity
 @Data
@@ -22,7 +23,7 @@ public class StudySession {
     @Id
     @GeneratedValue
     @UuidGenerator(style = UuidGenerator.Style.TIME)
-    private String id;
+    private UUID id;
 
     @ManyToOne(fetch = jakarta.persistence.FetchType.LAZY, optional = false)
     @JoinColumn(name = "user_id", nullable = false,
