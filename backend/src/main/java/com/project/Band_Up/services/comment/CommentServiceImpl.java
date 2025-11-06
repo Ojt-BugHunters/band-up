@@ -10,7 +10,7 @@ import com.project.Band_Up.repositories.AccountRepository;
 import com.project.Band_Up.repositories.BlogRepository;
 import com.project.Band_Up.repositories.CommentRepository;
 import com.project.Band_Up.repositories.TestRepository;
-import com.project.Band_Up.services.AwsService.S3Service;
+import com.project.Band_Up.services.awsService.S3Service;
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Service;

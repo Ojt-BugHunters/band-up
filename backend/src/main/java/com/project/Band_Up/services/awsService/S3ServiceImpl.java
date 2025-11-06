@@ -1,4 +1,4 @@
-package com.project.Band_Up.services.AwsService;
+package com.project.Band_Up.services.awsService;
 
 import com.project.Band_Up.dtos.media.UploadInfo;
 import lombok.extern.slf4j.Slf4j;

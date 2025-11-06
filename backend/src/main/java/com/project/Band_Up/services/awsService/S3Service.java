@@ -1,9 +1,6 @@
-package com.project.Band_Up.services.AwsService;
+package com.project.Band_Up.services.awsService;
 
 import com.project.Band_Up.dtos.media.UploadInfo;
-
-import java.time.Duration;
-import java.util.UUID;
 
 public interface S3Service {
     public UploadInfo createUploadPresignedUrl(String key, String contentType);

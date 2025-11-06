@@ -6,7 +6,7 @@ import com.project.Band_Up.dtos.profile.ProfileDto;
 import com.project.Band_Up.entities.Account;
 import com.project.Band_Up.exceptions.ResourceNotFoundException;
 import com.project.Band_Up.repositories.AccountRepository;
-import com.project.Band_Up.services.AwsService.S3Service;
+import com.project.Band_Up.services.awsService.S3Service;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;
