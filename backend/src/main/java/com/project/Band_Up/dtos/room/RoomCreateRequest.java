@@ -5,6 +5,8 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.util.UUID;
+
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
@@ -12,5 +14,6 @@ import lombok.NoArgsConstructor;
 public class RoomCreateRequest {
     private String roomName;
     private String description;
+    private String roomCode;
     private boolean isPrivate;
 }
