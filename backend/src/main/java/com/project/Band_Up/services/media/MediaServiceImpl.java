@@ -7,14 +7,13 @@ import com.project.Band_Up.entities.Section;
 import com.project.Band_Up.repositories.MediaRepository;
 import com.project.Band_Up.repositories.QuestionRepository;
 import com.project.Band_Up.repositories.SectionRepository;
-import com.project.Band_Up.services.AwsService.S3Service;
+import com.project.Band_Up.services.awsService.S3Service;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import java.time.Instant;
-import java.util.Optional;
 import java.util.UUID;
 
 @Slf4j
