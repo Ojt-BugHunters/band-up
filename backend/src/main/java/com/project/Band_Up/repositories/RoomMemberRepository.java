@@ -1,4 +1,10 @@
 package com.project.Band_Up.repositories;
 
-public interface RoomMemberRepository {
+import com.project.Band_Up.entities.RoomMember;
+import org.springframework.data.jpa.repository.JpaRepository;
+
+import java.util.UUID;
+
+public interface RoomMemberRepository extends JpaRepository<RoomMember, UUID> {
+
 }
