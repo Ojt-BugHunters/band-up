@@ -14,6 +14,5 @@ import java.util.UUID;
 public class RoomCreateRequest {
     private String roomName;
     private String description;
-    private String roomCode;
     private boolean isPrivate;
 }
