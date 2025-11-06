@@ -12,18 +12,17 @@ public interface RoomService {
     RoomResponse createRoom(UUID creatorId, RoomCreateRequest roomRequest);
     RoomResponse getRoomById(UUID roomId);
     RoomResponse updateRoom(UUID roomId, RoomCreateRequest updateRequest);
-    void deleteRoom(UUID roomId);
+    void deleteRoom(UUID actorId, UUID roomId);
 
     // Thành viên
     RoomResponse addMemberToRoom(UUID roomId, UUID userId);
-    void removeMemberFromRoom(UUID roomId, UUID userId);
+    void removeMemberFromRoom(UUID actorId, UUID roomId, UUID targetUserId);
     RoomResponse leaveRoom(UUID roomId, UUID userId);
 
     // Tiện ích
-    List<RoomResponse> getAllPublicRooms();  // isPrivate = false
+    List<RoomResponse> getAllPublicRooms();
     RoomResponse getRoomByCode(String roomCode);
     boolean isMember(UUID roomId, UUID userId);
-
-    // (Tuỳ chọn)
-    void transferHost(UUID roomId, UUID newHostId);
+    void transferHost(UUID actorId, UUID roomId, UUID newHostId);
 }
+

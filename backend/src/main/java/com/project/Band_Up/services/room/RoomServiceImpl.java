@@ -86,27 +86,35 @@ public class RoomServiceImpl implements RoomService {
     }
 
     @Override
-    public void transferHost(UUID roomId, UUID newHostId) {
+    public void transferHost(UUID actorId, UUID roomId, UUID newHostId) {
         Room room = roomRepository.findById(roomId)
                 .orElseThrow(() -> new EntityNotFoundException("Room not found"));
 
-        List<RoomMember> members = roomMemberRepository.findByRoom(room);
-        RoomMember newHost = members.stream()
-                .filter(m -> m.getUser().getId().equals(newHostId))
-                .findFirst()
-                .orElseThrow(() -> new EntityNotFoundException("New host not in room"));
+        Account actor = accountRepository.findById(actorId)
+                .orElseThrow(() -> new EntityNotFoundException("Actor not found"));
+        Account newHost = accountRepository.findById(newHostId)
+                .orElseThrow(() -> new EntityNotFoundException("New host not found"));
 
-        // Xóa host cũ
-        members.stream()
-                .filter(m -> m.getRole() == Role.Host)
-                .forEach(m -> {
-                    m.setRole(Role.Guest);
-                    roomMemberRepository.save(m);
-                });
+        RoomMember actorMember = roomMemberRepository.findByRoomAndUser(room, actor)
+                .orElseThrow(() -> new EntityNotFoundException("Actor not in this room"));
+        RoomMember newHostMember = roomMemberRepository.findByRoomAndUser(room, newHost)
+                .orElseThrow(() -> new EntityNotFoundException("New host not in this room"));
 
-        newHost.setRole(Role.Host);
-        roomMemberRepository.save(newHost);
+        if (actorMember.getRole() != Role.Host) {
+            throw new IllegalStateException("Only host can transfer host role");
+        }
+
+        if (actorId.equals(newHostId)) {
+            throw new IllegalStateException("Cannot transfer host role to yourself");
+        }
+
+        actorMember.setRole(Role.Guest);
+        newHostMember.setRole(Role.Host);
+
+        roomMemberRepository.save(actorMember);
+        roomMemberRepository.save(newHostMember);
     }
+
 
     @Override
     public RoomResponse getRoomById(UUID roomId) {
@@ -139,18 +147,31 @@ public class RoomServiceImpl implements RoomService {
     }
 
     @Override
-    public void removeMemberFromRoom(UUID roomId, UUID userId) {
+    public void removeMemberFromRoom(UUID actorId, UUID roomId, UUID targetUserId) {
         Room room = roomRepository.findById(roomId)
                 .orElseThrow(() -> new EntityNotFoundException("Room not found"));
 
-        List<RoomMember> members = roomMemberRepository.findByRoom(room);
-        RoomMember target = members.stream()
-                .filter(m -> m.getUser().getId().equals(userId))
-                .findFirst()
+        Account actor = accountRepository.findById(actorId)
+                .orElseThrow(() -> new EntityNotFoundException("Actor not found"));
+        Account target = accountRepository.findById(targetUserId)
+                .orElseThrow(() -> new EntityNotFoundException("Target user not found"));
+
+        RoomMember actorMember = roomMemberRepository.findByRoomAndUser(room, actor)
+                .orElseThrow(() -> new EntityNotFoundException("Actor not in this room"));
+        RoomMember targetMember = roomMemberRepository.findByRoomAndUser(room, target)
                 .orElseThrow(() -> new EntityNotFoundException("User not in this room"));
 
-        roomMemberRepository.delete(target);
+        if (actorMember.getRole() != Role.Host) {
+            throw new IllegalStateException("Only host can remove members");
+        }
+
+        if (actorId.equals(targetUserId)) {
+            throw new IllegalStateException("Host cannot remove themselves. Use leaveRoom instead.");
+        }
+
+        roomMemberRepository.delete(targetMember);
     }
+
 
     @Override
     public RoomResponse updateRoom(UUID roomId, RoomCreateRequest updateRequest) {
@@ -165,11 +186,23 @@ public class RoomServiceImpl implements RoomService {
     }
 
     @Override
-    public void deleteRoom(UUID roomId) {
+    public void deleteRoom(UUID actorId, UUID roomId) {
         Room room = roomRepository.findById(roomId)
                 .orElseThrow(() -> new EntityNotFoundException("Room not found"));
+
+        Account actor = accountRepository.findById(actorId)
+                .orElseThrow(() -> new EntityNotFoundException("Actor not found"));
+
+        RoomMember actorMember = roomMemberRepository.findByRoomAndUser(room, actor)
+                .orElseThrow(() -> new EntityNotFoundException("Actor not in this room"));
+
+        if (actorMember.getRole() != Role.Host) {
+            throw new IllegalStateException("Only host can delete the room");
+        }
+
         roomRepository.delete(room);
     }
+
 
     @Override
     public RoomResponse leaveRoom(UUID roomId, UUID userId) {
