@@ -40,7 +40,7 @@ public class RoomServiceImpl implements RoomService {
         Room room = modelMapper.map(request, Room.class);
         room.setCreatorId(creator.getId());
         if (room.getIsPrivate() == null) room.setIsPrivate(true);
-
+        room.setRoomCode(generateRoomCode(room.getRoomName()));
         Room savedRoom = roomRepository.save(room);
 
         RoomMember creatorMember = new RoomMember();
@@ -52,6 +52,60 @@ public class RoomServiceImpl implements RoomService {
         roomMemberRepository.save(creatorMember);
 
         return buildRoomResponse(savedRoom);
+    }
+    private String generateRoomCode(String name) {
+        String prefix = name.toLowerCase()
+                .replaceAll("[^a-z0-9]", "-")
+                .replaceAll("-+", "-");
+        String randomSuffix = UUID.randomUUID().toString()
+                .substring(0, 8);
+        return prefix + "-" + randomSuffix;
+    }
+
+    @Override
+    public RoomResponse getRoomByCode(String roomCode) {
+        Room room = roomRepository.findByRoomCode(roomCode)
+                .orElseThrow(() -> new EntityNotFoundException("Room not found"));
+        return buildRoomResponse(room);
+    }
+
+    @Override
+    public List<RoomResponse> getAllPublicRooms() {
+        return roomRepository.findByIsPrivateFalse().stream()
+                .map(this::buildRoomResponse)
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    public boolean isMember(UUID roomId, UUID userId) {
+        Room room = roomRepository.findById(roomId)
+                .orElseThrow(() -> new EntityNotFoundException("Room not found"));
+        Account user = accountRepository.findById(userId)
+                .orElseThrow(() -> new EntityNotFoundException("User not found"));
+        return roomMemberRepository.findByRoomAndUser(room, user).isPresent();
+    }
+
+    @Override
+    public void transferHost(UUID roomId, UUID newHostId) {
+        Room room = roomRepository.findById(roomId)
+                .orElseThrow(() -> new EntityNotFoundException("Room not found"));
+
+        List<RoomMember> members = roomMemberRepository.findByRoom(room);
+        RoomMember newHost = members.stream()
+                .filter(m -> m.getUser().getId().equals(newHostId))
+                .findFirst()
+                .orElseThrow(() -> new EntityNotFoundException("New host not in room"));
+
+        // Xóa host cũ
+        members.stream()
+                .filter(m -> m.getRole() == Role.Host)
+                .forEach(m -> {
+                    m.setRole(Role.Guest);
+                    roomMemberRepository.save(m);
+                });
+
+        newHost.setRole(Role.Host);
+        roomMemberRepository.save(newHost);
     }
 
     @Override
@@ -106,8 +160,6 @@ public class RoomServiceImpl implements RoomService {
         room.setRoomName(updateRequest.getRoomName());
         room.setDescription(updateRequest.getDescription());
         room.setIsPrivate(updateRequest.isPrivate());
-        room.setRoomCode(updateRequest.getRoomCode());
-
         Room updated = roomRepository.save(room);
         return buildRoomResponse(updated);
     }
