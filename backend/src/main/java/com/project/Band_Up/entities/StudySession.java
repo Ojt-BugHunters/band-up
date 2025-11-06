@@ -5,7 +5,6 @@ import com.project.Band_Up.enums.Status;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
-import lombok.Cleanup;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.CreationTimestamp;
@@ -13,6 +12,7 @@ import org.hibernate.annotations.UuidGenerator;
 import org.joda.time.DateTime;
 
 import java.math.BigInteger;
+import java.time.LocalDateTime;
 import java.util.UUID;
 
 @Entity
@@ -58,5 +58,5 @@ public class StudySession {
 
     @CreationTimestamp
     @Column(name = "create_at", nullable = false, updatable = false)
-    private DateTime createAt;
+    private LocalDateTime createAt;
 }

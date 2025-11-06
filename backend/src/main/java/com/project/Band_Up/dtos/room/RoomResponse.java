@@ -6,6 +6,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.joda.time.DateTime;
 
+import java.time.LocalDateTime;
 import java.util.UUID;
 
 @Data
@@ -19,5 +20,5 @@ public class RoomResponse {
     private String roomCode;
     private Boolean isPrivate;
     private UUID createdBy;
-    private DateTime createdAt;
+    private LocalDateTime createdAt;
 }

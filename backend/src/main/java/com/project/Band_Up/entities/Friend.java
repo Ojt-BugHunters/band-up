@@ -8,8 +8,8 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.UuidGenerator;
-import org.joda.time.DateTime;
 
+import java.time.LocalDateTime;
 import java.util.UUID;
 
 @Entity
@@ -41,7 +41,7 @@ public class Friend {
     @Enumerated(EnumType.STRING)
     private Status status;
 
-    private DateTime requestedAt;
-    private DateTime acceptedAt;
+    private LocalDateTime requestedAt;
+    private LocalDateTime acceptedAt;
 
 }
