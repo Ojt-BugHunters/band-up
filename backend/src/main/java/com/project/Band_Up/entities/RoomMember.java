@@ -9,6 +9,7 @@ import lombok.NoArgsConstructor;
 import org.hibernate.annotations.UuidGenerator;
 import org.joda.time.DateTime;
 
+import java.time.LocalDateTime;
 import java.util.UUID;
 
 @Entity
@@ -37,7 +38,7 @@ public class RoomMember {
     @Enumerated(EnumType.STRING)
     private Role role;
 
-    private DateTime joinedAt;
+    private LocalDateTime joinedAt;
 
     private Boolean isActive = true;
 }
