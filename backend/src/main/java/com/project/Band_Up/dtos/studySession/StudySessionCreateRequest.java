@@ -14,7 +14,7 @@ import java.util.UUID;
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
-public class CreateStudySession {
+public class StudySessionCreateRequest {
     private SessionMode mode;
     private BigInteger focusTime;
     private BigInteger shortBreak;
