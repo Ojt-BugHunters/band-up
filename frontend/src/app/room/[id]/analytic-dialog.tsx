@@ -24,7 +24,10 @@ import {
     XAxis,
     YAxis,
 } from 'recharts';
-import { mockAnalyticsData, mockStats } from '../../../constants/sample-data';
+import {
+    mockAnalyticsData,
+    mockStats,
+} from '../../../../constants/sample-data';
 
 interface AnalyticComponentProps {
     analyticsDate: Date;

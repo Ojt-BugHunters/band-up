@@ -9,7 +9,7 @@ import {
     TrendingDown,
     TrendingUp,
 } from 'lucide-react';
-import { mockLeaderboardData } from '../../../constants/sample-data';
+import { mockLeaderboardData } from '../../../../constants/sample-data';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { TimePeriod } from './page';
 

@@ -36,3 +36,22 @@ export type PomodoroPreset = {
     shortBreak: number;
     longBreak: number;
 };
+
+export interface RoomMember {
+    roomId: string;
+    userId: string;
+    role: string;
+    joinedAt: string;
+}
+
+export interface Room {
+    id: string;
+    roomName: string;
+    description: string;
+    roomCode: string;
+    isPrivate: boolean;
+    createdBy: string;
+    numberOfMembers: number;
+    createdAt: string;
+    members: RoomMember[];
+}
