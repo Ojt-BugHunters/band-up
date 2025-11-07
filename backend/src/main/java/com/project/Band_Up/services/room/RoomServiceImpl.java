@@ -248,13 +248,13 @@ public class RoomServiceImpl implements RoomService {
                 .collect(Collectors.toList());
 
         return RoomResponse.builder()
-                .Id(room.getId().toString())
+                .Id(room.getId())
                 .roomName(room.getRoomName())
                 .description(room.getDescription())
                 .roomCode(room.getRoomCode())
                 .isPrivate(room.getIsPrivate())
                 .createdBy(room.getCreatorId())
-                .memberOfMembers(roomMemberRepository.countByRoom(room))
+                .numberOfMembers(roomMemberRepository.countByRoom(room))
                 .members(memberResponses)
                 .createdAt(room.getCreateAt())
                 .build();
