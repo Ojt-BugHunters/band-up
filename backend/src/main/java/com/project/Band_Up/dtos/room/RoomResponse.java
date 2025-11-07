@@ -15,7 +15,7 @@ import java.util.UUID;
 @NoArgsConstructor
 @Builder
 public class RoomResponse {
-    private String Id;
+    private UUID Id;
     private String roomName;
     private String description;
     private String roomCode;
