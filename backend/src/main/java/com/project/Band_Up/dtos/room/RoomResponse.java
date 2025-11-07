@@ -21,7 +21,7 @@ public class RoomResponse {
     private String roomCode;
     private Boolean isPrivate;
     private UUID createdBy;
-    private Integer memberOfMembers;
+    private Integer numberOfMembers;
     List<RoomMemberResponse> members;
     private LocalDateTime createdAt;
 }
