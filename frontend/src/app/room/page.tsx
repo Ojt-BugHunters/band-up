@@ -8,8 +8,6 @@ import {
     ChevronLeft,
     ChevronRight,
     ChevronUp,
-    Hash,
-    Plus,
     Search,
     Users,
 } from 'lucide-react';
@@ -19,28 +17,18 @@ import {
     DialogContent,
     DialogHeader,
     DialogTitle,
-    DialogTrigger,
 } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
-import { Label } from '@/components/ui/label';
-import { Textarea } from '@/components/ui/textarea';
-import { Switch } from '@/components/ui/switch';
+import { JoinRoomDialog } from './join-room-by-code';
 
 export default function RoomsPage() {
     const [searchQuery, setSearchQuery] = useState('');
-    const [createDialogOpen, setCreateDialogOpen] = useState(false);
     const [joinCodeDialogOpen, setJoinCodeDialogOpen] = useState(false);
     const [roomCode, setRoomCode] = useState('');
     const [confirmJoinDialogOpen, setConfirmJoinDialogOpen] = useState(false);
     const [selectedRoom, setSelectedRoom] = useState<Room | null>(null);
     const [currentPage, setCurrentPage] = useState(1);
     const roomsPerPage = 10;
-
-    const [newRoom, setNewRoom] = useState({
-        roomName: '',
-        description: '',
-        isPrivate: false,
-    });
 
     const filteredRooms = sampleRooms.filter(
         (room) =>
@@ -55,19 +43,6 @@ export default function RoomsPage() {
     const startIndex = (currentPage - 1) * roomsPerPage;
     const endIndex = startIndex + roomsPerPage;
     const currentRooms = filteredRooms.slice(startIndex, endIndex);
-
-    const handleCreateRoom = () => {
-        console.log('Creating room:', newRoom);
-        setCreateDialogOpen(false);
-        setNewRoom({ roomName: '', description: '', isPrivate: false });
-    };
-
-    const handleJoinByCode = () => {
-        console.log('Joining room with code:', roomCode);
-        window.location.href = '/room/1';
-        setJoinCodeDialogOpen(false);
-        setRoomCode('');
-    };
 
     const handleJoinClick = (room: Room) => {
         setSelectedRoom(room);
@@ -113,153 +88,14 @@ export default function RoomsPage() {
                             </div>
 
                             <div className="flex items-center gap-2">
-                                <Dialog
-                                    open={joinCodeDialogOpen}
-                                    onOpenChange={setJoinCodeDialogOpen}
-                                >
-                                    <DialogTrigger asChild>
-                                        <Button
-                                            size="icon"
-                                            className="h-9 w-9 rounded-xl border border-white/20 bg-zinc-900/60 text-white shadow-lg shadow-black/20 backdrop-blur-md transition-all hover:scale-105 hover:bg-zinc-800/80"
-                                        >
-                                            <Hash className="h-4 w-4" />
-                                        </Button>
-                                    </DialogTrigger>
-                                    <DialogContent className="rounded-3xl border-zinc-700/50 bg-zinc-900/95 text-white backdrop-blur-xl sm:max-w-[450px]">
-                                        <DialogHeader>
-                                            <DialogTitle className="text-2xl font-bold">
-                                                Join Room by Code
-                                            </DialogTitle>
-                                        </DialogHeader>
-                                        <div className="space-y-6 py-4">
-                                            <div className="space-y-2">
-                                                <Label
-                                                    htmlFor="roomCode"
-                                                    className="text-base font-semibold"
-                                                >
-                                                    Room Code
-                                                </Label>
-                                                <Input
-                                                    id="roomCode"
-                                                    placeholder="Enter room code (e.g., DW2024)"
-                                                    value={roomCode}
-                                                    onChange={(e) =>
-                                                        setRoomCode(
-                                                            e.target.value,
-                                                        )
-                                                    }
-                                                    className="rounded-xl border-zinc-700/50 bg-zinc-800/50 font-mono text-lg tracking-wider text-white placeholder:text-white/50"
-                                                />
-                                            </div>
-                                            <Button
-                                                onClick={handleJoinByCode}
-                                                disabled={!roomCode.trim()}
-                                                className="w-full rounded-xl bg-cyan-500 text-white hover:bg-cyan-600 disabled:cursor-not-allowed disabled:opacity-50"
-                                                size="lg"
-                                            >
-                                                Join Room
-                                            </Button>
-                                        </div>
-                                    </DialogContent>
-                                </Dialog>
-
-                                <Dialog
-                                    open={createDialogOpen}
-                                    onOpenChange={setCreateDialogOpen}
-                                >
-                                    <DialogTrigger asChild>
-                                        <Button
-                                            size="icon"
-                                            className="h-9 w-9 rounded-xl border border-white/20 bg-gradient-to-r from-rose-400/90 to-pink-400/90 text-white shadow-lg shadow-rose-500/30 backdrop-blur-md transition-all hover:scale-105 hover:from-rose-500 hover:to-pink-500"
-                                        >
-                                            <Plus className="h-4 w-4" />
-                                        </Button>
-                                    </DialogTrigger>
-                                    <DialogContent className="rounded-3xl border-zinc-700/50 bg-zinc-900/95 text-white backdrop-blur-xl sm:max-w-[500px]">
-                                        <DialogHeader>
-                                            <DialogTitle className="text-2xl font-bold">
-                                                Create New Room
-                                            </DialogTitle>
-                                        </DialogHeader>
-                                        <div className="space-y-6 py-4">
-                                            <div className="space-y-2">
-                                                <Label
-                                                    htmlFor="roomName"
-                                                    className="text-base font-semibold"
-                                                >
-                                                    Room Name
-                                                </Label>
-                                                <Input
-                                                    id="roomName"
-                                                    placeholder="Enter room name"
-                                                    value={newRoom.roomName}
-                                                    onChange={(e) =>
-                                                        setNewRoom({
-                                                            ...newRoom,
-                                                            roomName:
-                                                                e.target.value,
-                                                        })
-                                                    }
-                                                    className="rounded-xl border-zinc-700/50 bg-zinc-800/50 text-white placeholder:text-white/50"
-                                                />
-                                            </div>
-                                            <div className="space-y-2">
-                                                <Label
-                                                    htmlFor="description"
-                                                    className="text-base font-semibold"
-                                                >
-                                                    Description
-                                                </Label>
-                                                <Textarea
-                                                    id="description"
-                                                    placeholder="What's this room about?"
-                                                    value={newRoom.description}
-                                                    onChange={(e) =>
-                                                        setNewRoom({
-                                                            ...newRoom,
-                                                            description:
-                                                                e.target.value,
-                                                        })
-                                                    }
-                                                    className="min-h-[100px] rounded-xl border-zinc-700/50 bg-zinc-800/50 text-white placeholder:text-white/50"
-                                                />
-                                            </div>
-                                            <div className="flex items-center justify-between">
-                                                <div className="space-y-1">
-                                                    <Label
-                                                        htmlFor="private"
-                                                        className="text-base font-semibold"
-                                                    >
-                                                        Private Room
-                                                    </Label>
-                                                    <p className="text-sm text-white/70">
-                                                        Only invited members can
-                                                        join
-                                                    </p>
-                                                </div>
-                                                <Switch
-                                                    id="private"
-                                                    checked={newRoom.isPrivate}
-                                                    onCheckedChange={(
-                                                        checked,
-                                                    ) =>
-                                                        setNewRoom({
-                                                            ...newRoom,
-                                                            isPrivate: checked,
-                                                        })
-                                                    }
-                                                />
-                                            </div>
-                                            <Button
-                                                onClick={handleCreateRoom}
-                                                className="w-full rounded-xl bg-rose-400 text-white hover:bg-rose-500"
-                                                size="lg"
-                                            >
-                                                Create Room
-                                            </Button>
-                                        </div>
-                                    </DialogContent>
-                                </Dialog>
+                                <JoinRoomDialog
+                                    joinCodeDialogOpen={joinCodeDialogOpen}
+                                    setJoinCodeDialogOpen={
+                                        setJoinCodeDialogOpen
+                                    }
+                                    roomCode={roomCode}
+                                    setRoomCode={setRoomCode}
+                                />
                             </div>
                         </div>
                     </div>
@@ -495,83 +331,11 @@ export default function RoomsPage() {
                                     Try adjusting your search or create a new
                                     room
                                 </p>
-                                <Button
-                                    onClick={() => setCreateDialogOpen(true)}
-                                    className="bg-rose-400 text-white shadow-lg shadow-rose-400/50 hover:bg-rose-500"
-                                >
-                                    <Plus className="mr-2 h-4 w-4" />
-                                    Create New Room
-                                </Button>
                             </motion.div>
                         )}
                     </motion.div>
                 </div>
             </div>
-
-            <Dialog
-                open={confirmJoinDialogOpen}
-                onOpenChange={setConfirmJoinDialogOpen}
-            >
-                <DialogContent className="border-zinc-700/50 bg-zinc-900/95 text-white backdrop-blur-xl sm:max-w-[450px]">
-                    <DialogHeader>
-                        <DialogTitle className="text-2xl font-bold">
-                            Join Room
-                        </DialogTitle>
-                    </DialogHeader>
-                    <div className="space-y-4 py-4">
-                        <div className="space-y-2">
-                            <p className="text-base text-white/90">
-                                Are you sure you want to join this room?
-                            </p>
-                            {selectedRoom && (
-                                <div className="space-y-2 rounded-xl border border-zinc-700/50 bg-zinc-800/50 p-4 backdrop-blur-md">
-                                    <div className="flex items-center justify-between">
-                                        <span className="text-sm text-white/70">
-                                            Room Name:
-                                        </span>
-                                        <span className="font-bold text-white">
-                                            {selectedRoom.roomName}
-                                        </span>
-                                    </div>
-                                    <div className="flex items-center justify-between">
-                                        <span className="text-sm text-white/70">
-                                            Room Code:
-                                        </span>
-                                        <span className="rounded bg-zinc-900/50 px-2 py-1 font-mono text-sm text-white">
-                                            {selectedRoom.roomCode}
-                                        </span>
-                                    </div>
-                                    <div className="flex items-center justify-between">
-                                        <span className="text-sm text-white/70">
-                                            Members:
-                                        </span>
-                                        <span className="font-semibold text-white">
-                                            {selectedRoom.numberOfMembers}
-                                        </span>
-                                    </div>
-                                </div>
-                            )}
-                        </div>
-                        <div className="flex gap-3">
-                            <Button
-                                onClick={() => setConfirmJoinDialogOpen(false)}
-                                variant="outline"
-                                className="flex-1 border-zinc-700/50 bg-zinc-800/80 text-white backdrop-blur-md hover:bg-zinc-700/80"
-                                size="lg"
-                            >
-                                Cancel
-                            </Button>
-                            <Button
-                                onClick={handleConfirmJoin}
-                                className="flex-1 bg-rose-400 text-white hover:bg-rose-500"
-                                size="lg"
-                            >
-                                Join Room
-                            </Button>
-                        </div>
-                    </div>
-                </DialogContent>
-            </Dialog>
         </div>
     );
 }

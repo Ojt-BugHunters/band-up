@@ -4,72 +4,93 @@ import {
     DialogContent,
     DialogHeader,
     DialogTitle,
-    DialogTrigger,
 } from '@/components/ui/dialog';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { Hash } from 'lucide-react';
+import { Room } from '@/lib/api/dto/room';
 
-interface JoinRoomDialogProps {
-    joinCodeDialogOpen: boolean;
-    setJoinCodeDialogOpen: (show: boolean) => void;
-    roomCode: string;
-    setRoomCode: (code: string) => void;
+interface JoinRoomDialog {
+    confirmJoinDialogOpen: boolean;
+    setConfirmJoinDialogOpen: (show: boolean) => void;
+    selectedRoom: Room;
+    setSelectedRoom: (room: Room) => void;
 }
 
 export function JoinRoomDialog({
-    joinCodeDialogOpen,
-    setJoinCodeDialogOpen,
-    roomCode,
-    setRoomCode,
-}: JoinRoomDialogProps) {
-    const handleJoinByCode = () => {
-        console.log('Joining room with code:', roomCode);
+    confirmJoinDialogOpen,
+    setConfirmJoinDialogOpen,
+    selectedRoom,
+    setSelectedRoom,
+}: JoinRoomDialog) {
+    const handleConfirmJoin = () => {
+        console.log('Joining room:', selectedRoom);
+        setConfirmJoinDialogOpen(false);
         window.location.href = '/room/1';
-        setJoinCodeDialogOpen(false);
-        setRoomCode('');
     };
-
+    const handleJoinClick = (room: Room) => {
+        setSelectedRoom(room);
+        setConfirmJoinDialogOpen(true);
+    };
     return (
-        <Dialog open={joinCodeDialogOpen} onOpenChange={setJoinCodeDialogOpen}>
-            <DialogTrigger asChild>
-                <Button
-                    size="icon"
-                    className="h-9 w-9 rounded-xl border border-white/20 bg-zinc-900/60 text-white shadow-lg shadow-black/20 backdrop-blur-md transition-all hover:scale-105 hover:bg-zinc-800/80"
-                >
-                    <Hash className="h-4 w-4" />
-                </Button>
-            </DialogTrigger>
-            <DialogContent className="rounded-3xl border-zinc-700/50 bg-zinc-900/95 text-white backdrop-blur-xl sm:max-w-[450px]">
+        <Dialog
+            open={confirmJoinDialogOpen}
+            onOpenChange={setConfirmJoinDialogOpen}
+        >
+            <DialogContent className="border-zinc-700/50 bg-zinc-900/95 text-white backdrop-blur-xl sm:max-w-[450px]">
                 <DialogHeader>
                     <DialogTitle className="text-2xl font-bold">
-                        Join Room by Code
+                        Join Room
                     </DialogTitle>
                 </DialogHeader>
-                <div className="space-y-6 py-4">
+                <div className="space-y-4 py-4">
                     <div className="space-y-2">
-                        <Label
-                            htmlFor="roomCode"
-                            className="text-base font-semibold"
-                        >
-                            Room Code
-                        </Label>
-                        <Input
-                            id="roomCode"
-                            placeholder="Enter room code (e.g., DW2024)"
-                            value={roomCode}
-                            onChange={(e) => setRoomCode(e.target.value)}
-                            className="rounded-xl border-zinc-700/50 bg-zinc-800/50 font-mono text-lg tracking-wider text-white placeholder:text-white/50"
-                        />
+                        <p className="text-base text-white/90">
+                            Are you sure you want to join this room?
+                        </p>
+                        {selectedRoom && (
+                            <div className="space-y-2 rounded-xl border border-zinc-700/50 bg-zinc-800/50 p-4 backdrop-blur-md">
+                                <div className="flex items-center justify-between">
+                                    <span className="text-sm text-white/70">
+                                        Room Name:
+                                    </span>
+                                    <span className="font-bold text-white">
+                                        {selectedRoom.roomName}
+                                    </span>
+                                </div>
+                                <div className="flex items-center justify-between">
+                                    <span className="text-sm text-white/70">
+                                        Room Code:
+                                    </span>
+                                    <span className="rounded bg-zinc-900/50 px-2 py-1 font-mono text-sm text-white">
+                                        {selectedRoom.roomCode}
+                                    </span>
+                                </div>
+                                <div className="flex items-center justify-between">
+                                    <span className="text-sm text-white/70">
+                                        Members:
+                                    </span>
+                                    <span className="font-semibold text-white">
+                                        {selectedRoom.numberOfMembers}
+                                    </span>
+                                </div>
+                            </div>
+                        )}
                     </div>
-                    <Button
-                        onClick={handleJoinByCode}
-                        disabled={!roomCode.trim()}
-                        className="w-full rounded-xl bg-cyan-500 text-white hover:bg-cyan-600 disabled:cursor-not-allowed disabled:opacity-50"
-                        size="lg"
-                    >
-                        Join Room
-                    </Button>
+                    <div className="flex gap-3">
+                        <Button
+                            onClick={() => setConfirmJoinDialogOpen(false)}
+                            variant="outline"
+                            className="flex-1 border-zinc-700/50 bg-zinc-800/80 text-white backdrop-blur-md hover:bg-zinc-700/80"
+                            size="lg"
+                        >
+                            Cancel
+                        </Button>
+                        <Button
+                            onClick={handleConfirmJoin}
+                            className="flex-1 bg-rose-400 text-white hover:bg-rose-500"
+                            size="lg"
+                        >
+                            Join Room
+                        </Button>
+                    </div>
                 </div>
             </DialogContent>
         </Dialog>
