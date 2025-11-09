@@ -14,6 +14,7 @@ import {
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { JoinRoomDialog } from './join-room-by-code';
+import { CreateRoomDialog } from './create-room-dialog';
 
 export default function RoomsPage() {
     const [searchQuery, setSearchQuery] = useState('');
@@ -22,6 +23,7 @@ export default function RoomsPage() {
     const [confirmJoinDialogOpen, setConfirmJoinDialogOpen] = useState(false);
     const [selectedRoom, setSelectedRoom] = useState<Room | null>(null);
     const [currentPage, setCurrentPage] = useState(1);
+    const [createDialogOpen, setCreateDialogOpen] = useState(false);
     const roomsPerPage = 10;
 
     const filteredRooms = sampleRooms.filter(
@@ -82,6 +84,10 @@ export default function RoomsPage() {
                                     }
                                     roomCode={roomCode}
                                     setRoomCode={setRoomCode}
+                                />
+                                <CreateRoomDialog
+                                    createDialogOpen={createDialogOpen}
+                                    setCreateDialogOpen={setCreateDialogOpen}
                                 />
                             </div>
                         </div>
