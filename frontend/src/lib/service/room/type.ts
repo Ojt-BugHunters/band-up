@@ -1,4 +1,5 @@
-import { Author } from './blog';
+import { Author } from '@/lib/api/dto/blog';
+import z from 'zod';
 
 export interface Task {
     id: string;
@@ -55,3 +56,15 @@ export interface Room {
     createdAt: string;
     members: RoomMember[];
 }
+
+export const RoomSchema = z.object({
+    roomName: z.string().max(50, 'Max length of room name is 50 characters'),
+    description: z
+        .string()
+        .transform((v) =>
+            v?.trim().length ? v : 'A cozy room for learning and working',
+        ),
+    private: z.boolean(),
+});
+
+export type CreateRoomFormValues = z.infer<typeof RoomSchema>;

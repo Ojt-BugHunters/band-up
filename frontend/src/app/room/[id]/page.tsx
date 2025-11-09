@@ -22,9 +22,9 @@ import {
     POMODORO_PRESETS,
     AMBIENT_SOUNDS,
 } from './page.data';
-import { PomodoroDisplay } from '../pomodoro';
-import { AIChatDisplay } from '../ai-learning-chat';
-import { ChattingRoomDisplay } from '../chatting-room';
+import { PomodoroDisplay } from './pomodoro';
+import { AIChatDisplay } from './ai-learning-chat';
+import { ChattingRoomDisplay } from './chatting-room';
 
 export interface FlyingTask {
     id: string;
