@@ -12,12 +12,6 @@ import {
     Users,
 } from 'lucide-react';
 import { Input } from '@/components/ui/input';
-import {
-    Dialog,
-    DialogContent,
-    DialogHeader,
-    DialogTitle,
-} from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { JoinRoomDialog } from './join-room-by-code';
 
@@ -48,13 +42,6 @@ export default function RoomsPage() {
         setSelectedRoom(room);
         setConfirmJoinDialogOpen(true);
     };
-
-    const handleConfirmJoin = () => {
-        console.log('Joining room:', selectedRoom);
-        setConfirmJoinDialogOpen(false);
-        window.location.href = '/room/1';
-    };
-
     return (
         <div className="relative h-screen w-full overflow-hidden">
             <div

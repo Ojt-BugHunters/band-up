@@ -20,15 +20,13 @@ export function JoinRoomDialog({
     selectedRoom,
     setSelectedRoom,
 }: JoinRoomDialog) {
+
     const handleConfirmJoin = () => {
         console.log('Joining room:', selectedRoom);
         setConfirmJoinDialogOpen(false);
         window.location.href = '/room/1';
     };
-    const handleJoinClick = (room: Room) => {
-        setSelectedRoom(room);
-        setConfirmJoinDialogOpen(true);
-    };
+    
     return (
         <Dialog
             open={confirmJoinDialogOpen}
