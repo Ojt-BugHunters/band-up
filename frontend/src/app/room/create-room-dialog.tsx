@@ -111,7 +111,7 @@ export function CreateRoomDialog({
 
                         <FormField
                             control={form.control}
-                            name="private"
+                            name="privateRoom"
                             render={({ field }) => (
                                 <FormItem className="flex items-center justify-between rounded-xl border border-white/10 bg-zinc-800/40 px-4 py-3">
                                     <div className="space-y-1">
