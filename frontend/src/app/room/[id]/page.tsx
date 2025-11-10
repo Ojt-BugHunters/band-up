@@ -121,60 +121,39 @@ export default function RoomPage() {
 
     const handlePomodoroComplete = useCallback(() => {
         if (!isPomodoroMode) return;
-
         const settings =
             selectedPreset.name === 'Custom' ? customSettings : selectedPreset;
-
         if (sessionType === 'focus') {
             // After focus, go to break
-
             if (pomodoroSession === 3) {
                 // After 4th focus session, take long break
-
                 setSessionType('longBreak');
-
                 setMinutes(settings.longBreak);
-
                 setSeconds(0);
-
                 setPomodoroSession(0);
-
                 toast.success('Time for long break');
             } else {
                 // Take short break
-
                 setSessionType('shortBreak');
-
                 setMinutes(settings.shortBreak);
-
                 setSeconds(0);
-
                 toast.success('Time for short break');
             }
         } else {
             // After break, go back to focus
-
             setSessionType('focus');
-
             setMinutes(settings.focus);
-
             setSeconds(0);
-
             if (sessionType === 'shortBreak') {
                 setPomodoroSession(pomodoroSession + 1);
             }
-
             toast.success('Break is over');
         }
     }, [
         isPomodoroMode,
-
         selectedPreset,
-
         customSettings,
-
         sessionType,
-
         pomodoroSession,
     ]);
 

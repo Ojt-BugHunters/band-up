@@ -112,3 +112,13 @@ export const useGetRoomById = (roomId: string) => {
         initialData: () => queryClient.getQueryData<Room>(['room', roomId]),
     });
 };
+
+export function useGetActiveRoom() {
+    return useQuery<Room | null>({
+        queryKey: ['active-room'],
+        queryFn: async () => {
+            await new Promise((r) => setTimeout(r, 500)); // giả delay
+            return null; // 🧪 không có phòng đang tham gia
+        },
+    });
+}
