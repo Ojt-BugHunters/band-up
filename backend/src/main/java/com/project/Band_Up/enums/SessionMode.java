@@ -2,5 +2,8 @@ package com.project.Band_Up.enums;
 
 public enum SessionMode {
     FocusTimer,
-    StopWatch
+    StopWatch,
+    Focus,
+    ShortBreak,
+    LongBreak
 }

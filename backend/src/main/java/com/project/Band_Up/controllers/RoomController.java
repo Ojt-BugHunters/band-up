@@ -110,6 +110,7 @@ System.out.println(request);
             @PathVariable UUID roomId,
             @AuthenticationPrincipal JwtUserDetails userDetails) {
 
+
         RoomResponse response = roomService.leaveRoom(roomId, userDetails.getAccountId());
         if (response == null) {
             return ResponseEntity.ok().body("Room deleted because no members remain");
