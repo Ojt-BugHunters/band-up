@@ -27,7 +27,7 @@ public class Room {
     private String roomName;
 
     private String description;
-    private Boolean isPrivate ;
+    private Boolean privateRoom ;
 
     @NotNull
     @Column(nullable = false)

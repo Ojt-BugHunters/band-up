@@ -40,7 +40,7 @@ public class RoomController {
     public ResponseEntity<RoomResponse> createRoom(
             @Valid @RequestBody RoomCreateRequest request,
             @AuthenticationPrincipal JwtUserDetails userDetails) {
-
+System.out.println(request);
         RoomResponse created = roomService.createRoom(userDetails.getAccountId(), request);
         URI location = URI.create("/api/rooms/" + created.getId());
         return ResponseEntity.created(location).body(created);
