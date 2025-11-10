@@ -1,10 +1,10 @@
 import { z } from 'zod';
 import { useRouter } from 'next/navigation';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { useMutation } from '@tanstack/react-query';
+import { useMutation, useQuery } from '@tanstack/react-query';
 import { useForm } from 'react-hook-form';
 import { toast } from 'sonner';
-import { fetchWrapper, throwIfError } from '@/lib/api';
+import { deserialize, fetchWrapper, throwIfError } from '@/lib/api';
 import { RoomSchema, CreateRoomFormValues, Room } from './type';
 
 export function useCreateRoom() {
@@ -44,3 +44,13 @@ export function useCreateRoom() {
 
     return { form, mutation };
 }
+
+export const useGetPublicRooms = () => {
+    return useQuery({
+        queryFn: async () => {
+            const response = await fetchWrapper(`/rooms/public`);
+            return await deserialize<Room[]>(response);
+        },
+        queryKey: ['rooms'],
+    });
+};
