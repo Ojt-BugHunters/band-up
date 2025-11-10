@@ -20,18 +20,23 @@ import java.util.UUID;
 @Builder
 public class StudyInterval {
     @Id
-    private Integer id;
+    @GeneratedValue
+    @UuidGenerator(style = UuidGenerator.Style.TIME)
+    private UUID id;
 
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "study_session_id", foreignKey = @ForeignKey(name = "fk_study_interval_study_session"))
     private StudySession studySession;
 
     @Column(nullable = false)
-    private SessionMode type;
+    @Enumerated(EnumType.STRING)
 
+    private SessionMode type;
+    private Integer orderIndex;
     private LocalDateTime startAt;
     private LocalDateTime endedAt;
     private LocalDateTime pingedAt;
     private BigInteger duration;
+    @Enumerated(EnumType.STRING)
     private Status status;
 }

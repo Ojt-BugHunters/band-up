@@ -18,6 +18,7 @@ public class StudyIntervalResponse{
     private UUID id;
     private UUID studySessionId;
     private SessionMode type;
+    private Integer orderIndex;
     private LocalDateTime startedAt;
     private LocalDateTime endedAt;
     private Status status;
