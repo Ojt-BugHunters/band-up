@@ -11,10 +11,13 @@ import {
 } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { KeyRound, Search, Users } from 'lucide-react';
+import { DoorOpen, KeyRound, Search, Users } from 'lucide-react';
 import { useGetRoomByCode } from '@/lib/service/room';
 import { useJoinRoom } from '@/lib/service/room';
 import { motion } from 'framer-motion';
+import { EmptyState } from '@/components/ui/empty-state';
+import { LoadingSpinner } from '@/components/ui/loading-spinner';
+import { ErrorState } from '@/components/ui/error-state';
 
 interface JoinRoomByCodeDialogProps {
     joinCodeDialogOpen: boolean;
@@ -92,21 +95,28 @@ export function JoinRoomByCodeDialog({
 
                     <div className="space-y-4">
                         {isFetching && (
-                            <p className="text-center text-white/70">
-                                Searching...
-                            </p>
+                            <div className="flex items-center justify-center py-6">
+                                <LoadingSpinner size="lg" />
+                            </div>
                         )}
-
                         {!isFetching && submittedCode && !room && !error && (
-                            <p className="text-center text-white/60 italic">
-                                No room found for code “{submittedCode}”.
-                            </p>
+                            <EmptyState
+                                title="Room Not Found"
+                                description={`No room found for code “${submittedCode}”.`}
+                                icons={[Search, DoorOpen, KeyRound]}
+                                action={{
+                                    label: 'Try Again',
+                                    onClick: () => setRoomCode(''),
+                                }}
+                                className="border-zinc-700/50 bg-transparent text-white"
+                            />
                         )}
 
                         {error && (
-                            <p className="text-center text-red-400">
-                                Failed to fetch room info.
-                            </p>
+                            <ErrorState
+                                message="Failed to fetch room info"
+                                description="Please check your connection or try another room code."
+                            />
                         )}
 
                         {room && (

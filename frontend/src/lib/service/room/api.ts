@@ -1,7 +1,7 @@
 import { z } from 'zod';
 import { useRouter } from 'next/navigation';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { useMutation, useQuery } from '@tanstack/react-query';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useForm } from 'react-hook-form';
 import { toast } from 'sonner';
 import { deserialize, fetchWrapper, throwIfError } from '@/lib/api';
@@ -9,6 +9,7 @@ import { RoomSchema, CreateRoomFormValues, Room } from './type';
 
 export function useCreateRoom() {
     const router = useRouter();
+    const queryClient = useQueryClient();
 
     const mutation = useMutation({
         mutationFn: async (values: z.infer<typeof RoomSchema>) => {
@@ -29,6 +30,7 @@ export function useCreateRoom() {
         },
         onSuccess: (data: Room) => {
             toast.success('Room created successfully');
+            queryClient.setQueryData(['room', data.id], data);
             router.push(`/room/${data.id}`);
         },
     });
@@ -38,7 +40,7 @@ export function useCreateRoom() {
         defaultValues: {
             roomName: '',
             description: '',
-            private: false,
+            privateRoom: false,
         },
     });
 
@@ -57,7 +59,7 @@ export const useGetPublicRooms = () => {
 
 export function useJoinRoom() {
     const router = useRouter();
-
+    const queryClient = useQueryClient();
     const mutation = useMutation({
         mutationFn: async (roomId: string) => {
             const response = await fetchWrapper(`/rooms/${roomId}/join`, {
@@ -75,6 +77,7 @@ export function useJoinRoom() {
         },
         onSuccess: (data: Room) => {
             toast.success('Joined room successfully');
+            queryClient.setQueryData(['room', data.id], data);
             router.push(`/room/${data.id}`);
         },
     });
@@ -94,5 +97,18 @@ export const useGetRoomByCode = (roomCode: string | undefined) => {
             return await deserialize<Room>(response);
         },
         enabled: !!roomCode,
+    });
+};
+
+export const useGetRoomById = (roomId: string) => {
+    const queryClient = useQueryClient();
+
+    return useQuery({
+        queryKey: ['room', roomId],
+        queryFn: async () => {
+            const response = await fetchWrapper(`/rooms/${roomId}`);
+            return await deserialize<Room>(response);
+        },
+        initialData: () => queryClient.getQueryData<Room>(['room', roomId]),
     });
 };

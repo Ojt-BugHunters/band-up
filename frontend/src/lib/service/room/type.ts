@@ -64,7 +64,7 @@ export const RoomSchema = z.object({
         .transform((v) =>
             v?.trim().length ? v : 'A cozy room for learning and working',
         ),
-    private: z.boolean(),
+    privateRoom: z.boolean(),
 });
 
 export type CreateRoomFormValues = z.infer<typeof RoomSchema>;
