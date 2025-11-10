@@ -48,8 +48,8 @@ public class StudySession {
     @Column(nullable = false)
     private Integer cycles;
 
-    private DateTime startedAt;
-    private DateTime endedAt;
+    private LocalDateTime startedAt;
+    private LocalDateTime endedAt;
     private BigInteger totalFocusTime;
 
     @NotNull
