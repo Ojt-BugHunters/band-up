@@ -54,3 +54,30 @@ export const useGetPublicRooms = () => {
         queryKey: ['rooms'],
     });
 };
+
+export function useJoinRoom() {
+    const router = useRouter();
+
+    const mutation = useMutation({
+        mutationFn: async (roomId: string) => {
+            const response = await fetchWrapper(`/rooms/${roomId}/join`, {
+                method: 'POST',
+                headers: {
+                    Accept: 'application/json',
+                },
+            });
+
+            await throwIfError(response);
+            return response.json();
+        },
+        onError: (error) => {
+            toast.error(error?.message ?? 'Join room failed');
+        },
+        onSuccess: (data: Room) => {
+            toast.success('Joined room successfully');
+            router.push(`/room/${data.id}`);
+        },
+    });
+
+    return mutation;
+}
