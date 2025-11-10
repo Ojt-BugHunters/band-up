@@ -2,6 +2,7 @@ package com.project.Band_Up.controllers;
 
 import com.project.Band_Up.dtos.profile.AvatarCreateRequest;
 import com.project.Band_Up.dtos.profile.AvatarDto;
+import com.project.Band_Up.dtos.profile.AvtName;
 import com.project.Band_Up.dtos.profile.ProfileDto;
 import com.project.Band_Up.services.profile.ProfileService;
 import com.project.Band_Up.utils.JwtUserDetails;
@@ -68,6 +69,19 @@ public class ProfileController {
                         profileService.updateProfile(new ProfileDto(), userDetails.getAccountId()), userDetails.getAccountId()),
                 userDetails.getAccountId());
         return ResponseEntity.ok(profile);
+    }
+    @GetMapping("/{userId}/avt-info")
+    @Operation(summary = "Lấy thông tin avatar của user theo userId",
+            description = "Trả về thông tin avatar của user theo userId.")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "Thành công"),
+            @ApiResponse(responseCode = "404", description = "Không tìm thấy người dùng")
+    })
+    public ResponseEntity<AvtName> getUserAvatarInfo(
+            @Parameter(description = "UUID của user", required = true)
+            @PathVariable UUID userId) {
+        AvtName dto = profileService.getAvatarName(userId);
+        return ResponseEntity.ok(dto);
     }
 
     // -----------------------------
