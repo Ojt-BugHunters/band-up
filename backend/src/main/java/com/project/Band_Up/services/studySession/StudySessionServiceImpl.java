@@ -1,6 +1,7 @@
 package com.project.Band_Up.services.studySession;
 
 import com.project.Band_Up.dtos.studyInterval.StudyIntervalCreateRequest;
+import com.project.Band_Up.dtos.studyInterval.StudyIntervalResponse;
 import com.project.Band_Up.dtos.studySession.StudySessionCreateRequest;
 import com.project.Band_Up.dtos.studySession.StudySessionResponse;
 import com.project.Band_Up.entities.Account;
@@ -51,6 +52,12 @@ public class StudySessionServiceImpl implements StudySessionService {
     private StudySessionResponse toResponse(StudySession studySession) {
         StudySessionResponse response = modelMapper.map(studySession, StudySessionResponse.class);
         response.setUserId(studySession.getUser().getId());
+        List<StudyInterval> intervals = studyIntervalRepository.findByStudySessionOrderByOrderIndexAsc(studySession);
+        List<StudyIntervalResponse> intervalResponses = intervals.stream()
+                .map(interval -> modelMapper.map(interval, StudyIntervalResponse.class))
+                .toList();
+
+        response.setInterval(intervalResponses);
         return response ;
     }
     private StudySession toEntity(StudySessionCreateRequest request, UUID userId) {
