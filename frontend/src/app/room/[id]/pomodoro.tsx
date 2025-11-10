@@ -1,3 +1,4 @@
+'use client';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { Input } from '@/components/ui/input';
 import { BarChart3, Clock, Grid3x3, ListTodo } from 'lucide-react';
@@ -10,9 +11,9 @@ import { LeaderBoard } from './leaderboard';
 import { AnalyticComponent } from './analytic-dialog';
 import { AmbientSound, PomodoroPreset, Task } from '@/lib/api/dto/room';
 import { TimerSettings } from './page';
-import { RefObject } from 'react';
+import { RefObject, useState } from 'react';
 import { TimePeriod } from './page';
-
+import { RoomMenuDialog } from './room-menu';
 export type DisplayMode = 'pomodoro' | 'ai-chat' | 'room' | 'collaboration';
 export type SessionType = 'focus' | 'shortBreak' | 'longBreak';
 export type TimerTab = 'focus' | 'stopwatch';
@@ -174,6 +175,8 @@ export function PomodoroDisplay({
     formatAnalyticsDate,
     navigateAnalyticsDate,
 }: PomodoroDisplayProps) {
+    const [roomMenuDialogOpen, setRoomMenuDialogOpen] = useState(false);
+
     return (
         <div className="flex h-full flex-col">
             <header className="flex items-center justify-between p-6">
@@ -212,20 +215,27 @@ export function PomodoroDisplay({
                         <BarChart3 className="relative z-10 h-5 w-5 text-white" />
                     </button>
 
-                    <div className="relative flex items-center gap-2 rounded-full border border-white/10 bg-black/40 px-4 py-2 shadow-[0_8px_25px_rgba(0,0,0,0.6),_0_2px_4px_rgba(255,255,255,0.08)_inset] backdrop-blur-xl">
-                        <span
-                            aria-hidden
-                            className="pointer-events-none absolute inset-0 rounded-full opacity-30"
-                            style={{
-                                background:
-                                    'linear-gradient(to bottom, rgba(255,255,255,0.2), rgba(255,255,255,0.05) 40%, transparent 80%)',
-                            }}
-                        />
-                        <span className="relative z-10 text-sm font-bold text-white">
-                            Nam Dang room
-                        </span>
-                    </div>
+                    <>
+                        <div
+                            className="relative flex cursor-pointer items-center gap-2 rounded-full border border-white/10 bg-black/40 px-4 py-2 shadow-[0_8px_25px_rgba(0,0,0,0.6),_0_2px_4px_rgba(255,255,255,0.08)_inset] backdrop-blur-xl"
+                            onClick={() => setRoomMenuDialogOpen(true)} // chỉ mở, không lồng dialog
+                        >
+                            <span className="relative z-10 text-sm font-bold text-white">
+                                Nam Dang’s Room
+                            </span>
+                        </div>
 
+                        <RoomMenuDialog
+                            open={roomMenuDialogOpen}
+                            onOpenChange={setRoomMenuDialogOpen}
+                            roomName="Nam Dang’s Room"
+                            description="Describe your study room"
+                            isPrivate={false}
+                            roomId="123"
+                            members={[{ id: '1', name: 'Nam Dang' }]}
+                            onSave={(data) => console.log('Updated:', data)}
+                        />
+                    </>
                     <Avatar className="relative h-10 w-10 border-2 border-white/10 bg-black/40 shadow-[0_8px_25px_rgba(0,0,0,0.6),_0_2px_4px_rgba(255,255,255,0.08)_inset] backdrop-blur-xl transition-all hover:scale-105 hover:bg-black/50">
                         <AvatarFallback className="bg-transparent font-bold text-white">
                             ND
