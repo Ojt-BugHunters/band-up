@@ -15,6 +15,7 @@ import { RefObject, useState } from 'react';
 import { TimePeriod } from './page';
 import { RoomMenuDialog } from './room-menu';
 import { Room } from '@/lib/service/room';
+import { AccountRoomMember } from '@/lib/service/account';
 export type DisplayMode = 'pomodoro' | 'ai-chat' | 'room' | 'collaboration';
 export type SessionType = 'focus' | 'shortBreak' | 'longBreak';
 export type TimerTab = 'focus' | 'stopwatch';
@@ -109,9 +110,11 @@ export interface PomodoroDisplayProps {
 
     // room
     room: Room;
+    members: AccountRoomMember[];
 }
 
 export function PomodoroDisplay({
+    members,
     minutes,
     draggedIndex,
     seconds,
@@ -238,7 +241,7 @@ export function PomodoroDisplay({
                             }
                             isPrivate={room?.isPrivate ?? false}
                             roomId={room?.id ?? ''}
-                            members={[{ id: '1', name: 'Nam Dang' }]}
+                            members={members}
                             onSave={(data) => console.log('Updated:', data)}
                         />
                     </>

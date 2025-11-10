@@ -29,7 +29,7 @@ import { PomodoroDisplay } from './pomodoro';
 import { AIChatDisplay } from './ai-learning-chat';
 import { ChattingRoomDisplay } from './chatting-room';
 import { useParams } from 'next/navigation';
-import { useGetRoomById } from '@/lib/service/room';
+import { useGetRoomById, useGetRoomMembers } from '@/lib/service/room';
 import { EmptyState } from '@/components/ui/empty-state';
 import { LoadingSpinner } from '@/components/ui/loading-spinner';
 
@@ -55,6 +55,8 @@ export type DisplayMode = 'pomodoro' | 'ai-chat' | 'room' | 'collaboration';
 export default function RoomPage() {
     const { id } = useParams();
     const { data: room, isLoading, isFetching } = useGetRoomById(id as string);
+    const { members } = useGetRoomMembers(id as string);
+
     const [minutes, setMinutes] = useState(25);
     const [seconds, setSeconds] = useState(0);
     const [isActive, setIsActive] = useState(false);
@@ -554,6 +556,7 @@ export default function RoomPage() {
                                 formatAnalyticsDate={formatAnalyticsDate}
                                 navigateAnalyticsDate={navigateAnalyticsDate}
                                 room={room}
+                                members={members}
                             />
                         </motion.div>
                     )}
