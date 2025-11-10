@@ -36,10 +36,11 @@ public class RoomServiceImpl implements RoomService {
     public RoomResponse createRoom(UUID creatorId, RoomCreateRequest request) {
         Account creator = accountRepository.findById(creatorId)
                 .orElseThrow(() -> new EntityNotFoundException("Creator not found"));
-
+        System.out.println("before map"+request);
         Room room = modelMapper.map(request, Room.class);
+        System.out.println(request);
         room.setCreatorId(creator.getId());
-        if (room.getIsPrivate() == null) room.setIsPrivate(true);
+        if (room.getPrivateRoom() == null) room.setPrivateRoom(true);
         room.setRoomCode(generateRoomCode(room.getRoomName()));
         Room savedRoom = roomRepository.save(room);
 
@@ -71,7 +72,7 @@ public class RoomServiceImpl implements RoomService {
 
     @Override
     public List<RoomResponse> getAllPublicRooms() {
-        return roomRepository.findByIsPrivateFalse().stream()
+        return roomRepository.findByPrivateRoomFalse().stream()
                 .map(this::buildRoomResponse)
                 .collect(Collectors.toList());
     }
@@ -180,7 +181,7 @@ public class RoomServiceImpl implements RoomService {
 
         room.setRoomName(updateRequest.getRoomName());
         room.setDescription(updateRequest.getDescription());
-        room.setIsPrivate(updateRequest.isPrivate());
+        room.setPrivateRoom(updateRequest.getPrivateRoom());
         Room updated = roomRepository.save(room);
         return buildRoomResponse(updated);
     }
@@ -247,16 +248,18 @@ public class RoomServiceImpl implements RoomService {
                         .build())
                 .collect(Collectors.toList());
 
-        return RoomResponse.builder()
+        RoomResponse response = RoomResponse.builder()
                 .Id(room.getId())
                 .roomName(room.getRoomName())
                 .description(room.getDescription())
                 .roomCode(room.getRoomCode())
-                .isPrivate(room.getIsPrivate())
+                .privateRoom(room.getPrivateRoom())
                 .createdBy(room.getCreatorId())
                 .numberOfMembers(roomMemberRepository.countByRoom(room))
                 .members(memberResponses)
                 .createdAt(room.getCreateAt())
                 .build();
+          System.out.println(response);
+          return response;
     }
 }

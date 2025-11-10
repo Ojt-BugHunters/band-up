@@ -19,7 +19,7 @@ public class RoomResponse {
     private String roomName;
     private String description;
     private String roomCode;
-    private Boolean isPrivate;
+    private Boolean privateRoom;
     private UUID createdBy;
     private Integer numberOfMembers;
     List<RoomMemberResponse> members;

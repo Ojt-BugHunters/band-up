@@ -12,5 +12,5 @@ import lombok.NoArgsConstructor;
 public class RoomUpdateRequest {
     private String roomName;
     private String description;
-    private boolean isPrivate;
+    private Boolean privateRoom;
 }
