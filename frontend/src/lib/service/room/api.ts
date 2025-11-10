@@ -81,3 +81,18 @@ export function useJoinRoom() {
 
     return mutation;
 }
+
+export const useGetRoomByCode = (roomCode: string | undefined) => {
+    return useQuery({
+        queryKey: ['room', roomCode],
+        queryFn: async () => {
+            if (!roomCode) {
+                toast.error('Missing room code');
+                throw new Error('Missing room code');
+            }
+            const response = await fetchWrapper(`/rooms/code/${roomCode}`);
+            return await deserialize<Room>(response);
+        },
+        enabled: !!roomCode,
+    });
+};
