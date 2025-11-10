@@ -6,27 +6,25 @@ import {
     DialogTitle,
 } from '@/components/ui/dialog';
 import { Room } from '@/lib/api/dto/room';
+import { useJoinRoom } from '@/lib/service/room';
 
 interface JoinRoomDialog {
     confirmJoinDialogOpen: boolean;
     setConfirmJoinDialogOpen: (show: boolean) => void;
-    selectedRoom: Room;
-    setSelectedRoom: (room: Room) => void;
+    selectedRoom: Room | null;
 }
 
 export function JoinRoomDialog({
     confirmJoinDialogOpen,
     setConfirmJoinDialogOpen,
     selectedRoom,
-    setSelectedRoom,
 }: JoinRoomDialog) {
+    const { mutate: joinRoom } = useJoinRoom();
 
     const handleConfirmJoin = () => {
-        console.log('Joining room:', selectedRoom);
-        setConfirmJoinDialogOpen(false);
-        window.location.href = '/room/1';
+        joinRoom(selectedRoom?.id ?? '');
     };
-    
+
     return (
         <Dialog
             open={confirmJoinDialogOpen}

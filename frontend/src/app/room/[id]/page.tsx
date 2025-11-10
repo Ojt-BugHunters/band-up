@@ -15,6 +15,9 @@ import {
     VideoOff,
     MonitorPlay,
     PhoneOff,
+    DoorOpen,
+    Users,
+    KeyRound,
 } from 'lucide-react';
 import { Task, AmbientSound } from '@/lib/api/dto/room';
 import {
@@ -25,6 +28,10 @@ import {
 import { PomodoroDisplay } from './pomodoro';
 import { AIChatDisplay } from './ai-learning-chat';
 import { ChattingRoomDisplay } from './chatting-room';
+import { useParams } from 'next/navigation';
+import { useGetRoomById } from '@/lib/service/room';
+import { EmptyState } from '@/components/ui/empty-state';
+import { LoadingSpinner } from '@/components/ui/loading-spinner';
 
 export interface FlyingTask {
     id: string;
@@ -46,6 +53,8 @@ export type TimePeriod = 'daily' | 'weekly' | 'monthly';
 export type DisplayMode = 'pomodoro' | 'ai-chat' | 'room' | 'collaboration';
 
 export default function RoomPage() {
+    const { id } = useParams();
+    const { data: room, isLoading, isFetching } = useGetRoomById(id as string);
     const [minutes, setMinutes] = useState(25);
     const [seconds, setSeconds] = useState(0);
     const [isActive, setIsActive] = useState(false);
@@ -410,6 +419,30 @@ export default function RoomPage() {
         }
         setAnalyticsDate(newDate);
     };
+
+    if (isLoading || isFetching)
+        return (
+            <LoadingSpinner
+                size="lg"
+                className="absolute inset-1/2 -translate-x-1/2 -translate-y-1/2"
+            />
+        );
+
+    if (!room)
+        return (
+            <div className="flex h-screen w-full items-center justify-center px-4">
+                <EmptyState
+                    title="Room Not Found"
+                    description="We couldn’t find the room you’re looking for. It may have been deleted or is private."
+                    icons={[DoorOpen, Users, KeyRound]}
+                    action={{
+                        label: 'Back to Rooms',
+                        onClick: () => (window.location.href = '/rooms'),
+                    }}
+                    className="max-w-md border-zinc-700/50 bg-transparent text-white"
+                />
+            </div>
+        );
 
     return (
         <div className="relative h-screen w-full overflow-hidden">

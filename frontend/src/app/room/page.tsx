@@ -1,56 +1,53 @@
 'use client';
 import { Room } from '@/lib/api/dto/room';
-import { useState } from 'react';
-import { sampleRooms } from './page.data';
+import { useState, useEffect, useMemo } from 'react';
 import { motion } from 'framer-motion';
-import {
-    ChevronDown,
-    ChevronLeft,
-    ChevronRight,
-    ChevronUp,
-    Search,
-    Users,
-} from 'lucide-react';
+import { ChevronLeft, ChevronRight, Search, Users } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
-import { JoinRoomDialog } from './join-room-by-code';
 import { CreateRoomDialog } from './create-room-dialog';
+import { useGetPublicRooms } from '@/lib/service/room';
+import { JoinRoomDialog } from './join-room-dialog';
+import { JoinRoomByCodeDialog } from './join-room-by-code';
 
 export default function RoomsPage() {
     const [searchQuery, setSearchQuery] = useState('');
     const [joinCodeDialogOpen, setJoinCodeDialogOpen] = useState(false);
-    const [roomCode, setRoomCode] = useState('');
     const [confirmJoinDialogOpen, setConfirmJoinDialogOpen] = useState(false);
-    const [selectedRoom, setSelectedRoom] = useState<Room | null>(null);
     const [currentPage, setCurrentPage] = useState(1);
     const [createDialogOpen, setCreateDialogOpen] = useState(false);
+    const [selectedRoom, setSelectedRoom] = useState<Room | null>(null);
+
+    const { data: roomList } = useGetPublicRooms();
+
     const roomsPerPage = 10;
 
-    const filteredRooms = sampleRooms.filter(
-        (room) =>
-            room.roomName.toLowerCase().includes(searchQuery.toLowerCase()) ||
-            room.description
-                .toLowerCase()
-                .includes(searchQuery.toLowerCase()) ||
-            room.roomCode.toLowerCase().includes(searchQuery.toLowerCase()),
-    );
+    const filteredRooms = useMemo(() => {
+        if (!roomList) return [];
+        return roomList.filter((room) =>
+            room.roomName.toLowerCase().includes(searchQuery.toLowerCase()),
+        );
+    }, [roomList, searchQuery]);
 
-    const totalPages = Math.ceil(filteredRooms.length / roomsPerPage);
+    const totalPages = Math.ceil(filteredRooms.length / roomsPerPage) || 1;
     const startIndex = (currentPage - 1) * roomsPerPage;
     const endIndex = startIndex + roomsPerPage;
-    const currentRooms = filteredRooms.slice(startIndex, endIndex);
+    const paginatedRooms = filteredRooms.slice(startIndex, endIndex);
+
+    useEffect(() => {
+        setCurrentPage(1);
+    }, [searchQuery, roomList]);
 
     const handleJoinClick = (room: Room) => {
         setSelectedRoom(room);
         setConfirmJoinDialogOpen(true);
     };
+
     return (
         <div className="relative h-screen w-full overflow-hidden">
             <div
                 className="absolute inset-0 bg-cover bg-center bg-no-repeat"
-                style={{
-                    backgroundImage: `url(/room-bg-1.jpg)`,
-                }}
+                style={{ backgroundImage: `url(/room-bg-1.jpg)` }}
             >
                 <div className="absolute inset-0 bg-gradient-to-b from-cyan-500/20 via-blue-500/10 to-slate-900/60" />
             </div>
@@ -77,13 +74,11 @@ export default function RoomsPage() {
                             </div>
 
                             <div className="flex items-center gap-2">
-                                <JoinRoomDialog
+                                <JoinRoomByCodeDialog
                                     joinCodeDialogOpen={joinCodeDialogOpen}
                                     setJoinCodeDialogOpen={
                                         setJoinCodeDialogOpen
                                     }
-                                    roomCode={roomCode}
-                                    setRoomCode={setRoomCode}
                                 />
                                 <CreateRoomDialog
                                     createDialogOpen={createDialogOpen}
@@ -116,17 +111,12 @@ export default function RoomsPage() {
                         </div>
 
                         <div className="overflow-hidden rounded-3xl border border-zinc-700/50 bg-zinc-900/70 shadow-2xl shadow-black/40 backdrop-blur-md">
-                            <div className="pointer-events-none absolute top-0 right-0 left-0 z-10 h-8 bg-gradient-to-b from-zinc-900/70 to-transparent" />
-                            <div className="pointer-events-none absolute right-0 bottom-0 left-0 z-10 h-8 bg-gradient-to-t from-zinc-900/70 to-transparent" />
-
                             <div className="scrollbar-thin scrollbar-thumb-zinc-700/50 scrollbar-track-transparent max-h-[calc(100vh-280px)] overflow-y-auto">
                                 <table className="w-full">
                                     <thead className="border-b border-zinc-700/50 bg-zinc-900/90 backdrop-blur-md">
                                         <tr>
                                             <th className="px-6 py-4 text-left text-sm font-bold text-white/90">
-                                                <div className="flex items-center gap-2">
-                                                    <span>#</span>
-                                                </div>
+                                                #
                                             </th>
                                             <th className="px-6 py-4 text-left text-sm font-bold text-white/90">
                                                 Room Name
@@ -146,7 +136,7 @@ export default function RoomsPage() {
                                         </tr>
                                     </thead>
                                     <tbody>
-                                        {currentRooms.map((room, index) => (
+                                        {paginatedRooms.map((room, index) => (
                                             <motion.tr
                                                 key={room.id}
                                                 initial={{ opacity: 0, y: 10 }}
@@ -157,44 +147,9 @@ export default function RoomsPage() {
                                                 className="group border-b border-zinc-800/50 transition-all duration-300 hover:bg-white/5"
                                             >
                                                 <td className="px-6 py-4">
-                                                    <div className="flex items-center gap-2">
-                                                        <span className="font-semibold text-white/70">
-                                                            {startIndex +
-                                                                index +
-                                                                1}
-                                                        </span>
-                                                        {index < 3 && (
-                                                            <motion.div
-                                                                initial={{
-                                                                    opacity: 0,
-                                                                    scale: 0,
-                                                                }}
-                                                                animate={{
-                                                                    opacity: 1,
-                                                                    scale: 1,
-                                                                }}
-                                                                transition={{
-                                                                    delay:
-                                                                        index *
-                                                                            0.05 +
-                                                                        0.2,
-                                                                }}
-                                                            >
-                                                                {index ===
-                                                                    0 && (
-                                                                    <ChevronUp className="h-4 w-4 text-green-400" />
-                                                                )}
-                                                                {index ===
-                                                                    1 && (
-                                                                    <ChevronDown className="h-4 w-4 text-red-400" />
-                                                                )}
-                                                                {index ===
-                                                                    2 && (
-                                                                    <ChevronUp className="h-4 w-4 text-green-400" />
-                                                                )}
-                                                            </motion.div>
-                                                        )}
-                                                    </div>
+                                                    <span className="font-semibold text-white/70">
+                                                        {startIndex + index + 1}
+                                                    </span>
                                                 </td>
                                                 <td className="px-6 py-4">
                                                     <span className="text-base font-bold text-white">
@@ -245,6 +200,7 @@ export default function RoomsPage() {
                                         )}{' '}
                                         of {filteredRooms.length} rooms
                                     </div>
+
                                     <div className="flex items-center gap-2">
                                         <Button
                                             size="sm"
@@ -259,6 +215,7 @@ export default function RoomsPage() {
                                         >
                                             <ChevronLeft className="h-4 w-4" />
                                         </Button>
+
                                         <div className="flex items-center gap-1">
                                             {Array.from(
                                                 { length: totalPages },
@@ -285,6 +242,7 @@ export default function RoomsPage() {
                                                 </Button>
                                             ))}
                                         </div>
+
                                         <Button
                                             size="sm"
                                             variant="outline"
@@ -329,6 +287,11 @@ export default function RoomsPage() {
                     </motion.div>
                 </div>
             </div>
+            <JoinRoomDialog
+                confirmJoinDialogOpen={confirmJoinDialogOpen}
+                setConfirmJoinDialogOpen={setConfirmJoinDialogOpen}
+                selectedRoom={selectedRoom}
+            />
         </div>
     );
 }
