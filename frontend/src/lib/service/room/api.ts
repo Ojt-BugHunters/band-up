@@ -113,12 +113,12 @@ export const useGetRoomById = (roomId: string) => {
     });
 };
 
-export function useGetActiveRoom() {
-    return useQuery<Room | null>({
-        queryKey: ['active-room'],
+export const useCheckUserInRoom = () => {
+    return useQuery({
+        queryKey: ['room'],
         queryFn: async () => {
-            await new Promise((r) => setTimeout(r, 500)); // giả delay
-            return null; // 🧪 không có phòng đang tham gia
+            const response = await fetchWrapper('/rooms/check-user-in-room');
+            return await deserialize<Room[]>(response);
         },
     });
-}
+};
