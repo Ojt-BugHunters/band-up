@@ -1,6 +1,7 @@
 package com.project.Band_Up.dtos.studySession;
 
 import com.project.Band_Up.enums.SessionMode;
+import com.project.Band_Up.enums.Status;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -24,7 +25,7 @@ public class StudySessionResponse {
     private Integer cycles;
     private LocalDateTime startedAt;
     private LocalDateTime endedAt;
-    private Boolean status;
+    private Status status;
     private LocalDateTime createdAt;
     private BigInteger totalFocusTime;
 }

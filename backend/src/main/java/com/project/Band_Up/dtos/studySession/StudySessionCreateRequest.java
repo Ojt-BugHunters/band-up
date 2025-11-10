@@ -1,6 +1,7 @@
 package com.project.Band_Up.dtos.studySession;
 
 import com.project.Band_Up.enums.SessionMode;
+import com.project.Band_Up.enums.Status;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -18,5 +19,4 @@ public class StudySessionCreateRequest {
     private BigInteger shortBreak;
     private BigInteger longBreak;
     private Integer cycles;
-    private Boolean status;
 }
