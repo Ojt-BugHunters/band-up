@@ -14,8 +14,7 @@ import { TimerSettings } from './page';
 import { RefObject, useState } from 'react';
 import { TimePeriod } from './page';
 import { RoomMenuDialog } from './room-menu';
-import { useParams } from 'next/navigation';
-import { useGetRoomById } from '@/lib/service/room';
+import { Room } from '@/lib/service/room';
 export type DisplayMode = 'pomodoro' | 'ai-chat' | 'room' | 'collaboration';
 export type SessionType = 'focus' | 'shortBreak' | 'longBreak';
 export type TimerTab = 'focus' | 'stopwatch';
@@ -107,6 +106,9 @@ export interface PomodoroDisplayProps {
     // Refs
     inputRef: RefObject<HTMLDivElement | null>;
     taskButtonRef: RefObject<HTMLButtonElement | null>;
+
+    // room
+    room: Room;
 }
 
 export function PomodoroDisplay({
@@ -176,12 +178,9 @@ export function PomodoroDisplay({
     analyticsDate,
     formatAnalyticsDate,
     navigateAnalyticsDate,
+    room,
 }: PomodoroDisplayProps) {
     const [roomMenuDialogOpen, setRoomMenuDialogOpen] = useState(false);
-    const params = useParams();
-    const roomId = params.roomId as string;
-    const { data: room } = useGetRoomById(roomId);
-
     return (
         <div className="flex h-full flex-col">
             <header className="flex items-center justify-between p-6">
@@ -226,14 +225,14 @@ export function PomodoroDisplay({
                             onClick={() => setRoomMenuDialogOpen(true)} // chỉ mở, không lồng dialog
                         >
                             <span className="relative z-10 text-sm font-bold text-white">
-                                {room?.createdBy} &apos rooms
+                                {room?.roomName} rooms
                             </span>
                         </div>
 
                         <RoomMenuDialog
                             open={roomMenuDialogOpen}
                             onOpenChange={setRoomMenuDialogOpen}
-                            roomName={`${room?.createdBy ?? 'Unknown'}'s room`}
+                            roomName={`${room?.roomName ?? 'Unknown'}'s room`}
                             description={
                                 room?.description ?? 'No description yet'
                             }

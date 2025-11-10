@@ -553,6 +553,7 @@ export default function RoomPage() {
                                 analyticsDate={analyticsDate}
                                 formatAnalyticsDate={formatAnalyticsDate}
                                 navigateAnalyticsDate={navigateAnalyticsDate}
+                                room={room}
                             />
                         </motion.div>
                     )}
