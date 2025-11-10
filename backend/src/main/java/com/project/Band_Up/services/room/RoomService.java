@@ -24,5 +24,6 @@ public interface RoomService {
     RoomResponse getRoomByCode(String roomCode);
     boolean isMember(UUID roomId, UUID userId);
     void transferHost(UUID actorId, UUID roomId, UUID newHostId);
+    RoomResponse isUserInRoom(UUID userId);
 }
 

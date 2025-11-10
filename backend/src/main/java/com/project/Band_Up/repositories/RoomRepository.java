@@ -2,6 +2,7 @@ package com.project.Band_Up.repositories;
 
 import com.project.Band_Up.entities.Room;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
@@ -12,4 +13,5 @@ import java.util.UUID;
 public interface RoomRepository extends JpaRepository<Room, UUID> {
     Optional<Room> findByRoomCode(String roomCode);
     List<Room> findByPrivateRoomFalse();
+
 }

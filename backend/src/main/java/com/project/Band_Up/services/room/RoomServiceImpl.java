@@ -13,8 +13,10 @@ import com.project.Band_Up.repositories.RoomRepository;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.time.LocalDateTime;
 import java.util.Comparator;
@@ -232,6 +234,13 @@ public class RoomServiceImpl implements RoomService {
             earliest.setRole(Role.Host);
             roomMemberRepository.save(earliest);
         }
+        return buildRoomResponse(room);
+    }
+    @Override
+    public RoomResponse isUserInRoom(UUID userId) {
+        Room room = roomMemberRepository.findRoomByUserId(userId)
+                .orElseThrow(() -> new ResponseStatusException(
+                        HttpStatus.NOT_FOUND, "User is not in any room"));
         return buildRoomResponse(room);
     }
 

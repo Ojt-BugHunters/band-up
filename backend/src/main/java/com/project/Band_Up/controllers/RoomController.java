@@ -179,4 +179,15 @@ System.out.println(request);
         roomService.deleteRoom(userDetails.getAccountId(), roomId);
         return ResponseEntity.noContent().build();
     }
+    @Operation(summary = "Kiểm tra User có đang trong room nào không", description = "Kiểm tra xem User có tồn tại hay không dựa trên UserId.")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "Thành công"),
+            @ApiResponse(responseCode = "404", description = "Không tìm thấy User")
+    })
+    @GetMapping("/check-user-in-room")
+    public ResponseEntity<RoomResponse> checkUserInRoom(
+            @AuthenticationPrincipal JwtUserDetails userDetails) {
+        RoomResponse response  = roomService.isUserInRoom(userDetails.getAccountId());
+        return ResponseEntity.ok(response);
+    }
 }
