@@ -20,5 +20,5 @@ public interface RoomMemberRepository extends JpaRepository<RoomMember, UUID> {
         SELECT rm.room FROM RoomMember rm
         WHERE rm.user.id = :userId
     """)
-    Optional<Room> findRoomByUserId(UUID userId);
+    List<Room> findRoomByUserId(UUID userId);
 }
