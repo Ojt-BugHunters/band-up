@@ -186,9 +186,9 @@ System.out.println(request);
             @ApiResponse(responseCode = "404", description = "Không tìm thấy User")
     })
     @GetMapping("/check-user-in-room")
-    public ResponseEntity<RoomResponse> checkUserInRoom(
+    public ResponseEntity<List<RoomResponse>> checkUserInRoom(
             @AuthenticationPrincipal JwtUserDetails userDetails) {
-        RoomResponse response  = roomService.isUserInRoom(userDetails.getAccountId());
+        List<RoomResponse> response  = roomService.isUserInRoom(userDetails.getAccountId());
         return ResponseEntity.ok(response);
     }
 }

@@ -237,11 +237,11 @@ public class RoomServiceImpl implements RoomService {
         return buildRoomResponse(room);
     }
     @Override
-    public RoomResponse isUserInRoom(UUID userId) {
-        Room room = roomMemberRepository.findRoomByUserId(userId)
-                .orElseThrow(() -> new ResponseStatusException(
-                        HttpStatus.NOT_FOUND, "User is not in any room"));
-        return buildRoomResponse(room);
+    public List<RoomResponse> isUserInRoom(UUID userId) {
+        List<Room> rooms = roomMemberRepository.findRoomByUserId(userId);
+        return rooms.stream()
+                .map(this::buildRoomResponse)
+                .collect(Collectors.toList());
     }
 
 
