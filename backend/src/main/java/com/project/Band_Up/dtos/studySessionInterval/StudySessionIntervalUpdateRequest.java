@@ -1,6 +1,5 @@
 package com.project.Band_Up.dtos.studySessionInterval;
 
-import com.project.Band_Up.enums.SessionMode;
 import com.project.Band_Up.enums.Status;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -14,7 +13,7 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class StudySessionUpdateRequest {
+public class StudySessionIntervalUpdateRequest {
     private LocalDateTime startAt;
     private LocalDateTime endedAt;
     private LocalDateTime pingedAt;

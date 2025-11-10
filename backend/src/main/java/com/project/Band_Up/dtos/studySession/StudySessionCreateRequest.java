@@ -21,7 +21,4 @@ public class StudySessionCreateRequest {
     private BigInteger longBreak;
     private Integer cycles;
     private Boolean status;
-
-
-
 }
