@@ -27,6 +27,8 @@ import {
     AlertDialogTitle,
     AlertDialogTrigger,
 } from '@/components/ui/alert-dialog';
+import { AccountRoomMember } from '@/lib/service/account';
+import Image from 'next/image';
 
 interface RoomMenuDialogProps {
     open: boolean;
@@ -35,7 +37,7 @@ interface RoomMenuDialogProps {
     description: string;
     isPrivate: boolean;
     roomId: string;
-    members: { id: string; name: string }[];
+    members: AccountRoomMember[];
     onSave?: (data: {
         name: string;
         description: string;
@@ -264,9 +266,20 @@ export function RoomMenuDialog({
                                     key={m.id}
                                     className="flex items-center gap-3 rounded-xl border border-white/10 bg-white/5 px-4 py-2 backdrop-blur-sm"
                                 >
-                                    <div className="flex h-8 w-8 items-center justify-center rounded-full bg-cyan-500 text-sm font-bold">
-                                        {m.name.charAt(0).toUpperCase()}
-                                    </div>
+                                    {m.cloudFrontUrl ? (
+                                        <Image
+                                            width={120}
+                                            height={120}
+                                            src={m.cloudFrontUrl}
+                                            alt={m.name}
+                                            className="h-8 w-8 rounded-full object-cover"
+                                        />
+                                    ) : (
+                                        <div className="flex h-8 w-8 items-center justify-center rounded-full bg-cyan-500 text-sm font-bold">
+                                            {m.name.charAt(0).toUpperCase()}
+                                        </div>
+                                    )}
+
                                     <span className="text-sm font-medium text-white">
                                         {m.name}
                                     </span>
