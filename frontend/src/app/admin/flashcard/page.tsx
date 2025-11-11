@@ -1,9 +1,9 @@
 'use client';
 
-import { DailyLearnersChart } from '@/components/daily-learners-chart';
-import { TopDecksChart } from '@/components/top-decks-chart';
-import { CardStatusChart } from '@/components/card-status-chart';
-import { FlashcardTable } from '@/components/flashcard-table';
+import { DailyLearnersChart } from '@/app/admin/flashcard/daily-learners-chart';
+import { TopDecksChart } from '@/app/admin/flashcard/top-decks-chart';
+import { CardStatusChart } from '@/app/admin/flashcard/card-status-chart';
+import { FlashcardTable } from '@/app/admin/flashcard/flashcard-table';
 
 export default function FlashcardPage() {
     return (
