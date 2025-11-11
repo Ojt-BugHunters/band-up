@@ -2,7 +2,13 @@
 
 import { Pie, PieChart } from 'recharts';
 
-import { CardContent } from '@/components/ui/card';
+import {
+    Card,
+    CardContent,
+    CardDescription,
+    CardHeader,
+    CardTitle,
+} from '@/components/ui/card';
 import {
     ChartConfig,
     ChartContainer,
@@ -45,24 +51,32 @@ const renderCustomLabel = (entry: {
 
 export function CardStatusChart() {
     return (
-        <CardContent className="flex-1 pb-0">
-            <ChartContainer
-                config={chartConfig}
-                className="mx-auto aspect-square max-h-[300px]"
-            >
-                <PieChart>
-                    <Pie
-                        data={chartData}
-                        dataKey="count"
-                        label={renderCustomLabel}
-                        labelLine={false}
-                    />
-                    <ChartLegend
-                        content={<ChartLegendContent nameKey="status" />}
-                        className="-translate-y-2 flex-wrap gap-2 *:basis-1/4 *:justify-center"
-                    />
-                </PieChart>
-            </ChartContainer>
-        </CardContent>
+        <Card>
+            <CardHeader>
+                <CardTitle>Card Status Distribution</CardTitle>
+                <CardDescription>
+                    Breakdown of cards by mastery level
+                </CardDescription>
+            </CardHeader>
+            <CardContent className="flex-1 pb-0">
+                <ChartContainer
+                    config={chartConfig}
+                    className="mx-auto aspect-square max-h-[300px]"
+                >
+                    <PieChart>
+                        <Pie
+                            data={chartData}
+                            dataKey="count"
+                            label={renderCustomLabel}
+                            labelLine={false}
+                        />
+                        <ChartLegend
+                            content={<ChartLegendContent nameKey="status" />}
+                            className="-translate-y-2 flex-wrap gap-2 *:basis-1/4 *:justify-center"
+                        />
+                    </PieChart>
+                </ChartContainer>
+            </CardContent>
+        </Card>
     );
 }
