@@ -1,13 +1,13 @@
 'use client';
 
-import { useGetActiveRoom } from '@/lib/service/room';
+import { Room, useCheckUserInRoom } from '@/lib/service/room';
 import { RoomResumeCard } from './room-resume-card';
 import RoomListPage from './room-list-page';
 import { LoadingSpinner } from '@/components/ui/loading-spinner';
 import { motion } from 'framer-motion';
 
 export default function RoomsPageWrapper() {
-    const { data: activeRoom, isLoading, isError } = useGetActiveRoom();
+    const { data: activeRoom, isLoading, isError } = useCheckUserInRoom();
 
     if (isLoading)
         return (
@@ -26,8 +26,8 @@ export default function RoomsPageWrapper() {
                 <p>Failed to fetch room data.</p>
             </motion.div>
         );
-
-    if (activeRoom) return <RoomResumeCard room={activeRoom} />;
+    if (activeRoom && activeRoom.length > 0)
+        return <RoomResumeCard room={activeRoom[0] as Room} />;
 
     return <RoomListPage />;
 }

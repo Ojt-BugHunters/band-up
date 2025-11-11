@@ -29,7 +29,11 @@ import { PomodoroDisplay } from './pomodoro';
 import { AIChatDisplay } from './ai-learning-chat';
 import { ChattingRoomDisplay } from './chatting-room';
 import { useParams } from 'next/navigation';
-import { useGetRoomById } from '@/lib/service/room';
+import {
+    useGetRoomById,
+    useGetRoomMembers,
+    useLeftRoom,
+} from '@/lib/service/room';
 import { EmptyState } from '@/components/ui/empty-state';
 import { LoadingSpinner } from '@/components/ui/loading-spinner';
 
@@ -55,6 +59,8 @@ export type DisplayMode = 'pomodoro' | 'ai-chat' | 'room' | 'collaboration';
 export default function RoomPage() {
     const { id } = useParams();
     const { data: room, isLoading, isFetching } = useGetRoomById(id as string);
+    const { members } = useGetRoomMembers(id as string);
+    const { mutate: leftRoomMutation } = useLeftRoom();
     const [minutes, setMinutes] = useState(25);
     const [seconds, setSeconds] = useState(0);
     const [isActive, setIsActive] = useState(false);
@@ -119,62 +125,45 @@ export default function RoomPage() {
         setBackgroundImage(randomImage);
     }, []);
 
+    const onLeaveroom = () => {
+        leftRoomMutation(id as string);
+    };
+
     const handlePomodoroComplete = useCallback(() => {
         if (!isPomodoroMode) return;
-
         const settings =
             selectedPreset.name === 'Custom' ? customSettings : selectedPreset;
-
         if (sessionType === 'focus') {
             // After focus, go to break
-
             if (pomodoroSession === 3) {
                 // After 4th focus session, take long break
-
                 setSessionType('longBreak');
-
                 setMinutes(settings.longBreak);
-
                 setSeconds(0);
-
                 setPomodoroSession(0);
-
                 toast.success('Time for long break');
             } else {
                 // Take short break
-
                 setSessionType('shortBreak');
-
                 setMinutes(settings.shortBreak);
-
                 setSeconds(0);
-
                 toast.success('Time for short break');
             }
         } else {
             // After break, go back to focus
-
             setSessionType('focus');
-
             setMinutes(settings.focus);
-
             setSeconds(0);
-
             if (sessionType === 'shortBreak') {
                 setPomodoroSession(pomodoroSession + 1);
             }
-
             toast.success('Break is over');
         }
     }, [
         isPomodoroMode,
-
         selectedPreset,
-
         customSettings,
-
         sessionType,
-
         pomodoroSession,
     ]);
 
@@ -502,6 +491,7 @@ export default function RoomPage() {
                             className="absolute inset-0"
                         >
                             <PomodoroDisplay
+                                onLeaveRoom={onLeaveroom}
                                 minutes={minutes}
                                 seconds={seconds}
                                 isActive={isActive}
@@ -574,6 +564,8 @@ export default function RoomPage() {
                                 analyticsDate={analyticsDate}
                                 formatAnalyticsDate={formatAnalyticsDate}
                                 navigateAnalyticsDate={navigateAnalyticsDate}
+                                room={room}
+                                members={members}
                             />
                         </motion.div>
                     )}

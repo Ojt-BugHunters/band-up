@@ -81,7 +81,6 @@ export function RoomMenuDialog({
     };
 
     const handleLeave = () => {
-        toast.error('You left the room');
         onLeave?.();
         onOpenChange(false);
     };
@@ -196,11 +195,7 @@ export function RoomMenuDialog({
                                         </AlertDialogCancel>
                                         <AlertDialogAction
                                             onClick={() => {
-                                                toast.error(
-                                                    'You left the room',
-                                                );
                                                 handleLeave();
-                                                onOpenChange(false);
                                             }}
                                             className="rounded-xl bg-red-500 text-white hover:bg-red-600"
                                         >
