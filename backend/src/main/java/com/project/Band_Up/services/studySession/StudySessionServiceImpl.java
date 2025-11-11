@@ -106,7 +106,7 @@ public class StudySessionServiceImpl implements StudySessionService {
 
         return toResponse(session);
     }
-    
+
     private Account checkAccountExists(UUID userId) {
         if (userId == null) {
             throw new IllegalArgumentException("User ID cannot be null");
