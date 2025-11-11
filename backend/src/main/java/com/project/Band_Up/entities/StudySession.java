@@ -54,6 +54,7 @@ public class StudySession {
 
     @NotNull
     @Column(nullable = false)
+    @Enumerated(EnumType.STRING)
     private Status status;
 
     @CreationTimestamp

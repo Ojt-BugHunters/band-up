@@ -14,6 +14,7 @@ import java.util.UUID;
 @NoArgsConstructor
 @Builder
 public class StudyIntervalCreateRequest {
+    private UUID studySessionId;
     private SessionMode type;
     private Status status;
 }
