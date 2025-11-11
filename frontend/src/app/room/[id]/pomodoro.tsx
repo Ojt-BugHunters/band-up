@@ -111,9 +111,11 @@ export interface PomodoroDisplayProps {
     // room
     room: Room;
     members: AccountRoomMember[];
+    onLeaveRoom: () => void;
 }
 
 export function PomodoroDisplay({
+    onLeaveRoom,
     members,
     minutes,
     draggedIndex,
@@ -243,6 +245,7 @@ export function PomodoroDisplay({
                             roomId={room?.id ?? ''}
                             members={members}
                             onSave={(data) => console.log('Updated:', data)}
+                            onLeave={onLeaveRoom}
                         />
                     </>
                     <Avatar className="relative h-10 w-10 border-2 border-white/10 bg-black/40 shadow-[0_8px_25px_rgba(0,0,0,0.6),_0_2px_4px_rgba(255,255,255,0.08)_inset] backdrop-blur-xl transition-all hover:scale-105 hover:bg-black/50">

@@ -29,7 +29,11 @@ import { PomodoroDisplay } from './pomodoro';
 import { AIChatDisplay } from './ai-learning-chat';
 import { ChattingRoomDisplay } from './chatting-room';
 import { useParams } from 'next/navigation';
-import { useGetRoomById, useGetRoomMembers } from '@/lib/service/room';
+import {
+    useGetRoomById,
+    useGetRoomMembers,
+    useLeftRoom,
+} from '@/lib/service/room';
 import { EmptyState } from '@/components/ui/empty-state';
 import { LoadingSpinner } from '@/components/ui/loading-spinner';
 
@@ -56,7 +60,7 @@ export default function RoomPage() {
     const { id } = useParams();
     const { data: room, isLoading, isFetching } = useGetRoomById(id as string);
     const { members } = useGetRoomMembers(id as string);
-
+    const { mutate: leftRoomMutation } = useLeftRoom();
     const [minutes, setMinutes] = useState(25);
     const [seconds, setSeconds] = useState(0);
     const [isActive, setIsActive] = useState(false);
@@ -120,6 +124,10 @@ export default function RoomPage() {
             ];
         setBackgroundImage(randomImage);
     }, []);
+
+    const onLeaveroom = () => {
+        leftRoomMutation(id as string);
+    };
 
     const handlePomodoroComplete = useCallback(() => {
         if (!isPomodoroMode) return;
@@ -483,6 +491,7 @@ export default function RoomPage() {
                             className="absolute inset-0"
                         >
                             <PomodoroDisplay
+                                onLeaveRoom={onLeaveroom}
                                 minutes={minutes}
                                 seconds={seconds}
                                 isActive={isActive}
