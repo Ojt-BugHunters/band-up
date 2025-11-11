@@ -13,7 +13,6 @@ interface RoomResumeCardProps {
 
 export function RoomResumeCard({ room }: RoomResumeCardProps) {
     const router = useRouter();
-
     return (
         <div className="relative h-screen w-full overflow-hidden">
             <div
@@ -42,22 +41,22 @@ export function RoomResumeCard({ room }: RoomResumeCardProps) {
                     </div>
 
                     <h2 className="mb-2 text-3xl font-bold drop-shadow-md">
-                        {room.roomName}
+                        {room?.roomName}
                     </h2>
-                    <p className="mb-8 text-white/70">{room.description}</p>
+                    <p className="mb-8 text-white/70">{room?.description}</p>
 
                     <div className="mb-8 flex justify-center gap-8 text-sm text-white/80">
                         <span className="flex items-center gap-2">
                             <Users className="h-4 w-4 text-cyan-400" />{' '}
-                            {room.numberOfMembers} active
+                            {room?.numberOfMembers} active
                         </span>
                         <span className="rounded-lg border border-white/10 bg-white/5 px-3 py-1 font-mono text-white/60">
-                            Code: {room.roomCode}
+                            Code: {room?.roomCode}
                         </span>
                     </div>
 
                     <Button
-                        onClick={() => router.push(`/room/${room.id}`)}
+                        onClick={() => router.push(`/room/${room?.id}`)}
                         className="mx-auto flex items-center gap-2 rounded-xl bg-cyan-500 text-white shadow-lg transition-transform hover:scale-105 hover:bg-cyan-600"
                     >
                         Back to Room <ArrowRight className="h-4 w-4" />

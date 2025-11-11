@@ -14,6 +14,8 @@ import { TimerSettings } from './page';
 import { RefObject, useState } from 'react';
 import { TimePeriod } from './page';
 import { RoomMenuDialog } from './room-menu';
+import { Room } from '@/lib/service/room';
+import { AccountRoomMember } from '@/lib/service/account';
 export type DisplayMode = 'pomodoro' | 'ai-chat' | 'room' | 'collaboration';
 export type SessionType = 'focus' | 'shortBreak' | 'longBreak';
 export type TimerTab = 'focus' | 'stopwatch';
@@ -105,9 +107,16 @@ export interface PomodoroDisplayProps {
     // Refs
     inputRef: RefObject<HTMLDivElement | null>;
     taskButtonRef: RefObject<HTMLButtonElement | null>;
+
+    // room
+    room: Room;
+    members: AccountRoomMember[];
+    onLeaveRoom: () => void;
 }
 
 export function PomodoroDisplay({
+    onLeaveRoom,
+    members,
     minutes,
     draggedIndex,
     seconds,
@@ -174,9 +183,9 @@ export function PomodoroDisplay({
     analyticsDate,
     formatAnalyticsDate,
     navigateAnalyticsDate,
+    room,
 }: PomodoroDisplayProps) {
     const [roomMenuDialogOpen, setRoomMenuDialogOpen] = useState(false);
-
     return (
         <div className="flex h-full flex-col">
             <header className="flex items-center justify-between p-6">
@@ -221,19 +230,22 @@ export function PomodoroDisplay({
                             onClick={() => setRoomMenuDialogOpen(true)} // chỉ mở, không lồng dialog
                         >
                             <span className="relative z-10 text-sm font-bold text-white">
-                                Nam Dang’s Room
+                                {room?.roomName} rooms
                             </span>
                         </div>
 
                         <RoomMenuDialog
                             open={roomMenuDialogOpen}
                             onOpenChange={setRoomMenuDialogOpen}
-                            roomName="Nam Dang’s Room"
-                            description="Describe your study room"
-                            isPrivate={false}
-                            roomId="123"
-                            members={[{ id: '1', name: 'Nam Dang' }]}
+                            roomName={`${room?.roomName ?? 'Unknown'}'s room`}
+                            description={
+                                room?.description ?? 'No description yet'
+                            }
+                            isPrivate={room?.isPrivate ?? false}
+                            roomId={room?.id ?? ''}
+                            members={members}
                             onSave={(data) => console.log('Updated:', data)}
+                            onLeave={onLeaveRoom}
                         />
                     </>
                     <Avatar className="relative h-10 w-10 border-2 border-white/10 bg-black/40 shadow-[0_8px_25px_rgba(0,0,0,0.6),_0_2px_4px_rgba(255,255,255,0.08)_inset] backdrop-blur-xl transition-all hover:scale-105 hover:bg-black/50">
