@@ -2,6 +2,7 @@ import StatCard from '@/components/stat-card';
 import ChartCard from '@/components/chart-card';
 import RecentPostsCard from '@/components/recent-posts-card';
 import TopPostsCard from '@/components/top-posts-card';
+import PostsManagementCard from '@/components/posts-management-card';
 
 export default function AdminBlogPage() {
     // Mock data for statistics
@@ -129,6 +130,9 @@ export default function AdminBlogPage() {
 
                     {/* Top Posts - Right side */}
                     <TopPostsCard posts={topPosts} className="lg:col-span-1" />
+
+                    {/* Posts Management Card with tabs */}
+                    <PostsManagementCard posts={recentPosts} />
                 </div>
             </div>
         </div>
