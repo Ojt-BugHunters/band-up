@@ -64,6 +64,34 @@ export const useGetPublicRooms = () => {
     });
 };
 
+export const useLeftRoom = () => {
+    const router = useRouter();
+    const queryClient = useQueryClient();
+    const mutation = useMutation({
+        mutationFn: async (roomId: string) => {
+            const response = await fetchWrapper(`/rooms/${roomId}/leave`, {
+                method: 'POST',
+                headers: {
+                    Accept: 'application/json',
+                },
+            });
+            await throwIfError(response);
+            return response.json();
+        },
+        onError: (error) => {
+            toast.error(error?.message ?? 'Left room fail');
+        },
+        onSuccess: () => {
+            toast.success('Left room successfully');
+            queryClient.invalidateQueries({
+                queryKey: ['room', 'room-member'],
+            });
+            router.push('/room');
+        },
+    });
+    return mutation;
+};
+
 export function useJoinRoom() {
     const router = useRouter();
     const queryClient = useQueryClient();
