@@ -1,7 +1,7 @@
 'use client';
 
-import { BlogCard } from '@/components/blog-card';
-import { FeaturedCarousel } from '@/components/feature-carousel';
+import { BlogCard } from './blog-card';
+import { FeaturedCarousel } from './feature-carousel';
 import { Highlight } from '@/components/ui/highlight';
 import { Plus, Search } from 'lucide-react';
 import { Input } from '@/components/ui/input';
@@ -19,7 +19,7 @@ import { AsyncSelect } from '@/components/ui/async-select';
 import { Tag } from '@/lib/api/dto/category';
 import { PaginationState } from '@tanstack/react-table';
 import { fetchTagsApi, useDebounce } from '@/lib/utils';
-import { useGetBlogs } from '@/hooks/use-get-blogs';
+import { useGetBlogs } from '@/lib/service/blog';
 import { PaginationControl } from '@/components/ui/pagination-control';
 import LiquidLoading from '@/components/ui/liquid-loader';
 import { NotFound } from '@/components/not-found';
@@ -169,7 +169,7 @@ export default function BlogListPage() {
 
                 <div className="mb-16 grid grid-cols-1 gap-8 md:grid-cols-2 lg:grid-cols-3">
                     {blogs?.map((post) => (
-                        <BlogCard key={post.id} {...post} />
+                        <BlogCard key={post.id} blogPost={post} />
                     ))}
                 </div>
 
