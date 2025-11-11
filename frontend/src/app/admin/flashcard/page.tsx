@@ -7,10 +7,10 @@ import {
     CardHeader,
     CardTitle,
 } from '@/components/ui/card';
-import { DailyLearnersChart } from '@/components/daily-learners-chart';
-import { TopDecksChart } from '@/components/top-decks-chart';
-import { CardStatusChart } from '@/components/card-status-chart';
-import { FlashcardTable } from '@/components/flashcard-table';
+import { DailyLearnersChart } from './daily-learner-chart';
+import { TopDecksChart } from './top-deck-chart';
+import { CardStatusChart } from './card-status-chart';
+import { FlashcardTable } from './flashcard-table';
 
 export default function FlashcardPage() {
     return (
