@@ -15,4 +15,7 @@ public interface StudySessionService {
 
     StudySessionResponse pingInterval(UUID sessionId, UUID intervalId, StudySessionIntervalUpdateRequest request);
 
+    StudySessionResponse resetInterval(UUID sessionId, UUID intervalId);
+
+    StudySessionResponse pauseInterval(UUID sessionId, UUID intervalId);
 }

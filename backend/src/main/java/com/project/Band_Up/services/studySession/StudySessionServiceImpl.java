@@ -99,12 +99,39 @@ public class StudySessionServiceImpl implements StudySessionService {
                 .orElseThrow(() -> new IllegalArgumentException("Study session not found"));
         StudyInterval interval = studyIntervalRepository.findById(intervalId)
                 .orElseThrow(() -> new IllegalArgumentException("Study interval not found"));
-    if(interval.getStatus() == Status.PENDING || interval.getStatus() == Status.ENDED) {
+    if(interval.getStatus() == Status.PENDING || interval.getStatus() == Status.ENDED || interval.getStatus() == Status.PAUSED) {
             throw new IllegalArgumentException("Cannot ping an interval that has not started");
     }
         interval.setPingedAt(LocalDateTime.now());
         studyIntervalRepository.save(interval);
 
+        return toResponse(session);
+    }
+    @Override
+    public StudySessionResponse resetInterval(UUID sessionId, UUID intervalId) {
+        StudySession session = studySessionRepository.findById(sessionId)
+                .orElseThrow(() -> new IllegalArgumentException("Study session not found"));
+        StudyInterval interval = studyIntervalRepository.findById(intervalId)
+                .orElseThrow(() -> new IllegalArgumentException("Study interval not found"));
+        interval.setStartAt(null);
+        interval.setEndedAt(null);
+        interval.setPingedAt(null);
+        interval.setDuration(null);
+        interval.setStatus(Status.PENDING);
+        studyIntervalRepository.save(interval);
+        return toResponse(session);
+    }
+    @Override
+    public StudySessionResponse pauseInterval (UUID sessionId, UUID intervalId) {
+        StudySession session = studySessionRepository.findById(sessionId)
+                .orElseThrow(() -> new IllegalArgumentException("Study session not found"));
+        StudyInterval interval = studyIntervalRepository.findById(intervalId)
+                .orElseThrow(() -> new IllegalArgumentException("Study interval not found"));
+        if(interval.getStatus() != Status.ONGOING) {
+            throw new IllegalArgumentException("Only ongoing intervals can be paused");
+        }
+        interval.setStatus(Status.PAUSED);
+        studyIntervalRepository.save(interval);
         return toResponse(session);
     }
 

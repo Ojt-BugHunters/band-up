@@ -5,5 +5,6 @@ public enum Status {
     Published,
     PENDING,
     ENDED,
-    ONGOING
+    ONGOING,
+    PAUSED
 }
