@@ -8,8 +8,10 @@ import com.project.Band_Up.dtos.test.TestResponse;
 import com.project.Band_Up.entities.Question;
 import com.project.Band_Up.entities.Section;
 import com.project.Band_Up.enums.Status;
+import com.project.Band_Up.repositories.MediaRepository;
 import com.project.Band_Up.repositories.QuestionRepository;
 import com.project.Band_Up.repositories.SectionRepository;
+import com.project.Band_Up.services.awsService.S3Service;
 import com.project.Band_Up.services.media.MediaService;
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
@@ -26,6 +28,9 @@ public class QuestionServiceImpl implements QuestionService {
     private final QuestionRepository questionRepository;
     private final SectionRepository sectionRepository;
     private final MediaService mediaService;
+    private final S3Service s3Service;
+    private final MediaRepository mediaRepository;
+
     @Override
     public QuestionResponse createQuestion(UUID sectionId, QuestionCreateRequest request) {
         Section section = sectionRepository.findById(sectionId)
@@ -99,6 +104,11 @@ public class QuestionServiceImpl implements QuestionService {
         if(question.getSection() != null) {
             response.setSectionId(question.getSection().getId());
         }
+        mediaRepository.findFirstByQuestion_Id(question.getId())
+                .ifPresent(media -> {
+                    String signedUrl = s3Service.createCloudFrontSignedUrl(media.getS3Key());
+                    response.setCloudfrontUrl(signedUrl);
+                });
         return response;
     }
 }
