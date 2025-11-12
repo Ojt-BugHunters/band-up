@@ -20,6 +20,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigInteger;
+import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -100,7 +101,22 @@ public class StudySessionServiceImpl implements StudySessionService {
         }
 
         interval.setPingedAt(LocalDateTime.now());
-        return saveAndReturn(session, interval);
+        if (interval.getStartAt() != null) {
+            long seconds = Duration.between(interval.getStartAt(), interval.getPingedAt()).getSeconds();
+            interval.setDuration(BigInteger.valueOf(seconds));
+        }
+        studyIntervalRepository.save(interval);
+
+        List<StudyInterval> allIntervals = studyIntervalRepository.findByStudySessionOrderByOrderIndexAsc(session);
+        BigInteger totalFocus = allIntervals.stream()
+                .filter(i -> i.getType() == SessionMode.Focus)
+                .map(i -> Optional.ofNullable(i.getDuration()).orElse(BigInteger.ZERO))
+                .reduce(BigInteger.ZERO, BigInteger::add);
+
+        session.setTotalFocusTime(totalFocus);
+        studySessionRepository.save(session);
+        return toResponse(session);
+
     }
 
     @Override
@@ -201,7 +217,7 @@ public class StudySessionServiceImpl implements StudySessionService {
             studyIntervalRepository.saveAll(intervals);
             return;
         }
-        
+
         if (session.getMode() == SessionMode.StopWatch) {
             StudyInterval interval = createInterval(session, SessionMode.Focus, 1);
             interval.setStatus(Status.PENDING);
