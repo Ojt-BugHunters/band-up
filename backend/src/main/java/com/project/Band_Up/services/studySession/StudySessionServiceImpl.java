@@ -119,6 +119,7 @@ public class StudySessionServiceImpl implements StudySessionService {
 
     }
 
+
     @Override
     public StudySessionResponse resetInterval(UUID sessionId, UUID intervalId) {
         StudySession session = getSession(sessionId);
