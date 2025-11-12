@@ -8,12 +8,14 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.math.BigInteger;
+import java.util.UUID;
 
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
 public class StudySessionCreateRequest {
+    private UUID roomId;
     private SessionMode mode;
     private BigInteger focusTime;
     private BigInteger shortBreak;
