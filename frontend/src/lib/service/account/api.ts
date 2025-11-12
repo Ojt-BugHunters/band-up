@@ -19,9 +19,11 @@ import {
     registerSchema,
     ResetPasswordFormValues,
     resetPasswordSchema,
+    User,
 } from './type';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
+import { useEffect } from 'react';
 
 export const useGetAvatar = () => {
     return useQuery({
@@ -249,3 +251,30 @@ export const useResetPassword = (inputOtp: string) => {
 
     return { form, mutation };
 };
+
+export function useUser() {
+    const queryClient = useQueryClient();
+
+    const { data: user } = useQuery<User | null>({
+        queryKey: ['user'],
+        queryFn: async () => {
+            return queryClient.getQueryData<User>(['user']) ?? null;
+        },
+        staleTime: Infinity,
+        initialData: () => {
+            return queryClient.getQueryData<User>(['user']) ?? null;
+        },
+    });
+
+    useEffect(() => {
+        if (!user && typeof window !== 'undefined') {
+            const stored = localStorage.getItem('user');
+            if (stored) {
+                const parsed: User = JSON.parse(stored);
+                queryClient.setQueryData(['user'], parsed);
+            }
+        }
+    }, [user, queryClient]);
+
+    return user;
+}
