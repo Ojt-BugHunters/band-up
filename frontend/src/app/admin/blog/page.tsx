@@ -1,3 +1,4 @@
+'use client';
 import StatCard from '@/components/stat-card';
 import ChartCard from '@/components/chart-card';
 import RecentPostsCard from '@/components/recent-posts-card';
@@ -5,7 +6,6 @@ import TopPostsCard from '@/components/top-posts-card';
 import PostsManagementCard from '@/components/posts-management-card';
 
 export default function AdminBlogPage() {
-    // Mock data for statistics
     const viewsData = [
         { date: 'Mon', views: 2400 },
         { date: 'Tue', views: 1398 },
