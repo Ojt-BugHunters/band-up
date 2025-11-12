@@ -4,12 +4,12 @@ import {
     CreateFullSectionPayload,
     sectionFormSchema,
     useCreatePassage,
-} from '@/hooks/use-create-passage';
+} from '@/lib/service/dictation';
 import {
     DictationQuestionFormData,
     useCreateQuestion,
-} from '@/hooks/use-create-question';
-import { useCreateTest, TestCreateFormValues } from '@/hooks/use-create-test';
+} from '@/lib/service/dictation';
+import { useCreateTest, TestCreateFormValues } from '@/lib/service/dictation';
 import { useEffect, useState } from 'react';
 import { SubmitHandler, useFieldArray } from 'react-hook-form';
 import {
@@ -19,10 +19,10 @@ import {
     DialogHeader,
     DialogTitle,
     DialogTrigger,
-} from './ui/dialog';
-import { Button } from './ui/button';
+} from '@/components/ui/dialog';
+import { Button } from '@/components/ui/button';
 import { ChevronLeft, ChevronRight, Plus, Trash, Trash2 } from 'lucide-react';
-import { Separator } from './ui/separator';
+import { Separator } from '@/components/ui/separator';
 import {
     Form,
     FormControl,
@@ -31,17 +31,17 @@ import {
     FormItem,
     FormLabel,
     FormMessage,
-} from './ui/form';
-import { Input } from './ui/input';
-import { Card, CardContent } from './ui/card';
+} from '@/components/ui/form';
+import { Input } from '@/components/ui/input';
+import { Card, CardContent } from '@/components/ui/card';
 import {
     Select,
     SelectContent,
     SelectItem,
     SelectTrigger,
     SelectValue,
-} from './ui/select';
-import { Textarea } from './ui/textarea';
+} from '@/components/ui/select';
+import { Textarea } from '@/components/ui/textarea';
 
 type SectionMap = Record<number, string>;
 
