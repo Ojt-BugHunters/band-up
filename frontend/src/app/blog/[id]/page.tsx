@@ -24,7 +24,7 @@ import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
 import CommentSection from '@/components/comment-section';
 import { Content } from '@tiptap/react';
-import { useGetBlogDetail } from '@/hooks/use-get-blog-content';
+import { useGetBlogDetail } from '@/lib/service/blog';
 import { formatDate } from '@/lib/utils';
 
 function initials(name: string) {

@@ -1,4 +1,5 @@
-import { Tag } from '../tag';
+import z from 'zod';
+import { Tag, TagSchema } from '../tag';
 
 export interface PaginationInfo {
     pageNo?: number;
@@ -35,3 +36,14 @@ export interface BlogReact {
     reactAuthor: Author;
     reactType: ReactType;
 }
+
+export const blogBaseSchema = z.object({
+    title: z.string().min(1, 'Title is required'),
+    description: z
+        .string()
+        .min(1, 'Content is required')
+        .max(100_000, 'Content is too long'),
+    topics: TagSchema.shape.topics,
+});
+
+export type CreateBlogFormValues = z.infer<typeof blogBaseSchema>;

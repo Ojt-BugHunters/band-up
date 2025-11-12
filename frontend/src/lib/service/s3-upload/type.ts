@@ -8,3 +8,10 @@ export type MediaResponse = {
 export interface SaveFileVars {
     key: string;
 }
+
+export interface MediaRequest {
+    entityType?: string;
+    entityId?: string;
+    fileName: string;
+    contentType: string;
+}
