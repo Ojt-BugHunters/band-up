@@ -4,12 +4,17 @@ import { Pie, PieChart } from 'recharts';
 
 import { CardContent } from '@/components/ui/card';
 import {
-    ChartConfig,
+    type ChartConfig,
     ChartContainer,
     ChartLegend,
     ChartLegendContent,
 } from '@/components/ui/chart';
-import { cardStatusChartData } from './page.data';
+
+const cardStatusChartData = [
+    { status: 'new', count: 275, fill: 'var(--color-new)' },
+    { status: 'learning', count: 200, fill: 'var(--color-learning)' },
+    { status: 'mastered', count: 187, fill: 'var(--color-mastered)' },
+];
 
 export const description = 'A pie chart with a legend';
 
