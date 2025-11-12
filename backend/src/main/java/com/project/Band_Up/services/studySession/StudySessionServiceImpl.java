@@ -5,11 +5,13 @@ import com.project.Band_Up.dtos.studySession.StudySessionCreateRequest;
 import com.project.Band_Up.dtos.studySession.StudySessionResponse;
 import com.project.Band_Up.dtos.studySessionInterval.StudySessionIntervalUpdateRequest;
 import com.project.Band_Up.entities.Account;
+import com.project.Band_Up.entities.Room;
 import com.project.Band_Up.entities.StudyInterval;
 import com.project.Band_Up.entities.StudySession;
 import com.project.Band_Up.enums.SessionMode;
 import com.project.Band_Up.enums.Status;
 import com.project.Band_Up.repositories.AccountRepository;
+import com.project.Band_Up.repositories.RoomRepository;
 import com.project.Band_Up.repositories.StudyIntervalRepository;
 import com.project.Band_Up.repositories.StudySessionRepository;
 import lombok.RequiredArgsConstructor;
@@ -30,6 +32,7 @@ public class StudySessionServiceImpl implements StudySessionService {
     private final AccountRepository accountRepository;
     private final StudySessionRepository studySessionRepository;
     private final StudyIntervalRepository studyIntervalRepository;
+    private final RoomRepository roomRepository;
     private final ModelMapper modelMapper;
 
     @Override
@@ -134,6 +137,11 @@ public class StudySessionServiceImpl implements StudySessionService {
         return accountRepository.findById(userId)
                 .orElseThrow(() -> new IllegalArgumentException("Account not found"));
     }
+    private Room getRoom(UUID roomId) {
+        if (roomId == null )
+            throw new IllegalArgumentException("Room ID cannot be null");
+        return roomRepository.findById(roomId).orElseThrow(() -> new IllegalArgumentException("Room not found"));
+    }
 
     private StudySession getSession(UUID sessionId) {
         return studySessionRepository.findById(sessionId)
@@ -160,6 +168,7 @@ public class StudySessionServiceImpl implements StudySessionService {
     private StudySessionResponse toResponse(StudySession studySession) {
         StudySessionResponse response = modelMapper.map(studySession, StudySessionResponse.class);
         response.setUserId(studySession.getUser().getId());
+        response.setRoomId(studySession.getRoom().getId());
 
         List<StudyIntervalResponse> intervalResponses = studyIntervalRepository
                 .findByStudySessionOrderByOrderIndexAsc(studySession)
