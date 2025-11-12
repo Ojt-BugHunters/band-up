@@ -1,11 +1,11 @@
 'use client';
 
-import { BlogCard } from '@/components/blog-card';
-import { FeaturedCarousel } from '@/components/feature-carousel';
+import { BlogCard } from './blog-card';
+import { FeaturedCarousel } from './feature-carousel';
 import { Highlight } from '@/components/ui/highlight';
 import { Plus, Search } from 'lucide-react';
 import { Input } from '@/components/ui/input';
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import {
     Select,
     SelectContent,
@@ -15,18 +15,15 @@ import {
 } from '@/components/ui/select';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
-import { AsyncSelect } from '@/components/ui/async-select';
-import { Tag } from '@/lib/api/dto/category';
 import { PaginationState } from '@tanstack/react-table';
-import { fetchTagsApi, useDebounce } from '@/lib/utils';
-import { useGetBlogs } from '@/hooks/use-get-blogs';
+import { useGetBlogs } from '@/lib/service/blog';
 import { PaginationControl } from '@/components/ui/pagination-control';
 import LiquidLoading from '@/components/ui/liquid-loader';
 import { NotFound } from '@/components/not-found';
-import { useQueryClient } from '@tanstack/react-query';
+import { TagSelect } from './tag-select';
+import { useDebounce } from '@/lib/utils';
 
 export default function BlogListPage() {
-    const queryClient = useQueryClient();
     const [search, setSearch] = useState('');
     const [sortOrder, setSortOrder] = useState<'latest' | 'oldest'>('latest');
     const [pagination, setPagination] = useState<PaginationState>({
@@ -57,18 +54,6 @@ export default function BlogListPage() {
 
     const { data, isPending, isError } = useGetBlogs(apiPaging);
 
-    const fetchTags = useCallback(
-        (keyword?: string) => {
-            const kw = keyword ?? '';
-            return queryClient.fetchQuery({
-                queryKey: ['tags', kw],
-                queryFn: () => fetchTagsApi(kw),
-                staleTime: 5 * 60_000,
-                gcTime: 10 * 60_000,
-            });
-        },
-        [queryClient],
-    );
     const blogs = useMemo(() => {
         if (!data?.content) return [];
         return [...data.content].sort((a, b) => {
@@ -126,22 +111,10 @@ export default function BlogListPage() {
                         />
                     </div>
 
-                    <AsyncSelect<Tag>
-                        fetcher={fetchTags}
-                        preload
-                        renderOption={(tag) => <span>{tag.name}</span>}
-                        getOptionValue={(tag) => tag.id}
-                        getDisplayValue={(tag) => (
-                            <div className="flex items-center gap-2">
-                                <span className="truncate">{tag.name}</span>
-                            </div>
-                        )}
-                        label="Tag"
-                        placeholder="Filter by tag..."
+                    <TagSelect
                         value={selectedTagId}
-                        onChange={(val?: string) => setSelectedTagId(val ?? '')}
-                        width={240}
-                        triggerClassName="rounded-lg border-slate-200 focus:ring-blue-200"
+                        onChange={setSelectedTagId}
+                        width={320}
                     />
 
                     <Select
@@ -169,7 +142,7 @@ export default function BlogListPage() {
 
                 <div className="mb-16 grid grid-cols-1 gap-8 md:grid-cols-2 lg:grid-cols-3">
                     {blogs?.map((post) => (
-                        <BlogCard key={post.id} {...post} />
+                        <BlogCard key={post.id} blogPost={post} />
                     ))}
                 </div>
 

@@ -2,13 +2,7 @@
 
 import { Pie, PieChart } from 'recharts';
 
-import {
-    Card,
-    CardContent,
-    CardDescription,
-    CardHeader,
-    CardTitle,
-} from '@/components/ui/card';
+import { CardContent } from '@/components/ui/card';
 import {
     ChartConfig,
     ChartContainer,
@@ -19,22 +13,22 @@ import {
 export const description = 'A pie chart with a legend';
 
 const chartData = [
-    { status: 'new', count: 275, fill: 'var(--color-new)' },
-    { status: 'learning', count: 200, fill: 'var(--color-learning)' },
-    { status: 'mastered', count: 187, fill: 'var(--color-mastered)' },
+    { status: 'Easy', count: 275, fill: 'var(--color-easy)' },
+    { status: 'Medium', count: 200, fill: 'var(--color-medium)' },
+    { status: 'Hard', count: 187, fill: 'var(--color-hard)' },
 ];
 
 const chartConfig = {
-    new: {
-        label: 'New',
+    Easy: {
+        label: 'Easy',
         color: 'var(--chart-1)',
     },
-    learning: {
-        label: 'Learning',
+    Medium: {
+        label: 'Medium',
         color: 'var(--chart-2)',
     },
-    mastered: {
-        label: 'Mastered',
+    Hard: {
+        label: 'Hard',
         color: 'var(--chart-3)',
     },
 } satisfies ChartConfig;
@@ -51,32 +45,24 @@ const renderCustomLabel = (entry: {
 
 export function CardStatusChart() {
     return (
-        <Card>
-            <CardHeader>
-                <CardTitle>Card Status Distribution</CardTitle>
-                <CardDescription>
-                    Breakdown of cards by mastery level
-                </CardDescription>
-            </CardHeader>
-            <CardContent className="flex-1 pb-0">
-                <ChartContainer
-                    config={chartConfig}
-                    className="mx-auto aspect-square max-h-[300px]"
-                >
-                    <PieChart>
-                        <Pie
-                            data={chartData}
-                            dataKey="count"
-                            label={renderCustomLabel}
-                            labelLine={false}
-                        />
-                        <ChartLegend
-                            content={<ChartLegendContent nameKey="status" />}
-                            className="-translate-y-2 flex-wrap gap-2 *:basis-1/4 *:justify-center"
-                        />
-                    </PieChart>
-                </ChartContainer>
-            </CardContent>
-        </Card>
+        <CardContent className="flex-1 pb-0">
+            <ChartContainer
+                config={chartConfig}
+                className="mx-auto aspect-square max-h-[300px]"
+            >
+                <PieChart>
+                    <Pie
+                        data={chartData}
+                        dataKey="count"
+                        label={renderCustomLabel}
+                        labelLine={false}
+                    />
+                    <ChartLegend
+                        content={<ChartLegendContent nameKey="status" />}
+                        className="-translate-y-2 flex-wrap gap-2 *:basis-1/4 *:justify-center"
+                    />
+                </PieChart>
+            </ChartContainer>
+        </CardContent>
     );
 }

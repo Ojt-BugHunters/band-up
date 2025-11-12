@@ -6,10 +6,10 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { CalendarDays, Edit, Mail, Pencil, Phone, User } from 'lucide-react';
 import { user } from '../../../constants/sample-data';
 import { useMemo, useState } from 'react';
-import AccountBlogSection from '@/components/account-blog';
+import AccountBlogSection from './account-blog-section';
 import { Button } from '@/components/ui/button';
-import EditDialog from '@/components/edit-dialog';
-import { useSaveFile } from '@/hooks/use-save-file';
+import EditProfileDialog from './edit-profile-dialog';
+import { useSaveFile } from '@/lib/service/s3-upload';
 import {
     Dialog,
     DialogClose,
@@ -20,7 +20,7 @@ import {
     DialogTrigger,
 } from '@/components/ui/dialog';
 import S3FileUploader from '@/components/s3-file-uploader';
-import { useGetAvatar } from '@/hooks/use-get-avatar';
+import { useGetAvatar } from '@/lib/service/account';
 
 const bgGradients = [
     'from-blue-50 to-indigo-50',
@@ -241,7 +241,7 @@ export default function ViewProfilePage() {
                     </div>
                 </div>
             </div>
-            <EditDialog open={openDialog} onOpenChange={setOpenDialog} />
+            <EditProfileDialog open={openDialog} onOpenChange={setOpenDialog} />
         </div>
     );
 }
