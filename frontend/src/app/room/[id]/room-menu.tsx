@@ -27,7 +27,7 @@ import {
     AlertDialogTitle,
     AlertDialogTrigger,
 } from '@/components/ui/alert-dialog';
-import { AccountRoomMember } from '@/lib/service/account';
+import { AccountRoomMember } from '@/lib/service/room';
 import Image from 'next/image';
 
 interface RoomMenuDialogProps {

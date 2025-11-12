@@ -13,22 +13,22 @@ import {
 export const description = 'A pie chart with a legend';
 
 const chartData = [
-    { status: 'new', count: 275, fill: 'var(--color-new)' },
-    { status: 'learning', count: 200, fill: 'var(--color-learning)' },
-    { status: 'mastered', count: 187, fill: 'var(--color-mastered)' },
+    { status: 'Easy', count: 275, fill: 'var(--color-easy)' },
+    { status: 'Medium', count: 200, fill: 'var(--color-medium)' },
+    { status: 'Hard', count: 187, fill: 'var(--color-hard)' },
 ];
 
 const chartConfig = {
-    new: {
-        label: 'New',
+    Easy: {
+        label: 'Easy',
         color: 'var(--chart-1)',
     },
-    learning: {
-        label: 'Learning',
+    Medium: {
+        label: 'Medium',
         color: 'var(--chart-2)',
     },
-    mastered: {
-        label: 'Mastered',
+    Hard: {
+        label: 'Hard',
         color: 'var(--chart-3)',
     },
 } satisfies ChartConfig;

@@ -4,13 +4,13 @@ import {
     CreateFullSectionPayload,
     sectionFormSchema,
     useCreatePassage,
-} from '@/hooks/use-create-passage';
+} from '@/lib/service/dictation';
 import {
     DictationQuestionFormData,
     useCreateQuestion,
-} from '@/hooks/use-create-question';
-import { useCreateTest, TestCreateFormValues } from '@/hooks/use-create-test';
-import { useEffect, useState } from 'react';
+} from '@/lib/service/dictation';
+import { useCreateTest, TestCreateFormValues } from '@/lib/service/dictation';
+import { useState } from 'react';
 import { SubmitHandler, useFieldArray } from 'react-hook-form';
 import {
     Dialog,
@@ -19,10 +19,10 @@ import {
     DialogHeader,
     DialogTitle,
     DialogTrigger,
-} from './ui/dialog';
-import { Button } from './ui/button';
+} from '@/components/ui/dialog';
+import { Button } from '@/components/ui/button';
 import { ChevronLeft, ChevronRight, Plus, Trash, Trash2 } from 'lucide-react';
-import { Separator } from './ui/separator';
+import { Separator } from '@/components/ui/separator';
 import {
     Form,
     FormControl,
@@ -31,17 +31,17 @@ import {
     FormItem,
     FormLabel,
     FormMessage,
-} from './ui/form';
-import { Input } from './ui/input';
-import { Card, CardContent } from './ui/card';
+} from '@/components/ui/form';
+import { Input } from '@/components/ui/input';
+import { Card, CardContent } from '@/components/ui/card';
 import {
     Select,
     SelectContent,
     SelectItem,
     SelectTrigger,
     SelectValue,
-} from './ui/select';
-import { Textarea } from './ui/textarea';
+} from '@/components/ui/select';
+import { Textarea } from '@/components/ui/textarea';
 
 type SectionMap = Record<number, string>;
 
@@ -62,19 +62,13 @@ function getSectionId(index: number, map: SectionMap) {
 export function CreateDictationDialog() {
     const [open, setOpen] = useState(false);
     const [step, setStep] = useState(1);
-    const [testId, setTestId] = useState('');
     const [sectionIds, setSectionIds] = useState<string[]>([]);
 
     const { createTestForm, mutation: createTestMutation } = useCreateTest();
     const { fullSectionForm, mutation: createSectionMutation } =
-        useCreatePassage(testId);
+        useCreatePassage();
     const { dictationQuestionForm, mutation: createQuestionsMutation } =
         useCreateQuestion();
-
-    useEffect(() => {
-        const storedId = window.localStorage?.getItem('create-test-id') ?? '';
-        setTestId(storedId);
-    }, []);
 
     const {
         fields: sectionFields,
@@ -97,7 +91,6 @@ export function CreateDictationDialog() {
     const handleClose = () => {
         setOpen(false);
         setStep(1);
-        setTestId('');
         setSectionIds([]);
         createTestForm.reset();
         fullSectionForm.reset();
@@ -114,7 +107,8 @@ export function CreateDictationDialog() {
         data,
     ) => {
         const payload: CreateFullSectionPayload = sectionFormSchema.parse(data);
-        createSectionMutation.mutate(payload);
+        const testId = window.localStorage?.getItem('create-test-id') ?? '';
+        createSectionMutation.mutate({ payload, testId });
         setStep(3);
     };
 

@@ -7,6 +7,13 @@ export interface Task {
     completed: boolean;
 }
 
+export interface AccountRoomMember {
+    id: string;
+    name: string;
+    cloudFrontUrl: string;
+    expiresAt: string;
+}
+
 export interface AmbientSound {
     id: string;
     name: string;
