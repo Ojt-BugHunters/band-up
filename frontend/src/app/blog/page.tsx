@@ -16,13 +16,7 @@ import {
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { PaginationState } from '@tanstack/react-table';
-<<<<<<< HEAD
-import { fetchTagsApi } from '@/lib/utils';
-import { useDebounce } from '@/lib/client-utils';
-import { useGetBlogs } from '@/hooks/use-get-blogs';
-=======
 import { useGetBlogs } from '@/lib/service/blog';
->>>>>>> main
 import { PaginationControl } from '@/components/ui/pagination-control';
 import LiquidLoading from '@/components/ui/liquid-loader';
 import { NotFound } from '@/components/not-found';
