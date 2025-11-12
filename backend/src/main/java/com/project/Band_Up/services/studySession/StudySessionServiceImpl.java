@@ -4,6 +4,7 @@ import com.project.Band_Up.dtos.studyInterval.StudyIntervalCreateRequest;
 import com.project.Band_Up.dtos.studyInterval.StudyIntervalResponse;
 import com.project.Band_Up.dtos.studySession.StudySessionCreateRequest;
 import com.project.Band_Up.dtos.studySession.StudySessionResponse;
+import com.project.Band_Up.dtos.studySessionInterval.StudySessionIntervalUpdateRequest;
 import com.project.Band_Up.entities.Account;
 import com.project.Band_Up.entities.StudyInterval;
 import com.project.Band_Up.entities.StudySession;
@@ -17,6 +18,8 @@ import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.math.BigInteger;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
@@ -38,6 +41,72 @@ public class StudySessionServiceImpl implements StudySessionService {
         generateStudyIntervals(saved);
         return toResponse(saved);
     }
+    @Override
+    public StudySessionResponse startInterval(UUID sessionId, UUID intervalId) {
+        StudySession session = studySessionRepository.findById(sessionId)
+                .orElseThrow(() -> new IllegalArgumentException("Study session not found"));
+        StudyInterval interval = studyIntervalRepository.findById(intervalId)
+                .orElseThrow(() -> new IllegalArgumentException("Study interval not found"));
+        if (interval.getStartAt() == null) {
+            interval.setStartAt(LocalDateTime.now());
+            interval.setStatus(Status.Ongoing);
+        }
+        if (session.getStartedAt() == null) {
+            session.setStartedAt(interval.getStartAt());
+            session.setStatus(Status.Ongoing);
+        }
+
+        studyIntervalRepository.save(interval);
+        studySessionRepository.save(session);
+        return toResponse(session);
+    }
+
+    @Override
+    public StudySessionResponse endInterval(UUID sessionId, UUID intervalId) {
+        StudySession session = studySessionRepository.findById(sessionId)
+                .orElseThrow(() -> new IllegalArgumentException("Study session not found"));
+        StudyInterval interval = studyIntervalRepository.findById(intervalId)
+                .orElseThrow(() -> new IllegalArgumentException("Study interval not found"));
+        interval.setEndedAt(LocalDateTime.now());
+        interval.setStatus(Status.Ended);
+        if (interval.getStartAt() != null) {
+            long seconds = java.time.Duration.between(interval.getStartAt(), interval.getEndedAt()).getSeconds();
+            interval.setDuration(BigInteger.valueOf(seconds));
+        }
+        studyIntervalRepository.save(interval);
+        List<StudyInterval> all = studyIntervalRepository.findByStudySessionOrderByOrderIndexAsc(session);
+        boolean allDone = all.stream().allMatch(i -> i.getStatus() == Status.Ended);
+
+        if (allDone) {
+            session.setEndedAt(LocalDateTime.now());
+            session.setStatus(Status.Ended);
+
+            BigInteger totalFocus = all.stream()
+                    .filter(i -> i.getType() == SessionMode.Focus)
+                    .map(i -> i.getDuration() == null ? BigInteger.ZERO : i.getDuration())
+                    .reduce(BigInteger.ZERO, BigInteger::add);
+
+            session.setTotalFocusTime(totalFocus);
+        }
+
+        studySessionRepository.save(session);
+        return toResponse(session);
+    }
+
+    @Override
+    public StudySessionResponse pingInterval(UUID sessionId, UUID intervalId, StudySessionIntervalUpdateRequest request) {
+        StudySession session = studySessionRepository.findById(sessionId)
+                .orElseThrow(() -> new IllegalArgumentException("Study session not found"));
+        StudyInterval interval = studyIntervalRepository.findById(intervalId)
+                .orElseThrow(() -> new IllegalArgumentException("Study interval not found"));
+
+        interval.setPingedAt(LocalDateTime.now());
+        interval.setStatus(request.getStatus() != null ? request.getStatus() : interval.getStatus());
+        studyIntervalRepository.save(interval);
+
+        return toResponse(session);
+    }
+
     private Account checkAccountExists(UUID userId) {
         if (userId == null) {
             throw new IllegalArgumentException("User ID cannot be null");

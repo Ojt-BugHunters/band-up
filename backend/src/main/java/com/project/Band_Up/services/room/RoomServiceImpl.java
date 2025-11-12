@@ -202,7 +202,7 @@ public class RoomServiceImpl implements RoomService {
         if (actorMember.getRole() != Role.Host) {
             throw new IllegalStateException("Only host can delete the room");
         }
-
+        roomMemberRepository.deleteAllByRoom(room);
         roomRepository.delete(room);
     }
 
