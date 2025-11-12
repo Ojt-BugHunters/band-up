@@ -30,8 +30,8 @@ public class StudySession {
             foreignKey = @ForeignKey(name = "fk_study_session_user"))
     private Account user;
 
-    @ManyToOne(fetch = jakarta.persistence.FetchType.LAZY, optional = false)
-    @JoinColumn(name= "room_id", nullable = false,
+    @ManyToOne(fetch = jakarta.persistence.FetchType.LAZY, optional = true)
+    @JoinColumn(name= "room_id", nullable = true,
             foreignKey = @ForeignKey(name = "fk_study_session_room"))
     private Room room;
 
