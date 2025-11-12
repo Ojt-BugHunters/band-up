@@ -6,7 +6,6 @@ import com.project.Band_Up.dtos.roomMember.RoomMemberResponse;
 import com.project.Band_Up.entities.Account;
 import com.project.Band_Up.entities.Room;
 import com.project.Band_Up.entities.RoomMember;
-import com.project.Band_Up.entities.StudySession;
 import com.project.Band_Up.enums.Role;
 import com.project.Band_Up.repositories.AccountRepository;
 import com.project.Band_Up.repositories.RoomMemberRepository;
