@@ -35,9 +35,9 @@ import {
     Search,
     User,
 } from 'lucide-react';
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { DictationCard } from './dictation-card';
-import { useGetDictationTests } from '@/lib/service/dictation';
+import { Dictation, useGetDictationTests } from '@/lib/service/dictation';
 import { LoadingSpinner } from '@/components/ui/loading-spinner';
 import { NotFound } from '@/components/not-found';
 
@@ -57,6 +57,24 @@ export default function DictationListPage() {
     useEffect(() => {
         setPagination((prev) => ({ ...prev, pageIndex: 0 }));
     }, [search, difficult]);
+
+    const filteredTests = useMemo(() => {
+        return (dictationTests ?? []).filter((t: Dictation) => {
+            const matchDifficulty =
+                difficult === 'all'
+                    ? true
+                    : String(t?.difficult ?? '').toLowerCase() === difficult;
+
+            const matchSearch = search === '' ? true : t.title.includes(search);
+
+            return matchDifficulty && matchSearch;
+        });
+    }, [dictationTests, search, difficult]);
+
+    const paged = useMemo(() => {
+        const start = pagination.pageIndex * pagination.pageSize;
+        return filteredTests.slice(start, start + pagination.pageSize);
+    }, [filteredTests, pagination.pageIndex, pagination.pageSize]);
 
     if (isFetching) {
         return <LoadingSpinner />;
@@ -150,7 +168,7 @@ export default function DictationListPage() {
             </div>
 
             <div>
-                {dictationTests?.length === 0 ? (
+                {filteredTests?.length === 0 ? (
                     <div className="mx-auto max-w-7xl rounded-md border">
                         <EmptyState
                             className="mx-auto"
@@ -161,7 +179,7 @@ export default function DictationListPage() {
                     </div>
                 ) : (
                     <div className="mx-auto mb-12 grid max-w-7xl cursor-pointer grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-4">
-                        {dictationTests?.map((dictation) => (
+                        {paged?.map((dictation) => (
                             <DictationCard
                                 key={dictation.id}
                                 dictation={dictation}
