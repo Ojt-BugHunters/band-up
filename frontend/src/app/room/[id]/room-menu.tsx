@@ -276,7 +276,7 @@ export function RoomMenuDialog({
                                         />
                                     ) : (
                                         <div className="flex h-8 w-8 items-center justify-center rounded-full bg-cyan-500 text-sm font-bold">
-                                            {m.name.charAt(0).toUpperCase()}
+                                            {m.name?.charAt(0)?.toUpperCase() ?? '?'}
                                         </div>
                                     )}
 
