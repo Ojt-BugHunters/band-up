@@ -36,8 +36,10 @@ import {
     User,
 } from 'lucide-react';
 import { useEffect, useState } from 'react';
-import { mockDictations } from '../../../constants/sample-data';
-import DictationCard from '@/components/dictation-card';
+import { DictationCard } from './dictation-card';
+import { useGetDictationTests } from '@/lib/service/dictation';
+import { LoadingSpinner } from '@/components/ui/loading-spinner';
+import { NotFound } from '@/components/not-found';
 
 export default function DictationListPage() {
     const [search, setSearch] = useState('');
@@ -46,10 +48,23 @@ export default function DictationListPage() {
         pageSize: 8,
         pageIndex: 0,
     });
+    const {
+        data: dictationTests,
+        isFetching,
+        isError,
+    } = useGetDictationTests();
 
     useEffect(() => {
         setPagination((prev) => ({ ...prev, pageIndex: 0 }));
     }, [search, difficult]);
+
+    if (isFetching) {
+        return <LoadingSpinner />;
+    }
+
+    if (isError) {
+        return <NotFound />;
+    }
 
     return (
         <div className="flex-1 space-y-6 p-6">
@@ -135,18 +150,18 @@ export default function DictationListPage() {
             </div>
 
             <div>
-                {mockDictations?.length === 0 ? (
+                {dictationTests?.length === 0 ? (
                     <div className="mx-auto max-w-7xl rounded-md border">
                         <EmptyState
                             className="mx-auto"
-                            title="No flashcards found"
-                            description="Correct your filter to see if there are flashcards"
+                            title="Dictation Found"
+                            description="Correct your filter to see if there are dictation tests"
                             icons={[ClipboardX]}
                         />
                     </div>
                 ) : (
                     <div className="mx-auto mb-12 grid max-w-7xl cursor-pointer grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-4">
-                        {mockDictations?.map((dictation) => (
+                        {dictationTests?.map((dictation) => (
                             <DictationCard
                                 key={dictation.id}
                                 dictation={dictation}
@@ -159,7 +174,7 @@ export default function DictationListPage() {
             <div className="mx-auto max-w-7xl">
                 <PaginationControl
                     className="mt-6"
-                    itemCount={100}
+                    itemCount={dictationTests?.length ?? 0}
                     pagination={pagination}
                     setPagination={setPagination}
                 />

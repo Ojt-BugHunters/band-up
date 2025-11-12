@@ -9,7 +9,7 @@ interface DictationCardProps {
     dictation: Dictation;
 }
 
-export default function DictationCard({ dictation }: DictationCardProps) {
+export function DictationCard({ dictation }: DictationCardProps) {
     const difficultyImages = {
         easy: '/zenitsu-easy.jpg',
         medium: '/giyuu-medium.jpg',

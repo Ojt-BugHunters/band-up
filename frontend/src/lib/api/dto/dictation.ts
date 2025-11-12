@@ -1,10 +1,12 @@
 export interface Dictation {
+    userId: string;
     id: string;
     title: string;
-    duration: number;
-    difficulty: 'Easy';
-    completions: number;
-    createdAt: Date;
+    skillName: string;
+    numberOfPeople: number | null;
+    durationSeconds: number;
+    difficult: string;
+    createAt: string;
 }
 
 export interface DictationSection {

@@ -15,16 +15,37 @@ export const sectionFormSchema = z
         section: section.map((s, i) => ({ title: s.title, orderIndex: i + 1 })),
     }));
 
+export const dictationQuestionSchema = z.object({
+    questions: z
+        .array(
+            z.object({
+                sectionIndex: z.number(),
+                difficult: z.number(),
+                type: z.string(),
+                file: z
+                    .instanceof(File, { message: 'Audio file is required' })
+                    .refine((f) => f.size <= 5 * 1024 * 1024, 'Max 5MB'),
+                script: z.string().min(1, 'Script is required'),
+            }),
+        )
+        .min(1, 'At least one question is required'),
+});
+
 export type CreateFullSectionFormInput = z.input<typeof sectionFormSchema>;
+
 export type CreateFullSectionPayload = z.output<typeof sectionFormSchema>;
 
+export type DictationQuestionFormData = z.infer<typeof dictationQuestionSchema>;
+
 export interface Dictation {
+    userId: string;
     id: string;
     title: string;
-    duration: number;
-    difficulty: 'Easy';
-    completions: number;
-    createdAt: Date;
+    skillName: string;
+    numberOfPeople: number | null;
+    durationSeconds: number;
+    difficult: string;
+    createAt: string;
 }
 
 export interface DictationSection {
@@ -101,5 +122,6 @@ export const TestCreateSchema = z.object({
         .min(3, 'Title must be at least 3 characters')
         .max(100, 'Title is too long'),
     durationSeconds: z.number(),
+    difficult: z.string(),
 });
 export type TestCreateFormValues = z.infer<typeof TestCreateSchema>;
