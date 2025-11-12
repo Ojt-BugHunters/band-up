@@ -1,5 +1,5 @@
 'use client';
-import { CreateDictationDialog } from '@/components/create-dictation-dialog';
+import { CreateDictationDialog } from './create-dictation-dialog';
 
 export default function AdminDictationPage() {
     return (

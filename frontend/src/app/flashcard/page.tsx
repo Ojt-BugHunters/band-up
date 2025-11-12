@@ -29,9 +29,8 @@ import {
     SelectTrigger,
     SelectValue,
 } from '@/components/ui/select';
-import { useGetFlashcardStats } from '@/hooks/use-flashcard-stats';
-import { useGetDeck } from '@/hooks/use-get-deck';
-import { useUser } from '@/hooks/use-user';
+import { useGetFlashcardStats, useGetDeck } from '@/lib/service/flashcard';
+import { useUser } from '@/lib/service/account';
 import { PaginationState } from '@tanstack/react-table';
 import {
     BookOpenCheck,

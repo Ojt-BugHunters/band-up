@@ -12,7 +12,7 @@ import { useForm } from 'react-hook-form';
 import { toast } from 'sonner';
 import { deserialize, fetchWrapper, throwIfError } from '@/lib/api';
 import { RoomSchema, CreateRoomFormValues, Room } from './type';
-import { AccountRoomMember } from '../account';
+import { AccountRoomMember } from './type';
 
 export function useCreateRoom() {
     const router = useRouter();

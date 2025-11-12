@@ -21,4 +21,5 @@ public interface RoomMemberRepository extends JpaRepository<RoomMember, UUID> {
         WHERE rm.user.id = :userId
     """)
     List<Room> findRoomByUserId(UUID userId);
+    void deleteAllByRoom(Room room);
 }
