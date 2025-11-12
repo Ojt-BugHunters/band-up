@@ -2,7 +2,7 @@
 
 import { Clock, Users } from 'lucide-react';
 import Link from 'next/link';
-import { Dictation } from '@/lib/api/dto/dictation';
+import { Dictation } from '@/lib/service/dictation';
 import Image from 'next/image';
 
 interface DictationCardProps {
@@ -40,7 +40,7 @@ export function DictationCard({ dictation }: DictationCardProps) {
                 <div className="absolute inset-0 flex flex-col justify-between p-3">
                     <div className="flex justify-between">
                         <span className="rounded-md bg-sky-600/90 px-2.5 py-1 text-xs font-semibold text-white shadow-md backdrop-blur">
-                            🎧 {dictation.numberOfPeople ?? 'Audio'}
+                            🎧 Audio
                         </span>
                         <span className="rounded-md bg-violet-200/90 px-2.5 py-1 text-xs font-semibold text-violet-800 shadow-sm backdrop-blur">
                             {dictation.difficult.toUpperCase()}
@@ -74,9 +74,6 @@ export function DictationCard({ dictation }: DictationCardProps) {
                     <div className="flex gap-2">
                         <span className="rounded-full bg-sky-100 px-2 py-0.5 text-[11px] text-sky-700">
                             Dictation ✖
-                        </span>
-                        <span className="rounded-full bg-cyan-100 px-2 py-0.5 text-[11px] text-cyan-700">
-                            Shadowing ✖
                         </span>
                     </div>
                 </div>

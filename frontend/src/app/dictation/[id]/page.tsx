@@ -30,8 +30,9 @@ import {
     VideoIcon as HideIcon,
     FileText,
 } from 'lucide-react';
-import { use, useState } from 'react';
+import { useState } from 'react';
 import { cn } from '@/lib/utils';
+import { useParams } from 'next/navigation';
 
 // Mock data for the dictation
 const mockDictationData = {
@@ -148,12 +149,8 @@ const mockDictationData = {
 
 const playbackSpeeds = [0.5, 0.75, 1, 1.25, 1.5];
 
-export default function DictationPracticePage({
-    params,
-}: {
-    params: Promise<{ id: string }>;
-}) {
-    const { id } = use(params);
+export default function DictationPracticePage() {
+    const { id: dictationTestId } = useParams();
     const [showModeDialog, setShowModeDialog] = useState(true);
     const [mode, setMode] = useState<'beginner' | 'master' | null>(null);
     const [isPlaying, setIsPlaying] = useState(false);
