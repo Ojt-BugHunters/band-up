@@ -39,7 +39,7 @@ import { useEffect, useState } from 'react';
 import { mockDictations } from '../../../constants/sample-data';
 import DictationCard from '@/components/dictation-card';
 
-export default function FlashcardPage() {
+export default function DictationListPage() {
     const [search, setSearch] = useState('');
     const [difficult, setDifficult] = useState<string>('all');
     const [pagination, setPagination] = useState<PaginationState>({
