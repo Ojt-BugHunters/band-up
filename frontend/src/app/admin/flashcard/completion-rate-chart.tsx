@@ -14,15 +14,7 @@ import {
     ChartTooltip,
     ChartTooltipContent,
 } from '@/components/ui/chart';
-
-const completionData = [
-    { month: 'Jan', rate: 52 },
-    { month: 'Feb', rate: 58 },
-    { month: 'Mar', rate: 61 },
-    { month: 'Apr', rate: 59 },
-    { month: 'May', rate: 65 },
-    { month: 'Jun', rate: 68 },
-];
+import { completionData } from './page.data';
 
 const chartConfig = {
     rate: {
@@ -46,6 +38,7 @@ export function CompletionRateChart() {
                     className="h-[300px] w-full"
                 >
                     <LineChart
+                        // TODO: Change the data that API given here for real chart
                         data={completionData}
                         margin={{ left: 12, right: 12 }}
                     >

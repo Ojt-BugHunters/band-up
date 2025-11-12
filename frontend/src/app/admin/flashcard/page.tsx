@@ -10,25 +10,26 @@ import {
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { DailyLearnersChart } from './daily-learner-chart';
 import { TopDecksChart } from './top-deck-chart';
-import { CardStatusChart } from '@/components/card-status-chart';
-import { FlashcardTable } from '@/components/flashcard-table';
+import { FlashcardTable } from './flashcard-table';
 import { CompletionRateChart } from './completion-rate-chart';
 import { EngagementMetricsChart } from './engagement-metric-chart';
 import { StudyTimeChart } from './study-time-chart';
 import {
     Brain,
-    TrendingUp,
     Users,
     CreditCard,
     Target,
     Clock,
     Zap,
     Award,
+    UserPlus,
+    Layers,
 } from 'lucide-react';
+import { StatCard } from '@/components/admin-stats-card';
 
 export default function FlashcardPage() {
     return (
-        <div className="space-y-6">
+        <div className="m-4 mt-2 space-y-6">
             <div>
                 <h1 className="text-3xl font-bold tracking-tight">
                     Flashcard Analytics Dashboard
@@ -47,86 +48,41 @@ export default function FlashcardPage() {
                     <TabsTrigger value="content">Content</TabsTrigger>
                 </TabsList>
 
-                {/* Overview Tab - Professional Bento Grid without duplicates */}
                 <TabsContent value="overview" className="space-y-4">
-                    {/* Top Row - Key Metrics Grid */}
+                    {/* Overview - Stats - Need connect API here */}
                     <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-                        <Card>
-                            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                                <CardTitle className="text-sm font-medium">
-                                    Total Learners
-                                </CardTitle>
-                                <Users className="text-muted-foreground h-4 w-4" />
-                            </CardHeader>
-                            <CardContent>
-                                <div className="text-2xl font-bold">12,456</div>
-                                <p className="text-muted-foreground text-xs">
-                                    <span className="text-green-500">
-                                        +12.5%
-                                    </span>{' '}
-                                    from last month
-                                </p>
-                            </CardContent>
-                        </Card>
-
-                        <Card>
-                            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                                <CardTitle className="text-sm font-medium">
-                                    Total Cards
-                                </CardTitle>
-                                <CreditCard className="text-muted-foreground h-4 w-4" />
-                            </CardHeader>
-                            <CardContent>
-                                <div className="text-2xl font-bold">12,456</div>
-                                <p className="text-muted-foreground text-xs">
-                                    <span className="text-green-500">
-                                        +8.2%
-                                    </span>{' '}
-                                    from last month
-                                </p>
-                            </CardContent>
-                        </Card>
-
-                        <Card>
-                            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                                <CardTitle className="text-sm font-medium">
-                                    Active Decks
-                                </CardTitle>
-                                <Brain className="text-muted-foreground h-4 w-4" />
-                            </CardHeader>
-                            <CardContent>
-                                <div className="text-2xl font-bold">248</div>
-                                <p className="text-muted-foreground text-xs">
-                                    <span className="text-green-500">
-                                        +5.7%
-                                    </span>{' '}
-                                    from last month
-                                </p>
-                            </CardContent>
-                        </Card>
-
-                        <Card>
-                            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                                <CardTitle className="text-sm font-medium">
-                                    Completion Rate
-                                </CardTitle>
-                                <Target className="text-muted-foreground h-4 w-4" />
-                            </CardHeader>
-                            <CardContent>
-                                <div className="text-2xl font-bold">68.4%</div>
-                                <p className="text-muted-foreground text-xs">
-                                    <span className="text-green-500">
-                                        +3.1%
-                                    </span>{' '}
-                                    from last month
-                                </p>
-                            </CardContent>
-                        </Card>
+                        <StatCard
+                            title="Total Learners"
+                            value="12,456"
+                            change="12.5%"
+                            icon={Users}
+                            isPositive
+                        />
+                        <StatCard
+                            title="Total Cards"
+                            value="12,456"
+                            change="8.2%"
+                            icon={CreditCard}
+                            isPositive
+                        />
+                        <StatCard
+                            title="Active Decks"
+                            value="248"
+                            change="5.7%"
+                            icon={Brain}
+                            isPositive
+                        />
+                        <StatCard
+                            title="Completion Rate"
+                            value="68.4%"
+                            change="3.1%"
+                            icon={Target}
+                            isPositive
+                        />{' '}
                     </div>
 
-                    {/* Bento Grid - Asymmetric Layout */}
                     <div className="grid gap-4 md:grid-cols-4 lg:grid-cols-6">
-                        {/* Large Featured Card - Performance Summary */}
+                        {/* Overview - Performance - Need to connect API here */}
                         <Card className="md:col-span-2 lg:col-span-4 lg:row-span-2">
                             <CardHeader>
                                 <CardTitle className="flex items-center gap-2">
@@ -162,7 +118,7 @@ export default function FlashcardPage() {
                                             </div>
                                             <div className="flex items-center justify-between">
                                                 <span className="text-sm">
-                                                    Study Sessions
+                                                    Card Created
                                                 </span>
                                                 <span className="text-xl font-bold">
                                                     3,456
@@ -178,7 +134,7 @@ export default function FlashcardPage() {
                                         <div className="space-y-3">
                                             <div className="flex items-center justify-between">
                                                 <span className="text-sm">
-                                                    Avg. Session Time
+                                                    Median Session Time
                                                 </span>
                                                 <span className="text-xl font-bold">
                                                     24m
@@ -194,10 +150,10 @@ export default function FlashcardPage() {
                                             </div>
                                             <div className="flex items-center justify-between">
                                                 <span className="text-sm">
-                                                    Accuracy Rate
+                                                    Learning Velocity
                                                 </span>
                                                 <span className="text-xl font-bold">
-                                                    76%
+                                                    100 cards / week
                                                 </span>
                                             </div>
                                         </div>
@@ -211,7 +167,7 @@ export default function FlashcardPage() {
                                     <div className="space-y-3">
                                         <div>
                                             <div className="mb-2 flex items-center justify-between text-sm">
-                                                <span>Mastered</span>
+                                                <span>Easy</span>
                                                 <span className="font-medium">
                                                     245 cards (37%)
                                                 </span>
@@ -225,7 +181,7 @@ export default function FlashcardPage() {
                                         </div>
                                         <div>
                                             <div className="mb-2 flex items-center justify-between text-sm">
-                                                <span>Learning</span>
+                                                <span>Medium</span>
                                                 <span className="font-medium">
                                                     198 cards (30%)
                                                 </span>
@@ -239,7 +195,7 @@ export default function FlashcardPage() {
                                         </div>
                                         <div>
                                             <div className="mb-2 flex items-center justify-between text-sm">
-                                                <span>Review</span>
+                                                <span>Hard</span>
                                                 <span className="font-medium">
                                                     219 cards (33%)
                                                 </span>
@@ -256,7 +212,7 @@ export default function FlashcardPage() {
                             </CardContent>
                         </Card>
 
-                        {/* Side Cards - Stacked */}
+                        {/* Connect API here */}
                         <Card className="md:col-span-2">
                             <CardHeader>
                                 <CardTitle className="flex items-center gap-2 text-base">
@@ -356,142 +312,6 @@ export default function FlashcardPage() {
                                 </div>
                             </CardContent>
                         </Card>
-
-                        {/* Medium Width Cards */}
-                        <Card className="md:col-span-2 lg:col-span-3">
-                            <CardHeader>
-                                <CardTitle>Recent Milestones</CardTitle>
-                                <CardDescription>
-                                    Latest achievements across the platform
-                                </CardDescription>
-                            </CardHeader>
-                            <CardContent className="space-y-3">
-                                <div className="flex items-start gap-3 border-b pb-3">
-                                    <div className="flex h-8 w-8 items-center justify-center rounded-full bg-green-500/10">
-                                        <Award className="h-4 w-4 text-green-500" />
-                                    </div>
-                                    <div className="flex-1">
-                                        <div className="text-sm font-medium">
-                                            1,000 Cards Mastered
-                                        </div>
-                                        <div className="text-muted-foreground text-xs">
-                                            Sarah Chen reached this milestone
-                                        </div>
-                                    </div>
-                                    <div className="text-muted-foreground text-xs">
-                                        2m ago
-                                    </div>
-                                </div>
-                                <div className="flex items-start gap-3 border-b pb-3">
-                                    <div className="flex h-8 w-8 items-center justify-center rounded-full bg-blue-500/10">
-                                        <Zap className="h-4 w-4 text-blue-500" />
-                                    </div>
-                                    <div className="flex-1">
-                                        <div className="text-sm font-medium">
-                                            30-Day Streak
-                                        </div>
-                                        <div className="text-muted-foreground text-xs">
-                                            Mike Johnson maintained consistency
-                                        </div>
-                                    </div>
-                                    <div className="text-muted-foreground text-xs">
-                                        15m ago
-                                    </div>
-                                </div>
-                                <div className="flex items-start gap-3">
-                                    <div className="flex h-8 w-8 items-center justify-center rounded-full bg-purple-500/10">
-                                        <Brain className="h-4 w-4 text-purple-500" />
-                                    </div>
-                                    <div className="flex-1">
-                                        <div className="text-sm font-medium">
-                                            New Deck Published
-                                        </div>
-                                        <div className="text-muted-foreground text-xs">
-                                            Advanced JavaScript created by Emma
-                                            Davis
-                                        </div>
-                                    </div>
-                                    <div className="text-muted-foreground text-xs">
-                                        1h ago
-                                    </div>
-                                </div>
-                            </CardContent>
-                        </Card>
-
-                        <Card className="md:col-span-2 lg:col-span-3">
-                            <CardHeader>
-                                <CardTitle>System Health</CardTitle>
-                                <CardDescription>
-                                    Platform performance metrics
-                                </CardDescription>
-                            </CardHeader>
-                            <CardContent className="space-y-4">
-                                <div>
-                                    <div className="mb-2 flex items-center justify-between text-sm">
-                                        <span className="text-muted-foreground">
-                                            API Response Time
-                                        </span>
-                                        <span className="font-medium text-green-500">
-                                            Excellent (45ms)
-                                        </span>
-                                    </div>
-                                    <div className="bg-secondary h-2 rounded-full">
-                                        <div
-                                            className="h-2 rounded-full bg-green-500"
-                                            style={{ width: '92%' }}
-                                        />
-                                    </div>
-                                </div>
-                                <div>
-                                    <div className="mb-2 flex items-center justify-between text-sm">
-                                        <span className="text-muted-foreground">
-                                            Server Load
-                                        </span>
-                                        <span className="font-medium text-blue-500">
-                                            Normal (34%)
-                                        </span>
-                                    </div>
-                                    <div className="bg-secondary h-2 rounded-full">
-                                        <div
-                                            className="h-2 rounded-full bg-blue-500"
-                                            style={{ width: '34%' }}
-                                        />
-                                    </div>
-                                </div>
-                                <div>
-                                    <div className="mb-2 flex items-center justify-between text-sm">
-                                        <span className="text-muted-foreground">
-                                            Database Performance
-                                        </span>
-                                        <span className="font-medium text-green-500">
-                                            Optimal (98%)
-                                        </span>
-                                    </div>
-                                    <div className="bg-secondary h-2 rounded-full">
-                                        <div
-                                            className="h-2 rounded-full bg-green-500"
-                                            style={{ width: '98%' }}
-                                        />
-                                    </div>
-                                </div>
-                                <div>
-                                    <div className="mb-2 flex items-center justify-between text-sm">
-                                        <span className="text-muted-foreground">
-                                            Error Rate
-                                        </span>
-                                        <span className="font-medium text-green-500">
-                                            Low (0.02%)
-                                        </span>
-                                    </div>
-                                    <div className="bg-secondary h-2 rounded-full">
-                                        <div
-                                            className="h-2 rounded-full bg-green-500"
-                                            style={{ width: '2%' }}
-                                        />
-                                    </div>
-                                </div>
-                            </CardContent>
-                        </Card>
                     </div>
                 </TabsContent>
 
@@ -516,6 +336,7 @@ export default function FlashcardPage() {
                                 </CardDescription>
                             </CardHeader>
                             <CardContent>
+                                {/* TODO: Fill the retention data here */}
                                 <div className="space-y-4">
                                     <div>
                                         <div className="mb-2 flex items-center justify-between text-sm">
@@ -575,121 +396,36 @@ export default function FlashcardPage() {
 
                 {/* Users Tab */}
                 <TabsContent value="users" className="space-y-6">
+                    {/* TODO: Connect API Deck - User metric here */}
                     <div className="grid gap-4 md:grid-cols-3">
-                        <Card>
-                            <CardHeader>
-                                <CardTitle>New Users</CardTitle>
-                                <CardDescription>This month</CardDescription>
-                            </CardHeader>
-                            <CardContent>
-                                <div className="text-3xl font-bold">2,847</div>
-                                <div className="mt-2 flex items-center text-sm">
-                                    <TrendingUp className="mr-1 h-4 w-4 text-green-500" />
-                                    <span className="text-green-500">
-                                        +18.2%
-                                    </span>
-                                </div>
-                            </CardContent>
-                        </Card>
-
-                        <Card>
-                            <CardHeader>
-                                <CardTitle>Active Users</CardTitle>
-                                <CardDescription>Last 30 days</CardDescription>
-                            </CardHeader>
-                            <CardContent>
-                                <div className="text-3xl font-bold">8,234</div>
-                                <div className="mt-2 flex items-center text-sm">
-                                    <TrendingUp className="mr-1 h-4 w-4 text-green-500" />
-                                    <span className="text-green-500">
-                                        +12.4%
-                                    </span>
-                                </div>
-                            </CardContent>
-                        </Card>
-
-                        <Card>
-                            <CardHeader>
-                                <CardTitle>Avg. Session Time</CardTitle>
-                                <CardDescription>Per user</CardDescription>
-                            </CardHeader>
-                            <CardContent>
-                                <div className="text-3xl font-bold">28m</div>
-                                <div className="mt-2 flex items-center text-sm">
-                                    <TrendingUp className="mr-1 h-4 w-4 text-green-500" />
-                                    <span className="text-green-500">
-                                        +5.7%
-                                    </span>
-                                </div>
-                            </CardContent>
-                        </Card>
+                        <StatCard
+                            title="Active Learners (30d)"
+                            value="8,452"
+                            change="12.3%"
+                            icon={Users}
+                            isPositive
+                        />
+                        <StatCard
+                            title="New Learners"
+                            value="2,317"
+                            change="18.6%"
+                            icon={UserPlus}
+                            isPositive
+                        />
+                        <StatCard
+                            title="Avg. Deck Engagement"
+                            value="2.1 decks/user"
+                            change="7.4%"
+                            icon={Layers}
+                            isPositive
+                        />{' '}
                     </div>
 
                     <DailyLearnersChart />
-                    <EngagementMetricsChart />
                 </TabsContent>
 
                 {/* Content Tab */}
                 <TabsContent value="content" className="space-y-6">
-                    <div className="grid gap-4 md:grid-cols-2">
-                        <Card>
-                            <CardHeader>
-                                <CardTitle>Card Status Distribution</CardTitle>
-                                <CardDescription>
-                                    Current status breakdown
-                                </CardDescription>
-                            </CardHeader>
-                            <CardContent>
-                                <CardStatusChart />
-                            </CardContent>
-                        </Card>
-
-                        <Card>
-                            <CardHeader>
-                                <CardTitle>Content Overview</CardTitle>
-                                <CardDescription>
-                                    Deck and card statistics
-                                </CardDescription>
-                            </CardHeader>
-                            <CardContent className="space-y-4">
-                                <div className="flex items-center justify-between border-b pb-3">
-                                    <span className="text-sm font-medium">
-                                        Total Decks
-                                    </span>
-                                    <span className="text-2xl font-bold">
-                                        248
-                                    </span>
-                                </div>
-                                <div className="flex items-center justify-between border-b pb-3">
-                                    <span className="text-sm font-medium">
-                                        Total Cards
-                                    </span>
-                                    <span className="text-2xl font-bold">
-                                        12,456
-                                    </span>
-                                </div>
-                                <div className="flex items-center justify-between border-b pb-3">
-                                    <span className="text-sm font-medium">
-                                        Avg. Cards per Deck
-                                    </span>
-                                    <span className="text-2xl font-bold">
-                                        50
-                                    </span>
-                                </div>
-                                <div className="flex items-center justify-between">
-                                    <span className="text-sm font-medium">
-                                        Decks Created Today
-                                    </span>
-                                    <span className="text-2xl font-bold">
-                                        12
-                                    </span>
-                                </div>
-                            </CardContent>
-                        </Card>
-                    </div>
-
-                    <TopDecksChart />
-
                     <Card>
                         <CardHeader>
                             <CardTitle>Flashcards</CardTitle>

@@ -14,13 +14,7 @@ import {
     ChartTooltip,
     ChartTooltipContent,
 } from '@/components/ui/chart';
-
-const studyTimeData = [
-    { week: 'Week 1', minutes: 1240 },
-    { week: 'Week 2', minutes: 1380 },
-    { week: 'Week 3', minutes: 1520 },
-    { week: 'Week 4', minutes: 1650 },
-];
+import { studyTimeData } from './page.data';
 
 const chartConfig = {
     minutes: {
@@ -41,6 +35,7 @@ export function StudyTimeChart() {
                     config={chartConfig}
                     className="h-[300px] w-full"
                 >
+                    {/* TODO: replace real data from API here */}
                     <AreaChart
                         data={studyTimeData}
                         margin={{ left: 12, right: 12 }}

@@ -106,3 +106,48 @@ export const cardStatusChartData = [
     { status: 'learning', count: 200, fill: 'var(--color-learning)' },
     { status: 'mastered', count: 187, fill: 'var(--color-mastered)' },
 ];
+
+export const completionData = [
+    { month: 'Jan', rate: 52 },
+    { month: 'Feb', rate: 58 },
+    { month: 'Mar', rate: 61 },
+    { month: 'Apr', rate: 59 },
+    { month: 'May', rate: 65 },
+    { month: 'Jun', rate: 68 },
+    { month: 'July', rate: 52 },
+    { month: 'Aug', rate: 58 },
+    { month: 'Sep', rate: 61 },
+    { month: 'Oct', rate: 59 },
+    { month: 'Nov', rate: 65 },
+    { month: 'Dec', rate: 68 },
+];
+
+export const studyTimeData = [
+    { week: 'Week 1', minutes: 1240 },
+    { week: 'Week 2', minutes: 1380 },
+    { week: 'Week 3', minutes: 1520 },
+    { week: 'Week 4', minutes: 1650 },
+];
+
+export const engagementData = [
+    { day: 'Mon', sessions: 420 },
+    { day: 'Tue', sessions: 380 },
+    { day: 'Wed', sessions: 450 },
+    { day: 'Thu', sessions: 490 },
+    { day: 'Fri', sessions: 410 },
+    { day: 'Sat', sessions: 320 },
+    { day: 'Sun', sessions: 290 },
+];
+
+export const mockMostDecksData = [
+    { deck: 'Anatomy Basics', learners: 305 },
+    { deck: 'Biochem Essentials', learners: 289 },
+    { deck: 'Neuro I', learners: 237 },
+    { deck: 'Pharm I', learners: 221 },
+    { deck: 'Micro I', learners: 209 },
+    { deck: 'Patho I', learners: 198 },
+    { deck: 'Cardio', learners: 186 },
+    { deck: 'Respiratory', learners: 173 },
+    { deck: 'Renal', learners: 162 },
+    { deck: 'Endocrine', learners: 151 },
+];

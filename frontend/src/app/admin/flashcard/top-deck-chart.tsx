@@ -1,6 +1,5 @@
 'use client';
 
-import { TrendingUp } from 'lucide-react';
 import {
     Bar,
     BarChart,
@@ -9,7 +8,6 @@ import {
     XAxis,
     YAxis,
 } from 'recharts';
-
 import {
     Card,
     CardContent,
@@ -24,29 +22,14 @@ import {
     ChartTooltip,
     ChartTooltipContent,
 } from '@/components/ui/chart';
+import { mockMostDecksData } from './page.data';
 
-const topDecksChartData = [
-    { month: 'January', desktop: 186, mobile: 80 },
-    { month: 'February', desktop: 305, mobile: 200 },
-    { month: 'March', desktop: 237, mobile: 120 },
-    { month: 'April', desktop: 73, mobile: 190 },
-    { month: 'May', desktop: 209, mobile: 130 },
-    { month: 'June', desktop: 214, mobile: 140 },
-];
-
-export const description = 'A bar chart with a custom label';
+export const description = 'Top 10 decks by unique learners';
 
 const chartConfig = {
-    desktop: {
-        label: 'Desktop',
+    learners: {
+        label: 'Learners',
         color: 'var(--chart-2)',
-    },
-    mobile: {
-        label: 'Mobile',
-        color: 'var(--chart-2)',
-    },
-    label: {
-        color: 'var(--background)',
     },
 } satisfies ChartConfig;
 
@@ -56,66 +39,73 @@ export function TopDecksChart() {
             <CardHeader>
                 <CardTitle>Top 10 Most Learned Decks</CardTitle>
                 <CardDescription>
-                    Decks with the highest number of learners
+                    Decks with the highest number of unique learners
                 </CardDescription>
             </CardHeader>
+
             <CardContent>
                 <ChartContainer config={chartConfig}>
                     <BarChart
                         accessibilityLayer
-                        data={topDecksChartData}
+                        data={mockMostDecksData}
                         layout="vertical"
-                        margin={{
-                            right: 16,
-                        }}
+                        margin={{ left: 12, right: 16, top: 8, bottom: 8 }}
                     >
                         <CartesianGrid horizontal={false} />
+
                         <YAxis
-                            dataKey="month"
+                            dataKey="deck"
                             type="category"
                             tickLine={false}
-                            tickMargin={10}
                             axisLine={false}
-                            tickFormatter={(value) => value.slice(0, 3)}
-                            hide
+                            width={160}
                         />
-                        <XAxis dataKey="desktop" type="number" hide />
+
+                        <XAxis
+                            dataKey="learners"
+                            type="number"
+                            tickLine={false}
+                            axisLine={false}
+                            tickFormatter={(v) =>
+                                Intl.NumberFormat().format(Number(v))
+                            }
+                        />
+
                         <ChartTooltip
-                            cursor={false}
-                            content={<ChartTooltipContent indicator="line" />}
+                            cursor={{ fillOpacity: 0.04 }}
+                            content={
+                                <ChartTooltipContent
+                                    nameKey="learners"
+                                    formatter={(value) =>
+                                        Intl.NumberFormat().format(
+                                            Number(value as number),
+                                        )
+                                    }
+                                />
+                            }
                         />
+
                         <Bar
-                            dataKey="desktop"
-                            layout="vertical"
-                            fill="var(--color-desktop)"
+                            dataKey="learners"
                             radius={4}
+                            fill="var(--color-learners)"
                         >
                             <LabelList
-                                dataKey="month"
-                                position="insideLeft"
-                                offset={8}
-                                className="fill-(--color-label)"
-                                fontSize={12}
-                            />
-                            <LabelList
-                                dataKey="desktop"
+                                dataKey="learners"
                                 position="right"
                                 offset={8}
                                 className="fill-foreground"
-                                fontSize={12}
+                                formatter={(v: number) =>
+                                    Intl.NumberFormat().format(v)
+                                }
                             />
                         </Bar>
                     </BarChart>
                 </ChartContainer>
             </CardContent>
-            <CardFooter className="flex-col items-start gap-2 text-sm">
-                <div className="flex gap-2 leading-none font-medium">
-                    Trending up by 5.2% this month{' '}
-                    <TrendingUp className="h-4 w-4" />
-                </div>
-                <div className="text-muted-foreground leading-none">
-                    Showing total visitors for the last 6 months
-                </div>
+
+            <CardFooter className="text-muted-foreground text-sm">
+                Showing unique learners per deck (top 10)
             </CardFooter>
         </Card>
     );

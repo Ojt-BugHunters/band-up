@@ -14,16 +14,7 @@ import {
     ChartTooltip,
     ChartTooltipContent,
 } from '@/components/ui/chart';
-
-const engagementData = [
-    { day: 'Mon', sessions: 420 },
-    { day: 'Tue', sessions: 380 },
-    { day: 'Wed', sessions: 450 },
-    { day: 'Thu', sessions: 490 },
-    { day: 'Fri', sessions: 410 },
-    { day: 'Sat', sessions: 320 },
-    { day: 'Sun', sessions: 290 },
-];
+import { engagementData } from './page.data';
 
 const chartConfig = {
     sessions: {
@@ -47,6 +38,7 @@ export function EngagementMetricsChart() {
                     className="h-[300px] w-full"
                 >
                     <BarChart
+                        // TODO: Change the real data from backend here
                         data={engagementData}
                         margin={{ left: 12, right: 12 }}
                     >
