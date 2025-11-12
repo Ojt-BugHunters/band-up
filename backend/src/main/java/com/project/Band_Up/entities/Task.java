@@ -22,8 +22,9 @@ public class Task {
     private UUID id;
 
     @ManyToOne(fetch = jakarta.persistence.FetchType.LAZY)
-    @JoinColumn(name = "study_progress_id", foreignKey = @jakarta.persistence.ForeignKey(name = "fk_task_study_progress"))
-    private StudyProgress studyProgress;
+    @JoinColumn(name = "account_id", foreignKey = @jakarta.persistence.ForeignKey(name = "fk_task_account"))
+    private Account account;
+
 
     private String title;
     private String description;

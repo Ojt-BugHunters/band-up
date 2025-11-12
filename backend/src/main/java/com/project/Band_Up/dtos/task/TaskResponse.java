@@ -14,6 +14,7 @@ import java.util.UUID;
 @Builder
 public class TaskResponse {
     private UUID id;
+    private UUID userId;
     private String title;
     private String description;
     private Boolean completed;
