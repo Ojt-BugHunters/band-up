@@ -187,20 +187,29 @@ public class StudySessionServiceImpl implements StudySessionService {
     }
 
     private void generateStudyIntervals(StudySession session) {
-        if (session.getMode() != SessionMode.FocusTimer) return;
+        if (session.getMode() == SessionMode.FocusTimer) {
+            int cycles = session.getCycles();
+            List<StudyInterval> intervals = new ArrayList<>();
+            int order = 1;
 
-        int cycles = session.getCycles();
-        List<StudyInterval> intervals = new ArrayList<>();
-        int order = 1;
+            for (int i = 0; i < cycles * 2; i++) {
+                SessionMode type = (i % 2 == 0) ? SessionMode.Focus : SessionMode.ShortBreak;
+                intervals.add(createInterval(session, type, order++));
+            }
 
-        for (int i = 0; i < cycles * 2; i++) {
-            SessionMode type = (i % 2 == 0) ? SessionMode.Focus : SessionMode.ShortBreak;
-            intervals.add(createInterval(session, type, order++));
+            intervals.add(createInterval(session, SessionMode.LongBreak, order));
+            studyIntervalRepository.saveAll(intervals);
+            return;
         }
-
-        intervals.add(createInterval(session, SessionMode.LongBreak, order));
-        studyIntervalRepository.saveAll(intervals);
+        
+        if (session.getMode() == SessionMode.StopWatch) {
+            StudyInterval interval = createInterval(session, SessionMode.Focus, 1);
+            interval.setStatus(Status.PENDING);
+            studyIntervalRepository.save(interval);
+            return;
+        }
     }
+
 
     private StudyInterval createInterval(StudySession session, SessionMode type, int order) {
         StudyInterval interval = new StudyInterval();
