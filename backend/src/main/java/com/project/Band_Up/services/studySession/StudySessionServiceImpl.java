@@ -162,6 +162,12 @@ public class StudySessionServiceImpl implements StudySessionService {
     private StudySession toEntity(StudySessionCreateRequest request, Account user) {
         StudySession studySession = modelMapper.map(request, StudySession.class);
         studySession.setUser(user);
+        if (request.getRoomId() != null) {
+            Room room = getRoom(request.getRoomId());
+            studySession.setRoom(room);
+        } else {
+            studySession.setRoom(null);
+        }
         return studySession;
     }
 

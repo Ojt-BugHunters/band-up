@@ -6,18 +6,17 @@ import com.project.Band_Up.dtos.roomMember.RoomMemberResponse;
 import com.project.Band_Up.entities.Account;
 import com.project.Band_Up.entities.Room;
 import com.project.Band_Up.entities.RoomMember;
+import com.project.Band_Up.entities.StudySession;
 import com.project.Band_Up.enums.Role;
 import com.project.Band_Up.repositories.AccountRepository;
 import com.project.Band_Up.repositories.RoomMemberRepository;
 import com.project.Band_Up.repositories.RoomRepository;
+import com.project.Band_Up.repositories.StudySessionRepository;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
-import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.server.ResponseStatusException;
-
 import java.time.LocalDateTime;
 import java.util.Comparator;
 import java.util.List;
@@ -33,6 +32,7 @@ public class RoomServiceImpl implements RoomService {
     private final RoomMemberRepository roomMemberRepository;
     private final AccountRepository accountRepository;
     private final ModelMapper modelMapper;
+    private final StudySessionRepository studySessionRepository;
 
     @Override
     public RoomResponse createRoom(UUID creatorId, RoomCreateRequest request) {
@@ -171,7 +171,7 @@ public class RoomServiceImpl implements RoomService {
         if (actorId.equals(targetUserId)) {
             throw new IllegalStateException("Host cannot remove themselves. Use leaveRoom instead.");
         }
-
+        studySessionRepository.clearRoomReferenceByRoomAndUser(room.getId(), targetUserId);
         roomMemberRepository.delete(targetMember);
     }
 
@@ -202,6 +202,10 @@ public class RoomServiceImpl implements RoomService {
         if (actorMember.getRole() != Role.Host) {
             throw new IllegalStateException("Only host can delete the room");
         }
+        if (roomMemberRepository.countByRoom(room) > 1) {
+            throw new IllegalStateException("Cannot delete room while members still inside");
+        }
+        studySessionRepository.clearRoomReferenceByRoom(room);
         roomMemberRepository.deleteAllByRoom(room);
         roomRepository.delete(room);
     }
@@ -211,6 +215,7 @@ public class RoomServiceImpl implements RoomService {
     public RoomResponse leaveRoom(UUID roomId, UUID userId) {
         Room room = roomRepository.findById(roomId)
                 .orElseThrow(() -> new EntityNotFoundException("Room not found"));
+        studySessionRepository.clearRoomReferenceByRoomAndUser(roomId, userId);
 
         List<RoomMember> members = roomMemberRepository.findByRoom(room);
         RoomMember leaver = members.stream()
