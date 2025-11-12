@@ -5,9 +5,11 @@ import {
     CreateFullSectionPayload,
     CreateQuestionRes,
     Dictation,
+    DictationQuestion,
     DictationQuestionFormData,
     dictationQuestionSchema,
     DictationSection,
+    DictationSectionQuestion,
     MappedQuestion,
     sectionFormSchema,
     TestCreateFormValues,
@@ -201,5 +203,42 @@ export const useGetDictationTests = () => {
             return await deserialize<Dictation[]>(response);
         },
         queryKey: ['dictation-tests'],
+    });
+};
+
+export const useGetSectionQuestions = (testId: string) => {
+    return useQuery({
+        queryKey: ['dictation-section-question'],
+        queryFn: async () => {
+            const sectionApiRes = await fetchWrapper(
+                `/sections/test/${testId}`,
+            );
+            const sections =
+                await deserialize<DictationSection[]>(sectionApiRes);
+            const orderedSections = (sections ?? []).sort(
+                (a, b) => a.orderIndex - b.orderIndex,
+            );
+            if (!orderedSections.length) return [];
+
+            const questionLists = await Promise.all(
+                orderedSections.map(async (section: DictationSection) => {
+                    const questionRes = await fetchWrapper(
+                        `sections/${section.id}/questions`,
+                    );
+                    const questions =
+                        await deserialize<DictationQuestion[]>(questionRes);
+                    return questions ?? [];
+                }),
+            );
+
+            const combineSectionsQuestions: DictationSectionQuestion[] =
+                orderedSections.map(
+                    (section: DictationSection, index: number) => ({
+                        ...section,
+                        questions: questionLists[index] ?? [],
+                    }),
+                );
+            return combineSectionsQuestions;
+        },
     });
 };

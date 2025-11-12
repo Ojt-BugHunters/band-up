@@ -64,6 +64,10 @@ export interface DictationQuestion {
     cloudFrontUrl: string;
 }
 
+export interface DictationSectionQuestion extends DictationSection {
+    questions: DictationQuestion[];
+}
+
 export type DictationAudio = {
     id: string;
     title: string;
