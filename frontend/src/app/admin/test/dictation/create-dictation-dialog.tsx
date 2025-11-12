@@ -10,7 +10,7 @@ import {
     useCreateQuestion,
 } from '@/lib/service/dictation';
 import { useCreateTest, TestCreateFormValues } from '@/lib/service/dictation';
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import { SubmitHandler, useFieldArray } from 'react-hook-form';
 import {
     Dialog,
@@ -62,19 +62,13 @@ function getSectionId(index: number, map: SectionMap) {
 export function CreateDictationDialog() {
     const [open, setOpen] = useState(false);
     const [step, setStep] = useState(1);
-    const [testId, setTestId] = useState('');
     const [sectionIds, setSectionIds] = useState<string[]>([]);
 
     const { createTestForm, mutation: createTestMutation } = useCreateTest();
     const { fullSectionForm, mutation: createSectionMutation } =
-        useCreatePassage(testId);
+        useCreatePassage();
     const { dictationQuestionForm, mutation: createQuestionsMutation } =
         useCreateQuestion();
-
-    useEffect(() => {
-        const storedId = window.localStorage?.getItem('create-test-id') ?? '';
-        setTestId(storedId);
-    }, []);
 
     const {
         fields: sectionFields,
@@ -97,7 +91,6 @@ export function CreateDictationDialog() {
     const handleClose = () => {
         setOpen(false);
         setStep(1);
-        setTestId('');
         setSectionIds([]);
         createTestForm.reset();
         fullSectionForm.reset();
@@ -114,7 +107,8 @@ export function CreateDictationDialog() {
         data,
     ) => {
         const payload: CreateFullSectionPayload = sectionFormSchema.parse(data);
-        createSectionMutation.mutate(payload);
+        const testId = window.localStorage?.getItem('create-test-id') ?? '';
+        createSectionMutation.mutate({ payload, testId });
         setStep(3);
     };
 

@@ -16,10 +16,13 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { useFieldArray, useForm } from 'react-hook-form';
 import z from 'zod';
 import { putFileToS3WithProgress } from '../s3-upload';
-
-export const useCreatePassage = (testId: string) => {
+export interface createPassageParams {
+    payload: CreateFullSectionPayload;
+    testId: string;
+}
+export const useCreatePassage = () => {
     const mutation = useMutation({
-        mutationFn: async (values: CreateFullSectionPayload) => {
+        mutationFn: async ({ payload, testId }: createPassageParams) => {
             const response = await fetchWrapper(
                 `/sections/test/${testId}/bulk`,
                 {
@@ -28,7 +31,7 @@ export const useCreatePassage = (testId: string) => {
                         Accept: 'application/json',
                         'Content-Type': 'application/json',
                     },
-                    body: JSON.stringify(values.section),
+                    body: JSON.stringify(payload.section),
                 },
             );
             await throwIfError(response);
