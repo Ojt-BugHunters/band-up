@@ -1,6 +1,5 @@
 'use client';
 
-import { useMemo } from 'react';
 import { Card } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { ScrollArea } from '@/components/ui/scroll-area';
@@ -12,25 +11,37 @@ import {
 } from '@/components/ui/accordion';
 import { ListChecks, FolderOpen, Dot } from 'lucide-react';
 import { cn } from '@/lib/utils';
-import { DictationSection, DictationQuestion } from '@/lib/service/dictation';
+import { useGetSectionQuestions } from '@/lib/service/dictation';
+import { LoadingSpinner } from '@/components/ui/loading-spinner';
+import { NotFound } from '@/components/not-found';
+import {
+    Sheet,
+    SheetContent,
+    SheetHeader,
+    SheetTitle,
+} from '@/components/ui/sheet';
 
 export type SectionsPanelProps = {
     testId: string;
-    sections: DictationSection[];
     className?: string;
     onSelectQuestion?: (questionId: string) => void;
+    activeQuestionId?: string;
 };
 
-export default function SectionsPanel({
+export function SectionsPanel({
     testId,
-    sections,
     className,
     onSelectQuestion,
+    activeQuestionId,
 }: SectionsPanelProps) {
-    const sorted = useMemo(
-        () => [...(sections ?? [])].sort((a, b) => a.orderIndex - b.orderIndex),
-        [sections],
-    );
+    const {
+        data: sections,
+        isLoading,
+        isError,
+    } = useGetSectionQuestions(testId);
+
+    if (isLoading) return <LoadingSpinner />;
+    if (isError) return <NotFound />;
 
     return (
         <Card className={cn('w-full border-0 shadow-xl', className)}>
@@ -45,12 +56,12 @@ export default function SectionsPanel({
                     variant="secondary"
                     className="bg-indigo-100 text-indigo-700"
                 >
-                    {sorted.length} sections
+                    {sections?.length} sections
                 </Badge>
             </div>
 
             <ScrollArea className="max-h-[70vh] p-3">
-                {sorted.length === 0 ? (
+                {sections?.length === 0 ? (
                     <Card className="flex flex-col items-center gap-2 border-2 border-dashed p-6">
                         <FolderOpen className="h-5 w-5 text-slate-500" />
                         <div className="text-sm text-slate-600">
@@ -59,7 +70,7 @@ export default function SectionsPanel({
                     </Card>
                 ) : (
                     <Accordion type="multiple" className="space-y-2">
-                        {sorted.map((section) => (
+                        {sections?.map((section) => (
                             <AccordionItem
                                 key={section.id}
                                 value={section.id}
@@ -70,19 +81,20 @@ export default function SectionsPanel({
                                         <div className="min-w-0 flex-1">
                                             <div className="mb-1 flex items-center gap-2">
                                                 <Badge className="h-6 rounded-full bg-slate-200 px-2 text-xs text-slate-700">
-                                                    {section.orderIndex}
+                                                    #{section.orderIndex}
                                                 </Badge>
                                             </div>
                                             <div className="truncate font-medium text-slate-800">
                                                 {section.title}
                                             </div>
                                         </div>
-                                        {/* <Badge */}
-                                        {/*     variant="secondary" */}
-                                        {/*     className="shrink-0 bg-indigo-100 text-indigo-700" */}
-                                        {/* > */}
-                                        {/*     {section.?.length ?? 0} Qs */}
-                                        {/* </Badge> */}
+                                        <Badge
+                                            variant="secondary"
+                                            className="shrink-0 bg-indigo-100 text-indigo-700"
+                                        >
+                                            {section?.questions.length ?? 0}{' '}
+                                            Questions
+                                        </Badge>
                                     </div>
                                 </AccordionTrigger>
                                 <AccordionContent>
@@ -94,7 +106,12 @@ export default function SectionsPanel({
                                                     (q, idx) => (
                                                         <li
                                                             key={q.id}
-                                                            className="cursor-pointer rounded-lg border p-3 hover:border-teal-400 hover:bg-teal-50"
+                                                            className={cn(
+                                                                'cursor-pointer rounded-lg border p-3 hover:border-teal-400 hover:bg-teal-50',
+                                                                activeQuestionId ===
+                                                                    q.id &&
+                                                                    'border-teal-500 bg-teal-50',
+                                                            )}
                                                             onClick={() =>
                                                                 onSelectQuestion?.(
                                                                     q.id,
@@ -118,11 +135,6 @@ export default function SectionsPanel({
                                                                     </div>
                                                                 </div>
                                                             </div>
-                                                            {q.script && (
-                                                                <p className="mt-2 line-clamp-2 text-xs text-slate-600">
-                                                                    {q.script}
-                                                                </p>
-                                                            )}
                                                         </li>
                                                     ),
                                                 )}
@@ -140,10 +152,36 @@ export default function SectionsPanel({
                 )}
             </ScrollArea>
 
-            {/* Footer */}
             <div className="border-t p-3 text-right text-xs text-slate-500">
                 Test ID: <span className="font-mono">{testId}</span>
             </div>
         </Card>
+    );
+}
+
+// ---------- Sheet wrapper để biến SectionsPanel thành menu điều khiển ----------
+export type SectionsMenuProps = SectionsPanelProps & {
+    open: boolean;
+    onOpenChange: (open: boolean) => void;
+    title?: string;
+};
+
+export function SectionsMenu({
+    open,
+    onOpenChange,
+    title = 'Menu',
+    ...panelProps
+}: SectionsMenuProps) {
+    return (
+        <Sheet open={open} onOpenChange={onOpenChange}>
+            <SheetContent side="left" className="w-[380px] p-0">
+                <SheetHeader className="p-4 pb-0">
+                    <SheetTitle>{title}</SheetTitle>
+                </SheetHeader>
+                <div className="p-3">
+                    <SectionsPanel {...panelProps} />
+                </div>
+            </SheetContent>
+        </Sheet>
     );
 }

@@ -223,7 +223,7 @@ export const useGetSectionQuestions = (testId: string) => {
             const questionLists = await Promise.all(
                 orderedSections.map(async (section: DictationSection) => {
                     const questionRes = await fetchWrapper(
-                        `sections/${section.id}/questions`,
+                        `/sections/${section.id}/questions`,
                     );
                     const questions =
                         await deserialize<DictationQuestion[]>(questionRes);

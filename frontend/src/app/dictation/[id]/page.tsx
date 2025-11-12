@@ -33,8 +33,8 @@ import {
 import { useState } from 'react';
 import { cn } from '@/lib/utils';
 import { useParams } from 'next/navigation';
+import { SectionsMenu } from './section-panel';
 
-// Mock data for the dictation
 const mockDictationData = {
     id: '1',
     title: 'Cambridge IELTS 20 Test 1 Part 2',
@@ -166,6 +166,8 @@ export default function DictationPracticePage() {
     const [showAudioPanel, setShowAudioPanel] = useState(true);
     const [showTranscriptPanel, setShowTranscriptPanel] = useState(true);
     const [showShortcutsDialog, setShowShortcutsDialog] = useState(false);
+    const [menuOpen, setMenuOpen] = useState(false);
+    const [activeQ, setActiveQ] = useState<string | undefined>(undefined);
 
     const normalizeWord = (word: string) => {
         return word
@@ -477,6 +479,18 @@ export default function DictationPracticePage() {
                                     <FileText className="mr-2 h-4 w-4" />
                                     {showTranscriptPanel ? 'Hide' : 'Show'}{' '}
                                     Transcript
+                                </Button>
+                                <Button
+                                    variant="outline"
+                                    size="sm"
+                                    onClick={() => setMenuOpen((prev) => !prev)}
+                                    className={cn(
+                                        'bg-white hover:bg-slate-50',
+                                        menuOpen && 'border-slate-400',
+                                    )}
+                                >
+                                    <FileText className="mr-2 h-4 w-4" />
+                                    {menuOpen ? 'Hide' : 'Show'} Menu
                                 </Button>
                             </div>
                         </div>
@@ -930,6 +944,18 @@ export default function DictationPracticePage() {
                                 </div>
                             </Card>
                         )}
+
+                        <SectionsMenu
+                            open={menuOpen}
+                            onOpenChange={setMenuOpen}
+                            title="Sections"
+                            testId={dictationTestId as string}
+                            activeQuestionId={activeQ}
+                            onSelectQuestion={(qid) => {
+                                setActiveQ(qid);
+                                setMenuOpen(false);
+                            }}
+                        />
                     </div>
                 </div>
             )}
