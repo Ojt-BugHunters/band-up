@@ -43,7 +43,7 @@ import {
 } from 'lucide-react';
 import Link from 'next/link';
 import { useEffect, useMemo, useState } from 'react';
-import { useDebounce } from '@/lib/client-utils';
+import { useDebounce } from '@/lib/utils';
 
 export default function FlashcardPage() {
     const [search, setSearch] = useState('');

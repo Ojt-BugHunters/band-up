@@ -1,5 +1,6 @@
 import z from 'zod';
 import { Tag, TagSchema } from '../tag';
+import { Comment } from '@/lib/api/dto/comment';
 
 export interface PaginationInfo {
     pageNo?: number;

@@ -1,3 +1,4 @@
+'use client';
 import { useForgetPassword } from '@/lib/service/account';
 import { Shield } from 'lucide-react';
 import { useSearchParams } from 'next/navigation';
