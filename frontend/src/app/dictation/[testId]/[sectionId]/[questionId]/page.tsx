@@ -20,128 +20,59 @@ import {
 import { useState } from 'react';
 import { cn } from '@/lib/utils';
 import { useParams } from 'next/navigation';
-import { SectionsMenu } from '../../section-panel';
+import { SectionsMenu } from '../../../section-panel';
 import {
+    DictationQuestion,
     useGetDictationTest,
     useGetSectionQuestions,
 } from '@/lib/service/dictation';
 import { LoadingSpinner } from '@/components/ui/loading-spinner';
 import { NotFound } from '@/components/not-found';
 import { ModeSelectionDialog } from '../../../mode-selection-dialog';
-import { ShowShortcutDialog } from '../../show-shortcut-dialog';
+import { ShowShortcutDialog } from '../../../show-shortcut-dialog';
 import Link from 'next/link';
-import { AudioPlayer } from '../../audio-player';
+import { AudioPlayer } from '../../../audio-player';
 
-const mockDictationData = {
-    id: '1',
-    title: 'Cambridge IELTS 20 Test 1 Part 2',
-    audioUrl: '/placeholder.mp3',
-    duration: 480,
-    sentences: [
-        {
-            id: 1,
-            text: 'The museum is located in the city center',
-            words: [
-                'The',
-                'museum',
-                'is',
-                'located',
-                'in',
-                'the',
-                'city',
-                'center',
-            ],
-            startTime: 0,
-            endTime: 3,
-        },
-        {
-            id: 2,
-            text: 'It opens every day except Monday from nine to five',
-            words: [
-                'It',
-                'opens',
-                'every',
-                'day',
-                'except',
-                'Monday',
-                'from',
-                'nine',
-                'to',
-                'five',
-            ],
-            startTime: 3,
-            endTime: 7,
-        },
-        {
-            id: 3,
-            text: 'Admission is free for students with valid identification',
-            words: [
-                'Admission',
-                'is',
-                'free',
-                'for',
-                'students',
-                'with',
-                'valid',
-                'identification',
-            ],
-            startTime: 7,
-            endTime: 11,
-        },
-        {
-            id: 4,
-            text: 'The special exhibition will continue until the end of December',
-            words: [
-                'The',
-                'special',
-                'exhibition',
-                'will',
-                'continue',
-                'until',
-                'the',
-                'end',
-                'of',
-                'December',
-            ],
-            startTime: 11,
-            endTime: 15,
-        },
-        {
-            id: 5,
-            text: 'Guided tours are available in English French and Spanish',
-            words: [
-                'Guided',
-                'tours',
-                'are',
-                'available',
-                'in',
-                'English',
-                'French',
-                'and',
-                'Spanish',
-            ],
-            startTime: 15,
-            endTime: 19,
-        },
-        {
-            id: 6,
-            text: 'Please note that photography is not permitted inside the gallery',
-            words: [
-                'Please',
-                'note',
-                'that',
-                'photography',
-                'is',
-                'not',
-                'permitted',
-                'inside',
-                'the',
-                'gallery',
-            ],
-            startTime: 19,
-            endTime: 23,
-        },
-    ],
+function convertQuestionToDictationData(question: DictationQuestion) {
+    const cleanedScript = question.script.replace(/\n+/g, ' ').trim();
+
+    const rawSentences = cleanedScript
+        .split(/(?<=[.!?])\s+/)
+        .map((s) => s.trim())
+        .filter((s) => s.length > 0);
+
+    const sentences = rawSentences.map((sentence, index) => {
+        const words = sentence
+            .replace(/[.!?]/g, '')
+            .split(/\s+/)
+            .filter((w) => w.length > 0);
+
+        return {
+            id: index + 1,
+            text: sentence,
+            words,
+        };
+    });
+
+    return {
+        id: question.id,
+        title: 'Dictation Question',
+        audioUrl: question.cloudFrontUrl,
+        sentences,
+    };
+}
+
+const mockDictationQuestion: DictationQuestion = {
+    id: '7f000101-9a78-150b-819a-78bb66470008',
+    sectionId: '7f000101-9a78-150b-819a-78ba44720004',
+    type: 'Dictation',
+    difficult: 'easy',
+    script: `Hello, my name is Elizabeth. I am from America, and my question is, do you have a zoo in your town?
+
+I do not have a zoo in my town. My town is small. It has many animals. It has raccoons, it has squirrels, it has dogs and cats, it has ducks, but it does not have a zoo. I visit the zoo in another town. It is a nice zoo. It is a small zoo. It does not have elephants, but it has giraffes. It has big birds, it has zebras. It does not have tigers, it does not have lions. But I love to visit the zoo. I can feed the farm animals there.
+
+My question for you is, do you have a zoo in your town?`,
+    cloudFrontUrl: '/audio/example.mp3',
 };
 
 export default function DictationPracticePage() {
@@ -152,6 +83,8 @@ export default function DictationPracticePage() {
         isError,
     } = useGetSectionQuestions(dictationTestId as string);
     const { data: test } = useGetDictationTest(dictationTestId as string);
+    const dictationData = convertQuestionToDictationData(mockDictationQuestion);
+    console.log(dictationData);
     const [showModeDialog, setShowModeDialog] = useState(true);
     const [mode, setMode] = useState<'beginner' | 'master' | null>(null);
     const [isPlaying, setIsPlaying] = useState(false);
@@ -180,7 +113,7 @@ export default function DictationPracticePage() {
     };
 
     const getWordComparison = () => {
-        const correctWords = mockDictationData.sentences[currentSentence].words;
+        const correctWords = dictationData.sentences[currentSentence].words;
         const userWords = userInput
             .trim()
             .split(/\s+/)
@@ -206,7 +139,7 @@ export default function DictationPracticePage() {
     };
 
     const isCurrentSentenceComplete = () => {
-        const correctWords = mockDictationData.sentences[currentSentence].words;
+        const correctWords = dictationData.sentences[currentSentence].words;
         const userWords = userInput
             .trim()
             .split(/\s+/)
@@ -227,7 +160,7 @@ export default function DictationPracticePage() {
 
         setCompletedSentences((prev) => new Set(prev).add(currentSentence));
 
-        if (currentSentence < mockDictationData.sentences.length - 1) {
+        if (currentSentence < dictationData.sentences.length - 1) {
             setCurrentSentence(currentSentence + 1);
             setUserInput('');
             setRevealedWords(new Set());
@@ -237,7 +170,7 @@ export default function DictationPracticePage() {
     };
 
     const completionPercentage = Math.round(
-        (completedSentences.size / mockDictationData.sentences.length) * 100,
+        (completedSentences.size / dictationData.sentences.length) * 100,
     );
 
     const handleModeSelect = (selectedMode: 'beginner' | 'master') => {
@@ -259,7 +192,7 @@ export default function DictationPracticePage() {
     };
 
     const revealAllWords = () => {
-        const allKeys = mockDictationData.sentences.flatMap((sentence) =>
+        const allKeys = dictationData.sentences.flatMap((sentence) =>
             sentence.words.map((_, idx) => `${sentence.id}-${idx}`),
         );
         setRevealedWords(new Set(allKeys));
@@ -283,7 +216,7 @@ export default function DictationPracticePage() {
         });
     };
 
-    const currentSentenceData = mockDictationData.sentences[currentSentence];
+    const currentSentenceData = dictationData.sentences[currentSentence];
     const wordComparison = getWordComparison();
 
     return (
@@ -419,7 +352,7 @@ export default function DictationPracticePage() {
                                         onClick={() =>
                                             setCurrentSentence(
                                                 Math.min(
-                                                    mockDictationData.sentences
+                                                    dictationData.sentences
                                                         .length - 1,
                                                     currentSentence + 1,
                                                 ),
@@ -427,8 +360,7 @@ export default function DictationPracticePage() {
                                         }
                                         disabled={
                                             currentSentence ===
-                                            mockDictationData.sentences.length -
-                                                1
+                                            dictationData.sentences.length - 1
                                         }
                                         className="h-10 w-10 rounded-full bg-white shadow-sm transition-all hover:shadow-md disabled:opacity-40"
                                     >
@@ -619,7 +551,7 @@ export default function DictationPracticePage() {
                                 </div>
                                 <div className="overflow-auto bg-gradient-to-br from-indigo-50/30 to-blue-50/20 p-4">
                                     <div className="space-y-3">
-                                        {mockDictationData.sentences.map(
+                                        {dictationData.sentences.map(
                                             (sentence, idx) => {
                                                 const isCompleted =
                                                     completedSentences.has(idx);

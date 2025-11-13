@@ -8,7 +8,7 @@ import { Card } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { LoadingSpinner } from '@/components/ui/loading-spinner';
 import { NotFound } from '@/components/not-found';
-import { SectionsPanel } from './section-panel';
+import { SectionsPanel } from '../section-panel';
 import { cn } from '@/lib/utils';
 import { ChevronLeft, ListChecks } from 'lucide-react';
 import { useGetSectionQuestions } from '@/lib/service/dictation';
