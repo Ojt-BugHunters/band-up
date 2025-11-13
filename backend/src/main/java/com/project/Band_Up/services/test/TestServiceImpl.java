@@ -33,6 +33,7 @@ public class TestServiceImpl implements TestService {
                 .orElseThrow(() -> new RuntimeException("User not found"));
         Test test = modelMapper.map(request, Test.class);
         test.setUser(user);
+        test.setNumberOfPeople(0);
         test.setStatus(Status.Draft);
         Test saved = testRepository.save(test);
         return toResponse(saved);
@@ -50,8 +51,6 @@ public class TestServiceImpl implements TestService {
     public TestResponse getTestById(UUID id) {
         Test test = testRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("Test not found"));
-        test.setNumberOfPeople(test.getNumberOfPeople()+1);
-        testRepository.save(test);
         return toResponse(test);
     }
 
