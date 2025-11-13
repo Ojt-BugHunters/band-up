@@ -27,7 +27,7 @@ import {
 } from '@/lib/service/dictation';
 import { LoadingSpinner } from '@/components/ui/loading-spinner';
 import { NotFound } from '@/components/not-found';
-import { ModeSelectionDialog } from '../../mode-selection-dialog';
+import { ModeSelectionDialog } from '../../../mode-selection-dialog';
 import { ShowShortcutDialog } from '../../show-shortcut-dialog';
 import Link from 'next/link';
 import { AudioPlayer } from '../../audio-player';
