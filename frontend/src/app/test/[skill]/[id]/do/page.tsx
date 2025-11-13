@@ -1,7 +1,7 @@
-import { ReadingTest } from '@/components/reading-test';
-import { SpeakingTest } from '@/components/speaking-test';
-import { WritingTest } from '@/components/writing-test';
-import { ListeningTest } from '@/components/listening-test';
+import { ReadingTest } from '@/app/test/reading-test';
+import { SpeakingTest } from '@/app/test/speaking-test';
+import { WritingTest } from '@/app/test/writing-test';
+import { ListeningTest } from '@/app/test/listening-test';
 import { NotFound } from '@/components/not-found';
 
 type DoTestProps = {
