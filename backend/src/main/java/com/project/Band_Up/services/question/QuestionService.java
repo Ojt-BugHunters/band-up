@@ -11,6 +11,7 @@ public interface QuestionService {
     QuestionResponse createQuestion(UUID sectionId, QuestionCreateRequest request);
     List<QuestionResponse> createMultipleQuestions(UUID sectionId, List<QuestionCreateRequest> requests);
     List<QuestionResponse> getAllQuestionsBySectionId(UUID sectionId);
+    QuestionResponse getQuestionById(UUID questionId);
     QuestionResponse updateQuestionById(UUID questionId, QuestionUpdateRequest request);
     void deleteQuestionById(UUID questionId);
 }
