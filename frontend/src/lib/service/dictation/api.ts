@@ -128,6 +128,17 @@ export const useCreateQuestion = () => {
                         contentType: q.file.type || 'application/octet-stream',
                         expectedStatuses: [200, 201, 204],
                     });
+
+                    const mediaRes = await fetchWrapper('/media', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                            entityId: resDto.id,
+                            key: resDto.key,
+                            type: 'question',
+                        }),
+                    });
+                    await throwIfError(mediaRes);
                     created.push(resDto);
                 }
             }
