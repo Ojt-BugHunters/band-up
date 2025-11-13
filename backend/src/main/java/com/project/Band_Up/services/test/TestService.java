@@ -30,6 +30,8 @@ public interface TestService {
     //  Cập nhật Test
     TestResponse updateTest(UUID testId,TestUpdateRequest request);
 
+    TestResponse plusNumberOfMembers(UUID testId);
+
     //  Xóa Test
     void deleteTest(UUID id);
     // Xóa tất cả test của user theo Status

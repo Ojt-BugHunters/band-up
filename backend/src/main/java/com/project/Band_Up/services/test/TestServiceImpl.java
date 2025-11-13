@@ -110,6 +110,19 @@ public class TestServiceImpl implements TestService {
         testRepository.deleteAll(testsToDelete);
     }
 
+    @Override
+    public TestResponse plusNumberOfMembers(UUID testId) {
+        Test test = testRepository.findById(testId)
+                .orElseThrow(() -> new RuntimeException("Test not found"));
+
+        int current = test.getNumberOfPeople() == null ? 0 : test.getNumberOfPeople();
+        test.setNumberOfPeople(current + 1);
+
+        Test saved = testRepository.save(test);
+
+        return toResponse(saved);
+    }
+
     // ----------------- HELPER -----------------
     private TestResponse toResponse(Test test) {
         TestResponse response = modelMapper.map(test, TestResponse.class);
