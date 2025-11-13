@@ -18,6 +18,7 @@ import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Controller;
 
 import java.util.Map;
+import java.util.UUID;
 
 @Controller
 @Tag(name = "WebSocket Chat", description = "WebSocket endpoints for real-time chat functionality. " +
@@ -87,7 +88,15 @@ public class RoomChatController {
                 image = mediaService.createCloudFrontSignedUrl(image).getCloudFrontUrl();
             }
         }
-//        roomChatService.saveMessage(messageDto);
+        roomChatService.saveMessage(messageDto);
+        messagingTemplate.convertAndSend("/topic/room/" + messageDto.getTarget(), messageDto);
+    }
+
+    @MessageMapping("/chat.addUser")
+    public void addUser(@Payload MessageDto messageDto,
+                        SimpMessageHeaderAccessor headerAccessor) {
+        headerAccessor.getSessionAttributes().put("sender", messageDto.getSender());
+        headerAccessor.getSessionAttributes().put("roomId", messageDto.getTarget());
         messagingTemplate.convertAndSend("/topic/room/" + messageDto.getTarget(), messageDto);
     }
 }
