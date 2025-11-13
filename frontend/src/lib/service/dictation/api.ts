@@ -21,6 +21,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { useFieldArray, useForm } from 'react-hook-form';
 import z from 'zod';
 import { putFileToS3WithProgress } from '../s3-upload';
+import test from 'node:test';
 
 export interface createPassageParams {
     payload: CreateFullSectionPayload;
@@ -203,6 +204,16 @@ export const useGetDictationTests = () => {
             return await deserialize<Dictation[]>(response);
         },
         queryKey: ['dictation-tests'],
+    });
+};
+
+export const useGetDictationTest = (testId: string) => {
+    return useQuery({
+        queryFn: async () => {
+            const response = await fetchWrapper(`/tests/${testId}`);
+            return await deserialize<Dictation>(response);
+        },
+        queryKey: ['dictation-test'],
     });
 };
 
