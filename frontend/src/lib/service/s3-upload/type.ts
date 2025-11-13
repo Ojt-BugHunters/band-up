@@ -10,27 +10,12 @@ export type MediaResponse = {
 export interface SaveFileVars {
     key: string;
 }
-
 export interface MediaRequest {
     entityType?: string;
     entityId?: string;
     fileName: string;
     contentType: string;
 }
-
-export const fileSchema = z.object({
-    files: z
-        .array(z.custom<File>())
-        .max(1, 'Can be upload one file')
-        .refine(
-            (files) => files.every((file) => file.size <= 5 * 1024 * 1024),
-            {
-                message: 'File size must be less than 5MB',
-                path: ['files'],
-            },
-        )
-        .optional(),
-});
 
 export type S3UploadProgress = {
     loaded: number;
@@ -52,3 +37,17 @@ export type PutToS3Options = {
     signal?: AbortSignal;
     expectedStatuses: number[];
 };
+
+export const fileSchema = z.object({
+    files: z
+        .array(z.custom<File>())
+        .max(1, 'Can be upload one file')
+        .refine(
+            (files) => files.every((file) => file.size <= 5 * 1024 * 1024),
+            {
+                message: 'File size must be less than 5MB',
+                path: ['files'],
+            },
+        )
+        .optional(),
+});

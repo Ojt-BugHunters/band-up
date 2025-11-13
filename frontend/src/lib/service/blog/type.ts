@@ -1,7 +1,8 @@
 import z from 'zod';
 import { Tag, TagSchema } from '../tag';
-import { Comment } from '@/lib/api/dto/comment';
+import { Comment } from '../comment';
 
+// --------------------Type and Interface-----------------------
 export interface PaginationInfo {
     pageNo?: number;
     pageSize?: number;
@@ -38,6 +39,7 @@ export interface BlogReact {
     reactType: ReactType;
 }
 
+// --------------------Schema for react-hook-form-----------------------
 export const blogBaseSchema = z.object({
     title: z.string().min(1, 'Title is required'),
     description: z
