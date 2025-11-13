@@ -1,25 +1,33 @@
-import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import {
     CreateDictationQuestionReq,
     CreateFullSectionFormInput,
     CreateFullSectionPayload,
     CreateQuestionRes,
+    Dictation,
+    DictationQuestion,
+    DictationQuestionFormData,
+    dictationQuestionSchema,
     DictationSection,
+    DictationSectionQuestion,
     MappedQuestion,
     sectionFormSchema,
     TestCreateFormValues,
     TestCreateSchema,
 } from './type';
-import { fetchWrapper, throwIfError } from '@/lib/api';
+import { deserialize, fetchWrapper, throwIfError } from '@/lib/api';
 import { toast } from 'sonner';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useFieldArray, useForm } from 'react-hook-form';
 import z from 'zod';
 import { putFileToS3WithProgress } from '../s3-upload';
+import test from 'node:test';
+
 export interface createPassageParams {
     payload: CreateFullSectionPayload;
     testId: string;
 }
+
 export const useCreatePassage = () => {
     const mutation = useMutation({
         mutationFn: async ({ payload, testId }: createPassageParams) => {
@@ -56,22 +64,6 @@ export const useCreatePassage = () => {
     return { fullSectionForm, mutation };
 };
 
-export const dictationQuestionSchema = z.object({
-    questions: z
-        .array(
-            z.object({
-                sectionIndex: z.number(),
-                difficult: z.number(),
-                type: z.string(),
-                file: z
-                    .instanceof(File, { message: 'Audio file is required' })
-                    .refine((f) => f.size <= 5 * 1024 * 1024, 'Max 5MB'),
-                script: z.string().min(1, 'Script is required'),
-            }),
-        )
-        .min(1, 'At least one question is required'),
-});
-
 function mapDifficulty(level: number): string {
     switch (level) {
         case 1:
@@ -93,8 +85,6 @@ function groupBySectionId(items: MappedQuestion[]) {
     }
     return grouped;
 }
-
-export type DictationQuestionFormData = z.infer<typeof dictationQuestionSchema>;
 
 export const useCreateQuestion = () => {
     const queryClient = useQueryClient();
@@ -205,4 +195,61 @@ export const useCreateTest = () => {
         createTestForm,
         mutation,
     };
+};
+
+export const useGetDictationTests = () => {
+    return useQuery({
+        queryFn: async () => {
+            const response = await fetchWrapper(`/tests`);
+            return await deserialize<Dictation[]>(response);
+        },
+        queryKey: ['dictation-tests'],
+    });
+};
+
+export const useGetDictationTest = (testId: string) => {
+    return useQuery({
+        queryFn: async () => {
+            const response = await fetchWrapper(`/tests/${testId}`);
+            return await deserialize<Dictation>(response);
+        },
+        queryKey: ['dictation-test'],
+    });
+};
+
+export const useGetSectionQuestions = (testId: string) => {
+    return useQuery({
+        queryKey: ['dictation-section-question'],
+        queryFn: async () => {
+            const sectionApiRes = await fetchWrapper(
+                `/sections/test/${testId}`,
+            );
+            const sections =
+                await deserialize<DictationSection[]>(sectionApiRes);
+            const orderedSections = (sections ?? []).sort(
+                (a, b) => a.orderIndex - b.orderIndex,
+            );
+            if (!orderedSections.length) return [];
+
+            const questionLists = await Promise.all(
+                orderedSections.map(async (section: DictationSection) => {
+                    const questionRes = await fetchWrapper(
+                        `/sections/${section.id}/questions`,
+                    );
+                    const questions =
+                        await deserialize<DictationQuestion[]>(questionRes);
+                    return questions ?? [];
+                }),
+            );
+
+            const combineSectionsQuestions: DictationSectionQuestion[] =
+                orderedSections.map(
+                    (section: DictationSection, index: number) => ({
+                        ...section,
+                        questions: questionLists[index] ?? [],
+                    }),
+                );
+            return combineSectionsQuestions;
+        },
+    });
 };
