@@ -50,8 +50,12 @@ public class TestServiceImpl implements TestService {
     public TestResponse getTestById(UUID id) {
         Test test = testRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("Test not found"));
-        test.setNumberOfPeople(test.getNumberOfPeople()+1);
+        Integer current = test.getNumberOfPeople();
+        if (current == null) current = 0;
+
+        test.setNumberOfPeople(current + 1);
         testRepository.save(test);
+
         return toResponse(test);
     }
 
