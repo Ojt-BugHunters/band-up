@@ -36,6 +36,7 @@ public class Question {
     private Map<String, Object> content;
     @NotNull
     private String difficult;
+    @Column(columnDefinition = "text")
     private String script;
     private Boolean isActive;
     @CreationTimestamp
