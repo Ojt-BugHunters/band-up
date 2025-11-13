@@ -27,7 +27,6 @@ import {
 } from '@/lib/service/dictation';
 import { LoadingSpinner } from '@/components/ui/loading-spinner';
 import { NotFound } from '@/components/not-found';
-import { ModeSelectionDialog } from '../../../mode-selection-dialog';
 import { ShowShortcutDialog } from '../../../show-shortcut-dialog';
 import Link from 'next/link';
 import { AudioPlayer } from '../../../audio-player';
@@ -88,8 +87,6 @@ export default function DictationPracticePage() {
     const { data: test } = useGetDictationTest(testId as string);
     const dictationData = convertQuestionToDictationData(mockDictationQuestion);
     const router = useRouter();
-    const [showModeDialog, setShowModeDialog] = useState(true);
-    const [mode, setMode] = useState<'beginner' | 'master' | null>(null);
     const [isPlaying, setIsPlaying] = useState(false);
     const [currentTime, setCurrentTime] = useState(0);
     const [playbackSpeed, setPlaybackSpeed] = useState(1);
@@ -181,11 +178,6 @@ export default function DictationPracticePage() {
         (completedSentences.size / dictationData.sentences.length) * 100,
     );
 
-    const handleModeSelect = (selectedMode: 'beginner' | 'master') => {
-        setMode(selectedMode);
-        setShowModeDialog(false);
-    };
-
     const toggleWordReveal = (sentenceId: number, wordIndex: number) => {
         const key = `${sentenceId}-${wordIndex}`;
         setRevealedWords((prev) => {
@@ -226,391 +218,371 @@ export default function DictationPracticePage() {
 
     return (
         <>
-            <ModeSelectionDialog
-                showModeDialog={showModeDialog}
-                setShowModeDialog={setShowModeDialog}
-                handleModeSelect={handleModeSelect}
-            />
             <ShowShortcutDialog
                 showShortcutsDialog={showShortcutsDialog}
                 setShowShortcutsDialog={setShowShortcutsDialog}
             />
 
-            {mode && (
-                <div className="flex h-screen flex-col bg-gradient-to-br from-slate-50 via-blue-50/20 to-teal-50/20">
-                    <div className="border-b bg-white/90 px-6 py-4 shadow-sm backdrop-blur-sm">
-                        <div className="flex items-center justify-between">
-                            <div className="flex items-center gap-4">
-                                <Link href="/dictation">
-                                    <Button variant="ghost" size="icon">
-                                        <ChevronLeft className="h-5 w-5" />
-                                    </Button>
-                                </Link>
-                                <div>
-                                    <div className="text-muted-foreground text-sm">
-                                        Dictation Test
-                                    </div>
-                                    <h1 className="text-xl font-bold">
-                                        {test?.title}
-                                    </h1>
+            <div className="flex h-screen flex-col bg-gradient-to-br from-slate-50 via-blue-50/20 to-teal-50/20">
+                <div className="border-b bg-white/90 px-6 py-4 shadow-sm backdrop-blur-sm">
+                    <div className="flex items-center justify-between">
+                        <div className="flex items-center gap-4">
+                            <Link href="/dictation">
+                                <Button variant="ghost" size="icon">
+                                    <ChevronLeft className="h-5 w-5" />
+                                </Button>
+                            </Link>
+                            <div>
+                                <div className="text-muted-foreground text-sm">
+                                    Dictation Test
                                 </div>
-                            </div>
-                            <div className="flex items-center gap-2">
-                                <Button
-                                    variant="outline"
-                                    size="sm"
-                                    onClick={() => setShowShortcutsDialog(true)}
-                                    className="hover:bg-slate-50"
-                                >
-                                    <Keyboard className="mr-2 h-4 w-4" />
-                                    Shortcuts
-                                </Button>
-                                <Button
-                                    variant="outline"
-                                    size="sm"
-                                    onClick={() =>
-                                        setShowAudioPanel(!showAudioPanel)
-                                    }
-                                    className={cn(
-                                        'hover:bg-slate-50',
-                                        !showAudioPanel && 'bg-slate-100',
-                                    )}
-                                >
-                                    <HideIcon className="mr-2 h-4 w-4" />
-                                    {showAudioPanel ? 'Hide' : 'Show'} Media
-                                </Button>
-                                <Button
-                                    variant="outline"
-                                    size="sm"
-                                    onClick={() =>
-                                        setShowTranscriptPanel(
-                                            !showTranscriptPanel,
-                                        )
-                                    }
-                                    className={cn(
-                                        'hover:bg-slate-50',
-                                        !showTranscriptPanel && 'bg-slate-100',
-                                    )}
-                                >
-                                    <FileText className="mr-2 h-4 w-4" />
-                                    {showTranscriptPanel ? 'Hide' : 'Show'}{' '}
-                                    Transcript
-                                </Button>
-                                <Button
-                                    variant="outline"
-                                    size="sm"
-                                    onClick={() => setMenuOpen((prev) => !prev)}
-                                    className={cn(
-                                        'bg-white hover:bg-slate-50',
-                                        menuOpen && 'border-slate-400',
-                                    )}
-                                >
-                                    <Menu className="mr-2 h-4 w-4" />
-                                    {menuOpen ? 'Hide' : 'Show'} Menu
-                                </Button>
+                                <h1 className="text-xl font-bold">
+                                    {test?.title}
+                                </h1>
                             </div>
                         </div>
+                        <div className="flex items-center gap-2">
+                            <Button
+                                variant="outline"
+                                size="sm"
+                                onClick={() => setShowShortcutsDialog(true)}
+                                className="hover:bg-slate-50"
+                            >
+                                <Keyboard className="mr-2 h-4 w-4" />
+                                Shortcuts
+                            </Button>
+                            <Button
+                                variant="outline"
+                                size="sm"
+                                onClick={() =>
+                                    setShowAudioPanel(!showAudioPanel)
+                                }
+                                className={cn(
+                                    'hover:bg-slate-50',
+                                    !showAudioPanel && 'bg-slate-100',
+                                )}
+                            >
+                                <HideIcon className="mr-2 h-4 w-4" />
+                                {showAudioPanel ? 'Hide' : 'Show'} Media
+                            </Button>
+                            <Button
+                                variant="outline"
+                                size="sm"
+                                onClick={() =>
+                                    setShowTranscriptPanel(!showTranscriptPanel)
+                                }
+                                className={cn(
+                                    'hover:bg-slate-50',
+                                    !showTranscriptPanel && 'bg-slate-100',
+                                )}
+                            >
+                                <FileText className="mr-2 h-4 w-4" />
+                                {showTranscriptPanel ? 'Hide' : 'Show'}{' '}
+                                Transcript
+                            </Button>
+                            <Button
+                                variant="outline"
+                                size="sm"
+                                onClick={() => setMenuOpen((prev) => !prev)}
+                                className={cn(
+                                    'bg-white hover:bg-slate-50',
+                                    menuOpen && 'border-slate-400',
+                                )}
+                            >
+                                <Menu className="mr-2 h-4 w-4" />
+                                {menuOpen ? 'Hide' : 'Show'} Menu
+                            </Button>
+                        </div>
                     </div>
+                </div>
 
-                    <div className="flex flex-1 gap-6 overflow-hidden p-6">
-                        {showAudioPanel && (
-                            <AudioPlayer
-                                audioUrl="/audio/example.mp3"
-                                currentTime={currentTime}
-                                setCurrentTime={setCurrentTime}
-                                isPlaying={isPlaying}
-                                setIsPlaying={setIsPlaying}
-                                volume={volume}
-                                setVolume={setVolume}
-                                playbackSpeed={playbackSpeed}
-                                setPlaybackSpeed={setPlaybackSpeed}
-                            />
-                        )}
-                        <Card className="flex flex-1 flex-col border-0 shadow-xl">
-                            <div className="border-b bg-gradient-to-r from-emerald-100/70 to-teal-100/60 p-5">
-                                <h2 className="text-lg font-semibold text-slate-800">
-                                    Dictation Practice
-                                </h2>
-                            </div>
-                            <div className="flex-1 overflow-auto bg-gradient-to-br from-emerald-50/40 to-teal-50/30 p-8">
-                                <div className="mb-8 space-y-4">
-                                    <div className="text-sm font-semibold text-teal-700">
-                                        Answers:
-                                    </div>
-                                    <div className="rounded-2xl border-2 border-blue-200/60 bg-white p-8 text-lg leading-relaxed shadow-lg">
-                                        {wordComparison.map((result, idx) => {
+                <div className="flex flex-1 gap-6 overflow-hidden p-6">
+                    {showAudioPanel && (
+                        <AudioPlayer
+                            audioUrl="/audio/example.mp3"
+                            currentTime={currentTime}
+                            setCurrentTime={setCurrentTime}
+                            isPlaying={isPlaying}
+                            setIsPlaying={setIsPlaying}
+                            volume={volume}
+                            setVolume={setVolume}
+                            playbackSpeed={playbackSpeed}
+                            setPlaybackSpeed={setPlaybackSpeed}
+                        />
+                    )}
+                    <Card className="flex flex-1 flex-col border-0 shadow-xl">
+                        <div className="border-b bg-gradient-to-r from-emerald-100/70 to-teal-100/60 p-5">
+                            <h2 className="text-lg font-semibold text-slate-800">
+                                Dictation Practice
+                            </h2>
+                        </div>
+                        <div className="flex-1 overflow-auto bg-gradient-to-br from-emerald-50/40 to-teal-50/30 p-8">
+                            <div className="mb-8 space-y-4">
+                                <div className="text-sm font-semibold text-teal-700">
+                                    Answers:
+                                </div>
+                                <div className="rounded-2xl border-2 border-blue-200/60 bg-white p-8 text-lg leading-relaxed shadow-lg">
+                                    {wordComparison.map((result, idx) => {
+                                        const key = `${currentSentenceData.id}-${idx}`;
+                                        const isRevealed =
+                                            revealedWords.has(key);
+
+                                        return (
+                                            <span
+                                                key={idx}
+                                                className="m-1 inline-block"
+                                            >
+                                                {result.status === 'correct' ? (
+                                                    <span className="rounded-lg border-2 border-teal-400 bg-white px-2.5 py-1 font-semibold text-teal-700 shadow-sm">
+                                                        {result.word}
+                                                    </span>
+                                                ) : result.status ===
+                                                  'incorrect' ? (
+                                                    <span className="rounded-lg border-2 border-rose-400 bg-rose-50 px-2.5 py-1 font-semibold text-rose-700">
+                                                        {result.userWord}
+                                                    </span>
+                                                ) : isRevealed ? (
+                                                    <span className="rounded bg-blue-100/70 px-2 py-0.5 font-semibold text-blue-700">
+                                                        {result.word}
+                                                    </span>
+                                                ) : (
+                                                    <span className="font-mono text-slate-400">
+                                                        {'*'.repeat(
+                                                            result.word.length,
+                                                        )}
+                                                    </span>
+                                                )}
+                                                {idx <
+                                                    wordComparison.length - 1 &&
+                                                    ' '}
+                                            </span>
+                                        );
+                                    })}
+                                </div>
+
+                                <div className="flex flex-wrap gap-2">
+                                    {currentSentenceData.words.map(
+                                        (word, idx) => {
                                             const key = `${currentSentenceData.id}-${idx}`;
                                             const isRevealed =
                                                 revealedWords.has(key);
-
                                             return (
-                                                <span
+                                                <Button
                                                     key={idx}
-                                                    className="m-1 inline-block"
-                                                >
-                                                    {result.status ===
-                                                    'correct' ? (
-                                                        <span className="rounded-lg border-2 border-teal-400 bg-white px-2.5 py-1 font-semibold text-teal-700 shadow-sm">
-                                                            {result.word}
-                                                        </span>
-                                                    ) : result.status ===
-                                                      'incorrect' ? (
-                                                        <span className="rounded-lg border-2 border-rose-400 bg-rose-50 px-2.5 py-1 font-semibold text-rose-700">
-                                                            {result.userWord}
-                                                        </span>
-                                                    ) : isRevealed ? (
-                                                        <span className="rounded bg-blue-100/70 px-2 py-0.5 font-semibold text-blue-700">
-                                                            {result.word}
-                                                        </span>
-                                                    ) : (
-                                                        <span className="font-mono text-slate-400">
-                                                            {'*'.repeat(
-                                                                result.word
-                                                                    .length,
-                                                            )}
-                                                        </span>
+                                                    variant="outline"
+                                                    size="sm"
+                                                    onClick={() =>
+                                                        toggleWordReveal(
+                                                            currentSentenceData.id,
+                                                            idx,
+                                                        )
+                                                    }
+                                                    className={cn(
+                                                        'shadow-sm transition-all hover:shadow-md',
+                                                        isRevealed
+                                                            ? 'border-blue-400 bg-blue-50 text-blue-700 hover:bg-blue-100'
+                                                            : 'border-slate-200 bg-white hover:border-teal-300 hover:bg-teal-50',
                                                     )}
-                                                    {idx <
-                                                        wordComparison.length -
-                                                            1 && ' '}
-                                                </span>
+                                                >
+                                                    {isRevealed ? (
+                                                        <>
+                                                            <EyeOff className="mr-1.5 h-3.5 w-3.5" />
+                                                            {word}
+                                                        </>
+                                                    ) : (
+                                                        <>
+                                                            <Eye className="mr-1.5 h-3.5 w-3.5" />
+                                                            {'*'.repeat(
+                                                                Math.min(
+                                                                    word.length,
+                                                                    7,
+                                                                ),
+                                                            )}
+                                                        </>
+                                                    )}
+                                                </Button>
                                             );
-                                        })}
-                                    </div>
+                                        },
+                                    )}
+                                </div>
+                            </div>
 
-                                    <div className="flex flex-wrap gap-2">
-                                        {currentSentenceData.words.map(
-                                            (word, idx) => {
-                                                const key = `${currentSentenceData.id}-${idx}`;
-                                                const isRevealed =
-                                                    revealedWords.has(key);
-                                                return (
-                                                    <Button
-                                                        key={idx}
-                                                        variant="outline"
-                                                        size="sm"
-                                                        onClick={() =>
-                                                            toggleWordReveal(
-                                                                currentSentenceData.id,
-                                                                idx,
-                                                            )
-                                                        }
-                                                        className={cn(
-                                                            'shadow-sm transition-all hover:shadow-md',
-                                                            isRevealed
-                                                                ? 'border-blue-400 bg-blue-50 text-blue-700 hover:bg-blue-100'
-                                                                : 'border-slate-200 bg-white hover:border-teal-300 hover:bg-teal-50',
-                                                        )}
-                                                    >
-                                                        {isRevealed ? (
-                                                            <>
-                                                                <EyeOff className="mr-1.5 h-3.5 w-3.5" />
-                                                                {word}
-                                                            </>
-                                                        ) : (
-                                                            <>
-                                                                <Eye className="mr-1.5 h-3.5 w-3.5" />
-                                                                {'*'.repeat(
-                                                                    Math.min(
-                                                                        word.length,
-                                                                        7,
-                                                                    ),
-                                                                )}
-                                                            </>
-                                                        )}
-                                                    </Button>
-                                                );
-                                            },
+                            <div className="mb-8 space-y-3">
+                                <label className="text-sm font-semibold text-slate-700">
+                                    What you hear:
+                                </label>
+                                <Textarea
+                                    value={userInput}
+                                    onChange={(e) =>
+                                        setUserInput(e.target.value)
+                                    }
+                                    placeholder="Type what you hear from the audio..."
+                                    className="mt-4 min-h-[140px] resize-none rounded-xl border-slate-200 bg-white text-base leading-relaxed shadow-sm transition-shadow focus:border-teal-400 focus:shadow-md"
+                                />
+                                <p className="text-sm text-slate-600">
+                                    Write down everything you hear. You can
+                                    replay the audio as many times as needed.
+                                </p>
+                            </div>
+
+                            <div className="space-y-3">
+                                <div className="grid grid-cols-2 gap-3">
+                                    <Button
+                                        onClick={toggleRevealAll}
+                                        className={cn(
+                                            'h-12 w-full rounded-xl text-base shadow-md transition-all',
+                                            isAllRevealed
+                                                ? 'border-2 border-slate-300 bg-white text-slate-700 hover:bg-slate-50'
+                                                : 'bg-gradient-to-r from-rose-400 to-pink-500 text-white shadow-lg hover:from-rose-500 hover:to-pink-600',
                                         )}
-                                    </div>
+                                    >
+                                        {isAllRevealed ? (
+                                            <>
+                                                <EyeOff className="mr-2 h-4 w-4" />
+                                                Hide All Words
+                                            </>
+                                        ) : (
+                                            <>
+                                                <Eye className="mr-2 h-4 w-4" />
+                                                Show All Words
+                                            </>
+                                        )}
+                                    </Button>
+                                    <Button
+                                        onClick={handleContinue}
+                                        disabled={!isCurrentSentenceComplete()}
+                                        variant="outline"
+                                        className={cn(
+                                            'h-12 w-full rounded-xl border-2 text-base shadow-md transition-all hover:shadow-lg',
+                                            isCurrentSentenceComplete()
+                                                ? 'border-teal-400 bg-white text-teal-700 hover:bg-teal-50'
+                                                : 'cursor-not-allowed border-slate-300 bg-slate-50 text-slate-400',
+                                        )}
+                                    >
+                                        {isCurrentSentenceComplete() ? (
+                                            <>
+                                                <Check className="mr-2 h-4 w-4" />
+                                                Continue
+                                                <ChevronRight className="ml-2 h-4 w-4" />
+                                            </>
+                                        ) : (
+                                            <>
+                                                Complete the sentence to
+                                                continue
+                                                <ChevronRight className="ml-2 h-4 w-4" />
+                                            </>
+                                        )}
+                                    </Button>
                                 </div>
-
-                                <div className="mb-8 space-y-3">
-                                    <label className="text-sm font-semibold text-slate-700">
-                                        What you hear:
-                                    </label>
-                                    <Textarea
-                                        value={userInput}
-                                        onChange={(e) =>
-                                            setUserInput(e.target.value)
-                                        }
-                                        placeholder="Type what you hear from the audio..."
-                                        className="mt-4 min-h-[140px] resize-none rounded-xl border-slate-200 bg-white text-base leading-relaxed shadow-sm transition-shadow focus:border-teal-400 focus:shadow-md"
-                                    />
-                                    <p className="text-sm text-slate-600">
-                                        Write down everything you hear. You can
-                                        replay the audio as many times as
-                                        needed.
-                                    </p>
+                            </div>
+                        </div>
+                    </Card>
+                    {showTranscriptPanel && (
+                        <Card className="w-[350px] border-0 shadow-xl">
+                            <div className="border-b bg-gradient-to-r from-indigo-100/70 to-blue-100/60 p-5">
+                                <div className="flex items-center justify-between">
+                                    <h2 className="text-lg font-semibold text-slate-800">
+                                        Transcript
+                                    </h2>
+                                    <Badge
+                                        variant="secondary"
+                                        className="bg-indigo-100 text-indigo-700"
+                                    >
+                                        {completionPercentage}%
+                                    </Badge>
                                 </div>
-
+                            </div>
+                            <div className="overflow-auto bg-gradient-to-br from-indigo-50/30 to-blue-50/20 p-4">
                                 <div className="space-y-3">
-                                    <div className="grid grid-cols-2 gap-3">
-                                        <Button
-                                            onClick={toggleRevealAll}
-                                            className={cn(
-                                                'h-12 w-full rounded-xl text-base shadow-md transition-all',
-                                                isAllRevealed
-                                                    ? 'border-2 border-slate-300 bg-white text-slate-700 hover:bg-slate-50'
-                                                    : 'bg-gradient-to-r from-rose-400 to-pink-500 text-white shadow-lg hover:from-rose-500 hover:to-pink-600',
-                                            )}
-                                        >
-                                            {isAllRevealed ? (
-                                                <>
-                                                    <EyeOff className="mr-2 h-4 w-4" />
-                                                    Hide All Words
-                                                </>
-                                            ) : (
-                                                <>
-                                                    <Eye className="mr-2 h-4 w-4" />
-                                                    Show All Words
-                                                </>
-                                            )}
-                                        </Button>
-                                        <Button
-                                            onClick={handleContinue}
-                                            disabled={
-                                                !isCurrentSentenceComplete()
-                                            }
-                                            variant="outline"
-                                            className={cn(
-                                                'h-12 w-full rounded-xl border-2 text-base shadow-md transition-all hover:shadow-lg',
-                                                isCurrentSentenceComplete()
-                                                    ? 'border-teal-400 bg-white text-teal-700 hover:bg-teal-50'
-                                                    : 'cursor-not-allowed border-slate-300 bg-slate-50 text-slate-400',
-                                            )}
-                                        >
-                                            {isCurrentSentenceComplete() ? (
-                                                <>
-                                                    <Check className="mr-2 h-4 w-4" />
-                                                    Continue
-                                                    <ChevronRight className="ml-2 h-4 w-4" />
-                                                </>
-                                            ) : (
-                                                <>
-                                                    Complete the sentence to
-                                                    continue
-                                                    <ChevronRight className="ml-2 h-4 w-4" />
-                                                </>
-                                            )}
-                                        </Button>
-                                    </div>
+                                    {dictationData.sentences.map(
+                                        (sentence, idx) => {
+                                            const isCompleted =
+                                                completedSentences.has(idx);
+                                            return (
+                                                <Card
+                                                    key={sentence.id}
+                                                    className={cn(
+                                                        'cursor-pointer border-2 p-4 transition-all hover:shadow-md',
+                                                        currentSentence === idx
+                                                            ? 'border-teal-400 bg-teal-50/60 shadow-lg shadow-teal-400/20'
+                                                            : isCompleted
+                                                              ? 'border-emerald-400 bg-emerald-50/60'
+                                                              : 'border-slate-200 bg-white hover:border-slate-300 hover:bg-slate-50',
+                                                    )}
+                                                    onClick={() =>
+                                                        setCurrentSentence(idx)
+                                                    }
+                                                >
+                                                    <div className="mb-2 flex items-center justify-between">
+                                                        <div className="flex items-center gap-2">
+                                                            <span className="font-bold text-slate-700">
+                                                                #{sentence.id}
+                                                            </span>
+                                                            {isCompleted && (
+                                                                <Badge className="flex h-5 w-5 items-center justify-center rounded-full bg-emerald-500 p-0 text-white">
+                                                                    <Check className="h-3 w-3" />
+                                                                </Badge>
+                                                            )}
+                                                        </div>
+                                                    </div>
+                                                    <div className="font-mono text-sm leading-relaxed text-slate-500">
+                                                        {isCompleted
+                                                            ? sentence.text
+                                                            : sentence.words.map(
+                                                                  (
+                                                                      word,
+                                                                      wordIdx,
+                                                                  ) => (
+                                                                      <span
+                                                                          key={
+                                                                              wordIdx
+                                                                          }
+                                                                      >
+                                                                          {'*'.repeat(
+                                                                              word.length,
+                                                                          )}
+                                                                          {wordIdx <
+                                                                              sentence
+                                                                                  .words
+                                                                                  .length -
+                                                                                  1 &&
+                                                                              ' '}
+                                                                      </span>
+                                                                  ),
+                                                              )}
+                                                    </div>
+                                                </Card>
+                                            );
+                                        },
+                                    )}
                                 </div>
                             </div>
                         </Card>
-                        {showTranscriptPanel && (
-                            <Card className="w-[350px] border-0 shadow-xl">
-                                <div className="border-b bg-gradient-to-r from-indigo-100/70 to-blue-100/60 p-5">
-                                    <div className="flex items-center justify-between">
-                                        <h2 className="text-lg font-semibold text-slate-800">
-                                            Transcript
-                                        </h2>
-                                        <Badge
-                                            variant="secondary"
-                                            className="bg-indigo-100 text-indigo-700"
-                                        >
-                                            {completionPercentage}%
-                                        </Badge>
-                                    </div>
-                                </div>
-                                <div className="overflow-auto bg-gradient-to-br from-indigo-50/30 to-blue-50/20 p-4">
-                                    <div className="space-y-3">
-                                        {dictationData.sentences.map(
-                                            (sentence, idx) => {
-                                                const isCompleted =
-                                                    completedSentences.has(idx);
-                                                return (
-                                                    <Card
-                                                        key={sentence.id}
-                                                        className={cn(
-                                                            'cursor-pointer border-2 p-4 transition-all hover:shadow-md',
-                                                            currentSentence ===
-                                                                idx
-                                                                ? 'border-teal-400 bg-teal-50/60 shadow-lg shadow-teal-400/20'
-                                                                : isCompleted
-                                                                  ? 'border-emerald-400 bg-emerald-50/60'
-                                                                  : 'border-slate-200 bg-white hover:border-slate-300 hover:bg-slate-50',
-                                                        )}
-                                                        onClick={() =>
-                                                            setCurrentSentence(
-                                                                idx,
-                                                            )
-                                                        }
-                                                    >
-                                                        <div className="mb-2 flex items-center justify-between">
-                                                            <div className="flex items-center gap-2">
-                                                                <span className="font-bold text-slate-700">
-                                                                    #
-                                                                    {
-                                                                        sentence.id
-                                                                    }
-                                                                </span>
-                                                                {isCompleted && (
-                                                                    <Badge className="flex h-5 w-5 items-center justify-center rounded-full bg-emerald-500 p-0 text-white">
-                                                                        <Check className="h-3 w-3" />
-                                                                    </Badge>
-                                                                )}
-                                                            </div>
-                                                        </div>
-                                                        <div className="font-mono text-sm leading-relaxed text-slate-500">
-                                                            {isCompleted
-                                                                ? sentence.text
-                                                                : sentence.words.map(
-                                                                      (
-                                                                          word,
-                                                                          wordIdx,
-                                                                      ) => (
-                                                                          <span
-                                                                              key={
-                                                                                  wordIdx
-                                                                              }
-                                                                          >
-                                                                              {'*'.repeat(
-                                                                                  word.length,
-                                                                              )}
-                                                                              {wordIdx <
-                                                                                  sentence
-                                                                                      .words
-                                                                                      .length -
-                                                                                      1 &&
-                                                                                  ' '}
-                                                                          </span>
-                                                                      ),
-                                                                  )}
-                                                        </div>
-                                                    </Card>
-                                                );
-                                            },
-                                        )}
-                                    </div>
-                                </div>
-                            </Card>
-                        )}
-                        <SectionsMenu
-                            open={menuOpen}
-                            onOpenChange={setMenuOpen}
-                            title="Sections"
-                            testId={testId}
-                            sections={sections ?? []}
-                            activeQuestionId={activeQ}
-                            onSelectQuestion={(qid) => {
-                                setActiveQ(qid);
-                                setMenuOpen(false);
+                    )}
+                    <SectionsMenu
+                        open={menuOpen}
+                        onOpenChange={setMenuOpen}
+                        title="Sections"
+                        testId={testId}
+                        sections={sections ?? []}
+                        activeQuestionId={activeQ}
+                        onSelectQuestion={(qid) => {
+                            setActiveQ(qid);
+                            setMenuOpen(false);
 
-                                const found = (sections ?? [])
-                                    .flatMap((s) => s.questions ?? [])
-                                    .find((q) => q.id === qid);
+                            const found = (sections ?? [])
+                                .flatMap((s) => s.questions ?? [])
+                                .find((q) => q.id === qid);
 
-                                if (!found) return;
+                            if (!found) return;
 
-                                router.push(
-                                    `/dictation/${testId}/${found.sectionId}/${found.id}`,
-                                );
-                            }}
-                        />{' '}
-                    </div>
+                            router.push(
+                                `/dictation/${testId}/${found.sectionId}/${found.id}`,
+                            );
+                        }}
+                    />{' '}
                 </div>
-            )}
+            </div>
         </>
     );
 }
