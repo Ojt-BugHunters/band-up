@@ -1,8 +1,8 @@
 'use client';
 
-import { LearnModeDialog } from '@/components/learn-mode-dialog';
-import { QuizInterface } from '@/components/quiz-interface';
-import { DeckCard } from '@/lib/api/dto/flashcard';
+import { LearnModeDialog } from '../../learn-mode-dialog';
+import { QuizInterface } from '../../quiz-interface';
+import { DeckCard } from '@/lib/service/flashcard';
 import { useParams, useRouter } from 'next/navigation';
 import { useState } from 'react';
 

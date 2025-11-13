@@ -25,10 +25,10 @@ import {
     FormMessage,
 } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
-import { useJoinPrivateDeck } from '@/hooks/use-join-private-deck';
-import { useLearnDeck } from '@/hooks/use-learn-deck';
-import { useUser } from '@/hooks/use-user';
-import { Deck } from '@/lib/api/dto/flashcard';
+import { useJoinPrivateDeck } from '@/lib/service/flashcard';
+import { useLearnDeck } from '@/lib/service/flashcard';
+import { useUser } from '@/lib/service/account';
+import { Deck } from '@/lib/service/flashcard';
 import { cn } from '@/lib/utils';
 import { Eye, EyeOff, Globe, Lock, User } from 'lucide-react';
 import Link from 'next/link';

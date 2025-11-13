@@ -1,6 +1,6 @@
 'use client';
 import { ConfirmDialog } from '@/components/confirm-dialog';
-import FlashcardPlayer from '@/components/flashcard-player';
+import FlashcardPlayer from '../flashcard-player';
 import { AccountPicture } from '@/components/ui/account-picture';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -11,9 +11,9 @@ import {
     DropdownMenuItem,
     DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
-import { useDeleteDeck } from '@/hooks/use-delete-deck';
-import { useUser } from '@/hooks/use-user';
-import { DeckCard } from '@/lib/api/dto/flashcard';
+import { useDeleteDeck } from '@/lib/service/flashcard';
+import { useUser } from '@/lib/service/account';
+import { DeckCard } from '@/lib/service/flashcard';
 import {
     BookOpenCheck,
     ClipboardCheck,

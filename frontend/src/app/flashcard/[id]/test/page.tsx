@@ -2,9 +2,9 @@
 
 import React from 'react';
 import { useState } from 'react';
-import { TestStartDialog } from '@/components/test-start-dialog';
-import { TestInterface } from '@/components/test-interface';
-import { DeckCard } from '@/lib/api/dto/flashcard';
+import { TestStartDialog } from '../../test-start-dialog';
+import { TestInterface } from '../../test-interface';
+import { DeckCard } from '@/lib/service/flashcard';
 import { useParams, useRouter } from 'next/navigation';
 
 export default function TestPage() {
@@ -24,8 +24,6 @@ export default function TestPage() {
         setDeck(null);
         router.push(`/flashcard/${id}`);
     };
-
-    console.log(deckCard);
 
     return (
         <div className="bg-background min-h-screen">
