@@ -378,6 +378,7 @@ export default function DictationPracticePage() {
                     <div className="flex flex-1 gap-6 overflow-hidden p-6">
                         {showAudioPanel && (
                             <AudioPlayer
+                                audioUrl="/audio/example.mp3"
                                 currentTime={currentTime}
                                 setCurrentTime={setCurrentTime}
                                 isPlaying={isPlaying}
