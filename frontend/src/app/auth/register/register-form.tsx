@@ -9,7 +9,7 @@ import {
 } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
 import { Skeleton } from '@/components/ui/skeleton';
-import { useRegisterForm } from '@/lib/service/account';
+import { useRegisterForm } from '@/lib/service/auth';
 import { cn } from '@/lib/utils';
 import { Loader2 } from 'lucide-react';
 import { useTheme } from 'next-themes';

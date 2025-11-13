@@ -13,7 +13,7 @@ import {
     PopoverContent,
     PopoverTrigger,
 } from '@/components/ui/popover';
-import { useProfile } from '@/lib/service/account';
+import { useProfile } from '@/lib/service/auth';
 import { cn } from '@/lib/utils';
 import Image from 'next/image';
 import { useState } from 'react';

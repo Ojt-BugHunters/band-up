@@ -1,4 +1,4 @@
-import { useProfile } from '@/hooks/use-profile-register';
+import { useProfile } from '@/lib/service/account';
 import {
     Dialog,
     DialogContent,
