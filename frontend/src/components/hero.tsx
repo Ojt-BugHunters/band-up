@@ -1,4 +1,5 @@
 import { cn } from '@/lib/utils';
+import Image from 'next/image';
 import { PropsWithChildren } from 'react';
 
 const colorMap = {
@@ -16,7 +17,7 @@ export const HeroSummary = ({
     return (
         <div
             className={cn(
-                'mb-6 inline-flex items-center rounded-full px-4 py-2 text-sm font-medium',
+                'relative z-10 mb-6 inline-flex items-center rounded-full px-4 py-2 text-sm font-medium',
                 colorMap[color],
             )}
         >
@@ -30,7 +31,9 @@ export const HeroKeyword = ({
     children,
 }: PropsWithChildren<{ color: string }>) => {
     return (
-        <span className={`block text-${color}-600 dark:text-${color}-400`}>
+        <span
+            className={`block text-${color}-600 dark:text-${color}-400 relative z-10`}
+        >
             {children}
         </span>
     );
@@ -38,8 +41,7 @@ export const HeroKeyword = ({
 
 export const HeroTitle = ({ children }: PropsWithChildren) => {
     return (
-        <h1 className="dark:text-foreground mb-6 text-5xl leading-tight font-bold text-slate-900 md:text-6xl">
-            {' '}
+        <h1 className="dark:text-foreground relative z-10 mb-6 text-5xl leading-tight font-bold text-slate-900 md:text-6xl">
             {children}
         </h1>
     );
@@ -47,8 +49,7 @@ export const HeroTitle = ({ children }: PropsWithChildren) => {
 
 export const HeroDescription = ({ children }: PropsWithChildren) => {
     return (
-        <p className="dark:text-muted-foreground mb-8 text-xl leading-relaxed text-slate-600">
-            {' '}
+        <p className="dark:text-muted-foreground relative z-10 mb-8 text-xl leading-relaxed text-slate-600">
             {children}
         </p>
     );
@@ -56,9 +57,18 @@ export const HeroDescription = ({ children }: PropsWithChildren) => {
 
 export const Hero = ({ children }: PropsWithChildren) => {
     return (
-        <section className="dark:bg-background bg-white">
-            {' '}
-            <div className="mx-auto max-w-7xl px-4 py-20 sm:px-6 lg:px-8">
+        <section className="dark:bg-background relative overflow-hidden bg-white">
+            {/* Soft overlay image */}
+            <div className="pointer-events-none absolute inset-0 opacity-20 dark:opacity-10">
+                <Image
+                    src="/room-bg-2.jpg" // Replace with your desired image
+                    alt="Hero overlay"
+                    fill
+                    className="object-cover"
+                />
+            </div>
+
+            <div className="relative mx-auto max-w-7xl px-4 py-20 sm:px-6 lg:px-8">
                 <div className="mx-auto max-w-4xl text-center">{children}</div>
             </div>
         </section>

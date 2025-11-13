@@ -215,6 +215,7 @@ export const useGetDictationTests = () => {
             return await deserialize<Dictation[]>(response);
         },
         queryKey: ['dictation-tests'],
+        staleTime: 60 * 60 * 1000,
     });
 };
 
