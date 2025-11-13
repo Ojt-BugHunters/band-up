@@ -15,7 +15,7 @@ import { RefObject, useState } from 'react';
 import { TimePeriod } from './page';
 import { RoomMenuDialog } from './room-menu';
 import { Room } from '@/lib/service/room';
-import { AccountRoomMember } from '@/lib/service/account';
+import { AccountRoomMember } from '@/lib/service/room';
 export type DisplayMode = 'pomodoro' | 'ai-chat' | 'room' | 'collaboration';
 export type SessionType = 'focus' | 'shortBreak' | 'longBreak';
 export type TimerTab = 'focus' | 'stopwatch';

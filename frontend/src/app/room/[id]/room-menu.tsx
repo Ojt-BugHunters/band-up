@@ -27,7 +27,7 @@ import {
     AlertDialogTitle,
     AlertDialogTrigger,
 } from '@/components/ui/alert-dialog';
-import { AccountRoomMember } from '@/lib/service/account';
+import { AccountRoomMember } from '@/lib/service/room';
 import Image from 'next/image';
 
 interface RoomMenuDialogProps {
@@ -276,7 +276,7 @@ export function RoomMenuDialog({
                                         />
                                     ) : (
                                         <div className="flex h-8 w-8 items-center justify-center rounded-full bg-cyan-500 text-sm font-bold">
-                                            {m.name.charAt(0).toUpperCase()}
+                                            {m.name?.charAt(0)?.toUpperCase() ?? '?'}
                                         </div>
                                     )}
 

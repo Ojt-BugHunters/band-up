@@ -20,6 +20,7 @@ import java.util.UUID;
 public class StudySessionResponse {
     private UUID id;
     private UUID userId;
+    private UUID roomId;
     private SessionMode mode;
     private BigInteger focusTime;
     private BigInteger shortBreak;
