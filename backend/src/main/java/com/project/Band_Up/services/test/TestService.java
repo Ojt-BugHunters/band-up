@@ -17,6 +17,7 @@ public interface TestService {
     //  Lấy tất cả Test
     List<TestResponse> getAllTests();
 
+    TestResponse getTestById(UUID testId);
     //  Lấy tất cả Test theo ngày tạo giảm dần
     List<TestResponse> getAllTestsSortedByCreateAt();
 

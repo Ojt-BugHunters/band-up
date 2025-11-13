@@ -8,6 +8,7 @@ import com.project.Band_Up.entities.Test;
 import com.project.Band_Up.enums.Status;
 import com.project.Band_Up.repositories.AccountRepository;
 import com.project.Band_Up.repositories.TestRepository;
+import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Service;
@@ -43,8 +44,17 @@ public class TestServiceImpl implements TestService {
         return testRepository.findAll()
                 .stream()
                 .map(this::toResponse)
-                .collect(Collectors.toList());
+                .toList();
     }
+    @Override
+    public TestResponse getTestById(UUID id) {
+        Test test = testRepository.findById(id)
+                .orElseThrow(() -> new EntityNotFoundException("Test not found"));
+        test.setNumberOfPeople(test.getNumberOfPeople()+1);
+        testRepository.save(test);
+        return toResponse(test);
+    }
+
 
     @Override
     public List<TestResponse> getAllTestsSortedByCreateAt() {
