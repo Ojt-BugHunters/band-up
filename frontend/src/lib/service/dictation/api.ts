@@ -228,6 +228,16 @@ export const useGetDictationTest = (testId: string) => {
     });
 };
 
+export const useGetDictationQuestion = (questionId: string) => {
+    return useQuery({
+        queryKey: ['dictation-question'],
+        queryFn: async () => {
+            const response = await fetchWrapper(`/questions/${questionId}`);
+            return await deserialize<DictationQuestion>(response);
+        },
+    });
+};
+
 export const useGetSectionQuestions = (testId: string) => {
     return useQuery({
         queryKey: ['dictation-section-question'],

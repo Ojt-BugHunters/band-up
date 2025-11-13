@@ -61,7 +61,7 @@ export interface DictationQuestion {
     type: string;
     difficult: string;
     script: string;
-    cloudFrontUrl: string;
+    cloudfrontUrl: string;
 }
 
 export interface DictationSentence {
