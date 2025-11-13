@@ -20,17 +20,17 @@ import {
 import { useState } from 'react';
 import { cn } from '@/lib/utils';
 import { useParams } from 'next/navigation';
-import { SectionsMenu } from './section-panel';
+import { SectionsMenu } from '../../section-panel';
 import {
     useGetDictationTest,
     useGetSectionQuestions,
 } from '@/lib/service/dictation';
 import { LoadingSpinner } from '@/components/ui/loading-spinner';
 import { NotFound } from '@/components/not-found';
-import { ModeSelectionDialog } from './mode-selection-dialog';
-import { ShowShortcutDialog } from './show-shortcut-dialog';
+import { ModeSelectionDialog } from '../../mode-selection-dialog';
+import { ShowShortcutDialog } from '../../show-shortcut-dialog';
 import Link from 'next/link';
-import { AudioPlayer } from './audio-player';
+import { AudioPlayer } from '../../audio-player';
 
 const mockDictationData = {
     id: '1',
@@ -145,13 +145,12 @@ const mockDictationData = {
 };
 
 export default function DictationPracticePage() {
-    const { id: dictationTestId } = useParams();
+    const { testId: dictationTestId } = useParams();
     const {
         data: sections,
         isLoading,
         isError,
     } = useGetSectionQuestions(dictationTestId as string);
-
     const { data: test } = useGetDictationTest(dictationTestId as string);
     const [showModeDialog, setShowModeDialog] = useState(true);
     const [mode, setMode] = useState<'beginner' | 'master' | null>(null);

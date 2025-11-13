@@ -11,12 +11,7 @@ import {
 } from '@/components/ui/accordion';
 import { FolderOpen, Dot, ListChecks } from 'lucide-react';
 import { cn } from '@/lib/utils';
-import {
-    DictationSectionQuestion,
-    useGetSectionQuestions,
-} from '@/lib/service/dictation';
-import { LoadingSpinner } from '@/components/ui/loading-spinner';
-import { NotFound } from '@/components/not-found';
+import { DictationSectionQuestion } from '@/lib/service/dictation';
 import { Sheet, SheetContent } from '@/components/ui/sheet';
 
 export type SectionsPanelProps = {
@@ -28,7 +23,6 @@ export type SectionsPanelProps = {
 };
 
 export function SectionsPanel({
-    testId,
     className,
     onSelectQuestion,
     activeQuestionId,
@@ -150,10 +144,6 @@ export function SectionsPanel({
                     </div>
                 )}
             </ScrollArea>
-
-            <div className="border-t p-3 text-right text-xs text-slate-500">
-                Test ID: <span className="font-mono">{testId}</span>
-            </div>
         </Card>
     );
 }
