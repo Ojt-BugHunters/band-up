@@ -226,6 +226,7 @@ export const useGetDictationTest = (testId: string) => {
             return await deserialize<Dictation>(response);
         },
         queryKey: ['dictation-test'],
+        staleTime: 60 * 60 * 1000,
     });
 };
 
@@ -236,6 +237,7 @@ export const useGetDictationQuestion = (questionId: string) => {
             const response = await fetchWrapper(`/questions/${questionId}`);
             return await deserialize<DictationQuestion>(response);
         },
+        staleTime: 60 * 60 * 1000,
     });
 };
 
@@ -274,4 +276,31 @@ export const useGetSectionQuestions = (testId: string) => {
             return combineSectionsQuestions;
         },
     });
+};
+
+export const useDoDictation = (testId: string) => {
+    const queryClient = useQueryClient();
+    const mutation = useMutation({
+        mutationFn: async () => {
+            const response = await fetchWrapper(
+                `/tests/${testId}/increase-view`,
+                {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                },
+            );
+            await throwIfError(response);
+        },
+        onError: (error) => {
+            toast.error(error.message);
+        },
+        onSuccess: () => {
+            queryClient.invalidateQueries({
+                queryKey: ['dictation'],
+            });
+        },
+    });
+    return mutation;
 };

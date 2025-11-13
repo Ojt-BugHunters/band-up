@@ -116,7 +116,13 @@ export default function DictationPracticePage() {
         setActiveQ(questionId);
     }, [questionId]);
 
-    if (isLoading) return <LoadingSpinner />;
+    if (isLoading) {
+        return (
+            <div className="flex h-screen w-full items-center justify-center">
+                <LoadingSpinner />
+            </div>
+        );
+    }
     if (isError) return <NotFound />;
 
     const normalizeWord = (word: string) => {
