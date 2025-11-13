@@ -111,4 +111,10 @@ public class QuestionServiceImpl implements QuestionService {
                 });
         return response;
     }
+    @Override
+    public QuestionResponse getQuestionById(UUID questionId) {
+        Question question = questionRepository.findById(questionId)
+                .orElseThrow(() -> new IllegalArgumentException("Question not found"));
+        return toResponse(question);
+    }
 }
