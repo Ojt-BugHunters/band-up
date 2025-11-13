@@ -30,7 +30,9 @@ import { NotFound } from '@/components/not-found';
 import { ShowShortcutDialog } from '../../../show-shortcut-dialog';
 import Link from 'next/link';
 import { AudioPlayer } from '../../../audio-player';
+import { CongratsDialog } from '@/app/dictation/congrats-dialog';
 
+// func to convert the data from backend (DictationQuestion) --> extract sentences and words for dictation logic
 function convertQuestionToDictationData(question: DictationQuestion) {
     const cleanedScript = question.script.replace(/\n+/g, ' ').trim();
 
@@ -102,6 +104,7 @@ export default function DictationPracticePage() {
     const [showShortcutsDialog, setShowShortcutsDialog] = useState(false);
     const [menuOpen, setMenuOpen] = useState(false);
     const [activeQ, setActiveQ] = useState<string | undefined>(undefined);
+    const [showCompleteDialog, setShowCompleteDialog] = useState(false);
 
     useEffect(() => {
         setActiveQ(questionId);
@@ -580,7 +583,11 @@ export default function DictationPracticePage() {
                                 `/dictation/${testId}/${found.sectionId}/${found.id}`,
                             );
                         }}
-                    />{' '}
+                    />
+                    <CongratsDialog
+                        showCompleteDialog={showCompleteDialog}
+                        setShowCompleteDialog={setShowCompleteDialog}
+                    />
                 </div>
             </div>
         </>
