@@ -14,7 +14,7 @@ import {
     StatsLabel,
     StatsValue,
 } from '@/components/stats';
-import TestHistoryGrid from '@/components/test-history-grid';
+import TestHistoryGrid from './test-history-grid';
 import {
     Select,
     SelectContent,
@@ -22,7 +22,7 @@ import {
     SelectTrigger,
     SelectValue,
 } from '@/components/ui/select';
-import { skills } from '@/lib/api/dto/test';
+import { skills } from '@/lib/service/test';
 import {
     Award,
     Calendar,
