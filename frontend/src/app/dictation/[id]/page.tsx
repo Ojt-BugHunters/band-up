@@ -23,8 +23,6 @@ import {
     EyeOff,
     Edit3,
     AlertTriangle,
-    Zap,
-    Target,
     Check,
     Keyboard,
     VideoIcon as HideIcon,
@@ -34,6 +32,10 @@ import { useState } from 'react';
 import { cn } from '@/lib/utils';
 import { useParams } from 'next/navigation';
 import { SectionsMenu } from './section-panel';
+import { useGetSectionQuestions } from '@/lib/service/dictation';
+import { LoadingSpinner } from '@/components/ui/loading-spinner';
+import { NotFound } from '@/components/not-found';
+import { ModeSelectionDialog } from './mode-selection-dialog';
 
 const mockDictationData = {
     id: '1',
@@ -151,6 +153,11 @@ const playbackSpeeds = [0.5, 0.75, 1, 1.25, 1.5];
 
 export default function DictationPracticePage() {
     const { id: dictationTestId } = useParams();
+    const {
+        data: sections,
+        isLoading,
+        isError,
+    } = useGetSectionQuestions(dictationTestId as string);
     const [showModeDialog, setShowModeDialog] = useState(true);
     const [mode, setMode] = useState<'beginner' | 'master' | null>(null);
     const [isPlaying, setIsPlaying] = useState(false);
@@ -169,6 +176,8 @@ export default function DictationPracticePage() {
     const [menuOpen, setMenuOpen] = useState(false);
     const [activeQ, setActiveQ] = useState<string | undefined>(undefined);
 
+    if (isLoading) return <LoadingSpinner />;
+    if (isError) return <NotFound />;
     const normalizeWord = (word: string) => {
         return word
             .toLowerCase()
@@ -285,92 +294,12 @@ export default function DictationPracticePage() {
 
     return (
         <>
-            {/* Mode Selection Dialog */}
-            <Dialog open={showModeDialog} onOpenChange={setShowModeDialog}>
-                <DialogContent className="sm:max-w-md">
-                    <DialogHeader>
-                        <DialogTitle className="text-center text-2xl font-bold">
-                            Choose Your Practice Mode
-                        </DialogTitle>
-                        <DialogDescription className="text-center">
-                            Select the difficulty level that matches your
-                            learning goals
-                        </DialogDescription>
-                    </DialogHeader>
-                    <div className="grid gap-4 py-4">
-                        <Card
-                            className="group cursor-pointer border-2 p-6 transition-all hover:border-teal-400 hover:shadow-lg hover:shadow-teal-400/20"
-                            onClick={() => handleModeSelect('beginner')}
-                        >
-                            <div className="flex items-start gap-4">
-                                <div className="rounded-lg bg-gradient-to-br from-teal-300 to-emerald-400 p-3 shadow-lg">
-                                    <Target className="h-6 w-6 text-white" />
-                                </div>
-                                <div className="flex-1">
-                                    <h3 className="mb-2 text-lg font-bold">
-                                        Beginner Mode
-                                    </h3>
-                                    <p className="text-muted-foreground text-sm">
-                                        See hints with hidden words. Perfect for
-                                        building confidence and learning new
-                                        vocabulary.
-                                    </p>
-                                    <div className="mt-3 flex flex-wrap gap-2">
-                                        <Badge
-                                            variant="secondary"
-                                            className="bg-teal-50 text-teal-700"
-                                        >
-                                            Word Hints
-                                        </Badge>
-                                        <Badge
-                                            variant="secondary"
-                                            className="bg-teal-50 text-teal-700"
-                                        >
-                                            Reveal Options
-                                        </Badge>
-                                    </div>
-                                </div>
-                            </div>
-                        </Card>
+            <ModeSelectionDialog
+                showModeDialog={showModeDialog}
+                setShowModeDialog={setShowModeDialog}
+                handleModeSelect={handleModeSelect}
+            />
 
-                        <Card
-                            className="group cursor-pointer border-2 p-6 transition-all hover:border-blue-400 hover:shadow-lg hover:shadow-blue-400/20"
-                            onClick={() => handleModeSelect('master')}
-                        >
-                            <div className="flex items-start gap-4">
-                                <div className="rounded-lg bg-gradient-to-br from-blue-400 to-indigo-500 p-3 shadow-lg">
-                                    <Zap className="h-6 w-6 text-white" />
-                                </div>
-                                <div className="flex-1">
-                                    <h3 className="mb-2 text-lg font-bold">
-                                        Master Mode
-                                    </h3>
-                                    <p className="text-muted-foreground text-sm">
-                                        No hints provided. Challenge yourself
-                                        with authentic IELTS listening practice.
-                                    </p>
-                                    <div className="mt-3 flex flex-wrap gap-2">
-                                        <Badge
-                                            variant="secondary"
-                                            className="bg-blue-50 text-blue-700"
-                                        >
-                                            No Hints
-                                        </Badge>
-                                        <Badge
-                                            variant="secondary"
-                                            className="bg-blue-50 text-blue-700"
-                                        >
-                                            Full Challenge
-                                        </Badge>
-                                    </div>
-                                </div>
-                            </div>
-                        </Card>
-                    </div>
-                </DialogContent>
-            </Dialog>
-
-            {/* Shortcuts Dialog */}
             <Dialog
                 open={showShortcutsDialog}
                 onOpenChange={setShowShortcutsDialog}
@@ -955,6 +884,7 @@ export default function DictationPracticePage() {
                                 setActiveQ(qid);
                                 setMenuOpen(false);
                             }}
+                            sections={sections ?? []}
                         />
                     </div>
                 </div>
