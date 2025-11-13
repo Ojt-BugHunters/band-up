@@ -64,6 +64,19 @@ export interface DictationQuestion {
     cloudFrontUrl: string;
 }
 
+export interface DictationSentence {
+    id: number;
+    text: string;
+    words: string[];
+}
+
+export interface DictationPracticeScript {
+    id: string;
+    audioUrl: string;
+    title: string;
+    sentences: DictationSentence[];
+}
+
 export interface DictationSectionQuestion extends DictationSection {
     questions: DictationQuestion[];
 }
@@ -119,3 +132,16 @@ export const TestCreateSchema = z.object({
     difficult: z.string(),
 });
 export type TestCreateFormValues = z.infer<typeof TestCreateSchema>;
+
+export type WordComparisonItem =
+    | {
+          word: string;
+          status: 'untyped';
+      }
+    | {
+          word: string;
+          userWord: string;
+          status: 'correct' | 'incorrect';
+      };
+
+export type WordComparison = WordComparisonItem[];

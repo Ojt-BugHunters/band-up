@@ -9,22 +9,21 @@ import {
     ChevronRight,
     Eye,
     EyeOff,
-    Edit3,
-    AlertTriangle,
     Check,
     Keyboard,
     VideoIcon as HideIcon,
     FileText,
     Menu,
 } from 'lucide-react';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { cn } from '@/lib/utils';
-import { useParams } from 'next/navigation';
+import { useParams, useRouter } from 'next/navigation';
 import { SectionsMenu } from '../../../section-panel';
 import {
     DictationQuestion,
     useGetDictationTest,
     useGetSectionQuestions,
+    WordComparison,
 } from '@/lib/service/dictation';
 import { LoadingSpinner } from '@/components/ui/loading-spinner';
 import { NotFound } from '@/components/not-found';
@@ -76,15 +75,19 @@ My question for you is, do you have a zoo in your town?`,
 };
 
 export default function DictationPracticePage() {
-    const { testId: dictationTestId } = useParams();
+    const { testId, sectionId, questionId } = useParams<{
+        testId: string;
+        sectionId: string;
+        questionId: string;
+    }>();
     const {
         data: sections,
         isLoading,
         isError,
-    } = useGetSectionQuestions(dictationTestId as string);
-    const { data: test } = useGetDictationTest(dictationTestId as string);
+    } = useGetSectionQuestions(testId as string);
+    const { data: test } = useGetDictationTest(testId as string);
     const dictationData = convertQuestionToDictationData(mockDictationQuestion);
-    console.log(dictationData);
+    const router = useRouter();
     const [showModeDialog, setShowModeDialog] = useState(true);
     const [mode, setMode] = useState<'beginner' | 'master' | null>(null);
     const [isPlaying, setIsPlaying] = useState(false);
@@ -103,8 +106,13 @@ export default function DictationPracticePage() {
     const [menuOpen, setMenuOpen] = useState(false);
     const [activeQ, setActiveQ] = useState<string | undefined>(undefined);
 
+    useEffect(() => {
+        setActiveQ(questionId);
+    }, [questionId]);
+
     if (isLoading) return <LoadingSpinner />;
     if (isError) return <NotFound />;
+
     const normalizeWord = (word: string) => {
         return word
             .toLowerCase()
@@ -112,7 +120,7 @@ export default function DictationPracticePage() {
             .trim();
     };
 
-    const getWordComparison = () => {
+    const getWordComparison = (): WordComparison => {
         const correctWords = dictationData.sentences[currentSentence].words;
         const userWords = userInput
             .trim()
@@ -191,33 +199,30 @@ export default function DictationPracticePage() {
         });
     };
 
-    const revealAllWords = () => {
-        const allKeys = dictationData.sentences.flatMap((sentence) =>
-            sentence.words.map((_, idx) => `${sentence.id}-${idx}`),
-        );
-        setRevealedWords(new Set(allKeys));
-    };
+    const currentSentenceData = dictationData.sentences[currentSentence];
+    const wordComparison = getWordComparison();
 
-    const showAllWords = () => {
-        const allKeys = currentSentenceData.words.map(
+    const isAllRevealed = currentSentenceData.words.every((_, idx) =>
+        revealedWords.has(`${currentSentenceData.id}-${idx}`),
+    );
+
+    const toggleRevealAll = () => {
+        const keys = currentSentenceData.words.map(
             (_, idx) => `${currentSentenceData.id}-${idx}`,
         );
-        setRevealedWords((prev) => new Set([...prev, ...allKeys]));
-    };
 
-    const hideAllWords = () => {
-        const currentKeys = currentSentenceData.words.map(
-            (_, idx) => `${currentSentenceData.id}-${idx}`,
-        );
         setRevealedWords((prev) => {
             const newSet = new Set(prev);
-            currentKeys.forEach((key) => newSet.delete(key));
+
+            if (isAllRevealed) {
+                keys.forEach((k) => newSet.delete(k));
+            } else {
+                keys.forEach((k) => newSet.add(k));
+            }
+
             return newSet;
         });
     };
-
-    const currentSentenceData = dictationData.sentences[currentSentence];
-    const wordComparison = getWordComparison();
 
     return (
         <>
@@ -321,7 +326,6 @@ export default function DictationPracticePage() {
                                 setPlaybackSpeed={setPlaybackSpeed}
                             />
                         )}
-
                         <Card className="flex flex-1 flex-col border-0 shadow-xl">
                             <div className="border-b bg-gradient-to-r from-emerald-100/70 to-teal-100/60 p-5">
                                 <h2 className="text-lg font-semibold text-slate-800">
@@ -329,48 +333,9 @@ export default function DictationPracticePage() {
                                 </h2>
                             </div>
                             <div className="flex-1 overflow-auto bg-gradient-to-br from-emerald-50/40 to-teal-50/30 p-8">
-                                <div className="mb-8 flex items-center justify-center gap-3">
-                                    <Button
-                                        size="icon"
-                                        variant="outline"
-                                        onClick={() =>
-                                            setCurrentSentence(
-                                                Math.max(
-                                                    0,
-                                                    currentSentence - 1,
-                                                ),
-                                            )
-                                        }
-                                        disabled={currentSentence === 0}
-                                        className="h-10 w-10 rounded-full bg-white shadow-sm transition-all hover:shadow-md disabled:opacity-40"
-                                    >
-                                        <ChevronLeft className="h-5 w-5" />
-                                    </Button>
-                                    <Button
-                                        size="icon"
-                                        variant="outline"
-                                        onClick={() =>
-                                            setCurrentSentence(
-                                                Math.min(
-                                                    dictationData.sentences
-                                                        .length - 1,
-                                                    currentSentence + 1,
-                                                ),
-                                            )
-                                        }
-                                        disabled={
-                                            currentSentence ===
-                                            dictationData.sentences.length - 1
-                                        }
-                                        className="h-10 w-10 rounded-full bg-white shadow-sm transition-all hover:shadow-md disabled:opacity-40"
-                                    >
-                                        <ChevronRight className="h-5 w-5" />
-                                    </Button>
-                                </div>
-
                                 <div className="mb-8 space-y-4">
                                     <div className="text-sm font-semibold text-teal-700">
-                                        Type what you hear:
+                                        Answers:
                                     </div>
                                     <div className="rounded-2xl border-2 border-blue-200/60 bg-white p-8 text-lg leading-relaxed shadow-lg">
                                         {wordComparison.map((result, idx) => {
@@ -381,7 +346,7 @@ export default function DictationPracticePage() {
                                             return (
                                                 <span
                                                     key={idx}
-                                                    className="inline-block"
+                                                    className="m-1 inline-block"
                                                 >
                                                     {result.status ===
                                                     'correct' ? (
@@ -458,19 +423,11 @@ export default function DictationPracticePage() {
                                             },
                                         )}
                                     </div>
-
-                                    <div className="flex items-start gap-2 rounded-xl border border-amber-200/60 bg-amber-50/80 p-4 text-sm text-amber-800">
-                                        <span className="text-base">💡</span>
-                                        <span>
-                                            Revealed words will be counted as
-                                            errors and affect your score.
-                                        </span>
-                                    </div>
                                 </div>
 
                                 <div className="mb-8 space-y-3">
                                     <label className="text-sm font-semibold text-slate-700">
-                                        Your Answer:
+                                        What you hear:
                                     </label>
                                     <Textarea
                                         value={userInput}
@@ -478,7 +435,7 @@ export default function DictationPracticePage() {
                                             setUserInput(e.target.value)
                                         }
                                         placeholder="Type what you hear from the audio..."
-                                        className="min-h-[140px] resize-none rounded-xl border-slate-200 bg-white text-base leading-relaxed shadow-sm transition-shadow focus:border-teal-400 focus:shadow-md"
+                                        className="mt-4 min-h-[140px] resize-none rounded-xl border-slate-200 bg-white text-base leading-relaxed shadow-sm transition-shadow focus:border-teal-400 focus:shadow-md"
                                     />
                                     <p className="text-sm text-slate-600">
                                         Write down everything you hear. You can
@@ -490,50 +447,57 @@ export default function DictationPracticePage() {
                                 <div className="space-y-3">
                                     <div className="grid grid-cols-2 gap-3">
                                         <Button
-                                            onClick={showAllWords}
-                                            className="h-12 rounded-xl bg-gradient-to-r from-rose-400 to-pink-500 text-base text-white shadow-lg transition-all hover:from-rose-500 hover:to-pink-600 hover:shadow-xl"
+                                            onClick={toggleRevealAll}
+                                            className={cn(
+                                                'h-12 w-full rounded-xl text-base shadow-md transition-all',
+                                                isAllRevealed
+                                                    ? 'border-2 border-slate-300 bg-white text-slate-700 hover:bg-slate-50'
+                                                    : 'bg-gradient-to-r from-rose-400 to-pink-500 text-white shadow-lg hover:from-rose-500 hover:to-pink-600',
+                                            )}
                                         >
-                                            <Eye className="mr-2 h-4 w-4" />
-                                            Show All Words
+                                            {isAllRevealed ? (
+                                                <>
+                                                    <EyeOff className="mr-2 h-4 w-4" />
+                                                    Hide All Words
+                                                </>
+                                            ) : (
+                                                <>
+                                                    <Eye className="mr-2 h-4 w-4" />
+                                                    Show All Words
+                                                </>
+                                            )}
                                         </Button>
                                         <Button
-                                            onClick={hideAllWords}
+                                            onClick={handleContinue}
+                                            disabled={
+                                                !isCurrentSentenceComplete()
+                                            }
                                             variant="outline"
-                                            className="h-12 rounded-xl border-2 border-slate-300 bg-transparent text-base text-slate-700 shadow-md transition-all hover:bg-slate-50 hover:shadow-lg"
+                                            className={cn(
+                                                'h-12 w-full rounded-xl border-2 text-base shadow-md transition-all hover:shadow-lg',
+                                                isCurrentSentenceComplete()
+                                                    ? 'border-teal-400 bg-white text-teal-700 hover:bg-teal-50'
+                                                    : 'cursor-not-allowed border-slate-300 bg-slate-50 text-slate-400',
+                                            )}
                                         >
-                                            <EyeOff className="mr-2 h-4 w-4" />
-                                            Hide All Words
+                                            {isCurrentSentenceComplete() ? (
+                                                <>
+                                                    <Check className="mr-2 h-4 w-4" />
+                                                    Continue
+                                                    <ChevronRight className="ml-2 h-4 w-4" />
+                                                </>
+                                            ) : (
+                                                <>
+                                                    Complete the sentence to
+                                                    continue
+                                                    <ChevronRight className="ml-2 h-4 w-4" />
+                                                </>
+                                            )}
                                         </Button>
                                     </div>
-                                    <Button
-                                        onClick={handleContinue}
-                                        disabled={!isCurrentSentenceComplete()}
-                                        variant="outline"
-                                        className={cn(
-                                            'h-12 w-full rounded-xl border-2 text-base shadow-md transition-all hover:shadow-lg',
-                                            isCurrentSentenceComplete()
-                                                ? 'border-teal-400 bg-white text-teal-700 hover:bg-teal-50'
-                                                : 'cursor-not-allowed border-slate-300 bg-slate-50 text-slate-400',
-                                        )}
-                                    >
-                                        {isCurrentSentenceComplete() ? (
-                                            <>
-                                                <Check className="mr-2 h-4 w-4" />
-                                                Continue
-                                                <ChevronRight className="ml-2 h-4 w-4" />
-                                            </>
-                                        ) : (
-                                            <>
-                                                Complete the sentence to
-                                                continue
-                                                <ChevronRight className="ml-2 h-4 w-4" />
-                                            </>
-                                        )}
-                                    </Button>
                                 </div>
                             </div>
                         </Card>
-
                         {showTranscriptPanel && (
                             <Card className="w-[350px] border-0 shadow-xl">
                                 <div className="border-b bg-gradient-to-r from-indigo-100/70 to-blue-100/60 p-5">
@@ -587,22 +551,6 @@ export default function DictationPracticePage() {
                                                                     </Badge>
                                                                 )}
                                                             </div>
-                                                            <div className="flex gap-1">
-                                                                <Button
-                                                                    variant="ghost"
-                                                                    size="icon"
-                                                                    className="h-7 w-7 hover:bg-white/80"
-                                                                >
-                                                                    <Edit3 className="h-3 w-3" />
-                                                                </Button>
-                                                                <Button
-                                                                    variant="ghost"
-                                                                    size="icon"
-                                                                    className="h-7 w-7 hover:bg-white/80"
-                                                                >
-                                                                    <AlertTriangle className="h-3 w-3 text-amber-600" />
-                                                                </Button>
-                                                            </div>
                                                         </div>
                                                         <div className="font-mono text-sm leading-relaxed text-slate-500">
                                                             {isCompleted
@@ -638,19 +586,28 @@ export default function DictationPracticePage() {
                                 </div>
                             </Card>
                         )}
-
                         <SectionsMenu
                             open={menuOpen}
                             onOpenChange={setMenuOpen}
                             title="Sections"
-                            testId={dictationTestId as string}
+                            testId={testId}
+                            sections={sections ?? []}
                             activeQuestionId={activeQ}
                             onSelectQuestion={(qid) => {
                                 setActiveQ(qid);
                                 setMenuOpen(false);
+
+                                const found = (sections ?? [])
+                                    .flatMap((s) => s.questions ?? [])
+                                    .find((q) => q.id === qid);
+
+                                if (!found) return;
+
+                                router.push(
+                                    `/dictation/${testId}/${found.sectionId}/${found.id}`,
+                                );
                             }}
-                            sections={sections ?? []}
-                        />
+                        />{' '}
                     </div>
                 </div>
             )}

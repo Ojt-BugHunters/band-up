@@ -49,6 +49,7 @@ export function SectionsPanel({
                     {sections?.length} sections
                 </Badge>
             </div>
+
             <ScrollArea className="flex-1 p-3 pb-8">
                 {sections?.length === 0 ? (
                     <Card className="flex flex-col items-center gap-2 border-2 border-dashed p-6">
@@ -60,86 +61,105 @@ export function SectionsPanel({
                 ) : (
                     <div className="space-y-2 pb-2">
                         <Accordion type="multiple" className="space-y-2">
-                            {sections?.map((section) => (
-                                <AccordionItem
-                                    key={section.id}
-                                    value={section.id}
-                                    className="rounded-xl border-2 px-2"
-                                >
-                                    <AccordionTrigger className="gap-3 py-3 text-left hover:no-underline">
-                                        <div className="flex w-full items-center justify-between">
-                                            <div className="min-w-0 flex-1">
-                                                <div className="mb-1 flex items-center gap-2">
-                                                    <Badge className="h-6 rounded-full bg-slate-200 px-2 text-xs text-slate-700">
-                                                        #{section.orderIndex}
-                                                    </Badge>
+                            {sections?.map((section) => {
+                                const isActiveSection = section.questions?.some(
+                                    (q) => q.id === activeQuestionId,
+                                );
+
+                                return (
+                                    <AccordionItem
+                                        key={section.id}
+                                        value={section.id}
+                                        className={cn(
+                                            'rounded-xl border-2 px-2 transition-colors',
+                                            isActiveSection &&
+                                                'border-indigo-400 bg-indigo-50/70 shadow-sm',
+                                        )}
+                                    >
+                                        <AccordionTrigger className="gap-3 py-3 text-left hover:no-underline">
+                                            <div className="flex w-full items-center justify-between">
+                                                <div className="min-w-0 flex-1">
+                                                    <div className="mb-1 flex items-center gap-2">
+                                                        <Badge className="h-6 rounded-full bg-slate-200 px-2 text-xs text-slate-700">
+                                                            #
+                                                            {section.orderIndex}
+                                                        </Badge>
+
+                                                        {isActiveSection && (
+                                                            <span className="rounded-full bg-indigo-100 px-2 py-[1px] text-[11px] font-medium text-indigo-700">
+                                                                Current section
+                                                            </span>
+                                                        )}
+                                                    </div>
+                                                    <div className="truncate font-medium text-slate-800">
+                                                        {section.title}
+                                                    </div>
                                                 </div>
-                                                <div className="truncate font-medium text-slate-800">
-                                                    {section.title}
-                                                </div>
+                                                <Badge
+                                                    variant="secondary"
+                                                    className="shrink-0 bg-indigo-100 text-indigo-700"
+                                                >
+                                                    {section?.questions
+                                                        .length ?? 0}{' '}
+                                                    Questions
+                                                </Badge>
                                             </div>
-                                            <Badge
-                                                variant="secondary"
-                                                className="shrink-0 bg-indigo-100 text-indigo-700"
-                                            >
-                                                {section?.questions.length ?? 0}{' '}
-                                                Questions
-                                            </Badge>
-                                        </div>
-                                    </AccordionTrigger>
-                                    <AccordionContent>
-                                        <div className="pb-3">
-                                            {section.questions &&
-                                            section.questions.length > 0 ? (
-                                                <ul className="space-y-2">
-                                                    {section.questions.map(
-                                                        (q, idx) => (
-                                                            <li
-                                                                key={q.id}
-                                                                className={cn(
-                                                                    'cursor-pointer rounded-lg border p-3 hover:border-teal-400 hover:bg-teal-50',
-                                                                    activeQuestionId ===
-                                                                        q.id &&
-                                                                        'border-teal-500 bg-teal-50',
-                                                                )}
-                                                                onClick={() =>
-                                                                    onSelectQuestion?.(
-                                                                        q.id,
-                                                                    )
-                                                                }
-                                                            >
-                                                                <div className="flex items-center justify-between gap-2">
-                                                                    <div className="flex min-w-0 items-center gap-2">
-                                                                        <Badge className="bg-teal-500 text-white">
-                                                                            {idx +
-                                                                                1}
-                                                                        </Badge>
-                                                                        <div className="truncate text-sm font-medium text-slate-800">
-                                                                            {
-                                                                                q.type
-                                                                            }
-                                                                        </div>
-                                                                        <Dot className="h-4 w-4 text-slate-400" />
-                                                                        <div className="truncate text-xs text-slate-500">
-                                                                            {
-                                                                                q.difficult
-                                                                            }
+                                        </AccordionTrigger>
+
+                                        <AccordionContent>
+                                            <div className="pb-3">
+                                                {section.questions &&
+                                                section.questions.length > 0 ? (
+                                                    <ul className="space-y-2">
+                                                        {section.questions.map(
+                                                            (q, idx) => (
+                                                                <li
+                                                                    key={q.id}
+                                                                    className={cn(
+                                                                        'cursor-pointer rounded-lg border p-3 transition-all hover:border-teal-400 hover:bg-teal-50',
+                                                                        activeQuestionId ===
+                                                                            q.id &&
+                                                                            'border-teal-500 bg-teal-50',
+                                                                    )}
+                                                                    onClick={() =>
+                                                                        onSelectQuestion?.(
+                                                                            q.id,
+                                                                        )
+                                                                    }
+                                                                >
+                                                                    <div className="flex items-center justify-between gap-2">
+                                                                        <div className="flex min-w-0 items-center gap-2">
+                                                                            <Badge className="bg-teal-500 text-white">
+                                                                                {idx +
+                                                                                    1}
+                                                                            </Badge>
+                                                                            <div className="truncate text-sm font-medium text-slate-800">
+                                                                                {
+                                                                                    q.type
+                                                                                }
+                                                                            </div>
+                                                                            <Dot className="h-4 w-4 text-slate-400" />
+                                                                            <div className="truncate text-xs text-slate-500">
+                                                                                {
+                                                                                    q.difficult
+                                                                                }
+                                                                            </div>
                                                                         </div>
                                                                     </div>
-                                                                </div>
-                                                            </li>
-                                                        ),
-                                                    )}
-                                                </ul>
-                                            ) : (
-                                                <div className="rounded-lg border border-dashed p-3 text-sm text-slate-500">
-                                                    No questions
-                                                </div>
-                                            )}
-                                        </div>
-                                    </AccordionContent>
-                                </AccordionItem>
-                            ))}
+                                                                </li>
+                                                            ),
+                                                        )}
+                                                    </ul>
+                                                ) : (
+                                                    <div className="rounded-lg border border-dashed p-3 text-sm text-slate-500">
+                                                        No questions
+                                                    </div>
+                                                )}
+                                            </div>
+                                        </AccordionContent>
+                                    </AccordionItem>
+                                );
+                            })}
                         </Accordion>
                     </div>
                 )}
