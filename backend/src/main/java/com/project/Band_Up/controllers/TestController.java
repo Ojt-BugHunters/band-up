@@ -99,6 +99,19 @@ public class TestController {
     public ResponseEntity<TestResponse> getTestById(@PathVariable UUID id) {
         return ResponseEntity.ok(testService.getTestById(id));
     }
+    @Operation(
+            summary = "tăng view Test theo id",
+            description = "Tăng view một Test theo UUID. Trả về 200 với TestResponse nếu tìm thấy, 404 nếu không."
+    )
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "Tìm thấy"),
+            @ApiResponse(responseCode = "404", description = "Không tìm thấy Test")
+    })
+    @PostMapping("/{id}/increase-view")
+    public ResponseEntity<TestResponse> increaseViewCount(@PathVariable UUID id) {
+        TestResponse response = testService.plusNumberOfMembers(id);
+        return ResponseEntity.ok(response);
+    }
 
 
     @Operation(
