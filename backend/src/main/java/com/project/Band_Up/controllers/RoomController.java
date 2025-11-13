@@ -19,6 +19,8 @@ import org.springframework.web.bind.annotation.*;
 
 import java.net.URI;
 import java.util.List;
+import java.util.Map;
+import java.util.Objects;
 import java.util.UUID;
 
 @RestController
@@ -101,7 +103,7 @@ System.out.println(request);
     // ======================= LEAVE ROOM =========================
     @Operation(summary = "Rời khỏi Room", description = "User hiện tại rời phòng. Nếu là host, hệ thống tự chuyển host cho người vào sớm nhất.")
     @ApiResponses({
-            @ApiResponse(responseCode = "200", description = "Rời phòng thành công"),
+            @ApiResponse(responseCode = "200", description = "Rời phòng thành công hoặc phòng bị xóa"),
             @ApiResponse(responseCode = "404", description = "Không tìm thấy Room hoặc User")
     })
     @PostMapping("/{roomId}/leave")
@@ -111,11 +113,15 @@ System.out.println(request);
             @AuthenticationPrincipal JwtUserDetails userDetails) {
 
         RoomResponse response = roomService.leaveRoom(roomId, userDetails.getAccountId());
-        if (response == null) {
-            return ResponseEntity.ok().body("Room deleted because no members remain");
-        }
-        return ResponseEntity.ok(response);
+
+        Object body = Objects.requireNonNullElseGet(
+                response,
+                () -> Map.of("message", "Room deleted because no members remain")
+        );
+
+        return ResponseEntity.ok(body);
     }
+
 
     // ======================= REMOVE MEMBER =========================
     @Operation(summary = "Host xóa thành viên khỏi Room", description = "Chỉ Host có quyền xóa thành viên khác trong phòng.")
@@ -178,5 +184,16 @@ System.out.println(request);
             @AuthenticationPrincipal JwtUserDetails userDetails) {
         roomService.deleteRoom(userDetails.getAccountId(), roomId);
         return ResponseEntity.noContent().build();
+    }
+    @Operation(summary = "Kiểm tra User có đang trong room nào không", description = "Kiểm tra xem User có tồn tại hay không dựa trên UserId.")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "Thành công"),
+            @ApiResponse(responseCode = "404", description = "Không tìm thấy User")
+    })
+    @GetMapping("/check-user-in-room")
+    public ResponseEntity<List<RoomResponse>> checkUserInRoom(
+            @AuthenticationPrincipal JwtUserDetails userDetails) {
+        List<RoomResponse> response  = roomService.isUserInRoom(userDetails.getAccountId());
+        return ResponseEntity.ok(response);
     }
 }

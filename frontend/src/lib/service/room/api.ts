@@ -1,11 +1,18 @@
 import { z } from 'zod';
 import { useRouter } from 'next/navigation';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import {
+    useMutation,
+    useQueries,
+    useQuery,
+    useQueryClient,
+    UseQueryResult,
+} from '@tanstack/react-query';
 import { useForm } from 'react-hook-form';
 import { toast } from 'sonner';
 import { deserialize, fetchWrapper, throwIfError } from '@/lib/api';
 import { RoomSchema, CreateRoomFormValues, Room } from './type';
+import { AccountRoomMember } from './type';
 
 export function useCreateRoom() {
     const router = useRouter();
@@ -55,6 +62,34 @@ export const useGetPublicRooms = () => {
         },
         queryKey: ['rooms'],
     });
+};
+
+export const useLeftRoom = () => {
+    const router = useRouter();
+    const queryClient = useQueryClient();
+    const mutation = useMutation({
+        mutationFn: async (roomId: string) => {
+            const response = await fetchWrapper(`/rooms/${roomId}/leave`, {
+                method: 'POST',
+                headers: {
+                    Accept: 'application/json',
+                },
+            });
+            await throwIfError(response);
+            return response.json();
+        },
+        onError: (error) => {
+            toast.error(error?.message ?? 'Left room fail');
+        },
+        onSuccess: () => {
+            toast.success('Left room successfully');
+            queryClient.invalidateQueries({
+                queryKey: ['room', 'room-member'],
+            });
+            router.push('/room');
+        },
+    });
+    return mutation;
 };
 
 export function useJoinRoom() {
@@ -111,4 +146,61 @@ export const useGetRoomById = (roomId: string) => {
         },
         initialData: () => queryClient.getQueryData<Room>(['room', roomId]),
     });
+};
+
+export const useCheckUserInRoom = () => {
+    return useQuery({
+        queryKey: ['room'],
+        queryFn: async () => {
+            const response = await fetchWrapper('/rooms/check-user-in-room');
+            return await deserialize<Room[]>(response);
+        },
+    });
+};
+
+export const useGetRoomMember = (userId: string) => {
+    return useQuery({
+        queryKey: ['room-member'],
+        queryFn: async () => {
+            const response = await fetchWrapper(`/profile/${userId}/avt-info`);
+            return await deserialize<AccountRoomMember>(response);
+        },
+    });
+};
+
+export const useGetRoomMembers = (roomId: string) => {
+    const { data: room, ...roomQuery } = useGetRoomById(roomId);
+
+    const memberQueries: UseQueryResult<AccountRoomMember, Error>[] =
+        useQueries({
+            queries: (room?.members || []).map((m) => ({
+                queryKey: ['room-member', m.userId],
+                queryFn: async () => {
+                    const response = await fetchWrapper(
+                        `/profile/${m.userId}/avt-info`,
+                    );
+                    const data: AccountRoomMember = await response.json();
+                    return data;
+                },
+                enabled: !!m.userId,
+                staleTime: 1000 * 60 * 10,
+            })),
+        });
+
+    const members = memberQueries
+        .filter((q): q is UseQueryResult<AccountRoomMember> => !!q.data)
+        .map((q, i) => ({
+            id: room?.members?.[i]?.userId ?? '',
+            name: q.data!.name,
+            cloudFrontUrl: q.data!.cloudFrontUrl,
+            expiresAt: q.data!.expiresAt,
+        }));
+
+    return {
+        members,
+        room,
+        isLoading:
+            roomQuery.isLoading || memberQueries.some((q) => q.isLoading),
+        isError: roomQuery.isError || memberQueries.some((q) => q.isError),
+    };
 };

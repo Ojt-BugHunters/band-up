@@ -955,7 +955,7 @@ export const testHistory: TestHistory[] = [
 export const mockAccountBlogs = [
     {
         id: 1,
-        title: 'How to reach 9.0 IELTS?',
+        title: 'How to reach 9.0 IELTS!?',
         description: 'The sharing of roadmap to reach master IELTS',
         date: 'Dec 10, 2023',
     },
@@ -1394,59 +1394,6 @@ export async function fetchTags(searchText?: string): Promise<Tag[]> {
     return tags.filter((tag) => tag.name.toLowerCase().includes(query));
 }
 
-export const mockDictations: Dictation[] = [
-    {
-        id: '1',
-        title: 'IELTS Listening Section 1 - Social Needs',
-        duration: 240,
-        difficulty: 'Easy',
-        completions: 1234,
-        createdAt: new Date('2024-01-15'),
-    },
-    {
-        id: '2',
-        title: 'IELTS Listening Section 2 - Monologue',
-        duration: 300,
-        difficulty: 'Easy',
-        completions: 892,
-        createdAt: new Date('2024-01-20'),
-    },
-    {
-        id: '3',
-        title: 'IELTS Listening Section 3 - Academic Discussion',
-        duration: 270,
-        difficulty: 'Easy',
-        completions: 756,
-        createdAt: new Date('2024-02-01'),
-    },
-    {
-        id: '4',
-        title: 'IELTS Listening Section 4 - Academic Lecture',
-        duration: 360,
-        difficulty: 'Easy',
-
-        completions: 543,
-        createdAt: new Date('2024-02-10'),
-    },
-    {
-        id: '5',
-        title: 'Business English - Conference Call',
-        duration: 420,
-        difficulty: 'Easy',
-        completions: 321,
-        createdAt: new Date('2024-02-15'),
-    },
-    {
-        id: '6',
-        title: 'Travel and Tourism - Airport Announcements',
-        duration: 180,
-        difficulty: 'Easy',
-        completions: 1567,
-        createdAt: new Date('2024-02-20'),
-    },
-];
-
-// Mock data - replace with your actual data
 export const sections: Section[] = [
     {
         id: 'section-1',

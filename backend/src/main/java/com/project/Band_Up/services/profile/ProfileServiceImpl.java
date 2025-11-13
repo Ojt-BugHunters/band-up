@@ -2,6 +2,7 @@ package com.project.Band_Up.services.profile;
 
 import com.project.Band_Up.dtos.profile.AvatarCreateRequest;
 import com.project.Band_Up.dtos.profile.AvatarDto;
+import com.project.Band_Up.dtos.profile.AvtName;
 import com.project.Band_Up.dtos.profile.ProfileDto;
 import com.project.Band_Up.entities.Account;
 import com.project.Band_Up.exceptions.ResourceNotFoundException;
@@ -14,6 +15,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import java.time.Instant;
+import java.util.Optional;
 import java.util.UUID;
 
 @Slf4j
@@ -93,6 +95,22 @@ public class ProfileServiceImpl implements ProfileService {
 
         return AvatarDto.builder()
                 .key(account.getAvatarKey())
+                .cloudFrontUrl(signedUrl)
+                .expiresAt(expiresAt)
+                .build();
+    }
+    @Override
+    public AvtName getAvatarName(UUID accountId) {
+        Account account = accountRepository.findById(accountId)
+                .orElseThrow(() -> new ResourceNotFoundException(accountId.toString()));
+
+        Instant expiresAt = Instant.now().plusSeconds(cloudFrontTtlSeconds);
+        String signedUrl = Optional.ofNullable(account.getAvatarKey())
+                .map(s3Service::createCloudFrontSignedUrl)
+                .orElse(null);
+
+        return AvtName.builder()
+                .name(account.getName())
                 .cloudFrontUrl(signedUrl)
                 .expiresAt(expiresAt)
                 .build();

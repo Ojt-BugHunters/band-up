@@ -75,7 +75,6 @@ public class AnswerController {
     ) {
         return ResponseEntity.ok(dictationAnswerService.submitAnswer(attemptSectionId, questionId, request));
     }
-
     // ==========================================================
     // 🔴 DELETE - Xóa câu trả lời của thí sinh
     // ==========================================================

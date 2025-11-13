@@ -30,6 +30,11 @@ public class StudySession {
             foreignKey = @ForeignKey(name = "fk_study_session_user"))
     private Account user;
 
+    @ManyToOne(fetch = jakarta.persistence.FetchType.LAZY, optional = true)
+    @JoinColumn(name= "room_id", nullable = true,
+            foreignKey = @ForeignKey(name = "fk_study_session_room"))
+    private Room room;
+
     @NotNull
     @Column(nullable = false)
     @Enumerated(EnumType.STRING)
@@ -48,12 +53,13 @@ public class StudySession {
     @Column(nullable = false)
     private Integer cycles;
 
-    private DateTime startedAt;
-    private DateTime endedAt;
+    private LocalDateTime startedAt;
+    private LocalDateTime endedAt;
     private BigInteger totalFocusTime;
 
     @NotNull
     @Column(nullable = false)
+    @Enumerated(EnumType.STRING)
     private Status status;
 
     @CreationTimestamp
