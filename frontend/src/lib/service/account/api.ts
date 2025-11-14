@@ -1,6 +1,6 @@
 'use client';
 
-import { deserialize, fetchWrapper } from '@/lib/api';
+import { deserialize, fetchWrapper } from '@/lib/service';
 import { MediaResponse } from '../s3-upload';
 import { User } from './type';
 import { useEffect } from 'react';

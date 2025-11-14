@@ -15,7 +15,7 @@ import {
     TestCreateFormValues,
     TestCreateSchema,
 } from './type';
-import { deserialize, fetchWrapper, throwIfError } from '@/lib/api';
+import { deserialize, fetchWrapper, throwIfError } from '@/lib/service';
 import { toast } from 'sonner';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useFieldArray, useForm } from 'react-hook-form';

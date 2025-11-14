@@ -1,6 +1,6 @@
 import z from 'zod';
 import { Tag, TagSchema } from '../tag';
-import { Comment } from '@/lib/api/dto/comment';
+import { Comment } from '../comment';
 
 // ------ Type and Interface----------
 export interface PaginationInfo {

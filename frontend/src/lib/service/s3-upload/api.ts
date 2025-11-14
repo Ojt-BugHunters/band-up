@@ -1,6 +1,6 @@
 'use client';
 
-import { fetchWrapper, throwIfError } from '@/lib/api';
+import { fetchWrapper, throwIfError } from '@/lib/service';
 import { useMutation } from '@tanstack/react-query';
 import { toast } from 'sonner';
 import {

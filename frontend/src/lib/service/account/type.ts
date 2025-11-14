@@ -12,3 +12,9 @@ export interface User {
     birthday: Date;
     isActive: boolean;
 }
+export type AvatarPresign = {
+    key: string;
+    uploadUrl: string;
+    cloudfrontUrl: string;
+    expiresAt: string;
+};

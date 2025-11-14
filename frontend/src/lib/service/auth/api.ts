@@ -1,7 +1,11 @@
 'use client';
-import { fetchWrapper, parseBoolean, throwIfError } from '@/lib/api';
+import {
+    fetchWrapper,
+    parseBoolean,
+    throwIfError,
+    buildParams,
+} from '@/lib/service';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { buildParams } from '@/lib/api';
 import { toast } from 'sonner';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';

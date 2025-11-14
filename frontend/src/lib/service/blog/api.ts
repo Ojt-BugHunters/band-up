@@ -4,7 +4,7 @@ import {
     fetchWrapper,
     Pagination,
     throwIfError,
-} from '@/lib/api';
+} from '@/lib/service';
 import {
     blogBaseSchema,
     BlogPost,
