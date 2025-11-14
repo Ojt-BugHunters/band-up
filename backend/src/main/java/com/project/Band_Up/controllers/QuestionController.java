@@ -93,6 +93,21 @@ public class QuestionController {
         List<QuestionResponse> list = questionService.getAllQuestionsBySectionId(sectionId);
         return ResponseEntity.ok(list);
     }
+    @Operation(
+            summary = "Lấy Question theo id",
+            description = "Lấy một Question theo UUID. Trả về 200 với QuestionResponse nếu tìm thấy, 404 nếu không."
+    )
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "Tìm thấy"),
+            @ApiResponse(responseCode = "404", description = "Question không tồn tại")
+    })
+    @GetMapping("/questions/{id}")
+    public ResponseEntity<QuestionResponse> getQuestionById(
+            @Parameter(description = "UUID của Question", required = true)
+            @PathVariable("id") UUID questionId) {
+        QuestionResponse resp = questionService.getQuestionById(questionId);
+        return ResponseEntity.ok(resp);
+    }
 
     @Operation(
             summary = "Cập nhật Question theo id",

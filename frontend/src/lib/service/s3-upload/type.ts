@@ -52,3 +52,16 @@ export type PutToS3Options = {
     signal?: AbortSignal;
     expectedStatuses: number[];
 };
+
+export type Options = {
+    entityType?: string;
+    entityId?: string;
+    presignEndpoint?: string;
+};
+
+export function fileIdOf(file: File) {
+    return `${file.name}-${file.size}-${file.lastModified}`;
+}
+
+export type ProgressMap = Record<string, number>;
+export type ErrorMap = Record<string, string>;

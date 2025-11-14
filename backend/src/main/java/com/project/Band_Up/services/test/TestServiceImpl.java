@@ -8,6 +8,7 @@ import com.project.Band_Up.entities.Test;
 import com.project.Band_Up.enums.Status;
 import com.project.Band_Up.repositories.AccountRepository;
 import com.project.Band_Up.repositories.TestRepository;
+import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Service;
@@ -32,6 +33,7 @@ public class TestServiceImpl implements TestService {
                 .orElseThrow(() -> new RuntimeException("User not found"));
         Test test = modelMapper.map(request, Test.class);
         test.setUser(user);
+        test.setNumberOfPeople(0);
         test.setStatus(Status.Draft);
         Test saved = testRepository.save(test);
         return toResponse(saved);
@@ -43,8 +45,15 @@ public class TestServiceImpl implements TestService {
         return testRepository.findAll()
                 .stream()
                 .map(this::toResponse)
-                .collect(Collectors.toList());
+                .toList();
     }
+    @Override
+    public TestResponse getTestById(UUID id) {
+        Test test = testRepository.findById(id)
+                .orElseThrow(() -> new EntityNotFoundException("Test not found"));
+        return toResponse(test);
+    }
+
 
     @Override
     public List<TestResponse> getAllTestsSortedByCreateAt() {
@@ -99,6 +108,19 @@ public class TestServiceImpl implements TestService {
                 .orElseThrow(() -> new RuntimeException("User not found"));
         List<Test> testsToDelete = testRepository.findByUser_IdAndStatus(userId, status);
         testRepository.deleteAll(testsToDelete);
+    }
+
+    @Override
+    public TestResponse plusNumberOfMembers(UUID testId) {
+        Test test = testRepository.findById(testId)
+                .orElseThrow(() -> new RuntimeException("Test not found"));
+
+        int current = test.getNumberOfPeople() == null ? 0 : test.getNumberOfPeople();
+        test.setNumberOfPeople(current + 1);
+
+        Test saved = testRepository.save(test);
+
+        return toResponse(saved);
     }
 
     // ----------------- HELPER -----------------

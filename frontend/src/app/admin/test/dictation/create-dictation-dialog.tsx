@@ -232,6 +232,41 @@ export function CreateDictationDialog() {
                                 )}
                             />
 
+                            <FormField
+                                control={createTestForm.control}
+                                name="difficult"
+                                render={({ field }) => (
+                                    <FormItem>
+                                        <FormLabel>Difficulty</FormLabel>
+                                        <FormControl>
+                                            <Select
+                                                onValueChange={field.onChange}
+                                            >
+                                                <SelectTrigger>
+                                                    <SelectValue placeholder="Select difficulty" />
+                                                </SelectTrigger>
+                                                <SelectContent>
+                                                    <SelectItem value="easy">
+                                                        Easy
+                                                    </SelectItem>
+                                                    <SelectItem value="medium">
+                                                        Medium
+                                                    </SelectItem>
+                                                    <SelectItem value="hard">
+                                                        Hard
+                                                    </SelectItem>
+                                                </SelectContent>
+                                            </Select>
+                                        </FormControl>
+                                        <FormDescription>
+                                            Choose how challenging the test
+                                            should be.
+                                        </FormDescription>
+                                        <FormMessage />
+                                    </FormItem>
+                                )}
+                            />
+
                             <div className="flex justify-end gap-3">
                                 <Button
                                     type="button"

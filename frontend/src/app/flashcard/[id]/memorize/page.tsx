@@ -12,8 +12,8 @@ import {
 } from '@/components/ui/dropdown-menu';
 import { X, BookOpen, Brain, TestTubes, ChevronDown } from 'lucide-react';
 import Link from 'next/link';
-import FlashcardPlayer from '@/components/flashcard-player';
-import { DeckCard } from '@/lib/api/dto/flashcard';
+import FlashcardPlayer from '../../flashcard-player';
+import { DeckCard } from '@/lib/service/flashcard';
 
 export default function MemorizePage({
     params,
