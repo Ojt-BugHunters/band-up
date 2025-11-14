@@ -18,6 +18,7 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import z from 'zod';
 
+// get list of blogs
 export const useGetBlogs = (paginationInfo: PaginationInfo) => {
     const params = buildParams(paginationInfo as Record<string, unknown>);
     return useQuery({
@@ -28,12 +29,13 @@ export const useGetBlogs = (paginationInfo: PaginationInfo) => {
             return await deserialize<Pagination<BlogPost>>(response);
         },
         placeholderData: (prev) => prev,
-        staleTime: 10_000,
+        staleTime: 10 * 60 * 1000, // 10 mins
         queryKey: ['blog', paginationInfo],
         refetchOnWindowFocus: false,
     });
 };
 
+// get feature blogs
 export const useGetFeaturedBlog = () => {
     return useQuery({
         queryFn: async () => {
@@ -41,9 +43,11 @@ export const useGetFeaturedBlog = () => {
             return await deserialize<BlogPost[]>(response);
         },
         queryKey: ['featured-blog'],
+        staleTime: 10 * 60 * 1000, // 10 mins
     });
 };
 
+// increase the number of reader
 export const useReadBlog = () => {
     const queryClient = useQueryClient();
     const mutation = useMutation({
@@ -68,6 +72,7 @@ export const useReadBlog = () => {
     return mutation;
 };
 
+// get content of detail blog
 export const useGetBlogDetail = (id: string) => {
     return useQuery({
         queryFn: async () => {
@@ -75,9 +80,11 @@ export const useGetBlogDetail = (id: string) => {
             return await deserialize<BlogPost>(response);
         },
         queryKey: ['blog-content'],
+        staleTime: 30 * 60 * 1000, // 30 mins
     });
 };
 
+// update a blog
 export function useUpdateBlog(blogId: string | null | undefined) {
     const router = useRouter();
     const queryClient = useQueryClient();
@@ -123,6 +130,7 @@ export function useUpdateBlog(blogId: string | null | undefined) {
     return { form, mutation };
 }
 
+// create new blog
 export function useCreateBlog() {
     const router = useRouter();
 

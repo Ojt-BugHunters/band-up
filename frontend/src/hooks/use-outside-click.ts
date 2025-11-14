@@ -1,5 +1,6 @@
 import React, { useEffect } from 'react';
 
+// hook to send event whenever user click outside the box
 export const useOutsideClick = (
     ref: React.RefObject<HTMLDivElement>,
     callback: (event: Event) => void,
