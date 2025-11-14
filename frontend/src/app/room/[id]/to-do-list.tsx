@@ -6,7 +6,7 @@ import {
     PopoverTrigger,
 } from '@/components/ui/popover';
 import { GripVertical, ListTodo, X } from 'lucide-react';
-import { Task } from '@/lib/api/dto/room';
+import { Task } from '@/lib/service/room';
 
 interface ToDoListBoxProps {
     taskList: Task[];

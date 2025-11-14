@@ -1,13 +1,13 @@
 import {
     CreateDeckFormValues,
     useCreateDeck,
-} from '@/hooks/use-create-deck-card';
-import { useUpdateDeck } from '@/hooks/use-update-deck-card';
+    useUpdateDeckCard,
+} from '@/lib/service/flashcard';
 import { Eye, EyeOff, GripVertical, Plus, Trash2 } from 'lucide-react';
 import { useEffect, useMemo, useState } from 'react';
 import { useFieldArray } from 'react-hook-form';
-import { Button } from './ui/button';
-import { Card } from './ui/card';
+import { Button } from '@/components/ui/button';
+import { Card } from '@/components/ui/card';
 import {
     Form,
     FormControl,
@@ -15,10 +15,10 @@ import {
     FormItem,
     FormLabel,
     FormMessage,
-} from './ui/form';
-import { Input } from './ui/input';
-import { Switch } from './ui/switch';
-import { Textarea } from './ui/textarea';
+} from '@/components/ui/form';
+import { Input } from '@/components/ui/input';
+import { Switch } from '@/components/ui/switch';
+import { Textarea } from '@/components/ui/textarea';
 
 type DeckFormMode = 'create' | 'update';
 
@@ -36,7 +36,7 @@ export default function DeckForm({
     const isUpdate = mode === 'update';
     const [showPassword, setShowPassword] = useState(false);
     const create = useCreateDeck();
-    const update = useUpdateDeck(initialValues?.id ?? '');
+    const update = useUpdateDeckCard(initialValues?.id ?? '');
     const { form, mutation } = isUpdate ? update : create;
 
     const safeDefaults: CreateDeckFormValues = useMemo(

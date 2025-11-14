@@ -16,10 +16,7 @@ import {
     FormMessage,
 } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
-import {
-    ResetPasswordFormValues,
-    useResetPassword,
-} from '@/lib/service/account';
+import { ResetPasswordFormValues, useResetPassword } from '@/lib/service/auth';
 import { ArrowLeft, CheckCircle2, Eye, EyeOff } from 'lucide-react';
 import Link from 'next/link';
 import { useSearchParams } from 'next/navigation';

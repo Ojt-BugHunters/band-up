@@ -3,11 +3,11 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { ArrowLeft, ArrowRight } from 'lucide-react';
 import { AnimatePresence, motion } from 'framer-motion';
-import type { DeckCard } from '@/lib/api/dto/flashcard';
+import type { DeckCard } from '@/lib/service/flashcard';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
-import LiquidLoading from './ui/liquid-loader';
+import LiquidLoading from '@/components/ui/liquid-loader';
 
 const slideVariants = {
     initial: (direction: 1 | -1) => ({

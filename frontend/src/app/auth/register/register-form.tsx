@@ -9,7 +9,7 @@ import {
 } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
 import { Skeleton } from '@/components/ui/skeleton';
-import { useRegisterForm } from '@/lib/service/account';
+import { useRegister } from '@/lib/service/auth';
 import { cn } from '@/lib/utils';
 import { Loader2 } from 'lucide-react';
 import { useTheme } from 'next-themes';
@@ -27,7 +27,7 @@ export const RegisterForm = ({
     const [mounted, setMounted] = useState(false);
     const [showPassword, setShowPassword] = useState(false);
     const [showConfirmPassword, setShowConfirmPassword] = useState(false);
-    const { form, mutation } = useRegisterForm();
+    const { form, mutation } = useRegister();
 
     useEffect(() => {
         setMounted(true);

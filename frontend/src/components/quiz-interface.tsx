@@ -6,7 +6,7 @@ import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
 import { CheckCircle2, XCircle, Trophy, Sparkles } from 'lucide-react';
 import { cn } from '@/lib/utils';
-import { DeckCard, Card as FlashCard } from '@/lib/api/dto/flashcard';
+import { DeckCard, Card as FlashCard } from '@/lib/service/flashcard';
 import LiquidLoading from './ui/liquid-loader';
 import { motion } from 'framer-motion';
 

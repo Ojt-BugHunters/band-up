@@ -1,4 +1,4 @@
-import { TestOverview } from '@/lib/api/dto/test';
+import { TestOverview } from '@/lib/service/test';
 import { Card, CardContent, CardHeader, CardTitle } from './ui/card';
 import { Badge } from './ui/badge';
 import {
