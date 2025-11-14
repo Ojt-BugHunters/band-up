@@ -32,7 +32,7 @@ import {
     ChartTooltip,
     ChartTooltipContent,
 } from '@/components/ui/chart';
-import { TestHistory } from '@/lib/api/dto/test';
+import { TestHistory } from '@/lib/service/test';
 
 const skillColors = {
     Listening: 'bg-blue-500',

@@ -1,4 +1,4 @@
-import type { User } from '@/lib/api/dto/account';
+import type { User } from '@/lib/service/account';
 import { AccountPicture } from './ui/account-picture';
 
 export const AccountOverview = ({ user }: { user: User }) => {

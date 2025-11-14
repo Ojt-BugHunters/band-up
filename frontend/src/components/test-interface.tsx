@@ -4,7 +4,7 @@ import { useState, useRef, useCallback, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
-import { DeckCard, Card as FlashCard } from '@/lib/api/dto/flashcard';
+import { DeckCard, Card as FlashCard } from '@/lib/service/flashcard';
 import {
     DropdownMenu,
     DropdownMenuContent,

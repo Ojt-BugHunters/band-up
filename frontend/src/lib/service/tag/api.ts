@@ -1,4 +1,4 @@
-import { deserialize, fetchWrapper } from '@/lib/api';
+import { deserialize, fetchWrapper } from '@/lib/service';
 import { useQuery } from '@tanstack/react-query';
 import { Tag } from './type';
 

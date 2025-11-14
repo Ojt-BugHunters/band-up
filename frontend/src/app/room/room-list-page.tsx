@@ -1,5 +1,5 @@
 'use client';
-import { Room } from '@/lib/api/dto/room';
+import { Room } from '@/lib/service/room';
 import { useState, useEffect, useMemo } from 'react';
 import { motion } from 'framer-motion';
 import { ChevronLeft, ChevronRight, Search, Users } from 'lucide-react';
