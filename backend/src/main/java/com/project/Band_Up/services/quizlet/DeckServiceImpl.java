@@ -5,12 +5,10 @@ import com.project.Band_Up.entities.Account;
 import com.project.Band_Up.entities.Card;
 import com.project.Band_Up.entities.Deck;
 import com.project.Band_Up.entities.StudyProgress;
+import com.project.Band_Up.enums.StatsInterval;
 import com.project.Band_Up.exceptions.AuthenticationFailedException;
 import com.project.Band_Up.exceptions.ResourceNotFoundException;
-import com.project.Band_Up.repositories.AccountRepository;
-import com.project.Band_Up.repositories.CardRepository;
-import com.project.Band_Up.repositories.DeckRepository;
-import com.project.Band_Up.repositories.StudyProgressRepository;
+import com.project.Band_Up.repositories.*;
 import jakarta.transaction.Transactional;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,6 +19,7 @@ import org.springframework.data.domain.Sort;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
@@ -40,6 +39,8 @@ public class DeckServiceImpl implements DeckService {
     private CardRepository  cardRepository;
     @Autowired
     private StudyProgressRepository studyProgressRepository;
+    @Autowired
+    private QuizletStatRepository quizletStatRepository;
 
     @Override
     @Transactional
@@ -161,19 +162,6 @@ public class DeckServiceImpl implements DeckService {
         DeckDtoResponse dto = modelMapper.map(deck, DeckDtoResponse.class);
         dto.setAuthorName(deck.getAccount().getName());
         return dto;
-    }
-
-    @Override
-    public QuizletStats getStats() {
-        long totalDecks = deckRepository.count();
-        long totalCards = cardRepository.count();
-        long totalLearners = deckRepository.sumLearnerNumber();
-
-        return QuizletStats.builder()
-                .totalDecks(totalDecks)
-                .totalCards(totalCards)
-                .totalLearners(totalLearners)
-                .build();
     }
 
     @Override

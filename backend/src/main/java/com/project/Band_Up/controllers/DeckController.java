@@ -2,10 +2,13 @@ package com.project.Band_Up.controllers;
 
 import com.project.Band_Up.dtos.quizlet.DeckDto;
 import com.project.Band_Up.dtos.quizlet.DeckDtoResponse;
+import com.project.Band_Up.enums.StatsInterval;
 import com.project.Band_Up.services.quizlet.DeckService;
+import com.project.Band_Up.services.quizlet.QuizletStatService;
 import com.project.Band_Up.utils.JwtUserDetails;
 import com.project.Band_Up.utils.JwtUtil;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -23,6 +26,8 @@ public class DeckController {
     private DeckService deckService;
     @Autowired
     private JwtUtil jwtUtil;
+    @Autowired
+    private QuizletStatService quizletStatService;
 
     @PostMapping("/deck/create")
     @Operation(summary = "Create new deck",
@@ -76,8 +81,25 @@ public class DeckController {
     }
 
     @GetMapping("/stats")
-    public ResponseEntity<?> getStats() {
-        return ResponseEntity.ok().body(deckService.getStats());
+    @Operation(summary = "Get Quizlet statistics",
+            description = "Retrieve statistics for decks, cards, learners, and completion rate with differences calculated based on the specified interval (DAILY, WEEKLY, MONTHLY, or YEARLY)")
+    public ResponseEntity<?> getStats(
+            @Parameter(description = "Time interval for calculating statistics differences (DAILY, WEEKLY, MONTHLY, YEARLY)",
+                      required = true,
+                      example = "WEEKLY")
+            @RequestParam StatsInterval statsInterval) {
+        return ResponseEntity.ok().body(quizletStatService.getStats(statsInterval));
+    }
+
+    @GetMapping("/stats/completion-rate")
+    @Operation(summary = "Get completion rate by year",
+            description = "Retrieve the completion rate for each month of the specified year. Returns monthly completion rate data for visualization and analysis.")
+    public ResponseEntity<?> getCompletionRate(
+            @Parameter(description = "Year for which to retrieve completion rate data",
+                      required = true,
+                      example = "2025")
+            @RequestParam int year) {
+        return ResponseEntity.ok().body(quizletStatService.getCompletionRate(year));
     }
 
     @PostMapping("/deck/{deckId}/add-learner")
