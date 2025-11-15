@@ -3,8 +3,9 @@ package com.project.Band_Up.services.quizlet;
 import com.project.Band_Up.dtos.quizlet.DeckDto;
 import com.project.Band_Up.dtos.quizlet.DeckDtoResponse;
 import com.project.Band_Up.dtos.quizlet.DeckResponse;
-import com.project.Band_Up.dtos.quizlet.QuizletStats;
+import com.project.Band_Up.dtos.quizlet.QuizletStatsDto;
 import com.project.Band_Up.entities.Deck;
+import com.project.Band_Up.enums.StatsInterval;
 import org.springframework.data.domain.Page;
 
 import java.util.List;
@@ -24,8 +25,6 @@ public interface DeckService {
     public DeckDto deleteDeck(UUID deckId, UUID accountId);
 
     public DeckDtoResponse updateDeck(UUID deckId, DeckDto deckDto, UUID accountId);
-
-    public QuizletStats getStats();
 
     public void updateLearnerNumber(UUID deckId, UUID accountId);
 

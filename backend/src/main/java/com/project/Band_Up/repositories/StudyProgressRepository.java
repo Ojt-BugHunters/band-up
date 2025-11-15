@@ -18,4 +18,7 @@ public interface StudyProgressRepository extends JpaRepository<StudyProgress, UU
 
     @Query("SELECT DISTINCT sp.account FROM StudyProgress sp")
     List<Account> findDistinctAccounts();
+
+    @Query("SELECT COUNT(DISTINCT sp.deck) FROM StudyProgress sp")
+    long countDistinctDeck();
 }

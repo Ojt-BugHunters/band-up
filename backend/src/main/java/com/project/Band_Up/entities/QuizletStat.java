@@ -1,13 +1,8 @@
 package com.project.Band_Up.entities;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
+import jakarta.persistence.*;
 import lombok.*;
-import org.hibernate.annotations.CreationTimestamp;
 
-import java.time.Instant;
 import java.time.LocalDateTime;
 import java.util.UUID;
 
@@ -28,7 +23,7 @@ public class QuizletStat {
 
     private int activeDecks;
 
-    private int completionRate;
+    private float completionRate;
 
     private LocalDateTime recordedAt = LocalDateTime.now();
 }

@@ -18,8 +18,8 @@ public interface DeckRepository extends JpaRepository<Deck, UUID> {
 
     Page<Deck> findAllByIsPublicIsAndTitleContainingIgnoreCase(boolean isPublic, String queryBy, Pageable pageable);
 
-    @Query("SELECT SUM(d.learnerNumber) FROM Deck d")
-    long sumLearnerNumber();
+    @Query("SELECT COALESCE(SUM(d.learnerNumber), 0) FROM Deck d")
+    int sumLearnerNumber();
 
     @Query("""
         SELECT d FROM Deck d
