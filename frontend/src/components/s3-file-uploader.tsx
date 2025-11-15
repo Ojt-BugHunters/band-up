@@ -13,7 +13,7 @@ import {
     FileUploadList,
     FileUploadTrigger,
 } from '@/components/ui/file-upload';
-import { useS3Upload, fileIdOf } from '@/hooks/use-s3-upload';
+import { useS3Upload, fileIdOf } from '@/lib/service/s3-upload';
 
 export type S3FileUploadedProps = {
     presignEndpoint: string;

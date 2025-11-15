@@ -10,7 +10,7 @@ import {
     MobileNavToggle,
     MobileNavMenu,
 } from '@/components/ui/resizable-navbar';
-import { useUser } from '@/hooks/use-user';
+import { useUser } from '@/lib/service/account';
 import Image from 'next/image';
 import Link from 'next/link';
 import { useState } from 'react';
@@ -24,7 +24,7 @@ import { AccountPicture } from './ui/account-picture';
 import { ChevronDown, History, LogOut, User } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { AccountOverview } from './account-overview';
-import { useLogout } from '@/hooks/use-logout';
+import { useLogout } from '@/lib/service/auth';
 import { ThemeToggleButton } from './theme-toggle-button';
 
 export function Header() {

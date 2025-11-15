@@ -77,7 +77,11 @@ export default function DictationListPage() {
     }, [filteredTests, pagination.pageIndex, pagination.pageSize]);
 
     if (isFetching) {
-        return <LoadingSpinner />;
+        return (
+            <div className="flex h-screen w-full items-center justify-center">
+                <LoadingSpinner />
+            </div>
+        );
     }
 
     if (isError) {
@@ -92,7 +96,7 @@ export default function DictationListPage() {
                     Master your Listening Skill
                 </HeroSummary>
                 <HeroTitle>
-                    IELTS Dictation
+                    English Dictation
                     <HeroKeyword color="blue">Practice</HeroKeyword>
                 </HeroTitle>
                 <HeroDescription>

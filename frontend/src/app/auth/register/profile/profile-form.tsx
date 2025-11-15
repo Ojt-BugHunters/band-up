@@ -13,7 +13,7 @@ import {
     PopoverContent,
     PopoverTrigger,
 } from '@/components/ui/popover';
-import { useProfile } from '@/lib/service/account';
+import { useRegisterProfile } from '@/lib/service/auth';
 import { cn } from '@/lib/utils';
 import Image from 'next/image';
 import { useState } from 'react';
@@ -33,7 +33,7 @@ export const ProfileForm = ({
     className,
     ...props
 }: React.ComponentProps<'div'>) => {
-    const { form, mutation } = useProfile();
+    const { form, mutation } = useRegisterProfile();
     const [isCalendarOpen, setIsCalendarOpen] = useState(false);
 
     return (

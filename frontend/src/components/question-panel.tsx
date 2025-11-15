@@ -7,7 +7,7 @@ import { Label } from '@/components/ui/label';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
-import { ReadingQuestion } from '@/lib/api/dto/question';
+import { ReadingQuestion } from '@/lib/service/test/question';
 import Image from 'next/image';
 import { useState } from 'react';
 import { ZoomIn } from 'lucide-react';

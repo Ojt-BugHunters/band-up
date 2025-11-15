@@ -4,7 +4,7 @@ import { usePathname } from 'next/navigation';
 import { Header } from '@/components/header';
 import { Footer } from '@/components/footer';
 import { Toaster } from 'sonner';
-import { useRefreshToken } from '@/hooks/use-refresh-token';
+import { useRefreshToken } from '@/lib/service/auth';
 import { useEffect } from 'react';
 import { initDeckAutoClear } from '@/lib/utils';
 

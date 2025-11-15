@@ -24,7 +24,13 @@ export default function DictationTestMenuPage() {
         string | undefined
     >(undefined);
 
-    if (isLoading) return <LoadingSpinner />;
+    if (isLoading) {
+        return (
+            <div className="flex h-screen w-full items-center justify-center">
+                <LoadingSpinner />
+            </div>
+        );
+    }
     if (isError) return <NotFound />;
 
     return (

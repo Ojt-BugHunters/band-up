@@ -8,7 +8,7 @@ import { cn } from '@/lib/utils';
 import { TooltipProvider } from '@/components/ui/tooltip';
 import { AccountPicture } from '@/components/ui/account-picture';
 import { MinimalTiptapEditor } from '@/components/ui/minimal-tiptap';
-import { Reply, Comment } from '@/lib/api/dto/comment';
+import { Reply, Comment } from '@/lib/service/comment';
 import { Content } from '@tiptap/react';
 
 export interface CommentSectionProps {

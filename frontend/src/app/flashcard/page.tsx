@@ -1,6 +1,6 @@
 'use client';
 
-import FlashcardCard from '@/components/flash-card';
+import FlashcardCard from './flash-card';
 import {
     Hero,
     HeroDescription,
@@ -29,7 +29,7 @@ import {
     SelectTrigger,
     SelectValue,
 } from '@/components/ui/select';
-import { useGetFlashcardStats, useGetDeck } from '@/lib/service/flashcard';
+import { useGetFlashcardStats, useGetDecks } from '@/lib/service/flashcard';
 import { useUser } from '@/lib/service/account';
 import { PaginationState } from '@tanstack/react-table';
 import {
@@ -81,7 +81,7 @@ export default function FlashcardPage() {
         setPagination((prev) => ({ ...prev, pageIndex: 0 }));
     }, [search, visibility]);
 
-    const { data, isPending, isError } = useGetDeck(apiPaging);
+    const { data, isPending, isError } = useGetDecks(apiPaging);
     const { data: stats } = useGetFlashcardStats();
     const filteredFlashcards = useMemo(() => {
         return data?.content.filter((deck) => {

@@ -1,4 +1,4 @@
-import { AmbientSound } from '@/lib/api/dto/room';
+import { AmbientSound } from '@/lib/service/room';
 
 export const BACKGROUND_IMAGES = [
     '/room-bg-1.jpg',
