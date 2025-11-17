@@ -37,8 +37,8 @@ public class StudySessionServiceImpl implements StudySessionService {
     private final ModelMapper modelMapper;
 
     @Override
-    public StudySessionResponse createStudySession(StudySessionCreateRequest request, UUID userId) {
-        StudySession studySession = toEntity(request, getAccount(userId));
+    public StudySessionResponse createStudySession(StudySessionCreateRequest request, UUID userId, UUID roomId) {
+        StudySession studySession = toEntity(request, getAccount(userId), roomId);
         studySession.setStatus(Status.PENDING);
 
         StudySession saved = studySessionRepository.save(studySession);
@@ -146,6 +146,17 @@ public class StudySessionServiceImpl implements StudySessionService {
         interval.setStatus(Status.PAUSED);
         return saveAndReturn(session, interval);
     }
+    public List<StudySessionResponse> getStudySessionByStatus(UUID userId, Status status) {
+        List<StudySession> sessions =
+                studySessionRepository.findByStatusAndUser_Id(status, userId);
+
+        return sessions.stream()
+                .map(this::toResponse)
+                .toList();
+    }
+
+
+
 
 
     private Account getAccount(UUID userId) {
@@ -176,11 +187,11 @@ public class StudySessionServiceImpl implements StudySessionService {
         return toResponse(session);
     }
 
-    private StudySession toEntity(StudySessionCreateRequest request, Account user) {
+    private StudySession toEntity(StudySessionCreateRequest request, Account user, UUID roomId) {
         StudySession studySession = modelMapper.map(request, StudySession.class);
         studySession.setUser(user);
-        if (request.getRoomId() != null) {
-            Room room = getRoom(request.getRoomId());
+        if (roomId != null) {
+            Room room = getRoom(roomId);
             studySession.setRoom(room);
         } else {
             studySession.setRoom(null);
@@ -191,13 +202,21 @@ public class StudySessionServiceImpl implements StudySessionService {
     private StudySessionResponse toResponse(StudySession studySession) {
         StudySessionResponse response = modelMapper.map(studySession, StudySessionResponse.class);
         response.setUserId(studySession.getUser().getId());
-        response.setRoomId(studySession.getRoom().getId());
+        response.setRoomId(studySession.getRoom() != null ? studySession.getRoom().getId() : null);
 
         List<StudyIntervalResponse> intervalResponses = studyIntervalRepository
                 .findByStudySessionOrderByOrderIndexAsc(studySession)
                 .stream()
-                .map(interval -> modelMapper.map(interval, StudyIntervalResponse.class))
+                .map(interval -> {
+                    StudyIntervalResponse intervalResp = modelMapper.map(interval, StudyIntervalResponse.class);
+                    intervalResp.setStudySessionId(studySession.getId());
+                    intervalResp.setStartedAt(interval.getStartAt());
+                    intervalResp.setEndedAt(interval.getEndedAt());
+                    intervalResp.setPingedAt(interval.getPingedAt());
+                    return intervalResp;
+                })
                 .collect(Collectors.toList());
+
 
         response.setInterval(intervalResponses);
         return response;
