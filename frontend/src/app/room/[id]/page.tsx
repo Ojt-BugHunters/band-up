@@ -19,7 +19,7 @@ import {
     Users,
     KeyRound,
 } from 'lucide-react';
-import { Task, AmbientSound } from '@/lib/api/dto/room';
+import { Task, AmbientSound } from '@/lib/service/room';
 import {
     BACKGROUND_IMAGES,
     POMODORO_PRESETS,

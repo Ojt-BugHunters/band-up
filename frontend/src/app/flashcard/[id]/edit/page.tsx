@@ -1,7 +1,7 @@
 'use client';
 
-import DeckForm from '@/components/deck-form';
-import type { CreateDeckFormValues } from '@/hooks/use-create-deck-card';
+import DeckForm from '../../new/deck-form';
+import type { CreateDeckFormValues } from '@/lib/service/flashcard';
 import { useParams } from 'next/navigation';
 import { useMemo } from 'react';
 

@@ -4,7 +4,7 @@ import { motion } from 'framer-motion';
 import { Home, Users, ArrowRight } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useRouter } from 'next/navigation';
-import { Room } from '@/lib/api/dto/room';
+import { Room } from '@/lib/service/room';
 import { cn } from '@/lib/utils';
 
 interface RoomResumeCardProps {

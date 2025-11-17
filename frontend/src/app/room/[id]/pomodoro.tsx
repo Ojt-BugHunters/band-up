@@ -9,7 +9,7 @@ import { BackgroundImage } from './background-image';
 import { ToDoListBox } from './to-do-list';
 import { LeaderBoard } from './leaderboard';
 import { AnalyticComponent } from './analytic-dialog';
-import { AmbientSound, PomodoroPreset, Task } from '@/lib/api/dto/room';
+import { AmbientSound, PomodoroPreset, Task } from '@/lib/service/room';
 import { TimerSettings } from './page';
 import { RefObject, useState } from 'react';
 import { TimePeriod } from './page';

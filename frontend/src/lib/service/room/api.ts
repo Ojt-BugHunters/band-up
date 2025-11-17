@@ -10,7 +10,7 @@ import {
 } from '@tanstack/react-query';
 import { useForm } from 'react-hook-form';
 import { toast } from 'sonner';
-import { deserialize, fetchWrapper, throwIfError } from '@/lib/api';
+import { deserialize, fetchWrapper, throwIfError } from '@/lib/service';
 import { RoomSchema, CreateRoomFormValues, Room } from './type';
 import { AccountRoomMember } from './type';
 

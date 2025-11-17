@@ -5,7 +5,7 @@ import {
     DialogHeader,
     DialogTitle,
 } from '@/components/ui/dialog';
-import { Room } from '@/lib/api/dto/room';
+import { Room } from '@/lib/service/room';
 import { useJoinRoom } from '@/lib/service/room';
 
 interface JoinRoomDialog {

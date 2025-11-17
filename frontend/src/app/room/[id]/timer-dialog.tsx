@@ -16,7 +16,7 @@ import { POMODORO_PRESETS } from './page.data';
 import { Input } from '@/components/ui/input';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Button } from '@/components/ui/button';
-import { PomodoroPreset } from '@/lib/api/dto/room';
+import { PomodoroPreset } from '@/lib/service/room';
 import { TimerSettings } from './page';
 
 interface TimerControlDialogProps {

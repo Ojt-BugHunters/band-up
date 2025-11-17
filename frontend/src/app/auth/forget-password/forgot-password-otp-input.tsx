@@ -1,5 +1,5 @@
 'use client';
-import { useForgetPassword } from '@/lib/service/account';
+import { useForgetPassword } from '@/lib/service/auth';
 import { Shield } from 'lucide-react';
 import { useSearchParams } from 'next/navigation';
 import { toast } from 'sonner';

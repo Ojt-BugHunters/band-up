@@ -1,4 +1,4 @@
-import { Author } from '@/lib/api/dto/blog';
+import { Author } from '../blog';
 import z from 'zod';
 
 export interface Task {

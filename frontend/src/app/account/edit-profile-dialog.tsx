@@ -1,4 +1,4 @@
-import { useProfile } from '@/hooks/use-profile-register';
+import { useRegisterProfile } from '@/lib/service/auth';
 import {
     Dialog,
     DialogContent,
@@ -43,7 +43,7 @@ export default function EditProfileDialog({
     open: boolean;
     onOpenChange: (open: boolean) => void;
 }) {
-    const { form, mutation } = useProfile();
+    const { form, mutation } = useRegisterProfile();
 
     return (
         <Dialog open={open} onOpenChange={onOpenChange}>
