@@ -37,9 +37,10 @@ public class StudySessionController {
     @PostMapping("/create")
     public ResponseEntity<StudySessionResponse> createStudySession(
             @AuthenticationPrincipal JwtUserDetails userDetails,
-            @RequestBody StudySessionCreateRequest request
+            @RequestBody StudySessionCreateRequest request,
+            @RequestParam(required = false) UUID roomId
     ) {
-        StudySessionResponse response = studySessionService.createStudySession(request, userDetails.getAccountId());
+        StudySessionResponse response = studySessionService.createStudySession(request, userDetails.getAccountId(), roomId);
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 

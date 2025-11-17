@@ -9,7 +9,7 @@ import java.util.List;
 import java.util.UUID;
 
 public interface StudySessionService {
-    StudySessionResponse createStudySession(StudySessionCreateRequest request, UUID userId);
+    StudySessionResponse createStudySession(StudySessionCreateRequest request, UUID userId, UUID roomId);
 
     StudySessionResponse startInterval(UUID sessionId, UUID intervalId);
 

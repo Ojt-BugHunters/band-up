@@ -37,8 +37,8 @@ public class StudySessionServiceImpl implements StudySessionService {
     private final ModelMapper modelMapper;
 
     @Override
-    public StudySessionResponse createStudySession(StudySessionCreateRequest request, UUID userId) {
-        StudySession studySession = toEntity(request, getAccount(userId));
+    public StudySessionResponse createStudySession(StudySessionCreateRequest request, UUID userId, UUID roomId) {
+        StudySession studySession = toEntity(request, getAccount(userId), roomId);
         studySession.setStatus(Status.PENDING);
 
         StudySession saved = studySessionRepository.save(studySession);
@@ -187,11 +187,11 @@ public class StudySessionServiceImpl implements StudySessionService {
         return toResponse(session);
     }
 
-    private StudySession toEntity(StudySessionCreateRequest request, Account user) {
+    private StudySession toEntity(StudySessionCreateRequest request, Account user, UUID roomId) {
         StudySession studySession = modelMapper.map(request, StudySession.class);
         studySession.setUser(user);
-        if (request.getRoomId() != null) {
-            Room room = getRoom(request.getRoomId());
+        if (roomId != null) {
+            Room room = getRoom(roomId);
             studySession.setRoom(room);
         } else {
             studySession.setRoom(null);
@@ -202,7 +202,7 @@ public class StudySessionServiceImpl implements StudySessionService {
     private StudySessionResponse toResponse(StudySession studySession) {
         StudySessionResponse response = modelMapper.map(studySession, StudySessionResponse.class);
         response.setUserId(studySession.getUser().getId());
-        response.setRoomId(studySession.getRoom().getId());
+        response.setRoomId(studySession.getRoom() != null ? studySession.getRoom().getId() : null);
 
         List<StudyIntervalResponse> intervalResponses = studyIntervalRepository
                 .findByStudySessionOrderByOrderIndexAsc(studySession)
