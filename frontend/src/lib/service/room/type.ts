@@ -65,6 +65,35 @@ export interface Room {
     members: RoomMember[];
 }
 
+export interface Interval {
+    id: string;
+    studySessionId: string;
+    type: string;
+    orderIndex: number;
+    startedAt: string;
+    endedAt: string;
+    pingedAt: string;
+    status: string;
+}
+
+export interface StudySession {
+    id: string;
+    userId: string;
+    roomId: string;
+    mode: string;
+    focusTime: number;
+    shortBreak: number;
+    longBreak: number;
+    cycles: number;
+    startedAt: string;
+    endedAt: string;
+    status: string;
+    createdAt: string;
+    totalFocusTime: number;
+    interval: Interval[];
+}
+
+// --------------------- Schema for react-hook-form-----------
 export const RoomSchema = z.object({
     roomName: z.string().max(50, 'Max length of room name is 50 characters'),
     description: z
