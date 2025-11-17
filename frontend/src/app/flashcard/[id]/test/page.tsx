@@ -4,7 +4,7 @@ import React from 'react';
 import { useState } from 'react';
 import { TestStartDialog } from '@/components/test-start-dialog';
 import { TestInterface } from '@/components/test-interface';
-import { DeckCard } from '@/lib/api/dto/flashcard';
+import { DeckCard } from '@/lib/service/flashcard';
 import { useParams, useRouter } from 'next/navigation';
 
 export default function TestPage() {

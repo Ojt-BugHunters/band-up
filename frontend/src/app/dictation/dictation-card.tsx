@@ -2,7 +2,7 @@
 
 import { Clock, Users } from 'lucide-react';
 import Link from 'next/link';
-import { Dictation } from '@/lib/service/dictation';
+import { Dictation, useDoDictation } from '@/lib/service/dictation';
 import Image from 'next/image';
 
 interface DictationCardProps {
@@ -10,6 +10,7 @@ interface DictationCardProps {
 }
 
 export function DictationCard({ dictation }: DictationCardProps) {
+    const { mutate: doDictation } = useDoDictation(dictation.id);
     const difficultyImages = {
         easy: '/zenitsu-easy.jpg',
         medium: '/giyuu-medium.jpg',
@@ -23,10 +24,17 @@ export function DictationCard({ dictation }: DictationCardProps) {
 
     const bgImage = difficultyImages[difficulty] || difficultyImages.medium;
 
+    const handleDoDictation = () => {
+        doDictation();
+    };
+
     return (
         <Link
             href={`/dictation/${dictation.id}`}
             className="group relative block overflow-hidden rounded-xl border border-gray-200 bg-gray-900/5 shadow-lg transition-all duration-300 hover:shadow-xl"
+            onClick={() => {
+                handleDoDictation();
+            }}
         >
             <div className="relative aspect-video overflow-hidden rounded-t-xl">
                 <Image

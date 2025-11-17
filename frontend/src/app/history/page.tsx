@@ -22,7 +22,7 @@ import {
     SelectTrigger,
     SelectValue,
 } from '@/components/ui/select';
-import { skills } from '@/lib/api/dto/test';
+import { skills } from '@/lib/service/test';
 import {
     Award,
     Calendar,

@@ -21,6 +21,7 @@ import { useParams, useRouter } from 'next/navigation';
 import { SectionsMenu } from '../../../section-panel';
 import {
     DictationQuestion,
+    useGetDictationQuestion,
     useGetDictationTest,
     useGetSectionQuestions,
     WordComparison,
@@ -57,7 +58,7 @@ function convertQuestionToDictationData(question: DictationQuestion) {
     return {
         id: question.id,
         title: 'Dictation Question',
-        audioUrl: question.cloudFrontUrl,
+        audioUrl: question.cloudfrontUrl,
         sentences,
     };
 }
@@ -72,11 +73,11 @@ const mockDictationQuestion: DictationQuestion = {
 I do not have a zoo in my town. My town is small. It has many animals. It has raccoons, it has squirrels, it has dogs and cats, it has ducks, but it does not have a zoo. I visit the zoo in another town. It is a nice zoo. It is a small zoo. It does not have elephants, but it has giraffes. It has big birds, it has zebras. It does not have tigers, it does not have lions. But I love to visit the zoo. I can feed the farm animals there.
 
 My question for you is, do you have a zoo in your town?`,
-    cloudFrontUrl: '/audio/example.mp3',
+    cloudfrontUrl: '/audio/example.mp3',
 };
 
 export default function DictationPracticePage() {
-    const { testId, sectionId, questionId } = useParams<{
+    const { testId, questionId } = useParams<{
         testId: string;
         sectionId: string;
         questionId: string;
@@ -87,7 +88,12 @@ export default function DictationPracticePage() {
         isError,
     } = useGetSectionQuestions(testId as string);
     const { data: test } = useGetDictationTest(testId as string);
-    const dictationData = convertQuestionToDictationData(mockDictationQuestion);
+
+    const { data: question } = useGetDictationQuestion(questionId as string);
+    const dictationData = convertQuestionToDictationData(
+        question ?? mockDictationQuestion,
+    );
+
     const router = useRouter();
     const [isPlaying, setIsPlaying] = useState(false);
     const [currentTime, setCurrentTime] = useState(0);
@@ -110,7 +116,13 @@ export default function DictationPracticePage() {
         setActiveQ(questionId);
     }, [questionId]);
 
-    if (isLoading) return <LoadingSpinner />;
+    if (isLoading) {
+        return (
+            <div className="flex h-screen w-full items-center justify-center">
+                <LoadingSpinner />
+            </div>
+        );
+    }
     if (isError) return <NotFound />;
 
     const normalizeWord = (word: string) => {
@@ -302,7 +314,7 @@ export default function DictationPracticePage() {
                 <div className="flex flex-1 gap-6 overflow-hidden p-6">
                     {showAudioPanel && (
                         <AudioPlayer
-                            audioUrl="/audio/example.mp3"
+                            audioUrl={dictationData.audioUrl}
                             currentTime={currentTime}
                             setCurrentTime={setCurrentTime}
                             isPlaying={isPlaying}

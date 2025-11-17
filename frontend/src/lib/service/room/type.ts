@@ -1,4 +1,4 @@
-import { Author } from '@/lib/api/dto/blog';
+import { Author } from '../blog';
 import z from 'zod';
 
 export interface Task {
@@ -43,6 +43,7 @@ export type PomodoroPreset = {
     focus: number;
     shortBreak: number;
     longBreak: number;
+    cycle: number;
 };
 
 export interface RoomMember {
@@ -64,6 +65,35 @@ export interface Room {
     members: RoomMember[];
 }
 
+export interface Interval {
+    id: string;
+    studySessionId: string;
+    type: string;
+    orderIndex: number;
+    startedAt: string;
+    endedAt: string;
+    pingedAt: string;
+    status: string;
+}
+
+export interface StudySession {
+    id: string;
+    userId: string;
+    roomId: string;
+    mode: string;
+    focusTime: number;
+    shortBreak: number;
+    longBreak: number;
+    cycles: number;
+    startedAt: string;
+    endedAt: string;
+    status: string;
+    createdAt: string;
+    totalFocusTime: number;
+    interval: Interval[];
+}
+
+// --------------------- Schema for react-hook-form-----------
 export const RoomSchema = z.object({
     roomName: z.string().max(50, 'Max length of room name is 50 characters'),
     description: z
@@ -75,3 +105,14 @@ export const RoomSchema = z.object({
 });
 
 export type CreateRoomFormValues = z.infer<typeof RoomSchema>;
+
+export const TimerSettingSchema = z.object({
+    roomId: z.string(),
+    mode: z.string(),
+    focusTime: z.number(),
+    shortBreak: z.number(),
+    longBreak: z.number(),
+    cycles: z.number(),
+});
+
+export type CreateTimerSettingValues = z.infer<typeof TimerSettingSchema>;

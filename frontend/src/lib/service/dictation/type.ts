@@ -37,6 +37,10 @@ export type CreateFullSectionPayload = z.output<typeof sectionFormSchema>;
 
 export type DictationQuestionFormData = z.infer<typeof dictationQuestionSchema>;
 
+export interface createPassageParams {
+    payload: CreateFullSectionPayload;
+    testId: string;
+}
 export interface Dictation {
     userId: string;
     id: string;
@@ -61,7 +65,7 @@ export interface DictationQuestion {
     type: string;
     difficult: string;
     script: string;
-    cloudFrontUrl: string;
+    cloudfrontUrl: string;
 }
 
 export interface DictationSentence {

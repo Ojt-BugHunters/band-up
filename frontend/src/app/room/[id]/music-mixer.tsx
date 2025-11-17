@@ -7,7 +7,7 @@ import {
 import { Switch } from '@/components/ui/switch';
 import { CloudRain } from 'lucide-react';
 import { motion } from 'framer-motion';
-import { AmbientSound } from '@/lib/api/dto/room';
+import { AmbientSound } from '@/lib/service/room';
 
 interface MusicMixerProps {
     showAmbientMixer: boolean;

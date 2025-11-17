@@ -11,13 +11,20 @@ import {
     SelectTrigger,
     SelectValue,
 } from '@/components/ui/select';
-import { Clock, Timer, Zap } from 'lucide-react';
+import { Clock, Timer } from 'lucide-react';
 import { POMODORO_PRESETS } from './page.data';
 import { Input } from '@/components/ui/input';
-import { Checkbox } from '@/components/ui/checkbox';
 import { Button } from '@/components/ui/button';
-import { PomodoroPreset } from '@/lib/api/dto/room';
+import { PomodoroPreset } from '@/lib/service/room';
 import { TimerSettings } from './page';
+import {
+    Form,
+    FormControl,
+    FormField,
+    FormItem,
+    FormLabel,
+    FormMessage,
+} from '@/components/ui/form';
 
 interface TimerControlDialogProps {
     showTimerSettings: boolean;
@@ -26,10 +33,6 @@ interface TimerControlDialogProps {
     setTimerTab: (tab: 'focus' | 'stopwatch') => void;
     selectedPreset: PomodoroPreset;
     setSelectedPreset: (p: PomodoroPreset) => void;
-    countUpTimer: boolean;
-    setCountUpTimer: (v: boolean) => void;
-    deepFocus: boolean;
-    setDeepFocus: (v: boolean) => void;
     customSettings: TimerSettings;
     setCustomSettings: (setting: TimerSettings) => void;
     isActive: boolean;
@@ -45,10 +48,6 @@ export function TimerControlDialog({
     setTimerTab,
     selectedPreset,
     setSelectedPreset,
-    countUpTimer,
-    setCountUpTimer,
-    deepFocus,
-    setDeepFocus,
     customSettings,
     setCustomSettings,
     isActive,
@@ -134,7 +133,7 @@ export function TimerControlDialog({
                                                 >
                                                     {preset.name === 'Custom'
                                                         ? 'Custom'
-                                                        : `${preset.name} ${preset.focus}m - ${preset.shortBreak}m - ${preset.longBreak}m`}
+                                                        : `${preset.name} ${preset.focus}m - ${preset.shortBreak}m - ${preset.longBreak}m - ${preset.cycle} sessions`}
                                                 </SelectItem>
                                             ))}
                                         </SelectContent>
@@ -142,133 +141,175 @@ export function TimerControlDialog({
                                 </div>
 
                                 {selectedPreset.name === 'Custom' && (
-                                    <div className="space-y-3 rounded-lg border border-zinc-700/30 bg-zinc-800/50 p-4">
-                                        <div className="flex items-center gap-3">
-                                            <label className="w-28 text-sm text-white/80">
-                                                Focus Time:
-                                            </label>
-                                            <Input
-                                                type="number"
-                                                min="1"
-                                                max="120"
-                                                value={customSettings.focus}
-                                                onChange={(e) =>
-                                                    setCustomSettings({
-                                                        ...customSettings,
-                                                        focus:
-                                                            Number.parseInt(
-                                                                e.target.value,
-                                                            ) || 25,
-                                                    })
-                                                }
-                                                className="flex-1 border-zinc-700/50 bg-zinc-800/80 text-white"
+                                    <Form {...form}>
+                                        <form className="space-y-3 rounded-lg border border-zinc-700/30 bg-zinc-800/50 p-4">
+                                            <FormField
+                                                control={form.control}
+                                                name="focus"
+                                                render={({ field }) => (
+                                                    <FormItem>
+                                                        <div className="flex items-center gap-3">
+                                                            <FormLabel className="w-28 text-sm text-white/80">
+                                                                Focus Time:
+                                                            </FormLabel>
+                                                            <FormControl>
+                                                                <Input
+                                                                    type="number"
+                                                                    min={1}
+                                                                    max={120}
+                                                                    className="flex-1 border-zinc-700/50 bg-zinc-800/80 text-white"
+                                                                    value={
+                                                                        field.value ??
+                                                                        ''
+                                                                    }
+                                                                    onChange={(
+                                                                        e,
+                                                                    ) =>
+                                                                        field.onChange(
+                                                                            e
+                                                                                .target
+                                                                                .value,
+                                                                        )
+                                                                    }
+                                                                />
+                                                            </FormControl>
+                                                            <span className="text-sm text-white/60">
+                                                                min
+                                                            </span>
+                                                        </div>
+                                                        <FormMessage />
+                                                    </FormItem>
+                                                )}
                                             />
-                                            <span className="text-sm text-white/60">
-                                                min
-                                            </span>
-                                        </div>
-                                        <div className="flex items-center gap-3">
-                                            <label className="w-28 text-sm text-white/80">
-                                                Short Break:
-                                            </label>
-                                            <Input
-                                                type="number"
-                                                min="1"
-                                                max="30"
-                                                value={
-                                                    customSettings.shortBreak
-                                                }
-                                                onChange={(e) =>
-                                                    setCustomSettings({
-                                                        ...customSettings,
-                                                        shortBreak:
-                                                            Number.parseInt(
-                                                                e.target.value,
-                                                            ) || 5,
-                                                    })
-                                                }
-                                                className="flex-1 border-zinc-700/50 bg-zinc-800/80 text-white"
+
+                                            <FormField
+                                                control={form.control}
+                                                name="shortBreak"
+                                                render={({ field }) => (
+                                                    <FormItem>
+                                                        <div className="flex items-center gap-3">
+                                                            <FormLabel className="w-28 text-sm text-white/80">
+                                                                Short Break:
+                                                            </FormLabel>
+                                                            <FormControl>
+                                                                <Input
+                                                                    type="number"
+                                                                    min={1}
+                                                                    max={30}
+                                                                    className="flex-1 border-zinc-700/50 bg-zinc-800/80 text-white"
+                                                                    value={
+                                                                        field.value ??
+                                                                        ''
+                                                                    }
+                                                                    onChange={(
+                                                                        e,
+                                                                    ) =>
+                                                                        field.onChange(
+                                                                            e
+                                                                                .target
+                                                                                .value,
+                                                                        )
+                                                                    }
+                                                                />
+                                                            </FormControl>
+                                                            <span className="text-sm text-white/60">
+                                                                min
+                                                            </span>
+                                                        </div>
+                                                        <FormMessage />
+                                                    </FormItem>
+                                                )}
                                             />
-                                            <span className="text-sm text-white/60">
-                                                min
-                                            </span>
-                                        </div>
-                                        <div className="flex items-center gap-3">
-                                            <label className="w-28 text-sm text-white/80">
-                                                Long Break:
-                                            </label>
-                                            <Input
-                                                type="number"
-                                                min="1"
-                                                max="60"
-                                                value={customSettings.longBreak}
-                                                onChange={(e) =>
-                                                    setCustomSettings({
-                                                        ...customSettings,
-                                                        longBreak:
-                                                            Number.parseInt(
-                                                                e.target.value,
-                                                            ) || 15,
-                                                    })
-                                                }
-                                                className="flex-1 border-zinc-700/50 bg-zinc-800/80 text-white"
+
+                                            {/* Long Break */}
+                                            <FormField
+                                                control={form.control}
+                                                name="longBreak"
+                                                render={({ field }) => (
+                                                    <FormItem>
+                                                        <div className="flex items-center gap-3">
+                                                            <FormLabel className="w-28 text-sm text-white/80">
+                                                                Long Break:
+                                                            </FormLabel>
+                                                            <FormControl>
+                                                                <Input
+                                                                    type="number"
+                                                                    min={1}
+                                                                    max={60}
+                                                                    className="flex-1 border-zinc-700/50 bg-zinc-800/80 text-white"
+                                                                    value={
+                                                                        field.value ??
+                                                                        ''
+                                                                    }
+                                                                    onChange={(
+                                                                        e,
+                                                                    ) =>
+                                                                        field.onChange(
+                                                                            e
+                                                                                .target
+                                                                                .value,
+                                                                        )
+                                                                    }
+                                                                />
+                                                            </FormControl>
+                                                            <span className="text-sm text-white/60">
+                                                                min
+                                                            </span>
+                                                        </div>
+                                                        <FormMessage />
+                                                    </FormItem>
+                                                )}
                                             />
-                                            <span className="text-sm text-white/60">
-                                                min
-                                            </span>
-                                        </div>
-                                    </div>
+
+                                            {/* Cycle */}
+                                            <FormField
+                                                control={form.control}
+                                                name="cycle"
+                                                render={({ field }) => (
+                                                    <FormItem>
+                                                        <div className="flex items-center gap-3">
+                                                            <FormLabel className="w-28 text-sm text-white/80">
+                                                                Cycle:
+                                                            </FormLabel>
+                                                            <FormControl>
+                                                                <Input
+                                                                    type="number"
+                                                                    min={1}
+                                                                    max={10}
+                                                                    className="flex-1 border-zinc-700/50 bg-zinc-800/80 text-white"
+                                                                    value={
+                                                                        field.value ??
+                                                                        ''
+                                                                    }
+                                                                    onChange={(
+                                                                        e,
+                                                                    ) =>
+                                                                        field.onChange(
+                                                                            e
+                                                                                .target
+                                                                                .value,
+                                                                        )
+                                                                    }
+                                                                />
+                                                            </FormControl>
+                                                            <span className="text-sm text-white/60">
+                                                                times
+                                                            </span>
+                                                        </div>
+                                                        <FormMessage />
+                                                    </FormItem>
+                                                )}
+                                            />
+                                        </form>
+                                    </Form>
                                 )}
-
-                                <div className="flex items-center justify-between rounded-lg border border-zinc-700/30 bg-zinc-800/50 p-3">
-                                    <div className="flex items-center gap-2">
-                                        <div className="flex h-5 w-5 items-center justify-center rounded-full bg-zinc-700/80">
-                                            <Clock className="h-3 w-3" />
-                                        </div>
-                                        <span className="text-sm">
-                                            Count up timer
-                                        </span>
-                                    </div>
-                                    <Checkbox
-                                        checked={countUpTimer}
-                                        onCheckedChange={(checked) =>
-                                            setCountUpTimer(checked as boolean)
-                                        }
-                                        className="border-zinc-600/50 data-[state=checked]:bg-white data-[state=checked]:text-black"
-                                    />
-                                </div>
-
-                                <div className="rounded-lg border border-zinc-700/30 bg-zinc-800/50 p-3">
-                                    <div className="flex items-center justify-between">
-                                        <div className="flex items-center gap-2">
-                                            <div className="flex h-5 w-5 items-center justify-center rounded-full bg-zinc-700/80">
-                                                <Zap className="h-3 w-3" />
-                                            </div>
-                                            <span className="text-sm">
-                                                Deep Focus
-                                            </span>
-                                        </div>
-                                        <Checkbox
-                                            checked={deepFocus}
-                                            onCheckedChange={(checked) =>
-                                                setDeepFocus(checked as boolean)
-                                            }
-                                            className="border-zinc-600/50 data-[state=checked]:bg-white data-[state=checked]:text-black"
-                                        />
-                                    </div>
-                                    <p className="mt-2 text-xs text-white/50">
-                                        Requires studyfoc.us Chrome extension
-                                    </p>
-                                </div>
                             </>
-                        )}
-
+                        )}{' '}
                         {timerTab === 'stopwatch' && (
                             <div className="py-4 text-center text-sm text-white/70">
                                 Stopwatch mode will count up from 00:00
                             </div>
                         )}
-
                         <Button
                             onClick={applyTimerSettings}
                             className="w-full bg-white text-black hover:bg-white/90"

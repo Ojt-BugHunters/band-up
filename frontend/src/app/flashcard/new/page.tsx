@@ -1,5 +1,5 @@
 'use client';
-import DeckForm from '@/components/deck-form';
+import DeckForm from './deck-form';
 
 export default function CreateDeckPage() {
     return (

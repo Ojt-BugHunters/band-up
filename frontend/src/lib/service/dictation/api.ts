@@ -2,7 +2,7 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import {
     CreateDictationQuestionReq,
     CreateFullSectionFormInput,
-    CreateFullSectionPayload,
+    createPassageParams,
     CreateQuestionRes,
     Dictation,
     DictationQuestion,
@@ -15,19 +15,37 @@ import {
     TestCreateFormValues,
     TestCreateSchema,
 } from './type';
-import { deserialize, fetchWrapper, throwIfError } from '@/lib/api';
+import { deserialize, fetchWrapper, throwIfError } from '@/lib/service';
 import { toast } from 'sonner';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useFieldArray, useForm } from 'react-hook-form';
 import z from 'zod';
 import { putFileToS3WithProgress } from '../s3-upload';
-import test from 'node:test';
 
-export interface createPassageParams {
-    payload: CreateFullSectionPayload;
-    testId: string;
+function mapDifficulty(level: number): string {
+    switch (level) {
+        case 1:
+            return 'easy';
+        case 2:
+            return 'medium';
+        case 3:
+            return 'hard';
+        default:
+            return 'unknown';
+    }
 }
 
+function groupBySectionId(items: MappedQuestion[]) {
+    const grouped: Record<string, MappedQuestion[]> = {};
+    for (const q of items) {
+        if (!grouped[q.sectionId]) grouped[q.sectionId] = [];
+        grouped[q.sectionId].push(q);
+    }
+    return grouped;
+}
+
+// in each test we have: 1 test - N sections - N questions
+// create section
 export const useCreatePassage = () => {
     const mutation = useMutation({
         mutationFn: async ({ payload, testId }: createPassageParams) => {
@@ -64,28 +82,9 @@ export const useCreatePassage = () => {
     return { fullSectionForm, mutation };
 };
 
-function mapDifficulty(level: number): string {
-    switch (level) {
-        case 1:
-            return 'easy';
-        case 2:
-            return 'medium';
-        case 3:
-            return 'hard';
-        default:
-            return 'unknown';
-    }
-}
-
-function groupBySectionId(items: MappedQuestion[]) {
-    const grouped: Record<string, MappedQuestion[]> = {};
-    for (const q of items) {
-        if (!grouped[q.sectionId]) grouped[q.sectionId] = [];
-        grouped[q.sectionId].push(q);
-    }
-    return grouped;
-}
-
+// create question
+// logic: loops sections --> in each sections --> loop questions
+// for each question, call api to create --> get upload url --> upload to s3 --> receive key --> call api to save
 export const useCreateQuestion = () => {
     const queryClient = useQueryClient();
 
@@ -172,6 +171,7 @@ export const useCreateQuestion = () => {
     };
 };
 
+// create test
 export const useCreateTest = () => {
     const mutation = useMutation({
         mutationFn: async (values: TestCreateFormValues) => {
@@ -208,6 +208,7 @@ export const useCreateTest = () => {
     };
 };
 
+// get dictation tests
 export const useGetDictationTests = () => {
     return useQuery({
         queryFn: async () => {
@@ -215,9 +216,11 @@ export const useGetDictationTests = () => {
             return await deserialize<Dictation[]>(response);
         },
         queryKey: ['dictation-tests'],
+        staleTime: 60 * 60 * 1000,
     });
 };
 
+// get dictation specific test
 export const useGetDictationTest = (testId: string) => {
     return useQuery({
         queryFn: async () => {
@@ -225,9 +228,23 @@ export const useGetDictationTest = (testId: string) => {
             return await deserialize<Dictation>(response);
         },
         queryKey: ['dictation-test'],
+        staleTime: 60 * 60 * 1000, // 60 mins
     });
 };
 
+// get questions of each test
+export const useGetDictationQuestion = (questionId: string) => {
+    return useQuery({
+        queryKey: ['dictation-question'],
+        queryFn: async () => {
+            const response = await fetchWrapper(`/questions/${questionId}`);
+            return await deserialize<DictationQuestion>(response);
+        },
+        staleTime: 60 * 60 * 1000, // 60 mins
+    });
+};
+
+// get all questions of each section + order by orderIndex
 export const useGetSectionQuestions = (testId: string) => {
     return useQuery({
         queryKey: ['dictation-section-question'],
@@ -263,4 +280,32 @@ export const useGetSectionQuestions = (testId: string) => {
             return combineSectionsQuestions;
         },
     });
+};
+
+// increase of user do test
+export const useDoDictation = (testId: string) => {
+    const queryClient = useQueryClient();
+    const mutation = useMutation({
+        mutationFn: async () => {
+            const response = await fetchWrapper(
+                `/tests/${testId}/increase-view`,
+                {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                },
+            );
+            await throwIfError(response);
+        },
+        onError: (error) => {
+            toast.error(error.message);
+        },
+        onSuccess: () => {
+            queryClient.invalidateQueries({
+                queryKey: ['dictation'],
+            });
+        },
+    });
+    return mutation;
 };

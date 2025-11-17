@@ -12,7 +12,7 @@ import { Separator } from '@/components/ui/separator';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { speakingTestParts } from '../../constants/sample-data';
-import { enrichSpeakingTestParts } from '@/lib/api/dto/question';
+import { enrichSpeakingTestParts } from '@/lib/service/test/question';
 import { VoiceInput } from './voice-input';
 import { toast } from 'sonner';
 import {
