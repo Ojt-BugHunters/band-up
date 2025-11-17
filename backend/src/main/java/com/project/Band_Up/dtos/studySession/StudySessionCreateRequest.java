@@ -1,21 +1,18 @@
 package com.project.Band_Up.dtos.studySession;
 
 import com.project.Band_Up.enums.SessionMode;
-import com.project.Band_Up.enums.Status;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.math.BigInteger;
-import java.util.UUID;
 
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
 public class StudySessionCreateRequest {
-    private UUID roomId;
     private SessionMode mode;
     private BigInteger focusTime;
     private BigInteger shortBreak;

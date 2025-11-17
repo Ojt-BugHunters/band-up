@@ -3,6 +3,7 @@ package com.project.Band_Up.controllers;
 import com.project.Band_Up.dtos.studySession.StudySessionCreateRequest;
 import com.project.Band_Up.dtos.studySession.StudySessionResponse;
 import com.project.Band_Up.dtos.studySessionInterval.StudySessionIntervalUpdateRequest;
+import com.project.Band_Up.enums.Status;
 import com.project.Band_Up.services.studySession.StudySessionService;
 import com.project.Band_Up.utils.JwtUserDetails;
 import io.swagger.v3.oas.annotations.Operation;
@@ -15,6 +16,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
 import java.util.UUID;
 
 @RestController
@@ -35,9 +37,10 @@ public class StudySessionController {
     @PostMapping("/create")
     public ResponseEntity<StudySessionResponse> createStudySession(
             @AuthenticationPrincipal JwtUserDetails userDetails,
-            @RequestBody StudySessionCreateRequest request
+            @RequestBody StudySessionCreateRequest request,
+            @RequestParam(required = false) UUID roomId
     ) {
-        StudySessionResponse response = studySessionService.createStudySession(request, userDetails.getAccountId());
+        StudySessionResponse response = studySessionService.createStudySession(request, userDetails.getAccountId(), roomId);
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 
@@ -111,5 +114,19 @@ public class StudySessionController {
             @PathVariable UUID intervalId
     ) {
         return ResponseEntity.ok(studySessionService.resetInterval(sessionId, intervalId));
+    }
+    @Operation(summary = "lấy StudySession theo Status",
+            description = "Lấy tất cả phiên học của user theo trạng thái ( PENDING, ONGOING, ENDED)")
+    @ApiResponses ({
+            @ApiResponse(responseCode = "200", description = "Lấy thành công"),
+            @ApiResponse(responseCode = "404", description = "Không tìm thấy user")
+    })
+    @GetMapping("/status/{status}")
+    public ResponseEntity<List<StudySessionResponse>> getStudySessionsByStatus(
+            @AuthenticationPrincipal JwtUserDetails userDetails,
+            @PathVariable Status status
+    ) {
+        List<StudySessionResponse> response = studySessionService.getStudySessionByStatus(userDetails.getAccountId(), status);
+        return ResponseEntity.ok(response);
     }
 }
