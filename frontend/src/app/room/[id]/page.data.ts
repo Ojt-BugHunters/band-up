@@ -12,10 +12,28 @@ export const BACKGROUND_IMAGES = [
 ];
 
 export const POMODORO_PRESETS = [
-    { name: 'Classic Pomodoro', focus: 25, shortBreak: 5, longBreak: 15 },
-    { name: 'Extended Focus', focus: 50, shortBreak: 10, longBreak: 20 },
-    { name: 'Quick Sessions', focus: 15, shortBreak: 3, longBreak: 10 },
-    { name: 'Custom', focus: 25, shortBreak: 5, longBreak: 15 },
+    {
+        name: 'Classic Pomodoro',
+        focus: 25,
+        shortBreak: 5,
+        longBreak: 15,
+        cycle: 4,
+    },
+    {
+        name: 'Extended Focus',
+        focus: 50,
+        shortBreak: 10,
+        longBreak: 20,
+        cycle: 4,
+    },
+    {
+        name: 'Quick Sessions',
+        focus: 15,
+        shortBreak: 3,
+        longBreak: 10,
+        cycle: 4,
+    },
+    { name: 'Custom', focus: 25, shortBreak: 5, longBreak: 15, cycle: 4 },
 ];
 
 export const AMBIENT_SOUNDS: AmbientSound[] = [

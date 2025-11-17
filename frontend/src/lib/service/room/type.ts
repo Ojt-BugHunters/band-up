@@ -43,6 +43,7 @@ export type PomodoroPreset = {
     focus: number;
     shortBreak: number;
     longBreak: number;
+    cycle: number;
 };
 
 export interface RoomMember {
@@ -75,3 +76,14 @@ export const RoomSchema = z.object({
 });
 
 export type CreateRoomFormValues = z.infer<typeof RoomSchema>;
+
+export const TimerSettingSchema = z.object({
+    roomId: z.string(),
+    mode: z.string(),
+    focusTime: z.number(),
+    shortBreak: z.number(),
+    longBreak: z.number(),
+    cycles: z.number(),
+});
+
+export type CreateTimerSettingValues = z.infer<typeof TimerSettingSchema>;

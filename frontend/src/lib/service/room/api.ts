@@ -204,3 +204,33 @@ export const useGetRoomMembers = (roomId: string) => {
         isError: roomQuery.isError || memberQueries.some((q) => q.isError),
     };
 };
+
+export const useCreateTimerSetting = (roomId: string) => {
+    const router = useRouter();
+    const queryClient = useQueryClient();
+    const mutation = useMutation({
+        mutationFn: async (values: z.infer<typeof RoomSchema>) => {
+            const response = await fetchWrapper('/rooms', {
+                method: 'POST',
+                headers: {
+                    Accept: 'application/json',
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(values),
+            });
+
+            await throwIfError(response);
+            return response.json();
+        },
+        onError: (error) => {
+            toast.error(error?.message ?? 'Create room failed');
+        },
+        onSuccess: (data: Room) => {
+            toast.success('Room created successfully');
+            queryClient.setQueryData(['room', data.id], data);
+            router.push(`/room/${data.id}`);
+        },
+    });
+
+    return mutation;
+};
