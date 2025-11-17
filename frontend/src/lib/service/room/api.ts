@@ -61,6 +61,7 @@ export const useGetPublicRooms = () => {
             return await deserialize<Room[]>(response);
         },
         queryKey: ['rooms'],
+        staleTime: 10 * 60 * 1000,
     });
 };
 
