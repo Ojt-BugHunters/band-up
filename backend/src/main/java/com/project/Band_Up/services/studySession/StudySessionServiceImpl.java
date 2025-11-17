@@ -146,6 +146,17 @@ public class StudySessionServiceImpl implements StudySessionService {
         interval.setStatus(Status.PAUSED);
         return saveAndReturn(session, interval);
     }
+    public List<StudySessionResponse> getStudySessionByStatus(UUID userId, Status status) {
+        List<StudySession> sessions =
+                studySessionRepository.findByStatusAndUser_Id(status, userId);
+
+        return sessions.stream()
+                .map(this::toResponse)
+                .toList();
+    }
+
+
+
 
 
     private Account getAccount(UUID userId) {
@@ -196,8 +207,16 @@ public class StudySessionServiceImpl implements StudySessionService {
         List<StudyIntervalResponse> intervalResponses = studyIntervalRepository
                 .findByStudySessionOrderByOrderIndexAsc(studySession)
                 .stream()
-                .map(interval -> modelMapper.map(interval, StudyIntervalResponse.class))
+                .map(interval -> {
+                    StudyIntervalResponse intervalResp = modelMapper.map(interval, StudyIntervalResponse.class);
+                    intervalResp.setStudySessionId(studySession.getId());
+                    intervalResp.setStartedAt(interval.getStartAt());
+                    intervalResp.setEndedAt(interval.getEndedAt());
+                    intervalResp.setPingedAt(interval.getPingedAt());
+                    return intervalResp;
+                })
                 .collect(Collectors.toList());
+
 
         response.setInterval(intervalResponses);
         return response;
