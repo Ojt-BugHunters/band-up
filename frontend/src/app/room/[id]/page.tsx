@@ -1,5 +1,4 @@
 'use client';
-//...
 import type React from 'react';
 
 import { useState, useEffect, useRef, useCallback } from 'react';
@@ -7,14 +6,9 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { toast } from 'sonner';
 import {
     Clock,
-    Video,
     Zap,
     MessageSquare,
-    Mic,
-    MicOff,
-    VideoOff,
     MonitorPlay,
-    PhoneOff,
     DoorOpen,
     Users,
     KeyRound,
@@ -51,6 +45,7 @@ export interface TimerSettings {
     focus: number;
     shortBreak: number;
     longBreak: number;
+    cycle: number;
 }
 
 export type TimePeriod = 'daily' | 'weekly' | 'monthly';
@@ -81,6 +76,7 @@ export default function RoomPage() {
         focus: 25,
         shortBreak: 5,
         longBreak: 15,
+        cycle: 4,
     });
     const [pomodoroSession, setPomodoroSession] = useState(0);
     const [sessionType, setSessionType] = useState<
