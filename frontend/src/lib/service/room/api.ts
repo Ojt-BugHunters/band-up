@@ -11,8 +11,14 @@ import {
 import { useForm } from 'react-hook-form';
 import { toast } from 'sonner';
 import { deserialize, fetchWrapper, throwIfError } from '@/lib/service';
-import { RoomSchema, CreateRoomFormValues, Room } from './type';
+import { RoomSchema, CreateRoomFormValues, Room, StudySession } from './type';
 import { AccountRoomMember } from './type';
+
+export enum StudySessionStatus {
+    PENDING = 'PENDING',
+    ONGOING = 'ONGOING',
+    ENDED = 'ENDED',
+}
 
 export function useCreateRoom() {
     const router = useRouter();
@@ -132,6 +138,7 @@ export const useGetRoomByCode = (roomCode: string | undefined) => {
             return await deserialize<Room>(response);
         },
         enabled: !!roomCode,
+        staleTime: 10 * 60 * 1000,
     });
 };
 
@@ -145,6 +152,7 @@ export const useGetRoomById = (roomId: string) => {
             return await deserialize<Room>(response);
         },
         initialData: () => queryClient.getQueryData<Room>(['room', roomId]),
+        staleTime: 25 * 60 * 1000,
     });
 };
 
@@ -155,6 +163,20 @@ export const useCheckUserInRoom = () => {
             const response = await fetchWrapper('/rooms/check-user-in-room');
             return await deserialize<Room[]>(response);
         },
+        staleTime: 10 * 60 * 1000,
+    });
+};
+
+export const useCheckIfStudySession = (status: StudySessionStatus) => {
+    return useQuery({
+        queryKey: ['study-session'],
+        queryFn: async () => {
+            const response = await fetchWrapper(
+                `/study-sessions/status/${status}`,
+            );
+            return await deserialize<StudySession[]>(response);
+        },
+        staleTime: 60 * 1000,
     });
 };
 
@@ -165,6 +187,7 @@ export const useGetRoomMember = (userId: string) => {
             const response = await fetchWrapper(`/profile/${userId}/avt-info`);
             return await deserialize<AccountRoomMember>(response);
         },
+        staleTime: 10 * 60 * 1000,
     });
 };
 
@@ -203,4 +226,34 @@ export const useGetRoomMembers = (roomId: string) => {
             roomQuery.isLoading || memberQueries.some((q) => q.isLoading),
         isError: roomQuery.isError || memberQueries.some((q) => q.isError),
     };
+};
+
+export const useCreateTimerSetting = (roomId: string) => {
+    const router = useRouter();
+    const queryClient = useQueryClient();
+    const mutation = useMutation({
+        mutationFn: async (values: z.infer<typeof RoomSchema>) => {
+            const response = await fetchWrapper('/rooms', {
+                method: 'POST',
+                headers: {
+                    Accept: 'application/json',
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(values),
+            });
+
+            await throwIfError(response);
+            return response.json();
+        },
+        onError: (error) => {
+            toast.error(error?.message ?? 'Create room failed');
+        },
+        onSuccess: (data: Room) => {
+            toast.success('Room created successfully');
+            queryClient.setQueryData(['room', data.id], data);
+            router.push(`/room/${data.id}`);
+        },
+    });
+
+    return mutation;
 };
