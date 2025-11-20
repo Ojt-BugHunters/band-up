@@ -8,7 +8,7 @@ import {
     useQueryClient,
     UseQueryResult,
 } from '@tanstack/react-query';
-import { useForm } from 'react-hook-form';
+import { Resolver, useForm } from 'react-hook-form';
 import { toast } from 'sonner';
 import { deserialize, fetchWrapper, throwIfError } from '@/lib/service';
 import {
@@ -16,8 +16,10 @@ import {
     CreateRoomFormValues,
     Room,
     StudySession,
-    CreateTimerSettingValues,
-    TimerSettingSchema,
+    StopWatchTimerSettingValues,
+    FocusCreateTimerSettingValues,
+    FocusTimerFormSchema,
+    FocusTimerFormValues,
 } from './type';
 import { AccountRoomMember } from './type';
 
@@ -238,7 +240,9 @@ export const useGetRoomMembers = (roomId: string) => {
 export const useCreateTimerSetting = (roomId: string) => {
     const queryClient = useQueryClient();
     const mutation = useMutation({
-        mutationFn: async (values: CreateTimerSettingValues) => {
+        mutationFn: async (
+            values: FocusCreateTimerSettingValues | StopWatchTimerSettingValues,
+        ) => {
             const response = await fetchWrapper(
                 `/study-sessions/create?roomId=${roomId}`,
                 {
@@ -263,9 +267,16 @@ export const useCreateTimerSetting = (roomId: string) => {
         },
     });
 
-    const form = useForm<CreateTimerSettingValues>({
-        resolver: zodResolver(TimerSettingSchema),
-        defaultValues: {},
+    const form = useForm<FocusTimerFormValues>({
+        resolver: zodResolver(
+            FocusTimerFormSchema,
+        ) as Resolver<FocusTimerFormValues>,
+        defaultValues: {
+            focusTime: 25,
+            shortBreak: 5,
+            longBreak: 15,
+            cycles: 4,
+        },
     });
 
     return { form, mutation };

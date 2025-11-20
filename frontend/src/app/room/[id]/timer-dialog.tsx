@@ -34,7 +34,6 @@ interface TimerControlDialogProps {
     selectedPreset: PomodoroPreset;
     setSelectedPreset: (p: PomodoroPreset) => void;
     isActive: boolean;
-    applyTimerSettings: () => void;
     toggleTimer: () => void;
     resetTimer: () => void;
 }
@@ -48,12 +47,60 @@ export function TimerControlDialog({
     selectedPreset,
     setSelectedPreset,
     isActive,
-    applyTimerSettings,
     toggleTimer,
     resetTimer,
 }: TimerControlDialogProps) {
     const { form: createTimerForm, mutation: createTimerMutation } =
         useCreateTimerSetting(roomId);
+
+    const handleApplyTimerSettings = () => {
+        if (timerTab === 'stopwatch') {
+            createTimerMutation.mutate(
+                { mode: 'StopWatch' },
+                {
+                    onSuccess: () => {
+                        setShowTimerSettings(false);
+                    },
+                },
+            );
+            return;
+        }
+
+        if (selectedPreset.name !== 'Custom') {
+            createTimerMutation.mutate(
+                {
+                    mode: 'FocusTimer',
+                    focusTime: selectedPreset.focus,
+                    shortBreak: selectedPreset.shortBreak,
+                    longBreak: selectedPreset.longBreak,
+                    cycles: selectedPreset.cycle,
+                },
+                {
+                    onSuccess: () => {
+                        setShowTimerSettings(false);
+                    },
+                },
+            );
+            return;
+        }
+
+        createTimerForm.handleSubmit((values) => {
+            createTimerMutation.mutate(
+                {
+                    mode: 'FocusTimer',
+                    focusTime: values.focusTime,
+                    shortBreak: values.shortBreak,
+                    longBreak: values.longBreak,
+                    cycles: values.cycles,
+                },
+                {
+                    onSuccess: () => {
+                        setShowTimerSettings(false);
+                    },
+                },
+            );
+        })();
+    };
     return (
         <div className="flex items-center gap-3">
             <Dialog
@@ -316,7 +363,8 @@ export function TimerControlDialog({
                             </div>
                         )}
                         <Button
-                            onClick={applyTimerSettings}
+                            onClick={handleApplyTimerSettings}
+                            disabled={createTimerMutation.isPending}
                             className="w-full bg-white text-black hover:bg-white/90"
                         >
                             Apply Settings
