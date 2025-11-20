@@ -1,10 +1,14 @@
-package com.project.Band_Up.services.analytics.stats;
+package com.project.Band_Up.services.analytics.sessionStats;
 
+import com.project.Band_Up.dtos.stats.ActivitiesSummaryDto;
 import com.project.Band_Up.dtos.stats.DailyStudyStatDto;
 import com.project.Band_Up.dtos.stats.MonthlyStudyStatDto;
 import com.project.Band_Up.dtos.stats.YearlyStudyStatDto;
 import com.project.Band_Up.entities.StudyInterval;
+import com.project.Band_Up.entities.StudySession;
 import com.project.Band_Up.repositories.StudyIntervalRepository;
+import com.project.Band_Up.repositories.StudySessionRepository;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -21,13 +25,11 @@ import java.util.stream.IntStream;
 
 @Service
 @Transactional(readOnly = true)
+@RequiredArgsConstructor
 public class StudyStatsServiceImpl implements StudyStatsService {
 
     private final StudyIntervalRepository repo;
-
-    public StudyStatsServiceImpl(StudyIntervalRepository repo) {
-        this.repo = repo;
-    }
+    private final StudySessionRepository studySessionRepository;
 
     @Override
     public DailyStudyStatDto getDailyStats(UUID userId, LocalDate date) {
@@ -145,5 +147,13 @@ public class StudyStatsServiceImpl implements StudyStatsService {
                 .totalMinutes(total)
                 .monthlyMinutes(monthlyList)
                 .build();
+    }
+    @Override
+    public ActivitiesSummaryDto getActivities (UUID userId, LocalDate date){
+        LocalDate today = LocalDate.now();              // ngày hôm nay
+        LocalDateTime start = today.atStartOfDay();     // 00:00 hôm nay
+        LocalDateTime end = start.plusDays(1);          // 00:00 ngày mai
+        Integer todaySession = studySessionRepository.countSessionsInRange(start, end, userId);
+        return null;
     }
 }

@@ -1,5 +1,6 @@
-package com.project.Band_Up.services.analytics.stats;
+package com.project.Band_Up.services.analytics.sessionStats;
 
+import com.project.Band_Up.dtos.stats.ActivitiesSummaryDto;
 import com.project.Band_Up.dtos.stats.DailyStudyStatDto;
 import com.project.Band_Up.dtos.stats.MonthlyStudyStatDto;
 import com.project.Band_Up.dtos.stats.YearlyStudyStatDto;
@@ -15,4 +16,6 @@ public interface StudyStatsService {
     MonthlyStudyStatDto getMonthlyStats(UUID userId, YearMonth month);
 
     YearlyStudyStatDto getYearlyStats(UUID userId, int year);
+
+    ActivitiesSummaryDto getActivities(UUID userId, LocalDate date);
 }

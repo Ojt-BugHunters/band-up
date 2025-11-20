@@ -18,7 +18,9 @@ public interface StudyIntervalRepository extends JpaRepository<StudyInterval, UU
             "JOIN si.studySession ss " +
             "WHERE ss.user.id = :userId " +
             "  AND si.startAt < :rangeEnd " +
-            "  AND si.endedAt > :rangeStart")
+            "  AND si.endedAt > :rangeStart" +
+            " AND si.type = 'Focus'"
+    )
     List<StudyInterval> findByUserAndOverlapRange(
             @Param("userId") UUID userId,
             @Param("rangeStart") LocalDateTime rangeStart,

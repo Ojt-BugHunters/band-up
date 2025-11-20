@@ -3,7 +3,7 @@ package com.project.Band_Up.controllers;
 import com.project.Band_Up.dtos.stats.DailyStudyStatDto;
 import com.project.Band_Up.dtos.stats.MonthlyStudyStatDto;
 import com.project.Band_Up.dtos.stats.YearlyStudyStatDto;
-import com.project.Band_Up.services.analytics.stats.StudyStatsService;
+import com.project.Band_Up.services.analytics.sessionStats.StudyStatsService;
 import com.project.Band_Up.utils.JwtUserDetails;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
