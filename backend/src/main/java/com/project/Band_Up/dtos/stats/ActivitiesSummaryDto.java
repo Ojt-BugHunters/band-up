@@ -14,5 +14,4 @@ public class ActivitiesSummaryDto {
     private Integer focusedTime;
     private Integer bestSession;
     private Integer taskCompleted;
-
 }
