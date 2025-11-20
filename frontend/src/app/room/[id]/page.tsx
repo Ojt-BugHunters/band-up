@@ -1,7 +1,7 @@
 'use client';
 import type React from 'react';
 
-import { useState, useEffect, useRef, useCallback } from 'react';
+import { useState, useEffect, useRef, useCallback, useMemo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { toast } from 'sonner';
 import {
@@ -13,7 +13,14 @@ import {
     Users,
     KeyRound,
 } from 'lucide-react';
-import { Task, AmbientSound } from '@/lib/service/room';
+import {
+    Task,
+    AmbientSound,
+    useGetStudySessions,
+    StudySessionStatus,
+    StudySession,
+    useCreateTimerSetting,
+} from '@/lib/service/room';
 import {
     BACKGROUND_IMAGES,
     POMODORO_PRESETS,
@@ -53,14 +60,154 @@ export type TimePeriod = 'daily' | 'weekly' | 'monthly';
 export type DisplayMode = 'pomodoro' | 'ai-chat' | 'room' | 'collaboration';
 
 export default function RoomPage() {
+    // get room id
     const { id } = useParams();
+    // get room data
     const { data: room, isLoading, isFetching } = useGetRoomById(id as string);
     const { members } = useGetRoomMembers(id as string);
     const { mutate: leftRoomMutation } = useLeftRoom();
-    const [minutes, setMinutes] = useState(25);
+    const { form: createTimerForm, mutation: createTimerMutation } =
+        useCreateTimerSetting(id as string);
+    //-----------PROPS FOR POMODORO TAB-------------
+    /// --------- Timer -----------------------------
+    // Logic here:
+    // User must create study sessions to get timer. Check first
+    // 1. Get study sessions data
+    const { data: pendingSessions, isLoading: isLoadingPending } =
+        useGetStudySessions(StudySessionStatus.PENDING);
+    const { data: ongoingSessions, isLoading: isLoadingOnGoing } =
+        useGetStudySessions(StudySessionStatus.ONGOING);
+
+    const [minutes, setMinutes] = useState(0);
     const [seconds, setSeconds] = useState(0);
+
+    const isLoadingSessions = isLoadingPending || isLoadingOnGoing;
+
+    const hasAnySession =
+        (pendingSessions?.length ?? 0) > 0 ||
+        (ongoingSessions?.length ?? 0) > 0;
+
+    const canToggleTimer = !isLoadingSessions && hasAnySession;
+
+    // to check whether user is in any session
+    const currentSession = useMemo<StudySession | null>(() => {
+        if (ongoingSessions?.length) return ongoingSessions[0];
+        if (pendingSessions?.length) return pendingSessions[0];
+        return null;
+    }, [pendingSessions, ongoingSessions]);
+
+    // Logic here:
+    // 1. if not have any session yet: 00: 00
+    // 2. if have pending session: --> focus time
+    // 3. if have ongoing session: --> focus time - distance(ping time(ms) - start time(ms))
+    useEffect(() => {
+        if (isLoadingSessions) return;
+
+        // case 1
+        if (!currentSession) {
+            setMinutes(0);
+            setSeconds(0);
+            return;
+        }
+
+        // case 2
+        if (currentSession.status === StudySessionStatus.PENDING) {
+            setMinutes(currentSession.focusTime ?? 0);
+            setSeconds(0);
+            return;
+        }
+
+        // 3. case 3, find ongoing interval
+        if (currentSession.status === StudySessionStatus.ONGOING) {
+            const ongoingInterval = currentSession.interval?.find(
+                (it) => it.status === 'ONGOING',
+            );
+
+            if (!ongoingInterval) {
+                setMinutes(currentSession.focusTime ?? 0);
+                setSeconds(0);
+                return;
+            }
+            // we convert to second because getTime() of TS work with milisecond unit
+            const focusTotalSeconds = (currentSession.focusTime ?? 0) * 60;
+
+            const startMs = new Date(ongoingInterval.startedAt).getTime();
+            const pingMs = new Date(ongoingInterval.pingedAt).getTime();
+
+            // ping - start / 1000 --> convert to second unit
+            const elapsedSeconds = Math.max(
+                0,
+                Math.floor((pingMs - startMs) / 1000),
+            );
+
+            const remainingSeconds = Math.max(
+                0,
+                focusTotalSeconds - elapsedSeconds,
+            );
+
+            // convert to minute unit
+            setMinutes(Math.floor(remainingSeconds / 60));
+            setSeconds(remainingSeconds % 60);
+            return;
+        }
+
+        setMinutes(0);
+        setSeconds(0);
+    }, [isLoadingSessions, currentSession]);
+
+    const handleApplyTimerSettings = () => {
+        if (timerTab === 'stopwatch') {
+            createTimerMutation.mutate(
+                { mode: 'StopWatch' },
+                {
+                    onSuccess: () => {
+                        setShowTimerSettings(false);
+                    },
+                },
+            );
+            return;
+        }
+
+        if (selectedPreset.name !== 'Custom') {
+            createTimerMutation.mutate(
+                {
+                    mode: 'FocusTimer',
+                    focusTime: selectedPreset.focus,
+                    shortBreak: selectedPreset.shortBreak,
+                    longBreak: selectedPreset.longBreak,
+                    cycles: selectedPreset.cycle,
+                },
+                {
+                    onSuccess: () => {
+                        setShowTimerSettings(false);
+                    },
+                },
+            );
+            return;
+        }
+
+        createTimerForm.handleSubmit((values) => {
+            createTimerMutation.mutate(
+                {
+                    mode: 'FocusTimer',
+                    focusTime: values.focusTime,
+                    shortBreak: values.shortBreak,
+                    longBreak: values.longBreak,
+                    cycles: values.cycles,
+                },
+                {
+                    onSuccess: () => {
+                        setShowTimerSettings(false);
+                    },
+                },
+            );
+        })();
+    };
+
     const [isActive, setIsActive] = useState(false);
+
     const [isPomodoroMode, setIsPomodoroMode] = useState(true); // consider pomodoro mode or timelapse mode
+
     const [task, setTask] = useState('');
     const [backgroundImage, setBackgroundImage] = useState('');
     const [taskList, setTaskList] = useState<Task[]>([]);
@@ -68,8 +215,6 @@ export default function RoomPage() {
     const [flyingTask, setFlyingTask] = useState<FlyingTask | null>(null); // consider the task apply fling animation (todolist task)
     const [showTimerSettings, setShowTimerSettings] = useState(false);
     const [selectedPreset, setSelectedPreset] = useState(POMODORO_PRESETS[0]);
-    const [countUpTimer, setCountUpTimer] = useState(false);
-    const [deepFocus, setDeepFocus] = useState(false);
     const [timerTab, setTimerTab] = useState<'focus' | 'stopwatch'>('focus');
 
     const [customSettings, setCustomSettings] = useState<TimerSettings>({
@@ -122,10 +267,6 @@ export default function RoomPage() {
         setBackgroundImage(randomImage);
     }, []);
 
-    const onLeaveroom = () => {
-        leftRoomMutation(id as string);
-    };
-
     const handlePomodoroComplete = useCallback(() => {
         if (!isPomodoroMode) return;
         const settings =
@@ -168,7 +309,6 @@ export default function RoomPage() {
         if (isActive) {
             intervalRef.current = setInterval(() => {
                 if (isPomodoroMode) {
-                    // Countdown mode for Pomodoro
                     if (seconds === 0) {
                         if (minutes === 0) {
                             // Timer completed
@@ -182,7 +322,6 @@ export default function RoomPage() {
                         setSeconds(seconds - 1);
                     }
                 } else {
-                    // Count up mode for Stopwatch
                     if (seconds === 59) {
                         setMinutes(minutes + 1);
                         setSeconds(0);
@@ -263,6 +402,10 @@ export default function RoomPage() {
                 task.id === id ? { ...task, completed: !task.completed } : task,
             ),
         );
+    };
+
+    const onLeaveroom = () => {
+        leftRoomMutation(id as string);
     };
 
     const removeTask = (id: string) => {
@@ -469,9 +612,23 @@ export default function RoomPage() {
                             className="absolute inset-0"
                         >
                             <PomodoroDisplay
-                                onLeaveRoom={onLeaveroom}
+                                // timer control
+                                showTimerSettings={showTimerSettings}
+                                setShowTimerSettings={setShowTimerSettings}
+                                timerTab={timerTab}
+                                setTimerTab={setTimerTab}
+                                selectedPreset={selectedPreset}
+                                setSelectedPreset={setSelectedPreset}
+                                form={createTimerForm}
+                                handleApplyTimerSettings={
+                                    handleApplyTimerSettings
+                                }
+                                toggleTimer={toggleTimer}
+                                canToggleTimer={canToggleTimer}
+                                // core timer
                                 minutes={minutes}
                                 seconds={seconds}
+                                onLeaveRoom={onLeaveroom}
                                 isActive={isActive}
                                 isPomodoroMode={isPomodoroMode}
                                 task={task}
@@ -479,23 +636,10 @@ export default function RoomPage() {
                                 taskList={taskList}
                                 pomodoroSession={pomodoroSession}
                                 sessionType={sessionType}
-                                toggleTimer={toggleTimer}
                                 resetTimer={resetTimer}
                                 handleTaskKeyDown={handleTaskKeyDown}
                                 inputRef={inputRef}
                                 taskButtonRef={taskButtonRef}
-                                showTimerSettings={showTimerSettings}
-                                setShowTimerSettings={setShowTimerSettings}
-                                timerTab={timerTab}
-                                setTimerTab={setTimerTab}
-                                selectedPreset={selectedPreset}
-                                setSelectedPreset={setSelectedPreset}
-                                customSettings={customSettings}
-                                setCustomSettings={setCustomSettings}
-                                countUpTimer={countUpTimer}
-                                setCountUpTimer={setCountUpTimer}
-                                deepFocus={deepFocus}
-                                setDeepFocus={setDeepFocus}
                                 toggleTaskCompletion={toggleTaskCompletion}
                                 removeTask={removeTask}
                                 handleDragStart={handleDragStart}

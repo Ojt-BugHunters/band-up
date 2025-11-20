@@ -15,7 +15,7 @@ import { Clock, Timer } from 'lucide-react';
 import { POMODORO_PRESETS } from './page.data';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
-import { PomodoroPreset, useCreateTimerSetting } from '@/lib/service/room';
+import { FocusTimerFormValues, PomodoroPreset } from '@/lib/service/room';
 import {
     Form,
     FormControl,
@@ -24,83 +24,40 @@ import {
     FormLabel,
     FormMessage,
 } from '@/components/ui/form';
+import { UseFormReturn } from 'react-hook-form';
 
 interface TimerControlDialogProps {
-    roomId: string;
     showTimerSettings: boolean;
     setShowTimerSettings: (open: boolean) => void;
+
     timerTab: 'focus' | 'stopwatch';
     setTimerTab: (tab: 'focus' | 'stopwatch') => void;
+
     selectedPreset: PomodoroPreset;
     setSelectedPreset: (p: PomodoroPreset) => void;
-    isActive: boolean;
+
+    form: UseFormReturn<FocusTimerFormValues>;
+    handleApplyTimerSettings: () => void;
+
     toggleTimer: () => void;
-    resetTimer: () => void;
+    canToggleTimer: boolean;
+
+    isActive: boolean;
 }
 
 export function TimerControlDialog({
-    roomId,
     showTimerSettings,
     setShowTimerSettings,
     timerTab,
     setTimerTab,
     selectedPreset,
     setSelectedPreset,
-    isActive,
+    form,
+    handleApplyTimerSettings,
     toggleTimer,
-    resetTimer,
+    canToggleTimer,
+    isActive,
 }: TimerControlDialogProps) {
-    const { form: createTimerForm, mutation: createTimerMutation } =
-        useCreateTimerSetting(roomId);
-
-    const handleApplyTimerSettings = () => {
-        if (timerTab === 'stopwatch') {
-            createTimerMutation.mutate(
-                { mode: 'StopWatch' },
-                {
-                    onSuccess: () => {
-                        setShowTimerSettings(false);
-                    },
-                },
-            );
-            return;
-        }
-
-        if (selectedPreset.name !== 'Custom') {
-            createTimerMutation.mutate(
-                {
-                    mode: 'FocusTimer',
-                    focusTime: selectedPreset.focus,
-                    shortBreak: selectedPreset.shortBreak,
-                    longBreak: selectedPreset.longBreak,
-                    cycles: selectedPreset.cycle,
-                },
-                {
-                    onSuccess: () => {
-                        setShowTimerSettings(false);
-                    },
-                },
-            );
-            return;
-        }
-
-        createTimerForm.handleSubmit((values) => {
-            createTimerMutation.mutate(
-                {
-                    mode: 'FocusTimer',
-                    focusTime: values.focusTime,
-                    shortBreak: values.shortBreak,
-                    longBreak: values.longBreak,
-                    cycles: values.cycles,
-                },
-                {
-                    onSuccess: () => {
-                        setShowTimerSettings(false);
-                    },
-                },
-            );
-        })();
-    };
     return (
         <div className="flex items-center gap-3">
             <Dialog
@@ -187,12 +144,10 @@ export function TimerControlDialog({
                                 </div>
 
                                 {selectedPreset.name === 'Custom' && (
-                                    <Form {...createTimerForm}>
+                                    <Form {...form}>
                                         <form className="space-y-3 rounded-lg border border-zinc-700/30 bg-zinc-800/50 p-4">
                                             <FormField
-                                                control={
-                                                    createTimerForm.control
-                                                }
+                                                control={form.control}
                                                 name="focusTime"
                                                 render={({ field }) => (
                                                     <FormItem>
@@ -231,9 +186,7 @@ export function TimerControlDialog({
                                             />
 
                                             <FormField
-                                                control={
-                                                    createTimerForm.control
-                                                }
+                                                control={form.control}
                                                 name="shortBreak"
                                                 render={({ field }) => (
                                                     <FormItem>
@@ -272,9 +225,7 @@ export function TimerControlDialog({
                                             />
 
                                             <FormField
-                                                control={
-                                                    createTimerForm.control
-                                                }
+                                                control={form.control}
                                                 name="longBreak"
                                                 render={({ field }) => (
                                                     <FormItem>
@@ -313,9 +264,7 @@ export function TimerControlDialog({
                                             />
 
                                             <FormField
-                                                control={
-                                                    createTimerForm.control
-                                                }
+                                                control={form.control}
                                                 name="cycles"
                                                 render={({ field }) => (
                                                     <FormItem>
@@ -364,7 +313,6 @@ export function TimerControlDialog({
                         )}
                         <Button
                             onClick={handleApplyTimerSettings}
-                            disabled={createTimerMutation.isPending}
                             className="w-full bg-white text-black hover:bg-white/90"
                         >
                             Apply Settings
@@ -375,19 +323,11 @@ export function TimerControlDialog({
             <Button
                 onClick={toggleTimer}
                 size="lg"
+                disabled={!canToggleTimer}
                 className="h-14 rounded-2xl bg-white px-12 text-lg font-bold text-black shadow-2xl shadow-black/30 transition-all hover:scale-105 hover:bg-white/90 hover:shadow-[0_20px_50px_rgba(0,0,0,0.4)]"
             >
                 {isActive ? 'Pause' : 'Start'}
             </Button>
-            {isActive && (
-                <Button
-                    onClick={resetTimer}
-                    variant="ghost"
-                    className="font-semibold text-white hover:bg-zinc-800/50 hover:text-white"
-                >
-                    Reset
-                </Button>
-            )}
         </div>
     );
 }

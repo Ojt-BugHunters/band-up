@@ -9,13 +9,18 @@ import { BackgroundImage } from './background-image';
 import { ToDoListBox } from './to-do-list';
 import { LeaderBoard } from './leaderboard';
 import { AnalyticComponent } from './analytic-dialog';
-import { AmbientSound, PomodoroPreset, Task } from '@/lib/service/room';
-import { TimerSettings } from './page';
+import {
+    AmbientSound,
+    FocusTimerFormValues,
+    PomodoroPreset,
+    Task,
+} from '@/lib/service/room';
 import { RefObject, useState } from 'react';
 import { TimePeriod } from './page';
 import { RoomMenuDialog } from './room-menu';
 import { Room } from '@/lib/service/room';
 import { AccountRoomMember } from '@/lib/service/room';
+import { UseFormReturn } from 'react-hook-form';
 export type DisplayMode = 'pomodoro' | 'ai-chat' | 'room' | 'collaboration';
 export type SessionType = 'focus' | 'shortBreak' | 'longBreak';
 export type TimerTab = 'focus' | 'stopwatch';
@@ -25,7 +30,6 @@ export interface PomodoroDisplayProps {
     // Core timer
     minutes: number;
     seconds: number;
-    isActive: boolean;
     isPomodoroMode: boolean;
     pomodoroSession: number;
     sessionType: SessionType;
@@ -43,7 +47,6 @@ export interface PomodoroDisplayProps {
     handleDragEnd: () => void;
 
     // Timer controls
-    toggleTimer: () => void;
     resetTimer: () => void;
 
     // Timer settings
@@ -53,12 +56,11 @@ export interface PomodoroDisplayProps {
     setTimerTab: (tab: TimerTab) => void;
     selectedPreset: PomodoroPreset;
     setSelectedPreset: (preset: PomodoroPreset) => void;
-    customSettings: TimerSettings;
-    setCustomSettings: (settings: TimerSettings) => void;
-    countUpTimer: boolean;
-    setCountUpTimer: (value: boolean) => void;
-    deepFocus: boolean;
-    setDeepFocus: (value: boolean) => void;
+    form: UseFormReturn<FocusTimerFormValues>;
+    handleApplyTimerSettings: () => void;
+    toggleTimer: () => void;
+    canToggleTimer: boolean;
+    isActive: boolean;
 
     // Ambient sounds
     showAmbientMixer: boolean;
@@ -114,29 +116,33 @@ export interface PomodoroDisplayProps {
 }
 
 export function PomodoroDisplay({
-    onLeaveRoom,
-    members,
-    minutes,
-    draggedIndex,
-    seconds,
-    isActive,
-    isPomodoroMode,
-    task,
-    setTask,
-    taskList,
-    pomodoroSession,
-    sessionType,
-    toggleTimer,
-    resetTimer,
-    handleTaskKeyDown,
-    inputRef,
-    taskButtonRef,
+    // timer control dialog
     showTimerSettings,
     setShowTimerSettings,
     timerTab,
     setTimerTab,
     selectedPreset,
     setSelectedPreset,
+    form,
+    handleApplyTimerSettings,
+    toggleTimer,
+    canToggleTimer,
+    isActive,
+    onLeaveRoom,
+    members,
+    minutes,
+    draggedIndex,
+    seconds,
+    isPomodoroMode,
+    task,
+    setTask,
+    taskList,
+    pomodoroSession,
+    sessionType,
+    handleTaskKeyDown,
+    inputRef,
+    taskButtonRef,
+
     toggleTaskCompletion,
     removeTask,
     handleDragStart,
@@ -219,7 +225,7 @@ export function PomodoroDisplay({
                     <>
                         <div
                             className="relative flex cursor-pointer items-center gap-2 rounded-full border border-white/10 bg-black/40 px-4 py-2 shadow-[0_8px_25px_rgba(0,0,0,0.6),_0_2px_4px_rgba(255,255,255,0.08)_inset] backdrop-blur-xl"
-                            onClick={() => setRoomMenuDialogOpen(true)} // chỉ mở, không lồng dialog
+                            onClick={() => setRoomMenuDialogOpen(true)}
                         >
                             <span className="relative z-10 text-sm font-bold text-white">
                                 {room?.roomName} rooms
@@ -262,14 +268,12 @@ export function PomodoroDisplay({
                         ))}
                     </div>
                 )}
-
                 <div className="text-center">
                     <div className="text-[120px] leading-none font-extrabold text-white drop-shadow-2xl md:text-[180px]">
                         {String(minutes).padStart(2, '0')}:
                         {String(seconds).padStart(2, '0')}
                     </div>
                 </div>
-
                 <div
                     ref={inputRef}
                     className="relative flex w-full max-w-md items-center gap-3 rounded-2xl border border-white/10 bg-black/40 px-4 py-3 shadow-[0_10px_30px_rgba(0,0,0,0.6)] backdrop-blur-xl transition-all focus-within:ring-2 focus-within:ring-white/15 hover:bg-black/50"
@@ -294,7 +298,6 @@ export function PomodoroDisplay({
                         className="relative z-10 flex-1 border-0 bg-transparent p-0 font-medium text-white shadow-none placeholder:text-white/70 focus:ring-0 focus:outline-none focus-visible:ring-0"
                     />
                 </div>
-
                 {taskList.length > 0 && !taskList[0].completed && (
                     <div className="relative flex items-center gap-2 rounded-2xl border border-white/10 bg-black/40 px-6 py-3 shadow-[0_10px_30px_rgba(0,0,0,0.6),_0_2px_4px_rgba(255,255,255,0.08)_inset] backdrop-blur-xl transition-all hover:bg-black/50">
                         <span
@@ -311,18 +314,18 @@ export function PomodoroDisplay({
                         </span>
                     </div>
                 )}
-
                 <TimerControlDialog
-                    roomId={room.id}
                     showTimerSettings={showTimerSettings}
                     setShowTimerSettings={setShowTimerSettings}
-                    selectedPreset={selectedPreset}
-                    setSelectedPreset={setSelectedPreset}
                     timerTab={timerTab}
                     setTimerTab={setTimerTab}
+                    selectedPreset={selectedPreset}
+                    setSelectedPreset={setSelectedPreset}
+                    form={form}
+                    handleApplyTimerSettings={handleApplyTimerSettings}
                     toggleTimer={toggleTimer}
+                    canToggleTimer={canToggleTimer}
                     isActive={isActive}
-                    resetTimer={resetTimer}
                 />
             </main>
             <footer className="flex items-center justify-between p-6">

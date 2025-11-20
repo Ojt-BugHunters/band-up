@@ -200,6 +200,19 @@ export const useGetRoomMember = (userId: string) => {
     });
 };
 
+export const useGetStudySessions = (status: StudySessionStatus) => {
+    return useQuery({
+        queryKey: ['study-sessions'],
+        queryFn: async () => {
+            const response = await fetchWrapper(
+                `/study-sessions/status/${status}`,
+            );
+            return await deserialize<StudySession[]>(response);
+        },
+        staleTime: Infinity,
+    });
+};
+
 export const useGetRoomMembers = (roomId: string) => {
     const { data: room, ...roomQuery } = useGetRoomById(roomId);
 
@@ -263,7 +276,7 @@ export const useCreateTimerSetting = (roomId: string) => {
         },
         onSuccess: () => {
             toast.success('Create sessions successfully');
-            queryClient.invalidateQueries({ queryKey: ['room'] });
+            queryClient.invalidateQueries({ queryKey: ['study-sessions'] });
         },
     });
 
