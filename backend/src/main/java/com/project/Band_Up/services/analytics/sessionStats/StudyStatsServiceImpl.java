@@ -4,10 +4,14 @@ import com.project.Band_Up.dtos.stats.ActivitiesSummaryDto;
 import com.project.Band_Up.dtos.stats.DailyStudyStatDto;
 import com.project.Band_Up.dtos.stats.MonthlyStudyStatDto;
 import com.project.Band_Up.dtos.stats.YearlyStudyStatDto;
+import com.project.Band_Up.entities.Account;
 import com.project.Band_Up.entities.StudyInterval;
 import com.project.Band_Up.entities.StudySession;
+import com.project.Band_Up.repositories.AccountRepository;
 import com.project.Band_Up.repositories.StudyIntervalRepository;
 import com.project.Band_Up.repositories.StudySessionRepository;
+import com.project.Band_Up.repositories.TaskRepository;
+import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -30,6 +34,9 @@ public class StudyStatsServiceImpl implements StudyStatsService {
 
     private final StudyIntervalRepository repo;
     private final StudySessionRepository studySessionRepository;
+    private final StudyIntervalRepository studyIntervalRepository;
+    private final AccountRepository accountRepository;
+    private final TaskRepository taskRepository;
 
     @Override
     public DailyStudyStatDto getDailyStats(UUID userId, LocalDate date) {
@@ -150,10 +157,20 @@ public class StudyStatsServiceImpl implements StudyStatsService {
     }
     @Override
     public ActivitiesSummaryDto getActivities (UUID userId, LocalDate date){
-        LocalDate today = LocalDate.now();              // ngày hôm nay
-        LocalDateTime start = today.atStartOfDay();     // 00:00 hôm nay
-        LocalDateTime end = start.plusDays(1);          // 00:00 ngày mai
-        Integer todaySession = studySessionRepository.countSessionsInRange(start, end, userId);
-        return null;
+        Account account = accountRepository.findById(userId).
+                orElseThrow(() -> new EntityNotFoundException("user not found"));
+        LocalDate today = (date != null) ? date : LocalDate.now();
+        LocalDateTime start = today.atStartOfDay();
+        LocalDateTime end = start.plusDays(1);
+        Integer todaySessions = studySessionRepository.countSessionsInRange(start, end, userId);
+        Integer todayFocusTime = studyIntervalRepository.getTodayFocusDuration(start, end, userId);
+        Integer bestSession = account.getBestSession();
+        Integer todayTasks = taskRepository.countCompletedTasksInDay(start, end, userId);
+        return ActivitiesSummaryDto.builder()
+                .bestSession(bestSession)
+                .focusedTime(todayFocusTime)
+                .taskCompleted(todayTasks)
+                .totalSessions(todaySessions)
+                .build();
     }
 }

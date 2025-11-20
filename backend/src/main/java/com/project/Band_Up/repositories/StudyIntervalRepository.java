@@ -25,4 +25,19 @@ public interface StudyIntervalRepository extends JpaRepository<StudyInterval, UU
             @Param("userId") UUID userId,
             @Param("rangeStart") LocalDateTime rangeStart,
             @Param("rangeEnd") LocalDateTime rangeEnd);
+
+    @Query("""
+    SELECT SUM(si.duration)
+    FROM StudyInterval si
+    JOIN si.studySession ss
+    WHERE ss.user.id = :userId
+      AND si.type = 'Focus'
+      AND si.startAt >= :start
+      AND si.startAt < :end
+""")
+    Integer getTodayFocusDuration(
+            @Param("start") LocalDateTime start,
+            @Param("end") LocalDateTime end,
+            @Param("userId") UUID userId
+    );
 }
