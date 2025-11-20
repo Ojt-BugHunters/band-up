@@ -59,7 +59,6 @@ export interface PomodoroDisplayProps {
     setCountUpTimer: (value: boolean) => void;
     deepFocus: boolean;
     setDeepFocus: (value: boolean) => void;
-    applyTimerSettings: () => void;
 
     // Ambient sounds
     showAmbientMixer: boolean;
@@ -138,13 +137,6 @@ export function PomodoroDisplay({
     setTimerTab,
     selectedPreset,
     setSelectedPreset,
-    customSettings,
-    setCustomSettings,
-    countUpTimer,
-    setCountUpTimer,
-    deepFocus,
-    setDeepFocus,
-    applyTimerSettings,
     toggleTaskCompletion,
     removeTask,
     handleDragStart,
@@ -321,19 +313,13 @@ export function PomodoroDisplay({
                 )}
 
                 <TimerControlDialog
+                    roomId={room.id}
                     showTimerSettings={showTimerSettings}
                     setShowTimerSettings={setShowTimerSettings}
                     selectedPreset={selectedPreset}
                     setSelectedPreset={setSelectedPreset}
                     timerTab={timerTab}
                     setTimerTab={setTimerTab}
-                    countUpTimer={countUpTimer}
-                    setCountUpTimer={setCountUpTimer}
-                    deepFocus={deepFocus}
-                    setDeepFocus={setDeepFocus}
-                    customSettings={customSettings}
-                    setCustomSettings={setCustomSettings}
-                    applyTimerSettings={applyTimerSettings}
                     toggleTimer={toggleTimer}
                     isActive={isActive}
                     resetTimer={resetTimer}

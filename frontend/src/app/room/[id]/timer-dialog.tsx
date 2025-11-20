@@ -15,8 +15,7 @@ import { Clock, Timer } from 'lucide-react';
 import { POMODORO_PRESETS } from './page.data';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
-import { PomodoroPreset } from '@/lib/service/room';
-import { TimerSettings } from './page';
+import { PomodoroPreset, useCreateTimerSetting } from '@/lib/service/room';
 import {
     Form,
     FormControl,
@@ -27,14 +26,13 @@ import {
 } from '@/components/ui/form';
 
 interface TimerControlDialogProps {
+    roomId: string;
     showTimerSettings: boolean;
     setShowTimerSettings: (open: boolean) => void;
     timerTab: 'focus' | 'stopwatch';
     setTimerTab: (tab: 'focus' | 'stopwatch') => void;
     selectedPreset: PomodoroPreset;
     setSelectedPreset: (p: PomodoroPreset) => void;
-    customSettings: TimerSettings;
-    setCustomSettings: (setting: TimerSettings) => void;
     isActive: boolean;
     applyTimerSettings: () => void;
     toggleTimer: () => void;
@@ -42,19 +40,20 @@ interface TimerControlDialogProps {
 }
 
 export function TimerControlDialog({
+    roomId,
     showTimerSettings,
     setShowTimerSettings,
     timerTab,
     setTimerTab,
     selectedPreset,
     setSelectedPreset,
-    customSettings,
-    setCustomSettings,
     isActive,
     applyTimerSettings,
     toggleTimer,
     resetTimer,
 }: TimerControlDialogProps) {
+    const { form: createTimerForm, mutation: createTimerMutation } =
+        useCreateTimerSetting(roomId);
     return (
         <div className="flex items-center gap-3">
             <Dialog
@@ -141,11 +140,13 @@ export function TimerControlDialog({
                                 </div>
 
                                 {selectedPreset.name === 'Custom' && (
-                                    <Form {...form}>
+                                    <Form {...createTimerForm}>
                                         <form className="space-y-3 rounded-lg border border-zinc-700/30 bg-zinc-800/50 p-4">
                                             <FormField
-                                                control={form.control}
-                                                name="focus"
+                                                control={
+                                                    createTimerForm.control
+                                                }
+                                                name="focusTime"
                                                 render={({ field }) => (
                                                     <FormItem>
                                                         <div className="flex items-center gap-3">
@@ -183,7 +184,9 @@ export function TimerControlDialog({
                                             />
 
                                             <FormField
-                                                control={form.control}
+                                                control={
+                                                    createTimerForm.control
+                                                }
                                                 name="shortBreak"
                                                 render={({ field }) => (
                                                     <FormItem>
@@ -221,9 +224,10 @@ export function TimerControlDialog({
                                                 )}
                                             />
 
-                                            {/* Long Break */}
                                             <FormField
-                                                control={form.control}
+                                                control={
+                                                    createTimerForm.control
+                                                }
                                                 name="longBreak"
                                                 render={({ field }) => (
                                                     <FormItem>
@@ -261,10 +265,11 @@ export function TimerControlDialog({
                                                 )}
                                             />
 
-                                            {/* Cycle */}
                                             <FormField
-                                                control={form.control}
-                                                name="cycle"
+                                                control={
+                                                    createTimerForm.control
+                                                }
+                                                name="cycles"
                                                 render={({ field }) => (
                                                     <FormItem>
                                                         <div className="flex items-center gap-3">

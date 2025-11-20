@@ -225,25 +225,6 @@ export default function RoomPage() {
         }
     };
 
-    const applyTimerSettings = () => {
-        setIsPomodoroMode(timerTab === 'focus');
-        setIsActive(false);
-        if (timerTab === 'focus') {
-            const settings =
-                selectedPreset.name === 'Custom'
-                    ? customSettings
-                    : selectedPreset;
-            setMinutes(settings.focus);
-            setSeconds(0);
-            setSessionType('focus');
-            setPomodoroSession(0);
-        } else {
-            setMinutes(0);
-            setSeconds(0);
-        }
-        setShowTimerSettings(false);
-    };
-
     const handleTaskKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
         if (e.key === 'Enter' && task.trim()) {
             const inputRect = inputRef.current?.getBoundingClientRect();
@@ -515,7 +496,6 @@ export default function RoomPage() {
                                 setCountUpTimer={setCountUpTimer}
                                 deepFocus={deepFocus}
                                 setDeepFocus={setDeepFocus}
-                                applyTimerSettings={applyTimerSettings}
                                 toggleTaskCompletion={toggleTaskCompletion}
                                 removeTask={removeTask}
                                 handleDragStart={handleDragStart}

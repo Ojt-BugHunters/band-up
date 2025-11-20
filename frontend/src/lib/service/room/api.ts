@@ -11,7 +11,14 @@ import {
 import { useForm } from 'react-hook-form';
 import { toast } from 'sonner';
 import { deserialize, fetchWrapper, throwIfError } from '@/lib/service';
-import { RoomSchema, CreateRoomFormValues, Room, StudySession } from './type';
+import {
+    RoomSchema,
+    CreateRoomFormValues,
+    Room,
+    StudySession,
+    CreateTimerSettingValues,
+    TimerSettingSchema,
+} from './type';
 import { AccountRoomMember } from './type';
 
 export enum StudySessionStatus {
@@ -229,31 +236,37 @@ export const useGetRoomMembers = (roomId: string) => {
 };
 
 export const useCreateTimerSetting = (roomId: string) => {
-    const router = useRouter();
     const queryClient = useQueryClient();
     const mutation = useMutation({
-        mutationFn: async (values: z.infer<typeof RoomSchema>) => {
-            const response = await fetchWrapper('/rooms', {
-                method: 'POST',
-                headers: {
-                    Accept: 'application/json',
-                    'Content-Type': 'application/json',
+        mutationFn: async (values: CreateTimerSettingValues) => {
+            const response = await fetchWrapper(
+                `/study-sessions/create?roomId=${roomId}`,
+                {
+                    method: 'POST',
+                    headers: {
+                        Accept: 'application/json',
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(values),
                 },
-                body: JSON.stringify(values),
-            });
+            );
 
             await throwIfError(response);
             return response.json();
         },
         onError: (error) => {
-            toast.error(error?.message ?? 'Create room failed');
+            toast.error(error?.message ?? 'Create TimerSessions fail');
         },
-        onSuccess: (data: Room) => {
-            toast.success('Room created successfully');
-            queryClient.setQueryData(['room', data.id], data);
-            router.push(`/room/${data.id}`);
+        onSuccess: () => {
+            toast.success('Create sessions successfully');
+            queryClient.invalidateQueries({ queryKey: ['room'] });
         },
     });
 
-    return mutation;
+    const form = useForm<CreateTimerSettingValues>({
+        resolver: zodResolver(TimerSettingSchema),
+        defaultValues: {},
+    });
+
+    return { form, mutation };
 };
