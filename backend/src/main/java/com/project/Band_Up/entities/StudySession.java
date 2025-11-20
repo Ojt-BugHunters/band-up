@@ -40,17 +40,12 @@ public class StudySession {
     @Enumerated(EnumType.STRING)
     private SessionMode mode;
 
-    @NotNull
-    @Column(nullable = false)
     private BigInteger focusTime;
-    @NotNull
-    @Column(nullable = false)
+
     private BigInteger shortBreak;
-    @NotNull
-    @Column(nullable = false)
+
     private BigInteger longBreak;
-    @NotNull
-    @Column(nullable = false)
+    
     private Integer cycles;
 
     private LocalDateTime startedAt;
