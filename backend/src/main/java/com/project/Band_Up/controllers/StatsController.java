@@ -1,5 +1,6 @@
 package com.project.Band_Up.controllers;
 
+import com.project.Band_Up.dtos.stats.ActivitiesSummaryDto;
 import com.project.Band_Up.dtos.stats.DailyStudyStatDto;
 import com.project.Band_Up.dtos.stats.MonthlyStudyStatDto;
 import com.project.Band_Up.dtos.stats.YearlyStudyStatDto;
@@ -76,4 +77,20 @@ public class StatsController {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Server error: " + e.getMessage());
         }
     }
+    @GetMapping("/session-overview")
+    public ResponseEntity<?> getOverviewStats(
+            @AuthenticationPrincipal JwtUserDetails userDetails,
+            @RequestParam("date") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) String dateStr
+    ) {
+        try {
+            LocalDate date = LocalDate.parse(dateStr);
+            ActivitiesSummaryDto dto = studyStatsService.getActivities(userDetails.getAccountId(), date);
+            return ResponseEntity.ok(dto);
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Invalid parameters.");
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Server error: " + e.getMessage());
+        }
+    }
+
 }
