@@ -7,8 +7,10 @@ import {
     Video,
     VideoOff,
 } from 'lucide-react';
-import { useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { motion } from 'framer-motion';
+
+const LOCAL_PARTICIPANT_ID = 1;
 
 const participants = [
     { id: 1, name: 'You', avatar: 'YO', isVideoOn: true, isMicOn: true },
@@ -100,6 +102,19 @@ export function CollaborationDisplay() {
         number | null
     >(null);
 
+    const [localStream, setLocalStream] = useState<MediaStream | null>(null);
+    const localVideoRef = useRef<HTMLVideoElement | null>(null);
+
+    const handleLocalVideoRef = (el: HTMLVideoElement | null) => {
+        localVideoRef.current = el;
+
+        if (el && localStream) {
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            (el as any).srcObject = localStream;
+            el.play().catch(() => {});
+        }
+    };
+
     const focusedParticipant = participants.find(
         (p) => p.id === focusedParticipantId,
     );
@@ -114,6 +129,47 @@ export function CollaborationDisplay() {
             setFocusedParticipantId(participantId);
         }
     };
+
+    const startCamera = async () => {
+        try {
+            if (!navigator.mediaDevices?.getUserMedia) {
+                console.error('getUserMedia is not supported in this browser');
+                return;
+            }
+
+            const stream = await navigator.mediaDevices.getUserMedia({
+                video: true,
+                audio: true,
+            });
+
+            setLocalStream(stream);
+            setIsVideoOn(true);
+        } catch (error) {
+            console.error('Cannot access camera:', error);
+        }
+    };
+
+    const stopCamera = () => {
+        localStream?.getTracks().forEach((track) => track.stop());
+        setLocalStream(null);
+        setIsVideoOn(false);
+    };
+
+    const handleToggleVideo = () => {
+        if (isVideoOn) {
+            stopCamera();
+        } else {
+            void startCamera();
+        }
+    };
+
+    // Cleanup khi unmount
+    useEffect(() => {
+        return () => {
+            stopCamera();
+        };
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, []);
 
     return (
         <div className="flex h-full flex-col gap-6 p-6">
@@ -143,7 +199,17 @@ export function CollaborationDisplay() {
                             handleParticipantClick(focusedParticipant.id)
                         }
                     >
-                        {focusedParticipant.isVideoOn ? (
+                        {/* VIDEO / AVATAR TRONG SPOTLIGHT */}
+                        {focusedParticipant.id === LOCAL_PARTICIPANT_ID &&
+                        isVideoOn ? (
+                            <video
+                                ref={handleLocalVideoRef}
+                                autoPlay
+                                muted
+                                playsInline
+                                className="absolute inset-0 h-full w-full object-cover"
+                            />
+                        ) : focusedParticipant.isVideoOn ? (
                             <div className="absolute inset-0 flex items-center justify-center bg-gradient-to-br from-zinc-700/50 to-zinc-900/50">
                                 <div className="text-9xl font-bold text-white/20">
                                     {focusedParticipant.avatar}
@@ -162,13 +228,19 @@ export function CollaborationDisplay() {
                             </div>
                         )}
 
+                        {/* THANH TÊN + MIC */}
                         <div className="absolute right-0 bottom-0 left-0 bg-gradient-to-t from-black/80 to-transparent p-6">
                             <div className="flex items-center justify-between">
                                 <span className="text-lg font-bold text-white drop-shadow-lg">
                                     {focusedParticipant.name}
                                 </span>
                                 <div className="flex items-center gap-2">
-                                    {focusedParticipant.isMicOn ? (
+                                    {(
+                                        focusedParticipant.id ===
+                                        LOCAL_PARTICIPANT_ID
+                                            ? isMicOn
+                                            : focusedParticipant.isMicOn
+                                    ) ? (
                                         <div className="rounded-lg bg-green-500/80 p-2 backdrop-blur-md">
                                             <Mic className="h-4 w-4 text-white" />
                                         </div>
@@ -191,120 +263,151 @@ export function CollaborationDisplay() {
                     </motion.div>
 
                     <div className="grid h-32 grid-cols-5 gap-3">
-                        {otherParticipants.map((participant, index) => (
-                            <motion.div
-                                key={participant.id}
-                                initial={{ opacity: 0, y: 20 }}
-                                animate={{ opacity: 1, y: 0 }}
-                                transition={{ delay: index * 0.05 }}
-                                className="group relative cursor-pointer overflow-hidden rounded-xl border border-zinc-700/50 bg-zinc-800/80 shadow-lg shadow-black/20 backdrop-blur-md transition-all hover:scale-105 hover:border-zinc-500/50"
-                                onClick={() =>
-                                    handleParticipantClick(participant.id)
-                                }
-                            >
-                                {participant.isVideoOn ? (
-                                    <div className="absolute inset-0 flex items-center justify-center bg-gradient-to-br from-zinc-700/50 to-zinc-900/50">
-                                        <div className="text-2xl font-bold text-white/20">
-                                            {participant.avatar}
+                        {otherParticipants.map((participant, index) => {
+                            const isSelf =
+                                participant.id === LOCAL_PARTICIPANT_ID;
+                            const micOn = isSelf
+                                ? isMicOn
+                                : participant.isMicOn;
+
+                            return (
+                                <motion.div
+                                    key={participant.id}
+                                    initial={{ opacity: 0, y: 20 }}
+                                    animate={{ opacity: 1, y: 0 }}
+                                    transition={{ delay: index * 0.05 }}
+                                    className="group relative cursor-pointer overflow-hidden rounded-xl border border-zinc-700/50 bg-zinc-800/80 shadow-lg shadow-black/20 backdrop-blur-md transition-all hover:scale-105 hover:border-zinc-500/50"
+                                    onClick={() =>
+                                        handleParticipantClick(participant.id)
+                                    }
+                                >
+                                    {isSelf && isVideoOn ? (
+                                        <video
+                                            ref={handleLocalVideoRef}
+                                            autoPlay
+                                            muted
+                                            playsInline
+                                            className="absolute inset-0 h-full w-full object-cover"
+                                        />
+                                    ) : participant.isVideoOn ? (
+                                        <div className="absolute inset-0 flex items-center justify-center bg-gradient-to-br from-zinc-700/50 to-zinc-900/50">
+                                            <div className="text-2xl font-bold text-white/20">
+                                                {participant.avatar}
+                                            </div>
+                                        </div>
+                                    ) : (
+                                        <div className="absolute inset-0 flex items-center justify-center bg-zinc-900/80">
+                                            <div className="flex flex-col items-center gap-1">
+                                                <div className="flex h-10 w-10 items-center justify-center rounded-full border border-zinc-600/50 bg-zinc-700/80">
+                                                    <span className="text-xs font-bold text-white">
+                                                        {participant.avatar}
+                                                    </span>
+                                                </div>
+                                                <VideoOff className="h-3 w-3 text-white/50" />
+                                            </div>
+                                        </div>
+                                    )}
+
+                                    <div className="absolute right-0 bottom-0 left-0 bg-gradient-to-t from-black/80 to-transparent p-2">
+                                        <div className="flex items-center justify-between">
+                                            <span className="truncate text-xs font-semibold text-white drop-shadow-lg">
+                                                {participant.name}
+                                            </span>
+                                            {micOn ? (
+                                                <div className="rounded bg-green-500/80 p-0.5 backdrop-blur-md">
+                                                    <Mic className="h-2 w-2 text-white" />
+                                                </div>
+                                            ) : (
+                                                <div className="rounded bg-red-500/80 p-0.5 backdrop-blur-md">
+                                                    <MicOff className="h-2 w-2 text-white" />
+                                                </div>
+                                            )}
                                         </div>
                                     </div>
-                                ) : (
-                                    <div className="absolute inset-0 flex items-center justify-center bg-zinc-900/80">
-                                        <div className="flex flex-col items-center gap-1">
-                                            <div className="flex h-10 w-10 items-center justify-center rounded-full border border-zinc-600/50 bg-zinc-700/80">
-                                                <span className="text-xs font-bold text-white">
-                                                    {participant.avatar}
-                                                </span>
-                                            </div>
-                                            <VideoOff className="h-3 w-3 text-white/50" />
-                                        </div>
-                                    </div>
-                                )}
 
-                                <div className="absolute right-0 bottom-0 left-0 bg-gradient-to-t from-black/80 to-transparent p-2">
-                                    <div className="flex items-center justify-between">
-                                        <span className="truncate text-xs font-semibold text-white drop-shadow-lg">
-                                            {participant.name}
-                                        </span>
-                                        {participant.isMicOn ? (
-                                            <div className="rounded bg-green-500/80 p-0.5 backdrop-blur-md">
-                                                <Mic className="h-2 w-2 text-white" />
-                                            </div>
-                                        ) : (
-                                            <div className="rounded bg-red-500/80 p-0.5 backdrop-blur-md">
-                                                <MicOff className="h-2 w-2 text-white" />
-                                            </div>
-                                        )}
-                                    </div>
-                                </div>
-
-                                <div className="absolute inset-0 bg-black/0 transition-colors group-hover:bg-black/20" />
-                            </motion.div>
-                        ))}
+                                    <div className="absolute inset-0 bg-black/0 transition-colors group-hover:bg-black/20" />
+                                </motion.div>
+                            );
+                        })}
                     </div>
                 </div>
             ) : (
                 <div
                     className={`grid flex-1 gap-4 ${getGridCols(participants.length)}`}
                 >
-                    {participants.map((participant, index) => (
-                        <motion.div
-                            key={participant.id}
-                            initial={{ opacity: 0, scale: 0.9 }}
-                            animate={{ opacity: 1, scale: 1 }}
-                            transition={{ delay: index * 0.1 }}
-                            className="group relative aspect-video cursor-pointer overflow-hidden rounded-2xl border border-zinc-700/50 bg-zinc-800/80 shadow-xl shadow-black/20 backdrop-blur-md transition-all hover:scale-105 hover:border-zinc-500/50"
-                            onClick={() =>
-                                handleParticipantClick(participant.id)
-                            }
-                        >
-                            {participant.isVideoOn ? (
-                                <div className="absolute inset-0 flex items-center justify-center bg-gradient-to-br from-zinc-700/50 to-zinc-900/50">
-                                    <div className="text-6xl font-bold text-white/20">
-                                        {participant.avatar}
-                                    </div>
-                                </div>
-                            ) : (
-                                <div className="absolute inset-0 flex items-center justify-center bg-zinc-900/80">
-                                    <div className="flex flex-col items-center gap-3">
-                                        <div className="flex h-20 w-20 items-center justify-center rounded-full border-2 border-zinc-600/50 bg-zinc-700/80">
-                                            <span className="text-2xl font-bold text-white">
-                                                {participant.avatar}
-                                            </span>
+                    {participants.map((participant, index) => {
+                        const isSelf = participant.id === LOCAL_PARTICIPANT_ID;
+                        const micOn = isSelf ? isMicOn : participant.isMicOn;
+
+                        return (
+                            <motion.div
+                                key={participant.id}
+                                initial={{ opacity: 0, scale: 0.9 }}
+                                animate={{ opacity: 1, scale: 1 }}
+                                transition={{ delay: index * 0.1 }}
+                                className="group relative aspect-video cursor-pointer overflow-hidden rounded-2xl border border-zinc-700/50 bg-zinc-800/80 shadow-xl shadow-black/20 backdrop-blur-md transition-all hover:scale-105 hover:border-zinc-500/50"
+                                onClick={() =>
+                                    handleParticipantClick(participant.id)
+                                }
+                            >
+                                {/* VIDEO / AVATAR Ở GRID CHÍNH */}
+                                {isSelf && isVideoOn ? (
+                                    <video
+                                        ref={handleLocalVideoRef}
+                                        autoPlay
+                                        muted
+                                        playsInline
+                                        className="absolute inset-0 h-full w-full object-cover"
+                                    />
+                                ) : participant.isVideoOn ? (
+                                    <div className="absolute inset-0 flex items-center justify-center bg-gradient-to-br from-zinc-700/50 to-zinc-900/50">
+                                        <div className="text-6xl font-bold text-white/20">
+                                            {participant.avatar}
                                         </div>
-                                        <VideoOff className="h-6 w-6 text-white/50" />
+                                    </div>
+                                ) : (
+                                    <div className="absolute inset-0 flex items-center justify-center bg-zinc-900/80">
+                                        <div className="flex flex-col items-center gap-3">
+                                            <div className="flex h-20 w-20 items-center justify-center rounded-full border-2 border-zinc-600/50 bg-zinc-700/80">
+                                                <span className="text-2xl font-bold text-white">
+                                                    {participant.avatar}
+                                                </span>
+                                            </div>
+                                            <VideoOff className="h-6 w-6 text-white/50" />
+                                        </div>
+                                    </div>
+                                )}
+
+                                {/* TÊN + MIC */}
+                                <div className="absolute right-0 bottom-0 left-0 bg-gradient-to-t from-black/80 to-transparent p-4">
+                                    <div className="flex items-center justify-between">
+                                        <span className="text-sm font-semibold text-white drop-shadow-lg">
+                                            {participant.name}
+                                        </span>
+                                        <div className="flex items-center gap-2">
+                                            {micOn ? (
+                                                <div className="rounded-lg bg-green-500/80 p-1.5 backdrop-blur-md">
+                                                    <Mic className="h-3 w-3 text-white" />
+                                                </div>
+                                            ) : (
+                                                <div className="rounded-lg bg-red-500/80 p-1.5 backdrop-blur-md">
+                                                    <MicOff className="h-3 w-3 text-white" />
+                                                </div>
+                                            )}
+                                        </div>
                                     </div>
                                 </div>
-                            )}
 
-                            <div className="absolute right-0 bottom-0 left-0 bg-gradient-to-t from-black/80 to-transparent p-4">
-                                <div className="flex items-center justify-between">
-                                    <span className="text-sm font-semibold text-white drop-shadow-lg">
-                                        {participant.name}
-                                    </span>
-                                    <div className="flex items-center gap-2">
-                                        {participant.isMicOn ? (
-                                            <div className="rounded-lg bg-green-500/80 p-1.5 backdrop-blur-md">
-                                                <Mic className="h-3 w-3 text-white" />
-                                            </div>
-                                        ) : (
-                                            <div className="rounded-lg bg-red-500/80 p-1.5 backdrop-blur-md">
-                                                <MicOff className="h-3 w-3 text-white" />
-                                            </div>
-                                        )}
+                                <div className="absolute inset-0 flex items-center justify-center bg-black/0 opacity-0 transition-colors group-hover:bg-black/10 group-hover:opacity-100">
+                                    <div className="rounded-full border border-white/20 bg-black/60 px-3 py-1.5 backdrop-blur-md">
+                                        <span className="text-xs text-white">
+                                            Click to spotlight
+                                        </span>
                                     </div>
                                 </div>
-                            </div>
-
-                            <div className="absolute inset-0 flex items-center justify-center bg-black/0 opacity-0 transition-colors group-hover:bg-black/10 group-hover:opacity-100">
-                                <div className="rounded-full border border-white/20 bg-black/60 px-3 py-1.5 backdrop-blur-md">
-                                    <span className="text-xs text-white">
-                                        Click to spotlight
-                                    </span>
-                                </div>
-                            </div>
-                        </motion.div>
-                    ))}
+                            </motion.div>
+                        );
+                    })}
                 </div>
             )}
 
@@ -326,7 +429,7 @@ export function CollaborationDisplay() {
                 </button>
 
                 <button
-                    onClick={() => setIsVideoOn(!isVideoOn)}
+                    onClick={handleToggleVideo}
                     className={`group relative rounded-2xl border p-4 backdrop-blur-xl transition-all duration-300 hover:scale-110 active:scale-95 ${
                         isVideoOn
                             ? 'border-zinc-600/50 bg-zinc-800/90 shadow-lg shadow-zinc-500/20 hover:bg-zinc-700/90 hover:shadow-zinc-400/30'
