@@ -21,8 +21,8 @@ import {
     FocusTimerFormSchema,
     FocusTimerFormValues,
     IntervalMutationPayload,
+    AccountRoomMember,
 } from './type';
-import { AccountRoomMember } from './type';
 
 export enum StudySessionStatus {
     PENDING = 'PENDING',
@@ -322,6 +322,33 @@ export function useStartInterval() {
         },
         onSuccess: () => {
             queryClient.invalidateQueries({ queryKey: ['study-sessions'] });
+        },
+    });
+}
+
+export function usePingInterval() {
+    return useMutation({
+        mutationFn: async ({
+            sessionId,
+            intervalId,
+        }: IntervalMutationPayload) => {
+            const response = await fetchWrapper(
+                `/study-sessions/${sessionId}/intervals/${intervalId}/ping`,
+                {
+                    method: 'PATCH',
+                    headers: {
+                        Accept: 'application/json',
+                    },
+                },
+            );
+            await throwIfError(response);
+            return response.json();
+        },
+        onError: (error) => {
+            toast.error(error?.message ?? 'Ping interval fail');
+        },
+        onSuccess: () => {
+            toast.success('Ping interval successfully');
         },
     });
 }

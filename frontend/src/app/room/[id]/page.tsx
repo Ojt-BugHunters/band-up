@@ -23,6 +23,7 @@ import {
     useStartInterval,
     useEndInterval,
     usePauseInterval,
+    usePingInterval,
 } from '@/lib/service/room';
 import {
     BACKGROUND_IMAGES,
@@ -117,6 +118,7 @@ export default function RoomPage() {
     const inputRef = useRef<HTMLDivElement>(null);
     const taskButtonRef = useRef<HTMLButtonElement>(null);
     const fileInputRef = useRef<HTMLInputElement>(null);
+    const pingCounterRef = useRef(0);
     // ------------------------------------------------
     // get room id
     const { id } = useParams();
@@ -138,6 +140,7 @@ export default function RoomPage() {
     const startIntervalMutation = useStartInterval();
     const endIntervalMutation = useEndInterval();
     const pauseIntervalMutation = usePauseInterval();
+    const pingIntervalMutation = usePingInterval();
 
     const [allowStartButton, setAllowStartButton] = useState(false);
     const [minutes, setMinutes] = useState(0);
@@ -355,6 +358,9 @@ export default function RoomPage() {
 
     useEffect(() => {
         if (isActive) {
+            if (intervalRef.current) {
+                clearInterval(intervalRef.current);
+            }
             intervalRef.current = setInterval(() => {
                 if (isPomodoroMode) {
                     if (seconds === 0) {
@@ -377,6 +383,18 @@ export default function RoomPage() {
                         setSeconds(seconds + 1);
                     }
                 }
+                pingCounterRef.current += 1;
+                if (pingCounterRef.current >= 30 && currentSession) {
+                    const intervals = currentSession.interval ?? [];
+                    const currentInterval = intervals[currentIntervalIndex];
+                    if (currentInterval) {
+                        pingIntervalMutation.mutate({
+                            sessionId: currentSession.id,
+                            intervalId: currentInterval.id,
+                        });
+                    }
+                    pingCounterRef.current = 0;
+                }
             }, 1000);
         } else {
             if (intervalRef.current) {
@@ -389,7 +407,16 @@ export default function RoomPage() {
                 clearInterval(intervalRef.current);
             }
         };
-    }, [isActive, minutes, seconds, isPomodoroMode, handlePomodoroComplete]);
+    }, [
+        isActive,
+        minutes,
+        seconds,
+        isPomodoroMode,
+        handlePomodoroComplete,
+        currentIntervalIndex,
+        currentSession,
+        pingIntervalMutation,
+    ]);
 
     const toggleTimer = () => {
         if (!canToggleTimer || !currentSession) return;
