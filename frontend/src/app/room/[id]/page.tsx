@@ -392,7 +392,24 @@ export default function RoomPage() {
     }, [isActive, minutes, seconds, isPomodoroMode, handlePomodoroComplete]);
 
     const toggleTimer = () => {
-        setIsActive(!isActive);
+        if (!canToggleTimer || !currentSession) return;
+        const intervals = currentSession.interval ?? [];
+        const currentInterval = intervals[currentIntervalIndex];
+        if (!currentInterval) return;
+
+        if (!isActive) {
+            startIntervalMutation.mutate({
+                sessionId: currentSession.id,
+                intervalId: currentInterval.id,
+            });
+            setIsActive(true);
+        } else {
+            pauseIntervalMutation.mutate({
+                sessionId: currentSession.id,
+                intervalId: currentInterval.id,
+            });
+            setIsActive(false);
+        }
     };
 
     const handleTaskKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
