@@ -3,6 +3,7 @@ package com.project.Band_Up.services.attempt;
 import com.project.Band_Up.dtos.attempt.AttemptCreateRequest;
 import com.project.Band_Up.dtos.attempt.AttemptResponse;
 import com.project.Band_Up.dtos.attempt.AttemptUpdateRequest;
+import com.project.Band_Up.enums.Status;
 
 import java.util.List;
 import java.util.UUID;
@@ -15,7 +16,7 @@ public interface AttemptService {
     // Lấy Attempt theo AttemptId
     AttemptResponse getAttemptById(UUID attemptId);
     // Lấy Attempt theo UserId và status
-    List<AttemptResponse> getAttemptsByUserIdAndStatus(UUID userId, String status);
+    List<AttemptResponse> getAttemptsByUserIdAndStatus(UUID userId, Status status);
     // Tạo mới Attempt
     AttemptResponse createAttempt(UUID userId, UUID testId, AttemptCreateRequest createRequest);
     // Update Attempt

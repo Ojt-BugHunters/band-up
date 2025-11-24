@@ -58,7 +58,7 @@ public class AttemptServiceImpl implements AttemptService {
     }
 
     @Override
-    public List<AttemptResponse> getAttemptsByUserIdAndStatus(UUID userId, String status) {
+    public List<AttemptResponse> getAttemptsByUserIdAndStatus(UUID userId, Status status) {
         accountRepository.findById(userId)
                 .orElseThrow(() -> new RuntimeException("User not found"));
 
@@ -121,7 +121,6 @@ public class AttemptServiceImpl implements AttemptService {
         if (attempt.getTest() != null) {
             response.setTestId(attempt.getTest().getId());
         }
-
         return response;
     }
 }
