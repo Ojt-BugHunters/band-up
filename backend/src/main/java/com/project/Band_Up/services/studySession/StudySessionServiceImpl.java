@@ -47,7 +47,7 @@ public class StudySessionServiceImpl implements StudySessionService {
         }
         Optional<StudySession> pending = studySessionRepository.findByUser_IdAndStatus(userId, Status.PENDING);
         pending.ifPresent(studySessionRepository::delete);
-        
+
         StudySession studySession = toEntity(request, getAccount(userId), roomId);
         studySession.setStatus(Status.PENDING);
 

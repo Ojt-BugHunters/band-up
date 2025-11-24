@@ -1,5 +1,6 @@
 package com.project.Band_Up.services.task;
 
+import com.project.Band_Up.dtos.task.TaskCreateRequest;
 import com.project.Band_Up.dtos.task.TaskResponse;
 import com.project.Band_Up.dtos.task.TaskUpdateRequest;
 
@@ -8,7 +9,7 @@ import java.util.List;
 import java.util.UUID;
 
 public interface TaskService {
-    TaskResponse createTask(TaskResponse request, UUID userId);
+    TaskResponse createTask(TaskCreateRequest request, UUID userId);
 
     List<TaskResponse> getAllTasksByUser(UUID userId);
 
