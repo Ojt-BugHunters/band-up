@@ -1,4 +1,4 @@
-package com.project.Band_Up.dtos.studySession;
+package com.project.Band_Up.dtos.stats;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;

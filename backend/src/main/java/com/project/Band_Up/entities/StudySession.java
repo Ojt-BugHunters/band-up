@@ -45,7 +45,7 @@ public class StudySession {
     private BigInteger shortBreak;
 
     private BigInteger longBreak;
-    
+
     private Integer cycles;
 
     private LocalDateTime startedAt;
