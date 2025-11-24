@@ -1,6 +1,13 @@
 import { Author } from '../blog';
 import z from 'zod';
 
+export interface TimerSettings {
+    focus: number;
+    shortBreak: number;
+    longBreak: number;
+    cycle: number;
+}
+
 export interface Task {
     id: string;
     text: string;

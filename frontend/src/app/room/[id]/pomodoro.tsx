@@ -15,7 +15,7 @@ import {
     PomodoroPreset,
     Task,
 } from '@/lib/service/room';
-import { RefObject, useState } from 'react';
+import { RefObject } from 'react';
 import { TimePeriod } from './page';
 import { RoomMenuDialog } from './room-menu';
 import { Room } from '@/lib/service/room';
@@ -27,6 +27,9 @@ export type TimerTab = 'focus' | 'stopwatch';
 export type AnalyticsPeriod = 'today' | 'week' | 'month';
 
 export interface PomodoroDisplayProps {
+    // room menu dialog
+    roomMenuDialogOpen: boolean;
+    setRoomMenuDialogOpen: (show: boolean) => void;
     // Core timer
     minutes: number;
     seconds: number;
@@ -115,6 +118,12 @@ export interface PomodoroDisplayProps {
 }
 
 export function PomodoroDisplay({
+    // room menu
+    roomMenuDialogOpen,
+    setRoomMenuDialogOpen,
+    members,
+    room,
+    onLeaveRoom,
     // timer control dialog
     showTimerSettings,
     setShowTimerSettings,
@@ -127,8 +136,6 @@ export function PomodoroDisplay({
     toggleTimer,
     canToggleTimer,
     isActive,
-    onLeaveRoom,
-    members,
     minutes,
     draggedIndex,
     seconds,
@@ -136,8 +143,6 @@ export function PomodoroDisplay({
     task,
     setTask,
     taskList,
-    pomodoroSession,
-    sessionType,
     handleTaskKeyDown,
     inputRef,
     taskButtonRef,
@@ -183,9 +188,7 @@ export function PomodoroDisplay({
     analyticsDate,
     formatAnalyticsDate,
     navigateAnalyticsDate,
-    room,
 }: PomodoroDisplayProps) {
-    const [roomMenuDialogOpen, setRoomMenuDialogOpen] = useState(false);
     return (
         <div className="flex h-full flex-col">
             <header className="flex items-center justify-between p-6">

@@ -58,13 +58,6 @@ export interface FlyingTask {
     endY: number;
 }
 
-export interface TimerSettings {
-    focus: number;
-    shortBreak: number;
-    longBreak: number;
-    cycle: number;
-}
-
 export type TimePeriod = 'daily' | 'weekly' | 'monthly';
 
 export type DisplayMode = 'pomodoro' | 'ai-chat' | 'room' | 'collaboration';
@@ -76,7 +69,7 @@ export default function RoomPage() {
     const [draggedIndex, setDraggedIndex] = useState<number | null>(null);
     const [flyingTask, setFlyingTask] = useState<FlyingTask | null>(null);
 
-    const [pomodoroSession, setPomodoroSession] = useState(0);
+    const [pomodoroSession] = useState(0);
 
     const [ambientSounds, setAmbientSounds] =
         useState<AmbientSound[]>(AMBIENT_SOUNDS);
@@ -117,6 +110,11 @@ export default function RoomPage() {
     const { mutate: leftRoomMutation } = useLeftRoom();
 
     //-----------PROPS FOR POMODORO TAB-------------
+    /// Room menu dialog
+    const [roomMenuDialogOpen, setRoomMenuDialogOpen] = useState(false);
+    const onLeaveroom = () => {
+        leftRoomMutation(id as string);
+    };
     /// --------- Create timer dialog ---------------
     const [showTimerSettings, setShowTimerSettings] = useState(false); // open,close dialog
     const [timerTab, setTimerTab] = useState<'focus' | 'stopwatch'>('focus'); // 2 mode of timer dialog
@@ -428,7 +426,7 @@ export default function RoomPage() {
             setIsActive(false);
         }
     };
-
+    /// --------- Background -----------------------------
     useEffect(() => {
         const randomImage =
             BACKGROUND_IMAGES[
@@ -437,6 +435,8 @@ export default function RoomPage() {
         setBackgroundImage(randomImage);
     }, []);
 
+    /// --------- Tasks -----------------------------
+    // animation when create new task
     const handleTaskKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
         if (e.key === 'Enter' && task.trim()) {
             const inputRect = inputRef.current?.getBoundingClientRect();
@@ -475,10 +475,6 @@ export default function RoomPage() {
                 task.id === id ? { ...task, completed: !task.completed } : task,
             ),
         );
-    };
-
-    const onLeaveroom = () => {
-        leftRoomMutation(id as string);
     };
 
     const removeTask = (id: string) => {
@@ -685,6 +681,12 @@ export default function RoomPage() {
                             className="absolute inset-0"
                         >
                             <PomodoroDisplay
+                                // room menu props
+                                roomMenuDialogOpen={roomMenuDialogOpen}
+                                setRoomMenuDialogOpen={setRoomMenuDialogOpen}
+                                room={room}
+                                members={members}
+                                onLeaveRoom={onLeaveroom}
                                 // create timer dialog
                                 showTimerSettings={showTimerSettings}
                                 setShowTimerSettings={setShowTimerSettings}
@@ -704,7 +706,6 @@ export default function RoomPage() {
                                 seconds={seconds}
                                 totalSteps={totalSteps}
                                 currentStep={currentStep}
-                                onLeaveRoom={onLeaveroom}
                                 isPomodoroMode={isPomodoroMode}
                                 task={task}
                                 setTask={setTask}
@@ -759,8 +760,6 @@ export default function RoomPage() {
                                 analyticsDate={analyticsDate}
                                 formatAnalyticsDate={formatAnalyticsDate}
                                 navigateAnalyticsDate={navigateAnalyticsDate}
-                                room={room}
-                                members={members}
                             />
                         </motion.div>
                     )}
