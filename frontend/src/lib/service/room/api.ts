@@ -8,11 +8,21 @@ import {
     useQueryClient,
     UseQueryResult,
 } from '@tanstack/react-query';
-import { useForm } from 'react-hook-form';
+import { Resolver, useForm } from 'react-hook-form';
 import { toast } from 'sonner';
 import { deserialize, fetchWrapper, throwIfError } from '@/lib/service';
-import { RoomSchema, CreateRoomFormValues, Room, StudySession } from './type';
-import { AccountRoomMember } from './type';
+import {
+    RoomSchema,
+    CreateRoomFormValues,
+    Room,
+    StudySession,
+    StopWatchTimerSettingValues,
+    FocusCreateTimerSettingValues,
+    FocusTimerFormSchema,
+    FocusTimerFormValues,
+    IntervalMutationPayload,
+    AccountRoomMember,
+} from './type';
 
 export enum StudySessionStatus {
     PENDING = 'PENDING',
@@ -191,6 +201,23 @@ export const useGetRoomMember = (userId: string) => {
     });
 };
 
+export const useGetStudySessions = (
+    status: StudySessionStatus,
+    roomId: string,
+) => {
+    return useQuery({
+        queryKey: ['study-sessions', status, roomId],
+        queryFn: async () => {
+            const response = await fetchWrapper(
+                `/study-sessions/status/${status}`,
+            );
+            return await deserialize<StudySession[]>(response);
+        },
+        staleTime: Infinity,
+        refetchOnWindowFocus: true,
+    });
+};
+
 export const useGetRoomMembers = (roomId: string) => {
     const { data: room, ...roomQuery } = useGetRoomById(roomId);
 
@@ -229,31 +256,163 @@ export const useGetRoomMembers = (roomId: string) => {
 };
 
 export const useCreateTimerSetting = (roomId: string) => {
-    const router = useRouter();
     const queryClient = useQueryClient();
     const mutation = useMutation({
-        mutationFn: async (values: z.infer<typeof RoomSchema>) => {
-            const response = await fetchWrapper('/rooms', {
-                method: 'POST',
-                headers: {
-                    Accept: 'application/json',
-                    'Content-Type': 'application/json',
+        mutationFn: async (
+            values: FocusCreateTimerSettingValues | StopWatchTimerSettingValues,
+        ) => {
+            const response = await fetchWrapper(
+                `/study-sessions/create?roomId=${roomId}`,
+                {
+                    method: 'POST',
+                    headers: {
+                        Accept: 'application/json',
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(values),
                 },
-                body: JSON.stringify(values),
-            });
+            );
 
             await throwIfError(response);
             return response.json();
         },
         onError: (error) => {
-            toast.error(error?.message ?? 'Create room failed');
+            toast.error(error?.message ?? 'Create TimerSessions fail');
         },
-        onSuccess: (data: Room) => {
-            toast.success('Room created successfully');
-            queryClient.setQueryData(['room', data.id], data);
-            router.push(`/room/${data.id}`);
+        onSuccess: () => {
+            toast.success('Create sessions successfully');
+            queryClient.invalidateQueries({ queryKey: ['study-sessions'] });
         },
     });
 
-    return mutation;
+    const form = useForm<FocusTimerFormValues>({
+        resolver: zodResolver(
+            FocusTimerFormSchema,
+        ) as Resolver<FocusTimerFormValues>,
+        defaultValues: {
+            focusTime: 25,
+            shortBreak: 5,
+            longBreak: 15,
+            cycles: 4,
+        },
+    });
+
+    return { form, mutation };
 };
+
+export function useStartInterval() {
+    const queryClient = useQueryClient();
+
+    return useMutation({
+        mutationFn: async ({
+            sessionId,
+            intervalId,
+        }: IntervalMutationPayload) => {
+            const response = await fetchWrapper(
+                `/study-sessions/${sessionId}/intervals/${intervalId}/start`,
+                {
+                    method: 'POST',
+                    headers: {
+                        Accept: 'application/json',
+                    },
+                },
+            );
+
+            await throwIfError(response);
+            return response.json();
+        },
+        onError: (error) => {
+            toast.error(error?.message ?? 'Start interval failed');
+        },
+        onSuccess: () => {
+            queryClient.invalidateQueries({ queryKey: ['study-sessions'] });
+        },
+    });
+}
+
+export function usePingInterval() {
+    return useMutation({
+        mutationFn: async ({
+            sessionId,
+            intervalId,
+        }: IntervalMutationPayload) => {
+            const response = await fetchWrapper(
+                `/study-sessions/${sessionId}/intervals/${intervalId}/ping`,
+                {
+                    method: 'PATCH',
+                    headers: {
+                        Accept: 'application/json',
+                    },
+                },
+            );
+            await throwIfError(response);
+            return response.json();
+        },
+        onError: (error) => {
+            toast.error(error?.message ?? 'Ping interval fail');
+        },
+        onSuccess: () => {
+            toast.success('Ping interval successfully');
+        },
+    });
+}
+
+export function usePauseInterval() {
+    const queryClient = useQueryClient();
+
+    return useMutation({
+        mutationFn: async ({
+            sessionId,
+            intervalId,
+        }: IntervalMutationPayload) => {
+            const response = await fetchWrapper(
+                `/study-sessions/${sessionId}/intervals/${intervalId}/pause`,
+                {
+                    method: 'POST',
+                    headers: {
+                        Accept: 'application/json',
+                    },
+                },
+            );
+
+            await throwIfError(response);
+            return response.json();
+        },
+        onError: (error) => {
+            toast.error(error?.message ?? 'Pause interval failed');
+        },
+        onSuccess: () => {
+            queryClient.invalidateQueries({ queryKey: ['study-sessions'] });
+        },
+    });
+}
+
+export function useEndInterval() {
+    const queryClient = useQueryClient();
+
+    return useMutation({
+        mutationFn: async ({
+            sessionId,
+            intervalId,
+        }: IntervalMutationPayload) => {
+            const response = await fetchWrapper(
+                `/study-sessions/${sessionId}/intervals/${intervalId}/end`,
+                {
+                    method: 'POST',
+                    headers: {
+                        Accept: 'application/json',
+                    },
+                },
+            );
+
+            await throwIfError(response);
+            return response.json();
+        },
+        onError: (error) => {
+            toast.error(error?.message ?? 'End interval failed');
+        },
+        onSuccess: () => {
+            queryClient.invalidateQueries({ queryKey: ['study-sessions'] });
+        },
+    });
+}
