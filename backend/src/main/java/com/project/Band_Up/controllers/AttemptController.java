@@ -3,6 +3,7 @@ package com.project.Band_Up.controllers;
 import com.project.Band_Up.dtos.attempt.AttemptCreateRequest;
 import com.project.Band_Up.dtos.attempt.AttemptResponse;
 import com.project.Band_Up.dtos.attempt.AttemptUpdateRequest;
+import com.project.Band_Up.enums.Status;
 import com.project.Band_Up.services.attempt.AttemptService;
 import com.project.Band_Up.utils.JwtUserDetails;
 import com.project.Band_Up.utils.JwtUtil;
@@ -122,7 +123,7 @@ public class AttemptController {
     public ResponseEntity<List<AttemptResponse>> getAttemptsByUserIdAndStatus(
             @Parameter(description = "UUID của User", required = true) @PathVariable("userId") UUID userId,
             @Parameter(description = "Trạng thái Attempt (vd: IN_PROGRESS, COMPLETED)", required = true)
-            @RequestParam("status") String status) {
+            @RequestParam("status") Status status) {
 
         List<AttemptResponse> list = attemptService.getAttemptsByUserIdAndStatus(userId, status);
         return ResponseEntity.ok(list);

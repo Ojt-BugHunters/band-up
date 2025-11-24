@@ -1,7 +1,9 @@
 package com.project.Band_Up.dtos.attempt;
 
+import com.project.Band_Up.dtos.attemptSection.AttemptSectionResponse;
 import lombok.*;
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.UUID;
 
 @Setter
@@ -18,4 +20,5 @@ public class AttemptResponse {
     private String status;
     private Integer score;
     private Double overallBand;
+    private List<AttemptSectionResponse> attemptSections;
 }
