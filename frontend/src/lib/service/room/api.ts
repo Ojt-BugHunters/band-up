@@ -201,9 +201,12 @@ export const useGetRoomMember = (userId: string) => {
     });
 };
 
-export const useGetStudySessions = (status: StudySessionStatus) => {
+export const useGetStudySessions = (
+    status: StudySessionStatus,
+    roomId: string,
+) => {
     return useQuery({
-        queryKey: ['study-sessions'],
+        queryKey: ['study-sessions', status, roomId],
         queryFn: async () => {
             const response = await fetchWrapper(
                 `/study-sessions/status/${status}`,
@@ -211,6 +214,7 @@ export const useGetStudySessions = (status: StudySessionStatus) => {
             return await deserialize<StudySession[]>(response);
         },
         staleTime: Infinity,
+        refetchOnWindowFocus: true,
     });
 };
 

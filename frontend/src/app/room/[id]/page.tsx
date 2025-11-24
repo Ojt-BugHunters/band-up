@@ -22,7 +22,6 @@ import {
     useCreateTimerSetting,
     useStartInterval,
     useEndInterval,
-    usePauseInterval,
     usePingInterval,
 } from '@/lib/service/room';
 import {
@@ -75,17 +74,8 @@ export default function RoomPage() {
     const [backgroundImage, setBackgroundImage] = useState('');
     const [taskList, setTaskList] = useState<Task[]>([]);
     const [draggedIndex, setDraggedIndex] = useState<number | null>(null);
-    const [flyingTask, setFlyingTask] = useState<FlyingTask | null>(null); // consider the task apply fling animation (todolist task)
-    const [showTimerSettings, setShowTimerSettings] = useState(false);
-    const [selectedPreset, setSelectedPreset] = useState(POMODORO_PRESETS[0]);
-    const [timerTab, setTimerTab] = useState<'focus' | 'stopwatch'>('focus');
+    const [flyingTask, setFlyingTask] = useState<FlyingTask | null>(null);
 
-    const [customSettings, setCustomSettings] = useState<TimerSettings>({
-        focus: 25,
-        shortBreak: 5,
-        longBreak: 15,
-        cycle: 4,
-    });
     const [pomodoroSession, setPomodoroSession] = useState(0);
 
     const [ambientSounds, setAmbientSounds] =
@@ -114,11 +104,10 @@ export default function RoomPage() {
     >('today');
     const [analyticsDate, setAnalyticsDate] = useState(new Date());
 
-    const intervalRef = useRef<NodeJS.Timeout | null>(null);
     const inputRef = useRef<HTMLDivElement>(null);
     const taskButtonRef = useRef<HTMLButtonElement>(null);
     const fileInputRef = useRef<HTMLInputElement>(null);
-    const pingCounterRef = useRef(0);
+
     // ------------------------------------------------
     // get room id
     const { id } = useParams();
@@ -126,28 +115,99 @@ export default function RoomPage() {
     const { data: room, isLoading, isFetching } = useGetRoomById(id as string);
     const { members } = useGetRoomMembers(id as string);
     const { mutate: leftRoomMutation } = useLeftRoom();
-    const { form: createTimerForm, mutation: createTimerMutation } =
-        useCreateTimerSetting(id as string);
+
     //-----------PROPS FOR POMODORO TAB-------------
+    /// --------- Create timer dialog ---------------
+    const [showTimerSettings, setShowTimerSettings] = useState(false); // open,close dialog
+    const [timerTab, setTimerTab] = useState<'focus' | 'stopwatch'>('focus'); // 2 mode of timer dialog
+    const [selectedPreset, setSelectedPreset] = useState(POMODORO_PRESETS[0]); // selected preset for default
+    const { form: createTimerForm, mutation: createTimerMutation } =
+        useCreateTimerSetting(id as string); // create timer form and mutation
+    const [isActive, setIsActive] = useState(false);
+    const handleApplyTimerSettings = () => {
+        if (timerTab === 'stopwatch') {
+            createTimerMutation.mutate(
+                { mode: 'StopWatch' },
+                {
+                    onSuccess: () => {
+                        setIsPomodoroMode(false);
+                        setShowTimerSettings(false);
+                        setAllowStartButton(true);
+                    },
+                },
+            );
+            return;
+        }
+
+        if (selectedPreset.name !== 'Custom') {
+            createTimerMutation.mutate(
+                {
+                    mode: 'FocusTimer',
+                    focusTime: selectedPreset.focus,
+                    shortBreak: selectedPreset.shortBreak,
+                    longBreak: selectedPreset.longBreak,
+                    cycles: selectedPreset.cycle,
+                },
+                {
+                    onSuccess: () => {
+                        setShowTimerSettings(false);
+                    },
+                },
+            );
+            return;
+        }
+
+        createTimerForm.handleSubmit((values) => {
+            createTimerMutation.mutate(
+                {
+                    mode: 'FocusTimer',
+                    focusTime: values.focusTime,
+                    shortBreak: values.shortBreak,
+                    longBreak: values.longBreak,
+                    cycles: values.cycles,
+                },
+                {
+                    onSuccess: () => {
+                        setShowTimerSettings(false);
+                    },
+                },
+            );
+        })();
+    };
+
     /// --------- Timer -----------------------------
     // Logic here:
     // User must create study sessions to get timer. Check first
     // 1. Get study sessions data
     const { data: pendingSessions, isLoading: isLoadingPending } =
-        useGetStudySessions(StudySessionStatus.PENDING);
+        useGetStudySessions(StudySessionStatus.PENDING, id as string);
     const { data: ongoingSessions, isLoading: isLoadingOnGoing } =
-        useGetStudySessions(StudySessionStatus.ONGOING);
+        useGetStudySessions(StudySessionStatus.ONGOING, id as string);
     const startIntervalMutation = useStartInterval();
     const endIntervalMutation = useEndInterval();
-    const pauseIntervalMutation = usePauseInterval();
     const pingIntervalMutation = usePingInterval();
 
+    // 2. Sessions, minutes, seconds controller
     const [allowStartButton, setAllowStartButton] = useState(false);
     const [minutes, setMinutes] = useState(0);
     const [seconds, setSeconds] = useState(0);
+    const [currentIntervalIndex, setCurrentIntervalIndex] = useState(0); // check interval is user in
+    const pingCounterRef = useRef(0);
+    const intervalRef = useRef<NodeJS.Timeout | null>(null);
+    const [isPomodoroMode, setIsPomodoroMode] = useState(true);
+    const [sessionType, setSessionType] = useState<
+        'focus' | 'shortBreak' | 'longBreak'
+    >('focus');
+
+    const currentSession = useMemo<StudySession | null>(() => {
+        if (ongoingSessions?.length) return ongoingSessions[0];
+        if (pendingSessions?.length) return pendingSessions[0];
+        return null;
+    }, [pendingSessions, ongoingSessions]);
 
     const isLoadingSessions = isLoadingPending || isLoadingOnGoing;
 
+    // check if there are any session
     const hasAnySession =
         (pendingSessions?.length ?? 0) > 0 ||
         (ongoingSessions?.length ?? 0) > 0;
@@ -156,13 +216,7 @@ export default function RoomPage() {
         (!isLoadingSessions && hasAnySession) || allowStartButton;
 
     // to check whether user is in any session
-    const currentSession = useMemo<StudySession | null>(() => {
-        if (ongoingSessions?.length) return ongoingSessions[0];
-        if (pendingSessions?.length) return pendingSessions[0];
-        return null;
-    }, [pendingSessions, ongoingSessions]);
 
-    const [currentIntervalIndex, setCurrentIntervalIndex] = useState(0);
     const currentStep = Math.floor(currentIntervalIndex / 2);
 
     const intervals = currentSession?.interval ?? [];
@@ -170,6 +224,7 @@ export default function RoomPage() {
         intervals.length > 0 ? Math.floor((intervals.length - 1) / 2) : 0;
 
     // Logic here:
+    // effect decide what clock render when user access the page
     // 1. if not have any session yet: 00: 00
     // 2. if have pending session: --> focus time
     // 3. if have ongoing session: --> focus time - distance(ping time(ms) - start time(ms))
@@ -228,64 +283,7 @@ export default function RoomPage() {
         setSeconds(0);
     }, [isLoadingSessions, currentSession]);
 
-    const handleApplyTimerSettings = () => {
-        if (timerTab === 'stopwatch') {
-            createTimerMutation.mutate(
-                { mode: 'StopWatch' },
-                {
-                    onSuccess: () => {
-                        setIsPomodoroMode(false);
-                        setShowTimerSettings(false);
-                        setAllowStartButton(true);
-                    },
-                },
-            );
-            return;
-        }
-
-        if (selectedPreset.name !== 'Custom') {
-            createTimerMutation.mutate(
-                {
-                    mode: 'FocusTimer',
-                    focusTime: selectedPreset.focus,
-                    shortBreak: selectedPreset.shortBreak,
-                    longBreak: selectedPreset.longBreak,
-                    cycles: selectedPreset.cycle,
-                },
-                {
-                    onSuccess: () => {
-                        setShowTimerSettings(false);
-                    },
-                },
-            );
-            return;
-        }
-
-        createTimerForm.handleSubmit((values) => {
-            createTimerMutation.mutate(
-                {
-                    mode: 'FocusTimer',
-                    focusTime: values.focusTime,
-                    shortBreak: values.shortBreak,
-                    longBreak: values.longBreak,
-                    cycles: values.cycles,
-                },
-                {
-                    onSuccess: () => {
-                        setShowTimerSettings(false);
-                    },
-                },
-            );
-        })();
-    };
-    const [isActive, setIsActive] = useState(false);
-    const [isPomodoroMode, setIsPomodoroMode] = useState(true);
-
-    // learn - break logic
-    const [sessionType, setSessionType] = useState<
-        'focus' | 'shortBreak' | 'longBreak'
-    >('focus');
-
+    // logic to handle what happen when one interval complete
     const handlePomodoroComplete = useCallback(() => {
         if (!isPomodoroMode || !currentSession) return;
 
@@ -348,14 +346,7 @@ export default function RoomPage() {
         setSeconds,
     ]);
 
-    useEffect(() => {
-        const randomImage =
-            BACKGROUND_IMAGES[
-                Math.floor(Math.random() * BACKGROUND_IMAGES.length)
-            ];
-        setBackgroundImage(randomImage);
-    }, []);
-
+    // effect to count the timer + ping each 30s
     useEffect(() => {
         if (isActive) {
             if (intervalRef.current) {
@@ -365,7 +356,6 @@ export default function RoomPage() {
                 if (isPomodoroMode) {
                     if (seconds === 0) {
                         if (minutes === 0) {
-                            // Timer completed
                             setIsActive(false);
                             handlePomodoroComplete();
                         } else {
@@ -417,7 +407,11 @@ export default function RoomPage() {
         currentSession,
         pingIntervalMutation,
     ]);
-
+    // button for user to control all of the logic
+    // Flow here:
+    // Assume that canToggleTimer is true + have session from backend
+    // User press start --> enter the start branch --> call api to start --> trigger effect 2 counting timer
+    // Counter timer start to count and ping until it get --> 00:00 --> call api to end
     const toggleTimer = () => {
         if (!canToggleTimer || !currentSession) return;
         const intervals = currentSession.interval ?? [];
@@ -431,13 +425,17 @@ export default function RoomPage() {
             });
             setIsActive(true);
         } else {
-            pauseIntervalMutation.mutate({
-                sessionId: currentSession.id,
-                intervalId: currentInterval.id,
-            });
             setIsActive(false);
         }
     };
+
+    useEffect(() => {
+        const randomImage =
+            BACKGROUND_IMAGES[
+                Math.floor(Math.random() * BACKGROUND_IMAGES.length)
+            ];
+        setBackgroundImage(randomImage);
+    }, []);
 
     const handleTaskKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
         if (e.key === 'Enter' && task.trim()) {
@@ -687,7 +685,7 @@ export default function RoomPage() {
                             className="absolute inset-0"
                         >
                             <PomodoroDisplay
-                                // timer control
+                                // create timer dialog
                                 showTimerSettings={showTimerSettings}
                                 setShowTimerSettings={setShowTimerSettings}
                                 timerTab={timerTab}
@@ -700,13 +698,13 @@ export default function RoomPage() {
                                 }
                                 toggleTimer={toggleTimer}
                                 canToggleTimer={canToggleTimer}
+                                isActive={isActive}
                                 // core timer
                                 minutes={minutes}
                                 seconds={seconds}
                                 totalSteps={totalSteps}
                                 currentStep={currentStep}
                                 onLeaveRoom={onLeaveroom}
-                                isActive={isActive}
                                 isPomodoroMode={isPomodoroMode}
                                 task={task}
                                 setTask={setTask}
