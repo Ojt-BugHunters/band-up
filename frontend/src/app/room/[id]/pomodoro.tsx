@@ -34,6 +34,8 @@ export interface PomodoroDisplayProps {
     pomodoroSession: number;
     sessionType: SessionType;
     draggedIndex: number | null;
+    totalSteps: number;
+    currentStep: number;
 
     // Task system
     task: string;
@@ -45,9 +47,6 @@ export interface PomodoroDisplayProps {
     handleDragStart: (index: number) => void;
     handleDragOver: (e: React.DragEvent, index: number) => void;
     handleDragEnd: () => void;
-
-    // Timer controls
-    resetTimer: () => void;
 
     // Timer settings
     showTimerSettings: boolean;
@@ -142,6 +141,9 @@ export function PomodoroDisplay({
     handleTaskKeyDown,
     inputRef,
     taskButtonRef,
+
+    totalSteps,
+    currentStep,
 
     toggleTaskCompletion,
     removeTask,
@@ -254,13 +256,13 @@ export function PomodoroDisplay({
                 </div>
             </header>
             <main className="flex flex-1 flex-col items-center justify-center gap-8 px-6">
-                {isPomodoroMode && sessionType === 'focus' && (
+                {isPomodoroMode && totalSteps > 0 && (
                     <div className="flex gap-3">
-                        {[0, 1, 2, 3].map((index) => (
+                        {Array.from({ length: totalSteps }).map((_, index) => (
                             <div
                                 key={index}
                                 className={`h-4 w-4 rounded-full transition-all ${
-                                    index <= pomodoroSession
+                                    index <= currentStep
                                         ? 'bg-white shadow-xl shadow-white/50'
                                         : 'bg-white/30 shadow-md shadow-black/10 backdrop-blur-md'
                                 }`}
@@ -268,6 +270,7 @@ export function PomodoroDisplay({
                         ))}
                     </div>
                 )}
+
                 <div className="text-center">
                     <div className="text-[120px] leading-none font-extrabold text-white drop-shadow-2xl md:text-[180px]">
                         {String(minutes).padStart(2, '0')}:

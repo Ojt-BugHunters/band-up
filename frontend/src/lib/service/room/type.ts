@@ -93,6 +93,11 @@ export interface StudySession {
     interval: Interval[];
 }
 
+export type IntervalMutationPayload = {
+    sessionId: string;
+    intervalId: string;
+};
+
 // --------------------- Schema for react-hook-form-----------
 export const RoomSchema = z.object({
     roomName: z.string().max(50, 'Max length of room name is 50 characters'),

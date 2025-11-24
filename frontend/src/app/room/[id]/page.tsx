@@ -20,6 +20,9 @@ import {
     StudySessionStatus,
     StudySession,
     useCreateTimerSetting,
+    useStartInterval,
+    useEndInterval,
+    usePauseInterval,
 } from '@/lib/service/room';
 import {
     BACKGROUND_IMAGES,
@@ -39,6 +42,13 @@ import { EmptyState } from '@/components/ui/empty-state';
 import { LoadingSpinner } from '@/components/ui/loading-spinner';
 import { CollaborationDisplay } from './meeting-room';
 
+const getIntervalType = (
+    index: number,
+    total: number,
+): 'focus' | 'shortBreak' | 'longBreak' => {
+    if (index === total - 1) return 'longBreak';
+    return index % 2 === 0 ? 'focus' : 'shortBreak';
+};
 export interface FlyingTask {
     id: string;
     text: string;
@@ -60,6 +70,54 @@ export type TimePeriod = 'daily' | 'weekly' | 'monthly';
 export type DisplayMode = 'pomodoro' | 'ai-chat' | 'room' | 'collaboration';
 
 export default function RoomPage() {
+    const [task, setTask] = useState('');
+    const [backgroundImage, setBackgroundImage] = useState('');
+    const [taskList, setTaskList] = useState<Task[]>([]);
+    const [draggedIndex, setDraggedIndex] = useState<number | null>(null);
+    const [flyingTask, setFlyingTask] = useState<FlyingTask | null>(null); // consider the task apply fling animation (todolist task)
+    const [showTimerSettings, setShowTimerSettings] = useState(false);
+    const [selectedPreset, setSelectedPreset] = useState(POMODORO_PRESETS[0]);
+    const [timerTab, setTimerTab] = useState<'focus' | 'stopwatch'>('focus');
+
+    const [customSettings, setCustomSettings] = useState<TimerSettings>({
+        focus: 25,
+        shortBreak: 5,
+        longBreak: 15,
+        cycle: 4,
+    });
+    const [pomodoroSession, setPomodoroSession] = useState(0);
+
+    const [ambientSounds, setAmbientSounds] =
+        useState<AmbientSound[]>(AMBIENT_SOUNDS);
+    const [showAmbientMixer, setShowAmbientMixer] = useState(false);
+
+    const [showMusicDialog, setShowMusicDialog] = useState(false);
+    const [musicLink, setMusicLink] = useState('');
+    const [savedMusicLinks, setSavedMusicLinks] = useState<string[]>([]);
+
+    const [showBackgroundSelector, setShowBackgroundSelector] = useState(false);
+    const [customBackgroundImage, setCustomBackgroundImage] = useState<
+        string | null
+    >(null);
+
+    const [displayMode, setDisplayMode] = useState<DisplayMode>('pomodoro');
+
+    const [showLeaderboard, setShowLeaderboard] = useState(false);
+    const [leaderboardPeriod, setLeaderboardPeriod] =
+        useState<TimePeriod>('daily');
+    const [leaderboardDate, setLeaderboardDate] = useState(new Date());
+
+    const [showAnalytics, setShowAnalytics] = useState(false);
+    const [analyticsPeriod, setAnalyticsPeriod] = useState<
+        'today' | 'week' | 'month'
+    >('today');
+    const [analyticsDate, setAnalyticsDate] = useState(new Date());
+
+    const intervalRef = useRef<NodeJS.Timeout | null>(null);
+    const inputRef = useRef<HTMLDivElement>(null);
+    const taskButtonRef = useRef<HTMLButtonElement>(null);
+    const fileInputRef = useRef<HTMLInputElement>(null);
+    // ------------------------------------------------
     // get room id
     const { id } = useParams();
     // get room data
@@ -77,7 +135,11 @@ export default function RoomPage() {
         useGetStudySessions(StudySessionStatus.PENDING);
     const { data: ongoingSessions, isLoading: isLoadingOnGoing } =
         useGetStudySessions(StudySessionStatus.ONGOING);
+    const startIntervalMutation = useStartInterval();
+    const endIntervalMutation = useEndInterval();
+    const pauseIntervalMutation = usePauseInterval();
 
+    const [allowStartButton, setAllowStartButton] = useState(false);
     const [minutes, setMinutes] = useState(0);
     const [seconds, setSeconds] = useState(0);
 
@@ -87,7 +149,8 @@ export default function RoomPage() {
         (pendingSessions?.length ?? 0) > 0 ||
         (ongoingSessions?.length ?? 0) > 0;
 
-    const canToggleTimer = !isLoadingSessions && hasAnySession;
+    const canToggleTimer =
+        (!isLoadingSessions && hasAnySession) || allowStartButton;
 
     // to check whether user is in any session
     const currentSession = useMemo<StudySession | null>(() => {
@@ -95,6 +158,13 @@ export default function RoomPage() {
         if (pendingSessions?.length) return pendingSessions[0];
         return null;
     }, [pendingSessions, ongoingSessions]);
+
+    const [currentIntervalIndex, setCurrentIntervalIndex] = useState(0);
+    const currentStep = Math.floor(currentIntervalIndex / 2);
+
+    const intervals = currentSession?.interval ?? [];
+    const totalSteps =
+        intervals.length > 0 ? Math.floor((intervals.length - 1) / 2) : 0;
 
     // Logic here:
     // 1. if not have any session yet: 00: 00
@@ -161,7 +231,9 @@ export default function RoomPage() {
                 { mode: 'StopWatch' },
                 {
                     onSuccess: () => {
+                        setIsPomodoroMode(false);
                         setShowTimerSettings(false);
+                        setAllowStartButton(true);
                     },
                 },
             );
@@ -203,61 +275,75 @@ export default function RoomPage() {
             );
         })();
     };
-
     const [isActive, setIsActive] = useState(false);
+    const [isPomodoroMode, setIsPomodoroMode] = useState(true);
 
-    const [isPomodoroMode, setIsPomodoroMode] = useState(true); // consider pomodoro mode or timelapse mode
-
-    const [task, setTask] = useState('');
-    const [backgroundImage, setBackgroundImage] = useState('');
-    const [taskList, setTaskList] = useState<Task[]>([]);
-    const [draggedIndex, setDraggedIndex] = useState<number | null>(null);
-    const [flyingTask, setFlyingTask] = useState<FlyingTask | null>(null); // consider the task apply fling animation (todolist task)
-    const [showTimerSettings, setShowTimerSettings] = useState(false);
-    const [selectedPreset, setSelectedPreset] = useState(POMODORO_PRESETS[0]);
-    const [timerTab, setTimerTab] = useState<'focus' | 'stopwatch'>('focus');
-
-    const [customSettings, setCustomSettings] = useState<TimerSettings>({
-        focus: 25,
-        shortBreak: 5,
-        longBreak: 15,
-        cycle: 4,
-    });
-    const [pomodoroSession, setPomodoroSession] = useState(0);
+    // learn - break logic
     const [sessionType, setSessionType] = useState<
         'focus' | 'shortBreak' | 'longBreak'
     >('focus');
 
-    const [ambientSounds, setAmbientSounds] =
-        useState<AmbientSound[]>(AMBIENT_SOUNDS);
-    const [showAmbientMixer, setShowAmbientMixer] = useState(false);
+    const handlePomodoroComplete = useCallback(() => {
+        if (!isPomodoroMode || !currentSession) return;
 
-    const [showMusicDialog, setShowMusicDialog] = useState(false);
-    const [musicLink, setMusicLink] = useState('');
-    const [savedMusicLinks, setSavedMusicLinks] = useState<string[]>([]);
+        const intervals = currentSession.interval ?? [];
+        const total = intervals.length;
+        if (total === 0) return;
 
-    const [showBackgroundSelector, setShowBackgroundSelector] = useState(false);
-    const [customBackgroundImage, setCustomBackgroundImage] = useState<
-        string | null
-    >(null);
+        const currentIndex = currentIntervalIndex;
+        const currentInterval = intervals[currentIndex];
 
-    const [displayMode, setDisplayMode] = useState<DisplayMode>('pomodoro');
+        endIntervalMutation.mutate(
+            {
+                sessionId: currentSession.id,
+                intervalId: currentInterval.id,
+            },
+            {
+                onSuccess: () => {
+                    const nextIndex = currentIndex + 1;
 
-    const [showLeaderboard, setShowLeaderboard] = useState(false);
-    const [leaderboardPeriod, setLeaderboardPeriod] =
-        useState<TimePeriod>('daily');
-    const [leaderboardDate, setLeaderboardDate] = useState(new Date());
+                    if (nextIndex >= total) {
+                        setIsActive(false);
+                        toast.success('Study session completed!');
+                        return;
+                    }
 
-    const [showAnalytics, setShowAnalytics] = useState(false);
-    const [analyticsPeriod, setAnalyticsPeriod] = useState<
-        'today' | 'week' | 'month'
-    >('today');
-    const [analyticsDate, setAnalyticsDate] = useState(new Date());
+                    const nextType = getIntervalType(nextIndex, total);
+                    const nextInterval = intervals[nextIndex];
 
-    const intervalRef = useRef<NodeJS.Timeout | null>(null);
-    const inputRef = useRef<HTMLDivElement>(null);
-    const taskButtonRef = useRef<HTMLButtonElement>(null);
-    const fileInputRef = useRef<HTMLInputElement>(null);
+                    setCurrentIntervalIndex(nextIndex);
+                    setSessionType(nextType);
+
+                    if (nextType === 'focus') {
+                        setMinutes(currentSession.focusTime);
+                        setSeconds(0);
+                        toast.success('Back to focus time!');
+                    } else if (nextType === 'shortBreak') {
+                        setMinutes(currentSession.shortBreak);
+                        setSeconds(0);
+                        toast.success('Time for a short break');
+                    } else {
+                        setMinutes(currentSession.longBreak);
+                        setSeconds(0);
+                        toast.success('Time for a long break');
+                    }
+
+                    startIntervalMutation.mutate({
+                        sessionId: currentSession.id,
+                        intervalId: nextInterval.id,
+                    });
+                },
+            },
+        );
+    }, [
+        isPomodoroMode,
+        currentSession,
+        currentIntervalIndex,
+        endIntervalMutation,
+        startIntervalMutation,
+        setMinutes,
+        setSeconds,
+    ]);
 
     useEffect(() => {
         const randomImage =
@@ -266,44 +352,6 @@ export default function RoomPage() {
             ];
         setBackgroundImage(randomImage);
     }, []);
-
-    const handlePomodoroComplete = useCallback(() => {
-        if (!isPomodoroMode) return;
-        const settings =
-            selectedPreset.name === 'Custom' ? customSettings : selectedPreset;
-        if (sessionType === 'focus') {
-            // After focus, go to break
-            if (pomodoroSession === 3) {
-                // After 4th focus session, take long break
-                setSessionType('longBreak');
-                setMinutes(settings.longBreak);
-                setSeconds(0);
-                setPomodoroSession(0);
-                toast.success('Time for long break');
-            } else {
-                // Take short break
-                setSessionType('shortBreak');
-                setMinutes(settings.shortBreak);
-                setSeconds(0);
-                toast.success('Time for short break');
-            }
-        } else {
-            // After break, go back to focus
-            setSessionType('focus');
-            setMinutes(settings.focus);
-            setSeconds(0);
-            if (sessionType === 'shortBreak') {
-                setPomodoroSession(pomodoroSession + 1);
-            }
-            toast.success('Break is over');
-        }
-    }, [
-        isPomodoroMode,
-        selectedPreset,
-        customSettings,
-        sessionType,
-        pomodoroSession,
-    ]);
 
     useEffect(() => {
         if (isActive) {
@@ -345,23 +393,6 @@ export default function RoomPage() {
 
     const toggleTimer = () => {
         setIsActive(!isActive);
-    };
-
-    const resetTimer = () => {
-        setIsActive(false);
-        if (isPomodoroMode) {
-            const settings =
-                selectedPreset.name === 'Custom'
-                    ? customSettings
-                    : selectedPreset;
-            setMinutes(settings.focus);
-            setSeconds(0);
-            setSessionType('focus');
-            setPomodoroSession(0);
-        } else {
-            setMinutes(0);
-            setSeconds(0);
-        }
     };
 
     const handleTaskKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
@@ -628,6 +659,8 @@ export default function RoomPage() {
                                 // core timer
                                 minutes={minutes}
                                 seconds={seconds}
+                                totalSteps={totalSteps}
+                                currentStep={currentStep}
                                 onLeaveRoom={onLeaveroom}
                                 isActive={isActive}
                                 isPomodoroMode={isPomodoroMode}
@@ -636,7 +669,6 @@ export default function RoomPage() {
                                 taskList={taskList}
                                 pomodoroSession={pomodoroSession}
                                 sessionType={sessionType}
-                                resetTimer={resetTimer}
                                 handleTaskKeyDown={handleTaskKeyDown}
                                 inputRef={inputRef}
                                 taskButtonRef={taskButtonRef}
