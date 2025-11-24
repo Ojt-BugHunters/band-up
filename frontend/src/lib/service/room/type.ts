@@ -80,6 +80,7 @@ export interface Interval {
     startedAt: string;
     endedAt: string;
     pingedAt: string;
+    duration: number;
     status: string;
 }
 

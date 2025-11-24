@@ -23,6 +23,8 @@ import {
     useStartInterval,
     useEndInterval,
     usePingInterval,
+    usePauseInterval,
+    useResumeInterval,
 } from '@/lib/service/room';
 import {
     BACKGROUND_IMAGES,
@@ -184,6 +186,8 @@ export default function RoomPage() {
     const startIntervalMutation = useStartInterval();
     const endIntervalMutation = useEndInterval();
     const pingIntervalMutation = usePingInterval();
+    const pauseIntervalMutation = usePauseInterval();
+    const resumeIntervalMutation = useResumeInterval();
 
     // 2. Sessions, minutes, seconds controller
     const [allowStartButton, setAllowStartButton] = useState(false);
@@ -246,7 +250,7 @@ export default function RoomPage() {
         // 3. case 3, find ongoing interval
         if (currentSession.status === StudySessionStatus.ONGOING) {
             const ongoingInterval = currentSession.interval?.find(
-                (it) => it.status === 'ONGOING',
+                (it) => it.status === 'PAUSED',
             );
 
             if (!ongoingInterval) {
@@ -254,21 +258,35 @@ export default function RoomPage() {
                 setSeconds(0);
                 return;
             }
-            // we convert to second because getTime() of TS work with milisecond unit
-            const focusTotalSeconds = (currentSession.focusTime ?? 0) * 60;
 
-            const startMs = new Date(ongoingInterval.startedAt).getTime();
-            const pingMs = new Date(ongoingInterval.pingedAt).getTime();
+            const durationSeconds = ongoingInterval.duration ?? 0;
+            let totalSeconds = 0;
 
-            // ping - start / 1000 --> convert to second unit
-            const elapsedSeconds = Math.max(
-                0,
-                Math.floor((pingMs - startMs) / 1000),
-            );
-
+            switch (ongoingInterval.type) {
+                case 'Focus': {
+                    const focusMinutes = currentSession.focusTime ?? 0;
+                    totalSeconds = focusMinutes * 60;
+                    break;
+                }
+                case 'ShortBreak': {
+                    const shortBreakMinutes = currentSession.shortBreak ?? 0;
+                    totalSeconds = shortBreakMinutes * 60;
+                    break;
+                }
+                case 'LongBreak': {
+                    const longBreakMinutes = currentSession.longBreak ?? 0;
+                    totalSeconds = longBreakMinutes * 60;
+                    break;
+                }
+                default: {
+                    const focusMinutes = currentSession.focusTime ?? 0;
+                    totalSeconds = focusMinutes * 60;
+                    break;
+                }
+            }
             const remainingSeconds = Math.max(
                 0,
-                focusTotalSeconds - elapsedSeconds,
+                totalSeconds - durationSeconds,
             );
 
             // convert to minute unit
@@ -372,7 +390,7 @@ export default function RoomPage() {
                     }
                 }
                 pingCounterRef.current += 1;
-                if (pingCounterRef.current >= 30 && currentSession) {
+                if (pingCounterRef.current >= 5 && currentSession) {
                     const intervals = currentSession.interval ?? [];
                     const currentInterval = intervals[currentIntervalIndex];
                     if (currentInterval) {
@@ -415,14 +433,34 @@ export default function RoomPage() {
         const intervals = currentSession.interval ?? [];
         const currentInterval = intervals[currentIntervalIndex];
         if (!currentInterval) return;
+        const status = currentInterval.status;
 
         if (!isActive) {
-            startIntervalMutation.mutate({
+            if (status === 'PENDING') {
+                startIntervalMutation.mutate({
+                    sessionId: currentSession.id,
+                    intervalId: currentInterval.id,
+                });
+            }
+            if (status === 'PAUSED') {
+                resumeIntervalMutation.mutate({
+                    sessionId: currentSession.id,
+                    intervalId: currentInterval.id,
+                });
+            }
+
+            pingIntervalMutation.mutate({
                 sessionId: currentSession.id,
                 intervalId: currentInterval.id,
             });
             setIsActive(true);
-        } else {
+            return;
+        }
+        if (isActive) {
+            pauseIntervalMutation.mutate({
+                sessionId: currentSession.id,
+                intervalId: currentInterval.id,
+            });
             setIsActive(false);
         }
     };
