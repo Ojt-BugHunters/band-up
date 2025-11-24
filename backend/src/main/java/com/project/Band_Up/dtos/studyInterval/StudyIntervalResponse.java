@@ -22,5 +22,6 @@ public class StudyIntervalResponse{
     private LocalDateTime startedAt;
     private LocalDateTime endedAt;
     private LocalDateTime pingedAt;
+    private Integer duration;
     private Status status;
 }

@@ -19,7 +19,8 @@ public interface StudySessionService {
 
     StudySessionResponse resetInterval(UUID sessionId, UUID intervalId);
 
-    StudySessionResponse pauseInterval(UUID sessionId, UUID intervalId);
+    void pauseInterval(UUID sessionId, UUID intervalId);
+    void endPauseInterval(UUID sessionId, UUID intervalId);
 
     List<StudySessionResponse> getStudySessionByStatus(UUID userId, Status status);
 }
