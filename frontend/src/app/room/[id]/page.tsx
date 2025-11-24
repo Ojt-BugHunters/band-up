@@ -390,7 +390,7 @@ export default function RoomPage() {
                     }
                 }
                 pingCounterRef.current += 1;
-                if (pingCounterRef.current >= 5 && currentSession) {
+                if (pingCounterRef.current >= 30 && currentSession) {
                     const intervals = currentSession.interval ?? [];
                     const currentInterval = intervals[currentIntervalIndex];
                     if (currentInterval) {

@@ -1,3 +1,4 @@
+'use client';
 import {
     Mic,
     MicOff,
@@ -46,7 +47,50 @@ const participants = [
         isVideoOn: true,
         isMicOn: true,
     },
+    {
+        id: 7,
+        name: 'Nam Dang',
+        avatar: 'ND',
+        isVideoOn: true,
+        isMicOn: true,
+    },
+    {
+        id: 8,
+        name: 'John Doe',
+        avatar: 'JD',
+        isVideoOn: false,
+        isMicOn: true,
+    },
+    {
+        id: 9,
+        name: 'Jane Smith',
+        avatar: 'JS',
+        isVideoOn: true,
+        isMicOn: false,
+    },
+    {
+        id: 10,
+        name: 'Alex Chen',
+        avatar: 'AC',
+        isVideoOn: true,
+        isMicOn: true,
+    },
+    {
+        id: 11,
+        name: 'Sarah Lee',
+        avatar: 'SL',
+        isVideoOn: true,
+        isMicOn: true,
+    },
 ];
+
+const getGridCols = (count: number) => {
+    if (count <= 1) return 'grid-cols-1';
+    if (count <= 4) return 'grid-cols-2';
+    if (count <= 9) return 'grid-cols-3';
+    if (count <= 16) return 'grid-cols-4';
+    return 'grid-cols-5';
+};
 
 export function CollaborationDisplay() {
     const [isMicOn, setIsMicOn] = useState(false);
@@ -65,15 +109,14 @@ export function CollaborationDisplay() {
 
     const handleParticipantClick = (participantId: number) => {
         if (focusedParticipantId === participantId) {
-            setFocusedParticipantId(null); // Exit spotlight mode
+            setFocusedParticipantId(null);
         } else {
-            setFocusedParticipantId(participantId); // Enter spotlight mode
+            setFocusedParticipantId(participantId);
         }
     };
 
     return (
         <div className="flex h-full flex-col gap-6 p-6">
-            {/* Header */}
             <header className="flex items-center justify-between">
                 <div className="flex items-center gap-3">
                     <div className="flex h-12 w-12 items-center justify-center rounded-xl border border-zinc-700/50 bg-zinc-800/80 shadow-lg shadow-black/20 backdrop-blur-md">
@@ -91,9 +134,7 @@ export function CollaborationDisplay() {
             </header>
 
             {focusedParticipant ? (
-                // Spotlight View: Large focused participant + small thumbnails
                 <div className="flex flex-1 flex-col gap-4">
-                    {/* Large focused participant */}
                     <motion.div
                         initial={{ opacity: 0, scale: 0.95 }}
                         animate={{ opacity: 1, scale: 1 }}
@@ -121,7 +162,6 @@ export function CollaborationDisplay() {
                             </div>
                         )}
 
-                        {/* Participant info overlay */}
                         <div className="absolute right-0 bottom-0 left-0 bg-gradient-to-t from-black/80 to-transparent p-6">
                             <div className="flex items-center justify-between">
                                 <span className="text-lg font-bold text-white drop-shadow-lg">
@@ -141,7 +181,6 @@ export function CollaborationDisplay() {
                             </div>
                         </div>
 
-                        {/* Click hint overlay */}
                         <div className="absolute inset-0 flex items-center justify-center bg-black/0 opacity-0 transition-colors group-hover:bg-black/10 group-hover:opacity-100">
                             <div className="rounded-full border border-white/20 bg-black/60 px-4 py-2 backdrop-blur-md">
                                 <span className="text-sm text-white">
@@ -151,7 +190,6 @@ export function CollaborationDisplay() {
                         </div>
                     </motion.div>
 
-                    {/* Small thumbnails of other participants */}
                     <div className="grid h-32 grid-cols-5 gap-3">
                         {otherParticipants.map((participant, index) => (
                             <motion.div
@@ -183,7 +221,6 @@ export function CollaborationDisplay() {
                                     </div>
                                 )}
 
-                                {/* Participant info overlay */}
                                 <div className="absolute right-0 bottom-0 left-0 bg-gradient-to-t from-black/80 to-transparent p-2">
                                     <div className="flex items-center justify-between">
                                         <span className="truncate text-xs font-semibold text-white drop-shadow-lg">
@@ -201,15 +238,15 @@ export function CollaborationDisplay() {
                                     </div>
                                 </div>
 
-                                {/* Hover hint */}
                                 <div className="absolute inset-0 bg-black/0 transition-colors group-hover:bg-black/20" />
                             </motion.div>
                         ))}
                     </div>
                 </div>
             ) : (
-                // Grid View: All participants equal size
-                <div className="grid flex-1 grid-cols-3 gap-4">
+                <div
+                    className={`grid flex-1 gap-4 ${getGridCols(participants.length)}`}
+                >
                     {participants.map((participant, index) => (
                         <motion.div
                             key={participant.id}
@@ -240,7 +277,6 @@ export function CollaborationDisplay() {
                                 </div>
                             )}
 
-                            {/* Participant info overlay */}
                             <div className="absolute right-0 bottom-0 left-0 bg-gradient-to-t from-black/80 to-transparent p-4">
                                 <div className="flex items-center justify-between">
                                     <span className="text-sm font-semibold text-white drop-shadow-lg">
@@ -260,7 +296,6 @@ export function CollaborationDisplay() {
                                 </div>
                             </div>
 
-                            {/* Hover hint */}
                             <div className="absolute inset-0 flex items-center justify-center bg-black/0 opacity-0 transition-colors group-hover:bg-black/10 group-hover:opacity-100">
                                 <div className="rounded-full border border-white/20 bg-black/60 px-3 py-1.5 backdrop-blur-md">
                                     <span className="text-xs text-white">
