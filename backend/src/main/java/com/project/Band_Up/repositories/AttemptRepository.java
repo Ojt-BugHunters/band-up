@@ -4,6 +4,7 @@ import com.project.Band_Up.entities.Attempt;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 public interface AttemptRepository extends JpaRepository<Attempt, UUID> {
@@ -13,5 +14,6 @@ public interface AttemptRepository extends JpaRepository<Attempt, UUID> {
     List<Attempt> findAllByUser_IdAndStatusOrderByStartAtDesc(UUID userId, String status);
     // Lấy Attempt userId và testId sắp xếp theo startAt mới nhất
     List<Attempt> findAllByUser_IdAndTest_IdOrderByStartAtDesc(UUID userId, UUID testId);
+
 
 }

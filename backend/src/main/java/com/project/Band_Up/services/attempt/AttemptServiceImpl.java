@@ -6,6 +6,7 @@ import com.project.Band_Up.dtos.attempt.AttemptUpdateRequest;
 import com.project.Band_Up.entities.Account;
 import com.project.Band_Up.entities.Attempt;
 import com.project.Band_Up.entities.Test;
+import com.project.Band_Up.enums.Status;
 import com.project.Band_Up.repositories.AccountRepository;
 import com.project.Band_Up.repositories.AttemptRepository;
 import com.project.Band_Up.repositories.TestRepository;
@@ -77,6 +78,7 @@ public class AttemptServiceImpl implements AttemptService {
         Attempt attempt = modelMapper.map(createRequest, Attempt.class);
         attempt.setUser(user);
         attempt.setTest(test);
+        attempt.setStatus(Status.PENDING);
 
         Attempt saved = attemptRepository.save(attempt);
         return toResponse(saved);
@@ -91,7 +93,7 @@ public class AttemptServiceImpl implements AttemptService {
             throw new RuntimeException("You are not the owner of this attempt");
         }
 
-        modelMapper.map(updateRequest, attempt); // map các field cập nhật vào entity
+        modelMapper.map(updateRequest, attempt);
         Attempt updated = attemptRepository.save(attempt);
 
         return toResponse(updated);
