@@ -50,4 +50,8 @@ public interface StudySessionRepository extends JpaRepository<StudySession, UUID
 
 
     List<StudySession> findByStatusAndUser_Id(Status status, UUID userId);
+
+    Optional<StudySession> findByUser_IdAndStatus(UUID userId, Status status);
+
+
 }
