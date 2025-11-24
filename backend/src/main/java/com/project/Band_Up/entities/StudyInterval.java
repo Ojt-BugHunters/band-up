@@ -36,6 +36,8 @@ public class StudyInterval {
     private LocalDateTime startAt;
     private LocalDateTime endedAt;
     private LocalDateTime pingedAt;
+    private BigInteger totalPauseSeconds;
+    private LocalDateTime pauseAt;
     private BigInteger duration;
     @Enumerated(EnumType.STRING)
     private Status status;

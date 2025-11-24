@@ -85,7 +85,23 @@ public class StudySessionController {
             @PathVariable UUID sessionId,
             @PathVariable UUID intervalId
     ) {
-        return ResponseEntity.ok(studySessionService.pauseInterval(sessionId, intervalId));
+        studySessionService.pauseInterval(sessionId, intervalId);
+        return ResponseEntity.ok().build();
+    }
+
+    @Operation(summary = "Tiếp tục interval",
+            description = "Chuyển trạng thái interval từ PAUSED sang ONGOING và cập nhật thời gian bắt đầu mới")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "Đã tiếp tục interval"),
+            @ApiResponse(responseCode = "400", description = "Chỉ có interval đang PAUSED mới có thể tiếp tục")
+    })
+    @PostMapping("/{sessionId}/intervals/{intervalId}/resume")
+    public ResponseEntity<StudySessionResponse> resumeInterval(
+            @PathVariable UUID sessionId,
+            @PathVariable UUID intervalId
+    ) {
+       studySessionService.endPauseInterval(sessionId, intervalId);
+       return ResponseEntity.ok().build();
     }
 
     @Operation(summary = "Kết thúc interval",
