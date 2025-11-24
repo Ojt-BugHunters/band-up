@@ -15,8 +15,7 @@ import { Clock, Timer } from 'lucide-react';
 import { POMODORO_PRESETS } from './page.data';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
-import { PomodoroPreset } from '@/lib/service/room';
-import { TimerSettings } from './page';
+import { FocusTimerFormValues, PomodoroPreset } from '@/lib/service/room';
 import {
     Form,
     FormControl,
@@ -25,20 +24,25 @@ import {
     FormLabel,
     FormMessage,
 } from '@/components/ui/form';
+import { UseFormReturn } from 'react-hook-form';
 
 interface TimerControlDialogProps {
     showTimerSettings: boolean;
     setShowTimerSettings: (open: boolean) => void;
+
     timerTab: 'focus' | 'stopwatch';
     setTimerTab: (tab: 'focus' | 'stopwatch') => void;
+
     selectedPreset: PomodoroPreset;
     setSelectedPreset: (p: PomodoroPreset) => void;
-    customSettings: TimerSettings;
-    setCustomSettings: (setting: TimerSettings) => void;
-    isActive: boolean;
-    applyTimerSettings: () => void;
+
+    form: UseFormReturn<FocusTimerFormValues>;
+    handleApplyTimerSettings: () => void;
+
     toggleTimer: () => void;
-    resetTimer: () => void;
+    canToggleTimer: boolean;
+
+    isActive: boolean;
 }
 
 export function TimerControlDialog({
@@ -48,12 +52,11 @@ export function TimerControlDialog({
     setTimerTab,
     selectedPreset,
     setSelectedPreset,
-    customSettings,
-    setCustomSettings,
-    isActive,
-    applyTimerSettings,
+    form,
+    handleApplyTimerSettings,
     toggleTimer,
-    resetTimer,
+    canToggleTimer,
+    isActive,
 }: TimerControlDialogProps) {
     return (
         <div className="flex items-center gap-3">
@@ -145,7 +148,7 @@ export function TimerControlDialog({
                                         <form className="space-y-3 rounded-lg border border-zinc-700/30 bg-zinc-800/50 p-4">
                                             <FormField
                                                 control={form.control}
-                                                name="focus"
+                                                name="focusTime"
                                                 render={({ field }) => (
                                                     <FormItem>
                                                         <div className="flex items-center gap-3">
@@ -221,7 +224,6 @@ export function TimerControlDialog({
                                                 )}
                                             />
 
-                                            {/* Long Break */}
                                             <FormField
                                                 control={form.control}
                                                 name="longBreak"
@@ -261,10 +263,9 @@ export function TimerControlDialog({
                                                 )}
                                             />
 
-                                            {/* Cycle */}
                                             <FormField
                                                 control={form.control}
-                                                name="cycle"
+                                                name="cycles"
                                                 render={({ field }) => (
                                                     <FormItem>
                                                         <div className="flex items-center gap-3">
@@ -311,7 +312,7 @@ export function TimerControlDialog({
                             </div>
                         )}
                         <Button
-                            onClick={applyTimerSettings}
+                            onClick={handleApplyTimerSettings}
                             className="w-full bg-white text-black hover:bg-white/90"
                         >
                             Apply Settings
@@ -322,19 +323,11 @@ export function TimerControlDialog({
             <Button
                 onClick={toggleTimer}
                 size="lg"
+                disabled={!canToggleTimer}
                 className="h-14 rounded-2xl bg-white px-12 text-lg font-bold text-black shadow-2xl shadow-black/30 transition-all hover:scale-105 hover:bg-white/90 hover:shadow-[0_20px_50px_rgba(0,0,0,0.4)]"
             >
                 {isActive ? 'Pause' : 'Start'}
             </Button>
-            {isActive && (
-                <Button
-                    onClick={resetTimer}
-                    variant="ghost"
-                    className="font-semibold text-white hover:bg-zinc-800/50 hover:text-white"
-                >
-                    Reset
-                </Button>
-            )}
         </div>
     );
 }
