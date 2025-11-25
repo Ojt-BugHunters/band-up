@@ -572,7 +572,11 @@ export default function RoomPage() {
         });
     };
     const removeTask = (id: string) => {
-        setTaskList(taskList.filter((task) => task.id !== id));
+        deleteTaskMutation.mutate(id, {
+            onSuccess: () => {
+                setTaskList((prev) => prev.filter((task) => task.id !== id));
+            },
+        });
     };
     const handleDragStart = (index: number) => {
         setDraggedIndex(index);

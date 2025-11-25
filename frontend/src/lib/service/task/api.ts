@@ -1,4 +1,4 @@
-import { useMutation, useQuery } from '@tanstack/react-query';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import z from 'zod';
 import { CreateTaskFormValues, TaskResponse, TaskSchema } from './type';
 import { fetchWrapper, throwIfError, deserialize } from '..';
@@ -40,24 +40,25 @@ export function useCreateTask() {
 }
 
 export function useDeleteTask() {
+    const queryClient = useQueryClient();
     const mutation = useMutation({
         mutationFn: async (taskId: string) => {
-            const response = await fetchWrapper(`/tasks/${taskId}`, {
+            await fetchWrapper(`/tasks/${taskId}`, {
                 method: 'DELETE',
                 headers: {
                     Accept: 'application/json',
                     'Content-Type': 'application/json',
                 },
             });
-
-            await throwIfError(response);
-            return response.json();
         },
         onError: (error) => {
             toast.error(error?.message ?? 'Delete task failed');
         },
         onSuccess: () => {
             toast.success('Delete updated successfully');
+            queryClient.invalidateQueries({
+                queryKey: ['tasks'],
+            });
         },
     });
 
