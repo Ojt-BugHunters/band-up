@@ -20,10 +20,7 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.YearMonth;
 import java.time.temporal.ChronoUnit;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Optional;
-import java.util.UUID;
+import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
@@ -166,9 +163,11 @@ public class StudyStatsServiceImpl implements StudyStatsService {
         Integer todayFocusTime = studyIntervalRepository.getTodayFocusDuration(start, end, userId);
         Integer bestSession = account.getBestSession();
         Integer todayTasks = taskRepository.countCompletedTasksInDay(start, end, userId);
+        int safeBestSession = Objects.requireNonNullElse(account.getBestSession(), 0);
+        int safeFocusTime = Objects.requireNonNullElse(todayFocusTime, 0);
         return ActivitiesSummaryDto.builder()
-                .bestSession(bestSession)
-                .focusedTime(todayFocusTime)
+                .bestSession(safeBestSession)
+                .focusedTime(safeFocusTime)
                 .taskCompleted(todayTasks)
                 .totalSessions(todaySessions)
                 .build();
