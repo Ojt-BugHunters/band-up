@@ -416,3 +416,30 @@ export function useEndInterval() {
         },
     });
 }
+
+export function useResumeInterval() {
+    return useMutation({
+        mutationFn: async ({
+            sessionId,
+            intervalId,
+        }: IntervalMutationPayload) => {
+            const response = await fetchWrapper(
+                `/study-sessions/${sessionId}/intervals/${intervalId}/resume`,
+                {
+                    method: 'POST',
+                    headers: {
+                        Accept: 'application/json',
+                    },
+                },
+            );
+            await throwIfError(response);
+            return response.json();
+        },
+        onError: (error) => {
+            toast.error(error?.message ?? 'Resume interval fail');
+        },
+        onSuccess: () => {
+            toast.success('Resume interval successfully');
+        },
+    });
+}

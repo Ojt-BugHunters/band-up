@@ -38,6 +38,16 @@ public class StudySessionServiceImpl implements StudySessionService {
 
     @Override
     public StudySessionResponse createStudySession(StudySessionCreateRequest request, UUID userId, UUID roomId) {
+        Optional<StudySession> ongoing = studySessionRepository.findByUser_IdAndStatus(userId, Status.ONGOING);
+        if (ongoing.isPresent()) {
+            StudySession old = ongoing.get();
+            old.setStatus(Status.ENDED);
+            old.setEndedAt(LocalDateTime.now());
+            studySessionRepository.save(old);
+        }
+        Optional<StudySession> pending = studySessionRepository.findByUser_IdAndStatus(userId, Status.PENDING);
+        pending.ifPresent(studySessionRepository::delete);
+
         StudySession studySession = toEntity(request, getAccount(userId), roomId);
         studySession.setStatus(Status.PENDING);
 

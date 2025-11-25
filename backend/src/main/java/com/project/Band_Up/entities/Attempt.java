@@ -1,5 +1,6 @@
 package com.project.Band_Up.entities;
 
+import com.project.Band_Up.enums.Status;
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.Fetch;
@@ -31,7 +32,7 @@ public class Attempt {
     private Test test;
     private LocalDateTime startAt;
     private LocalDateTime submitAt;
-    private String status; // IN_PROGRESS, COMPLETED, SUBMITTED
+    private Status status;
     private Integer score; // điểm số
     private Double overallBand; // điểm band overall
 

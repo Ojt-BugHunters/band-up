@@ -1,5 +1,6 @@
 package com.project.Band_Up.controllers;
 
+import com.project.Band_Up.dtos.task.TaskCreateRequest;
 import com.project.Band_Up.dtos.task.TaskResponse;
 import com.project.Band_Up.dtos.task.TaskUpdateRequest;
 import com.project.Band_Up.services.task.TaskService;
@@ -36,7 +37,7 @@ public class TaskController {
     @PostMapping("/create")
     public ResponseEntity<TaskResponse> createTask(
             @AuthenticationPrincipal JwtUserDetails userDetails,
-            @RequestBody TaskResponse request
+            @RequestBody TaskCreateRequest request
     ) {
         TaskResponse response = taskService.createTask(request, userDetails.getAccountId());
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
