@@ -14,8 +14,6 @@ public class WebRTCSignalingController {
 
     @MessageMapping("/webrtc.signal")
     public void signaling(SignalingMessage message) {
-
-        // Relay message đến room
         messagingTemplate.convertAndSend(
                 "/topic/room/" + message.getRoomId(),
                 message
