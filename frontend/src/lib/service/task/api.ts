@@ -1,4 +1,3 @@
-import { fetchWrapper } from '@/lib/service';
 import { useMutation, useQuery } from '@tanstack/react-query';
 import z from 'zod';
 import { CreateTaskFormValues, TaskResponse, TaskSchema } from './type';

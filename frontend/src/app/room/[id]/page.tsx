@@ -43,6 +43,7 @@ import {
 import { EmptyState } from '@/components/ui/empty-state';
 import { LoadingSpinner } from '@/components/ui/loading-spinner';
 import { CollaborationDisplay } from './meeting-room';
+import { TaskResponse, useCreateTask } from '@/lib/service/task';
 
 const getIntervalType = (
     index: number,
@@ -65,9 +66,8 @@ export type TimePeriod = 'daily' | 'weekly' | 'monthly';
 export type DisplayMode = 'pomodoro' | 'ai-chat' | 'room' | 'collaboration';
 
 export default function RoomPage() {
-    const [task, setTask] = useState('');
     const [backgroundImage, setBackgroundImage] = useState('');
-    const [taskList, setTaskList] = useState<Task[]>([]);
+
     const [draggedIndex, setDraggedIndex] = useState<number | null>(null);
     const [flyingTask, setFlyingTask] = useState<FlyingTask | null>(null);
 
@@ -99,8 +99,6 @@ export default function RoomPage() {
     >('today');
     const [analyticsDate, setAnalyticsDate] = useState(new Date());
 
-    const inputRef = useRef<HTMLDivElement>(null);
-    const taskButtonRef = useRef<HTMLButtonElement>(null);
     const fileInputRef = useRef<HTMLInputElement>(null);
 
     // ------------------------------------------------
@@ -474,39 +472,73 @@ export default function RoomPage() {
     }, []);
 
     /// --------- Tasks -----------------------------
-    // animation when create new task
+    const [task, setTask] = useState('');
+    const inputRef = useRef<HTMLDivElement>(null);
+    const taskButtonRef = useRef<HTMLButtonElement>(null);
+    const { mutation: createTaskMutation } = useCreateTask();
+
     const handleTaskKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
-        if (e.key === 'Enter' && task.trim()) {
-            const inputRect = inputRef.current?.getBoundingClientRect();
-            const buttonRect = taskButtonRef.current?.getBoundingClientRect();
+        if (e.key !== 'Enter') return;
 
-            if (inputRect && buttonRect) {
-                setFlyingTask({
-                    id: Date.now().toString(),
-                    text: task.trim(),
-                    startX: inputRect.left + inputRect.width / 2,
-                    startY: inputRect.top + inputRect.height / 2,
-                    endX: buttonRect.left + buttonRect.width / 2,
-                    endY: buttonRect.top + buttonRect.height / 2,
-                });
+        const trimmed = task.trim();
+        if (!trimmed) return;
 
-                setTimeout(() => {
-                    const newTask: Task = {
-                        id: Date.now().toString(),
-                        text: task.trim(),
-                        completed: false,
-                    };
-                    setTaskList([...taskList, newTask]);
+        if (createTaskMutation.isPending) return;
 
-                    toast.success('Task added to your list');
-                    setFlyingTask(null);
-                }, 600);
-            }
+        const inputRect = inputRef.current?.getBoundingClientRect();
+        const buttonRect = taskButtonRef.current?.getBoundingClientRect();
 
-            setTask('');
-        }
+        if (!inputRect || !buttonRect) return;
+
+        const tempId = Date.now().toString();
+
+        setFlyingTask({
+            id: tempId,
+            text: trimmed,
+            startX: inputRect.left + inputRect.width / 2,
+            startY: inputRect.top + inputRect.height / 2,
+            endX: buttonRect.left + buttonRect.width / 2,
+            endY: buttonRect.top + buttonRect.height / 2,
+        });
+
+        setTask('');
+        setTimeout(() => {
+            const newTask: Task = {
+                id: tempId,
+                text: trimmed,
+                completed: false,
+            };
+
+            setTaskList((prev) => [...prev, newTask]);
+
+            createTaskMutation.mutate(
+                {
+                    title: trimmed,
+                },
+                {
+                    onSuccess: (response: TaskResponse) => {
+                        const realId = response?.id;
+                        if (realId) {
+                            setTaskList((prev) =>
+                                prev.map((t) =>
+                                    t.id === tempId ? { ...t, id: realId } : t,
+                                ),
+                            );
+                        }
+                        setFlyingTask(null);
+                    },
+                    onError: () => {
+                        setTaskList((prev) =>
+                            prev.filter((t) => t.id !== tempId),
+                        );
+                        setFlyingTask(null);
+                    },
+                },
+            );
+        }, 600);
     };
-
+    /// To do list box
+    const [taskList, setTaskList] = useState<Task[]>([]);
     const toggleTaskCompletion = (id: string) => {
         setTaskList(
             taskList.map((task) =>
@@ -514,15 +546,12 @@ export default function RoomPage() {
             ),
         );
     };
-
     const removeTask = (id: string) => {
         setTaskList(taskList.filter((task) => task.id !== id));
     };
-
     const handleDragStart = (index: number) => {
         setDraggedIndex(index);
     };
-
     const handleDragOver = (e: React.DragEvent, index: number) => {
         e.preventDefault();
         if (draggedIndex === null || draggedIndex === index) return;
@@ -535,11 +564,11 @@ export default function RoomPage() {
         setTaskList(newTaskList);
         setDraggedIndex(index);
     };
-
     const handleDragEnd = () => {
         setDraggedIndex(null);
     };
 
+    /// Ambient Sound
     const toggleAmbientSound = (id: string) => {
         setAmbientSounds(
             ambientSounds.map((sound) =>
@@ -739,26 +768,28 @@ export default function RoomPage() {
                                 toggleTimer={toggleTimer}
                                 canToggleTimer={canToggleTimer}
                                 isActive={isActive}
+                                // task input
+                                task={task}
+                                setTask={setTask}
+                                handleTaskKeyDown={handleTaskKeyDown}
+                                inputRef={inputRef}
+                                // to do list box
+                                taskList={taskList}
+                                handleDragStart={handleDragStart}
+                                handleDragOver={handleDragOver}
+                                handleDragEnd={handleDragEnd}
+                                draggedIndex={draggedIndex}
+                                toggleTaskCompletion={toggleTaskCompletion}
+                                removeTask={removeTask}
+                                taskButtonRef={taskButtonRef}
                                 // core timer
                                 minutes={minutes}
                                 seconds={seconds}
                                 totalSteps={totalSteps}
                                 currentStep={currentStep}
                                 isPomodoroMode={isPomodoroMode}
-                                task={task}
-                                setTask={setTask}
-                                taskList={taskList}
                                 pomodoroSession={pomodoroSession}
                                 sessionType={sessionType}
-                                handleTaskKeyDown={handleTaskKeyDown}
-                                inputRef={inputRef}
-                                taskButtonRef={taskButtonRef}
-                                toggleTaskCompletion={toggleTaskCompletion}
-                                removeTask={removeTask}
-                                handleDragStart={handleDragStart}
-                                handleDragOver={handleDragOver}
-                                handleDragEnd={handleDragEnd}
-                                draggedIndex={draggedIndex}
                                 showAmbientMixer={showAmbientMixer}
                                 setShowAmbientMixer={setShowAmbientMixer}
                                 ambientSounds={ambientSounds}
