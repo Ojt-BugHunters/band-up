@@ -178,3 +178,39 @@
     padding: 0.25rem 1rem;
     animation: aura-burst 1.5s infinite ease-in-out;
 }
+
+[data-sonner-toast][data-type='info'] {
+    --normal-bg: color-mix(
+        in oklab,
+        light-dark(var(--color-sky-600), var(--color-sky-400)) 10%,
+        var(--background)
+    );
+    --normal-text: light-dark(var(--color-sky-600), var(--color-sky-400));
+    --normal-border: light-dark(var(--color-sky-600), var(--color-sky-400));
+}
+
+[data-sonner-toast][data-type='success'] {
+    --normal-bg: color-mix(
+        in oklab,
+        light-dark(var(--color-green-600), var(--color-green-400)) 10%,
+        var(--background)
+    );
+    --normal-text: light-dark(var(--color-green-600), var(--color-green-400));
+    --normal-border: light-dark(var(--color-green-600), var(--color-green-400));
+}
+
+[data-sonner-toast][data-type='warning'] {
+    --normal-bg: color-mix(
+        in oklab,
+        light-dark(var(--color-amber-600), var(--color-amber-400)) 10%,
+        var(--background)
+    );
+    --normal-text: light-dark(var(--color-amber-600), var(--color-amber-400));
+    --normal-border: light-dark(var(--color-amber-600), var(--color-amber-400));
+}
+
+[data-sonner-toast][data-type='error'] {
+    --normal-bg: color-mix(in oklab, var(--destructive) 10%, var(--background));
+    --normal-text: var(--destructive);
+    --normal-border: var(--destructive);
+}
