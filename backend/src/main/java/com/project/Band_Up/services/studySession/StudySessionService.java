@@ -3,11 +3,13 @@ package com.project.Band_Up.services.studySession;
 import com.project.Band_Up.dtos.studySession.StudySessionCreateRequest;
 import com.project.Band_Up.dtos.studySession.StudySessionResponse;
 import com.project.Band_Up.dtos.studySessionInterval.StudySessionIntervalUpdateRequest;
+import com.project.Band_Up.enums.Status;
 
+import java.util.List;
 import java.util.UUID;
 
 public interface StudySessionService {
-    StudySessionResponse createStudySession(StudySessionCreateRequest request, UUID userId);
+    StudySessionResponse createStudySession(StudySessionCreateRequest request, UUID userId, UUID roomId);
 
     StudySessionResponse startInterval(UUID sessionId, UUID intervalId);
 
@@ -17,5 +19,8 @@ public interface StudySessionService {
 
     StudySessionResponse resetInterval(UUID sessionId, UUID intervalId);
 
-    StudySessionResponse pauseInterval(UUID sessionId, UUID intervalId);
+    void pauseInterval(UUID sessionId, UUID intervalId);
+    void endPauseInterval(UUID sessionId, UUID intervalId);
+
+    List<StudySessionResponse> getStudySessionByStatus(UUID userId, Status status);
 }

@@ -1,5 +1,6 @@
 package com.project.Band_Up.dtos.attemptSection;
 
+import com.project.Band_Up.enums.Status;
 import lombok.*;
 
 import java.time.LocalDateTime;
@@ -15,4 +16,5 @@ public class AttemptSectionResponse {
     private UUID attemptId;
     private UUID sectionId;
     private LocalDateTime startAt;
+    private Status status;
 }

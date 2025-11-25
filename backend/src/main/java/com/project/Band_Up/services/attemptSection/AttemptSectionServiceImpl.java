@@ -5,6 +5,7 @@ import com.project.Band_Up.dtos.attemptSection.AttemptSectionResponse;
 import com.project.Band_Up.entities.Attempt;
 import com.project.Band_Up.entities.AttemptSection;
 import com.project.Band_Up.entities.Section;
+import com.project.Band_Up.enums.Status;
 import com.project.Band_Up.repositories.AttemptRepository;
 import com.project.Band_Up.repositories.AttemptSectionRepository;
 import com.project.Band_Up.repositories.SectionRepository;
@@ -44,6 +45,48 @@ public class AttemptSectionServiceImpl implements AttemptSectionService {
         }
         return toResponse(attemptSection);
     }
+    @Override
+    public List<AttemptSectionResponse> getAttemptSectionsByAttemptIdAndStatus(UUID attemptId, Status status){
+        List<AttemptSection> attemptSection = attemptSectionRepository.findAllByAttempt_IdAndStatus(attemptId, status);
+        if (attemptSection.isEmpty()) {
+            throw new RuntimeException("AttemptSection not found");
+        }
+        return attemptSection.stream()
+                .map(this::toResponse)
+                .collect(Collectors.toList());
+    }
+    @Override
+    public AttemptSectionResponse updateAttemptSectionStatus(UUID attemptSectionId, Status status) {
+        AttemptSection attemptSection = attemptSectionRepository.findById(attemptSectionId)
+                .orElseThrow(() -> new RuntimeException("AttemptSection not found"));
+
+        Attempt attempt = attemptSection.getAttempt();
+        if (attempt == null) {
+            throw new RuntimeException("Attempt not found for this AttemptSection");
+        }
+        attemptSection.setStatus(status);
+        AttemptSection updated = attemptSectionRepository.save(attemptSection);
+        recalculateAttemptStatus(attempt);
+        return toResponse(updated);
+    }
+
+    private void recalculateAttemptStatus(Attempt attempt) {
+        List<AttemptSection> sections =
+                attemptSectionRepository.findAllByAttempt_IdOrderByStartAtDesc(attempt.getId());
+        boolean hasOngoing = sections.stream()
+                .anyMatch(s -> s.getStatus() == Status.ONGOING);
+        boolean allEnded = !sections.isEmpty() && sections.stream()
+                .allMatch(s -> s.getStatus() == Status.ENDED);
+        if (hasOngoing) {
+            attempt.setStatus(Status.ONGOING);
+        } else if (allEnded) {
+            attempt.setStatus(Status.ENDED);
+        } else {
+            attempt.setStatus(Status.PENDING);
+        }
+        attemptRepository.save(attempt);
+    }
+
 
     @Override
     public AttemptSectionResponse createAttemptSection(UUID attemptId, UUID sectionId, AttemptSectionCreateRequest request) {
@@ -55,10 +98,11 @@ public class AttemptSectionServiceImpl implements AttemptSectionService {
         AttemptSection attemptSection = modelMapper.map(request, AttemptSection.class);
         attemptSection.setAttempt(attempt);
         attemptSection.setSection(section);
-
+        attemptSection.setStatus(Status.PENDING);
         AttemptSection saved = attemptSectionRepository.save(attemptSection);
         return toResponse(saved);
     }
+
 
     @Override
     public void deleteAttemptSection(UUID attemptSectionId) {

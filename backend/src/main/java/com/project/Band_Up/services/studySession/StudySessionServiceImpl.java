@@ -37,8 +37,18 @@ public class StudySessionServiceImpl implements StudySessionService {
     private final ModelMapper modelMapper;
 
     @Override
-    public StudySessionResponse createStudySession(StudySessionCreateRequest request, UUID userId) {
-        StudySession studySession = toEntity(request, getAccount(userId));
+    public StudySessionResponse createStudySession(StudySessionCreateRequest request, UUID userId, UUID roomId) {
+        Optional<StudySession> ongoing = studySessionRepository.findByUser_IdAndStatus(userId, Status.ONGOING);
+        if (ongoing.isPresent()) {
+            StudySession old = ongoing.get();
+            old.setStatus(Status.ENDED);
+            old.setEndedAt(LocalDateTime.now());
+            studySessionRepository.save(old);
+        }
+        Optional<StudySession> pending = studySessionRepository.findByUser_IdAndStatus(userId, Status.PENDING);
+        pending.ifPresent(studySessionRepository::delete);
+
+        StudySession studySession = toEntity(request, getAccount(userId), roomId);
         studySession.setStatus(Status.PENDING);
 
         StudySession saved = studySessionRepository.save(studySession);
@@ -68,28 +78,27 @@ public class StudySessionServiceImpl implements StudySessionService {
     public StudySessionResponse endInterval(UUID sessionId, UUID intervalId) {
         StudySession session = getSession(sessionId);
         StudyInterval interval = getInterval(intervalId);
-
-        interval.setEndedAt(LocalDateTime.now());
+        LocalDateTime now = LocalDateTime.now();
+        interval.setEndedAt(now);
         interval.setStatus(Status.ENDED);
         if (interval.getStartAt() != null) {
-            long seconds = java.time.Duration.between(interval.getStartAt(), interval.getEndedAt()).getSeconds();
-            interval.setDuration(BigInteger.valueOf(seconds));
+            BigInteger effectiveDuration = calculateEffectiveDuration(interval, now);
+            interval.setDuration(effectiveDuration);
         }
         List<StudyInterval> all = studyIntervalRepository.findByStudySessionOrderByOrderIndexAsc(session);
         boolean allDone = all.stream().allMatch(i -> i.getStatus() == Status.ENDED);
         if (allDone) {
-            session.setEndedAt(LocalDateTime.now());
+            session.setEndedAt(now);
             session.setStatus(Status.ENDED);
-
             BigInteger totalFocus = all.stream()
                     .filter(i -> i.getType() == SessionMode.Focus)
                     .map(i -> Optional.ofNullable(i.getDuration()).orElse(BigInteger.ZERO))
                     .reduce(BigInteger.ZERO, BigInteger::add);
-
             session.setTotalFocusTime(totalFocus);
         }
         return saveAndReturn(session, interval);
     }
+
 
     @Override
     public StudySessionResponse pingInterval(UUID sessionId, UUID intervalId, StudySessionIntervalUpdateRequest request) {
@@ -99,26 +108,22 @@ public class StudySessionServiceImpl implements StudySessionService {
         if (Set.of(Status.PENDING, Status.ENDED, Status.PAUSED).contains(interval.getStatus())) {
             throw new IllegalArgumentException("Cannot ping an interval that has not started");
         }
-
-        interval.setPingedAt(LocalDateTime.now());
+        LocalDateTime now = LocalDateTime.now();
+        interval.setPingedAt(now);
         if (interval.getStartAt() != null) {
-            long seconds = Duration.between(interval.getStartAt(), interval.getPingedAt()).getSeconds();
-            interval.setDuration(BigInteger.valueOf(seconds));
+            BigInteger effectiveDuration = calculateEffectiveDuration(interval, now);
+            interval.setDuration(effectiveDuration);
         }
         studyIntervalRepository.save(interval);
-
         List<StudyInterval> allIntervals = studyIntervalRepository.findByStudySessionOrderByOrderIndexAsc(session);
         BigInteger totalFocus = allIntervals.stream()
                 .filter(i -> i.getType() == SessionMode.Focus)
                 .map(i -> Optional.ofNullable(i.getDuration()).orElse(BigInteger.ZERO))
                 .reduce(BigInteger.ZERO, BigInteger::add);
-
         session.setTotalFocusTime(totalFocus);
         studySessionRepository.save(session);
         return toResponse(session);
-
     }
-
 
     @Override
     public StudySessionResponse resetInterval(UUID sessionId, UUID intervalId) {
@@ -135,7 +140,7 @@ public class StudySessionServiceImpl implements StudySessionService {
     }
 
     @Override
-    public StudySessionResponse pauseInterval(UUID sessionId, UUID intervalId) {
+    public void pauseInterval(UUID sessionId, UUID intervalId) {
         StudySession session = getSession(sessionId);
         StudyInterval interval = getInterval(intervalId);
 
@@ -144,8 +149,55 @@ public class StudySessionServiceImpl implements StudySessionService {
         }
 
         interval.setStatus(Status.PAUSED);
-        return saveAndReturn(session, interval);
+        interval.setPauseAt(LocalDateTime.now());
+        studyIntervalRepository.save(interval);
     }
+    @Override
+    public void endPauseInterval(UUID sessionId, UUID intervalId) {
+        StudySession session = getSession(sessionId);
+        StudyInterval interval = getInterval(intervalId);
+        if (interval.getStatus() != Status.PAUSED) {
+            throw new IllegalArgumentException("Only paused intervals can end pause");
+        }
+        LocalDateTime now = LocalDateTime.now();
+        if (interval.getPauseAt() != null) {
+            long pausedSeconds = Duration.between(interval.getPauseAt(), now).getSeconds();
+            BigInteger currentTotalPaused = Optional.ofNullable(interval.getTotalPauseSeconds())
+                    .orElse(BigInteger.ZERO);
+            BigInteger newTotalPaused = currentTotalPaused.add(BigInteger.valueOf(pausedSeconds));
+            interval.setTotalPauseSeconds(newTotalPaused);
+        }
+        interval.setStatus(Status.ONGOING);
+        interval.setPauseAt(null);
+        studyIntervalRepository.save(interval);
+    }
+
+    private BigInteger calculateEffectiveDuration(StudyInterval interval, LocalDateTime now) {
+        if (interval.getStartAt() == null) {
+            return BigInteger.ZERO;
+        }
+        long totalSeconds = Duration.between(interval.getStartAt(), now).getSeconds();
+        BigInteger paused = Optional.ofNullable(interval.getTotalPauseSeconds())
+                .orElse(BigInteger.ZERO);
+        BigInteger duration = BigInteger.valueOf(totalSeconds).subtract(paused);
+        if (duration.signum() < 0) {
+            duration = BigInteger.ZERO;
+        }
+
+        return duration;
+    }
+
+    public List<StudySessionResponse> getStudySessionByStatus(UUID userId, Status status) {
+        List<StudySession> sessions =
+                studySessionRepository.findByStatusAndUser_Id(status, userId);
+
+        return sessions.stream()
+                .map(this::toResponse)
+                .toList();
+    }
+
+
+
 
 
     private Account getAccount(UUID userId) {
@@ -176,11 +228,11 @@ public class StudySessionServiceImpl implements StudySessionService {
         return toResponse(session);
     }
 
-    private StudySession toEntity(StudySessionCreateRequest request, Account user) {
+    private StudySession toEntity(StudySessionCreateRequest request, Account user, UUID roomId) {
         StudySession studySession = modelMapper.map(request, StudySession.class);
         studySession.setUser(user);
-        if (request.getRoomId() != null) {
-            Room room = getRoom(request.getRoomId());
+        if (roomId != null) {
+            Room room = getRoom(roomId);
             studySession.setRoom(room);
         } else {
             studySession.setRoom(null);
@@ -191,13 +243,21 @@ public class StudySessionServiceImpl implements StudySessionService {
     private StudySessionResponse toResponse(StudySession studySession) {
         StudySessionResponse response = modelMapper.map(studySession, StudySessionResponse.class);
         response.setUserId(studySession.getUser().getId());
-        response.setRoomId(studySession.getRoom().getId());
+        response.setRoomId(studySession.getRoom() != null ? studySession.getRoom().getId() : null);
 
         List<StudyIntervalResponse> intervalResponses = studyIntervalRepository
                 .findByStudySessionOrderByOrderIndexAsc(studySession)
                 .stream()
-                .map(interval -> modelMapper.map(interval, StudyIntervalResponse.class))
+                .map(interval -> {
+                    StudyIntervalResponse intervalResp = modelMapper.map(interval, StudyIntervalResponse.class);
+                    intervalResp.setStudySessionId(studySession.getId());
+                    intervalResp.setStartedAt(interval.getStartAt());
+                    intervalResp.setEndedAt(interval.getEndedAt());
+                    intervalResp.setPingedAt(interval.getPingedAt());
+                    return intervalResp;
+                })
                 .collect(Collectors.toList());
+
 
         response.setInterval(intervalResponses);
         return response;

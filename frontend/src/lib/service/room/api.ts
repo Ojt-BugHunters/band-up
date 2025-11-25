@@ -8,11 +8,27 @@ import {
     useQueryClient,
     UseQueryResult,
 } from '@tanstack/react-query';
-import { useForm } from 'react-hook-form';
+import { Resolver, useForm } from 'react-hook-form';
 import { toast } from 'sonner';
 import { deserialize, fetchWrapper, throwIfError } from '@/lib/service';
-import { RoomSchema, CreateRoomFormValues, Room } from './type';
-import { AccountRoomMember } from './type';
+import {
+    RoomSchema,
+    CreateRoomFormValues,
+    Room,
+    StudySession,
+    StopWatchTimerSettingValues,
+    FocusCreateTimerSettingValues,
+    FocusTimerFormSchema,
+    FocusTimerFormValues,
+    IntervalMutationPayload,
+    AccountRoomMember,
+} from './type';
+
+export enum StudySessionStatus {
+    PENDING = 'PENDING',
+    ONGOING = 'ONGOING',
+    ENDED = 'ENDED',
+}
 
 export function useCreateRoom() {
     const router = useRouter();
@@ -132,6 +148,7 @@ export const useGetRoomByCode = (roomCode: string | undefined) => {
             return await deserialize<Room>(response);
         },
         enabled: !!roomCode,
+        staleTime: 10 * 60 * 1000,
     });
 };
 
@@ -145,6 +162,7 @@ export const useGetRoomById = (roomId: string) => {
             return await deserialize<Room>(response);
         },
         initialData: () => queryClient.getQueryData<Room>(['room', roomId]),
+        staleTime: 25 * 60 * 1000,
     });
 };
 
@@ -155,6 +173,20 @@ export const useCheckUserInRoom = () => {
             const response = await fetchWrapper('/rooms/check-user-in-room');
             return await deserialize<Room[]>(response);
         },
+        staleTime: 10 * 60 * 1000,
+    });
+};
+
+export const useCheckIfStudySession = (status: StudySessionStatus) => {
+    return useQuery({
+        queryKey: ['study-session'],
+        queryFn: async () => {
+            const response = await fetchWrapper(
+                `/study-sessions/status/${status}`,
+            );
+            return await deserialize<StudySession[]>(response);
+        },
+        staleTime: 60 * 1000,
     });
 };
 
@@ -165,6 +197,24 @@ export const useGetRoomMember = (userId: string) => {
             const response = await fetchWrapper(`/profile/${userId}/avt-info`);
             return await deserialize<AccountRoomMember>(response);
         },
+        staleTime: 10 * 60 * 1000,
+    });
+};
+
+export const useGetStudySessions = (
+    status: StudySessionStatus,
+    roomId: string,
+) => {
+    return useQuery({
+        queryKey: ['study-sessions', status, roomId],
+        queryFn: async () => {
+            const response = await fetchWrapper(
+                `/study-sessions/status/${status}`,
+            );
+            return await deserialize<StudySession[]>(response);
+        },
+        staleTime: Infinity,
+        refetchOnWindowFocus: true,
     });
 };
 
@@ -204,3 +254,192 @@ export const useGetRoomMembers = (roomId: string) => {
         isError: roomQuery.isError || memberQueries.some((q) => q.isError),
     };
 };
+
+export const useCreateTimerSetting = (roomId: string) => {
+    const queryClient = useQueryClient();
+    const mutation = useMutation({
+        mutationFn: async (
+            values: FocusCreateTimerSettingValues | StopWatchTimerSettingValues,
+        ) => {
+            const response = await fetchWrapper(
+                `/study-sessions/create?roomId=${roomId}`,
+                {
+                    method: 'POST',
+                    headers: {
+                        Accept: 'application/json',
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(values),
+                },
+            );
+
+            await throwIfError(response);
+            return response.json();
+        },
+        onError: (error) => {
+            toast.error(error?.message ?? 'Create TimerSessions fail');
+        },
+        onSuccess: () => {
+            toast.success('Create sessions successfully');
+            queryClient.invalidateQueries({ queryKey: ['study-sessions'] });
+        },
+    });
+
+    const form = useForm<FocusTimerFormValues>({
+        resolver: zodResolver(
+            FocusTimerFormSchema,
+        ) as Resolver<FocusTimerFormValues>,
+        defaultValues: {
+            focusTime: 25,
+            shortBreak: 5,
+            longBreak: 15,
+            cycles: 4,
+        },
+    });
+
+    return { form, mutation };
+};
+
+export function useStartInterval() {
+    const queryClient = useQueryClient();
+
+    return useMutation({
+        mutationFn: async ({
+            sessionId,
+            intervalId,
+        }: IntervalMutationPayload) => {
+            const response = await fetchWrapper(
+                `/study-sessions/${sessionId}/intervals/${intervalId}/start`,
+                {
+                    method: 'POST',
+                    headers: {
+                        Accept: 'application/json',
+                    },
+                },
+            );
+
+            await throwIfError(response);
+            return response.json();
+        },
+        onError: (error) => {
+            toast.error(error?.message ?? 'Start interval failed');
+        },
+        onSuccess: () => {
+            queryClient.invalidateQueries({ queryKey: ['study-sessions'] });
+        },
+    });
+}
+
+export function usePingInterval() {
+    return useMutation({
+        mutationFn: async ({
+            sessionId,
+            intervalId,
+        }: IntervalMutationPayload) => {
+            const response = await fetchWrapper(
+                `/study-sessions/${sessionId}/intervals/${intervalId}/ping`,
+                {
+                    method: 'PATCH',
+                    headers: {
+                        Accept: 'application/json',
+                    },
+                },
+            );
+            await throwIfError(response);
+            return response.json();
+        },
+        onError: (error) => {
+            toast.error(error?.message ?? 'Ping interval fail');
+        },
+        onSuccess: () => {
+            toast.success('Ping interval successfully');
+        },
+    });
+}
+
+export function usePauseInterval() {
+    const queryClient = useQueryClient();
+
+    return useMutation({
+        mutationFn: async ({
+            sessionId,
+            intervalId,
+        }: IntervalMutationPayload) => {
+            const response = await fetchWrapper(
+                `/study-sessions/${sessionId}/intervals/${intervalId}/pause`,
+                {
+                    method: 'POST',
+                    headers: {
+                        Accept: 'application/json',
+                    },
+                },
+            );
+
+            await throwIfError(response);
+            return response.json();
+        },
+        onError: (error) => {
+            toast.error(error?.message ?? 'Pause interval failed');
+        },
+        onSuccess: () => {
+            queryClient.invalidateQueries({ queryKey: ['study-sessions'] });
+        },
+    });
+}
+
+export function useEndInterval() {
+    const queryClient = useQueryClient();
+
+    return useMutation({
+        mutationFn: async ({
+            sessionId,
+            intervalId,
+        }: IntervalMutationPayload) => {
+            const response = await fetchWrapper(
+                `/study-sessions/${sessionId}/intervals/${intervalId}/end`,
+                {
+                    method: 'POST',
+                    headers: {
+                        Accept: 'application/json',
+                    },
+                },
+            );
+
+            await throwIfError(response);
+            return response.json();
+        },
+        onError: (error) => {
+            toast.error(error?.message ?? 'End interval failed');
+        },
+        onSuccess: () => {
+            queryClient.invalidateQueries({ queryKey: ['study-sessions'] });
+        },
+    });
+}
+
+export function useResumeInterval() {
+    return useMutation({
+        mutationFn: async ({
+            sessionId,
+            intervalId,
+        }: IntervalMutationPayload) => {
+            const response = await fetchWrapper(
+                `/study-sessions/${sessionId}/intervals/${intervalId}/resume`,
+                {
+                    method: 'POST',
+                    headers: {
+                        Accept: 'application/json',
+                    },
+                },
+            );
+            await throwIfError(response);
+            return response.json();
+        },
+        onError: (error) => {
+            toast.error(error?.message ?? 'Resume interval fail');
+        },
+        onSuccess: () => {
+            toast.success('Resume interval successfully');
+        },
+    });
+}

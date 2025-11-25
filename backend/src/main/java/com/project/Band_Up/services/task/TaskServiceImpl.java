@@ -1,5 +1,6 @@
 package com.project.Band_Up.services.task;
 
+import com.project.Band_Up.dtos.task.TaskCreateRequest;
 import com.project.Band_Up.dtos.task.TaskResponse;
 import com.project.Band_Up.dtos.task.TaskUpdateRequest;
 import com.project.Band_Up.entities.Account;
@@ -25,7 +26,7 @@ public class TaskServiceImpl implements TaskService {
     private final ModelMapper modelMapper;
 
     @Override
-    public TaskResponse createTask(TaskResponse request, UUID userId) {
+    public TaskResponse createTask(TaskCreateRequest request, UUID userId) {
         Task task = toEntity(request, getAccount(userId));
         task.setCompleted(false);
         Task savedTask = taskRepository.save(task);
@@ -123,7 +124,7 @@ public class TaskServiceImpl implements TaskService {
                 .orElseThrow(() -> new IllegalArgumentException("Account not found"));
     }
 
-    private Task toEntity(TaskResponse request, Account account) {
+    private Task toEntity(TaskCreateRequest request, Account account) {
         Task task = modelMapper.map(request, Task.class);
         task.setAccount(account);
         return task;
