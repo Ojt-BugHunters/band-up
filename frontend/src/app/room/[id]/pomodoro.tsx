@@ -12,7 +12,11 @@ import { AnalyticComponent } from './analytic-dialog';
 import {
     AmbientSound,
     FocusTimerFormValues,
+    LearningStatsDay,
+    LearningStatsMonth,
+    LearningStatsYear,
     PomodoroPreset,
+    SessionOverviewStats,
 } from '@/lib/service/room';
 import { RefObject } from 'react';
 import { TimePeriod } from './page';
@@ -21,10 +25,11 @@ import { Room } from '@/lib/service/room';
 import { AccountRoomMember } from '@/lib/service/room';
 import { UseFormReturn } from 'react-hook-form';
 import { TaskResponse } from '@/lib/service/task';
+
 export type DisplayMode = 'pomodoro' | 'ai-chat' | 'room' | 'collaboration';
 export type SessionType = 'focus' | 'shortBreak' | 'longBreak';
 export type TimerTab = 'focus' | 'stopwatch';
-export type AnalyticsPeriod = 'today' | 'week' | 'month';
+export type AnalyticsPeriod = 'day' | 'month' | 'year';
 
 export interface PomodoroDisplayProps {
     // room menu dialog
@@ -106,6 +111,10 @@ export interface PomodoroDisplayProps {
     analyticsDate: Date;
     formatAnalyticsDate: (date: Date) => string;
     navigateAnalyticsDate: (direction: 'prev' | 'next') => void;
+    dayStats: LearningStatsDay;
+    monthStats: LearningStatsMonth;
+    yearStats: LearningStatsYear;
+    sessionOverviewStats: SessionOverviewStats;
 
     // Refs
     inputRef: RefObject<HTMLDivElement | null>;
@@ -138,6 +147,18 @@ export function PomodoroDisplay({
     toggleTaskCompletion,
     removeTask,
     draggedIndex,
+    // analytic component
+    showAnalytics,
+    setShowAnalytics,
+    analyticsPeriod,
+    setAnalyticsPeriod,
+    analyticsDate,
+    formatAnalyticsDate,
+    navigateAnalyticsDate,
+    dayStats,
+    monthStats,
+    yearStats,
+    sessionOverviewStats,
     // timer control dialog
     showTimerSettings,
     setShowTimerSettings,
@@ -183,13 +204,6 @@ export function PomodoroDisplay({
     leaderboardDate,
     formatLeaderboardDate,
     navigateLeaderboardDate,
-    showAnalytics,
-    setShowAnalytics,
-    analyticsPeriod,
-    setAnalyticsPeriod,
-    analyticsDate,
-    formatAnalyticsDate,
-    navigateAnalyticsDate,
 }: PomodoroDisplayProps) {
     return (
         <div className="flex h-full flex-col">
@@ -399,6 +413,10 @@ export function PomodoroDisplay({
                 setAnalyticsPeriod={setAnalyticsPeriod}
                 navigateAnalyticsDate={navigateAnalyticsDate}
                 formatAnalyticsDate={formatAnalyticsDate}
+                dayStats={dayStats}
+                monthStats={monthStats}
+                yearStats={yearStats}
+                sessionOverviewStats={sessionOverviewStats}
             />{' '}
         </div>
     );

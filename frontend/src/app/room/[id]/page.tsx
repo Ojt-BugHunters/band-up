@@ -24,6 +24,10 @@ import {
     usePingInterval,
     usePauseInterval,
     useResumeInterval,
+    useGetLearningStatsDay,
+    useGetLearningStatsMonth,
+    useGetLearningStatsYear,
+    useGetSessionOverviewStats,
 } from '@/lib/service/room';
 import {
     BACKGROUND_IMAGES,
@@ -49,7 +53,6 @@ import {
     useGetAllTasks,
     useToggleTask,
 } from '@/lib/service/task';
-import { useGetAllTags } from '@/lib/service/tag';
 
 const getIntervalType = (
     index: number,
@@ -98,12 +101,6 @@ export default function RoomPage() {
     const [leaderboardPeriod, setLeaderboardPeriod] =
         useState<TimePeriod>('daily');
     const [leaderboardDate, setLeaderboardDate] = useState(new Date());
-
-    const [showAnalytics, setShowAnalytics] = useState(false);
-    const [analyticsPeriod, setAnalyticsPeriod] = useState<
-        'today' | 'week' | 'month'
-    >('today');
-    const [analyticsDate, setAnalyticsDate] = useState(new Date());
 
     const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -477,6 +474,32 @@ export default function RoomPage() {
         setBackgroundImage(randomImage);
     }, []);
 
+    const selectBackgroundImage = (image: string) => {
+        setBackgroundImage(image);
+        setCustomBackgroundImage(null);
+        toast.success('Background updated');
+    };
+
+    const handleCustomImageUpload = (
+        e: React.ChangeEvent<HTMLInputElement>,
+    ) => {
+        const file = e.target.files?.[0];
+        if (file) {
+            if (file.type.startsWith('image/')) {
+                const reader = new FileReader();
+                reader.onload = (event) => {
+                    const imageUrl = event.target?.result as string;
+                    setBackgroundImage(imageUrl);
+                    setCustomBackgroundImage(imageUrl);
+                    toast.success('Custom background updated');
+                };
+                reader.readAsDataURL(file);
+            } else {
+                toast.error('Please select the valid image type');
+            }
+        }
+    };
+
     /// --------- Tasks -----------------------------
     const [task, setTask] = useState('');
     const inputRef = useRef<HTMLDivElement>(null);
@@ -542,7 +565,7 @@ export default function RoomPage() {
             );
         }, 600);
     };
-    /// To do list box
+    /// --------- To do list box -------------
     const { data: tasks } = useGetAllTasks();
     const { mutation: toggleTaskMutation } = useToggleTask();
     const { mutation: deleteTaskMutation } = useDeleteTask();
@@ -597,7 +620,92 @@ export default function RoomPage() {
         setDraggedIndex(null);
     };
 
-    /// Ambient Sound
+    // --------------- Analytic dialog ---------------
+    const [analyticsDate, setAnalyticsDate] = useState(new Date());
+    const [showAnalytics, setShowAnalytics] = useState(false);
+    const [analyticsPeriod, setAnalyticsPeriod] = useState<
+        'day' | 'month' | 'year'
+    >('day');
+
+    const navigateAnalyticsDate = (direction: 'prev' | 'next') => {
+        const newDate = new Date(analyticsDate);
+        const step = direction === 'next' ? 1 : -1;
+
+        if (analyticsPeriod === 'day') {
+            newDate.setDate(newDate.getDate() + step);
+        } else if (analyticsPeriod === 'month') {
+            newDate.setMonth(newDate.getMonth() + step);
+        } else {
+            newDate.setFullYear(newDate.getFullYear() + step);
+        }
+
+        setAnalyticsDate(newDate);
+    };
+
+    const formatAnalyticsDate = (date: Date) => {
+        if (analyticsPeriod === 'day') {
+            return date.toLocaleDateString('en-US', {
+                month: 'short',
+                day: '2-digit',
+                year: 'numeric',
+            });
+        }
+
+        if (analyticsPeriod === 'month') {
+            return date.toLocaleDateString('en-US', {
+                month: 'long',
+                year: 'numeric',
+            });
+        }
+        return date.getFullYear().toString();
+    };
+
+    const analyticsDateString = useMemo(() => {
+        const y = analyticsDate.getFullYear();
+        const m = String(analyticsDate.getMonth() + 1).padStart(2, '0');
+        const d = String(analyticsDate.getDate()).padStart(2, '0');
+        return `${y}-${m}-${d}`;
+    }, [analyticsDate]);
+
+    const analyticsYear = analyticsDate.getFullYear();
+    const analyticsMonth = analyticsDate.getMonth() + 1;
+
+    const { data: dayStats } = useGetLearningStatsDay(analyticsDateString);
+    const { data: monthStats } = useGetLearningStatsMonth(
+        analyticsYear,
+        analyticsMonth,
+    );
+    const { data: yearStats } = useGetLearningStatsYear(analyticsYear);
+    const { data: overviewStats } =
+        useGetSessionOverviewStats(analyticsDateString);
+
+    const safeDayStats = dayStats ?? {
+        date: analyticsDateString,
+        totalMinutes: 0,
+        hourlyMinutes: Array(24).fill(0),
+    };
+
+    const safeMonthStats = monthStats ?? {
+        year: analyticsYear,
+        month: analyticsMonth,
+        totalMinutes: 0,
+        dailyMinutes: Array(31).fill(0),
+    };
+
+    const safeYearStats = yearStats ?? {
+        year: analyticsYear,
+        totalMinutes: 0,
+        monthlyMinutes: Array(12).fill(0),
+    };
+
+    const safeOverviewStats = overviewStats ?? {
+        totalSessions: 0,
+        focusedTime: 0,
+        bestSession: 0,
+        taskCompleted: 0,
+    };
+
+    /// ----------- Ambient Sound -------------
     const toggleAmbientSound = (id: string) => {
         setAmbientSounds(
             ambientSounds.map((sound) =>
@@ -616,32 +724,6 @@ export default function RoomPage() {
 
     const removeMusicLink = (index: number) => {
         setSavedMusicLinks(savedMusicLinks.filter((_, i) => i !== index));
-    };
-
-    const selectBackgroundImage = (image: string) => {
-        setBackgroundImage(image);
-        setCustomBackgroundImage(null);
-        toast.success('Background updated');
-    };
-
-    const handleCustomImageUpload = (
-        e: React.ChangeEvent<HTMLInputElement>,
-    ) => {
-        const file = e.target.files?.[0];
-        if (file) {
-            if (file.type.startsWith('image/')) {
-                const reader = new FileReader();
-                reader.onload = (event) => {
-                    const imageUrl = event.target?.result as string;
-                    setBackgroundImage(imageUrl);
-                    setCustomBackgroundImage(imageUrl);
-                    toast.success('Custom background updated');
-                };
-                reader.readAsDataURL(file);
-            } else {
-                toast.error('Please select the valid image type');
-            }
-        }
     };
 
     const formatLeaderboardDate = (date: Date) => {
@@ -668,31 +750,6 @@ export default function RoomPage() {
             );
         }
         setLeaderboardDate(newDate);
-    };
-
-    const formatAnalyticsDate = (date: Date) => {
-        return date.toLocaleDateString('en-US', {
-            month: 'short',
-            day: '2-digit',
-        });
-    };
-
-    const navigateAnalyticsDate = (direction: 'prev' | 'next') => {
-        const newDate = new Date(analyticsDate);
-        if (analyticsPeriod === 'today') {
-            newDate.setDate(
-                newDate.getDate() + (direction === 'next' ? 1 : -1),
-            );
-        } else if (analyticsPeriod === 'week') {
-            newDate.setDate(
-                newDate.getDate() + (direction === 'next' ? 7 : -7),
-            );
-        } else {
-            newDate.setMonth(
-                newDate.getMonth() + (direction === 'next' ? 1 : -1),
-            );
-        }
-        setAnalyticsDate(newDate);
     };
 
     if (isLoading || isFetching)
@@ -811,6 +868,18 @@ export default function RoomPage() {
                                 toggleTaskCompletion={toggleTaskCompletion}
                                 removeTask={removeTask}
                                 taskButtonRef={taskButtonRef}
+                                // analytic dialog
+                                analyticsDate={analyticsDate}
+                                showAnalytics={showAnalytics}
+                                setShowAnalytics={setShowAnalytics}
+                                analyticsPeriod={analyticsPeriod}
+                                setAnalyticsPeriod={setAnalyticsPeriod}
+                                formatAnalyticsDate={formatAnalyticsDate}
+                                navigateAnalyticsDate={navigateAnalyticsDate}
+                                dayStats={safeDayStats}
+                                monthStats={safeMonthStats}
+                                yearStats={safeYearStats}
+                                sessionOverviewStats={safeOverviewStats}
                                 // core timer
                                 minutes={minutes}
                                 seconds={seconds}
@@ -851,13 +920,6 @@ export default function RoomPage() {
                                 navigateLeaderboardDate={
                                     navigateLeaderboardDate
                                 }
-                                showAnalytics={showAnalytics}
-                                setShowAnalytics={setShowAnalytics}
-                                analyticsPeriod={analyticsPeriod}
-                                setAnalyticsPeriod={setAnalyticsPeriod}
-                                analyticsDate={analyticsDate}
-                                formatAnalyticsDate={formatAnalyticsDate}
-                                navigateAnalyticsDate={navigateAnalyticsDate}
                             />
                         </motion.div>
                     )}

@@ -1,3 +1,4 @@
+import { useMemo } from 'react';
 import {
     ChartContainer,
     ChartTooltip,
@@ -14,7 +15,6 @@ import {
     ChevronRight,
     Clock,
     Flame,
-    ListTodo,
 } from 'lucide-react';
 import {
     Area,
@@ -25,19 +25,32 @@ import {
     YAxis,
 } from 'recharts';
 import {
-    mockAnalyticsData,
-    mockStats,
-} from '../../../../constants/sample-data';
+    LearningStatsDay,
+    LearningStatsMonth,
+    LearningStatsYear,
+    SessionOverviewStats,
+} from '@/lib/service/room';
 
 interface AnalyticComponentProps {
     analyticsDate: Date;
     showAnalytics: boolean;
     setShowAnalytics: (show: boolean) => void;
-    analyticsPeriod: 'today' | 'week' | 'month';
-    setAnalyticsPeriod: (period: 'today' | 'week' | 'month') => void;
+    analyticsPeriod: 'day' | 'month' | 'year';
+    setAnalyticsPeriod: (period: 'day' | 'month' | 'year') => void;
     navigateAnalyticsDate: (direction: 'prev' | 'next') => void;
     formatAnalyticsDate: (date: Date) => string;
+
+    dayStats: LearningStatsDay;
+    monthStats: LearningStatsMonth;
+    yearStats: LearningStatsYear;
+    sessionOverviewStats: SessionOverviewStats;
 }
+
+const formatMinutes = (totalMinutes: number) => {
+    const h = Math.floor(totalMinutes / 60);
+    const m = totalMinutes % 60;
+    return `${h}h ${m}m`;
+};
 
 export function AnalyticComponent({
     analyticsDate,
@@ -47,7 +60,53 @@ export function AnalyticComponent({
     setAnalyticsPeriod,
     navigateAnalyticsDate,
     formatAnalyticsDate,
+    dayStats,
+    monthStats,
+    yearStats,
+    sessionOverviewStats,
 }: AnalyticComponentProps) {
+    // -------------------- CHART DATA --------------------
+    const chartData = useMemo(() => {
+        if (analyticsPeriod === 'day') {
+            return dayStats.hourlyMinutes.map((m, h) => ({
+                time: `${h}:00`,
+                minutes: m,
+            }));
+        }
+
+        if (analyticsPeriod === 'month') {
+            return monthStats.dailyMinutes.map((m, i) => ({
+                time: `${i + 1}`,
+                minutes: m,
+            }));
+        }
+
+        if (analyticsPeriod === 'year') {
+            return yearStats.monthlyMinutes.map((m, i) => ({
+                time: `M${i + 1}`,
+                minutes: m,
+            }));
+        }
+
+        return [];
+    }, [analyticsPeriod, dayStats, monthStats, yearStats]);
+
+    const totalMinutesForPeriod = useMemo(
+        () => chartData.reduce((sum, p) => sum + (p.minutes ?? 0), 0),
+        [chartData],
+    );
+
+    // -------------------- OVERVIEW METRICS --------------------
+    const totalSessions = sessionOverviewStats.totalSessions;
+    const focusedTimeMinutes = sessionOverviewStats.focusedTime;
+    const bestSessionMinutes = sessionOverviewStats.bestSession;
+    const tasksCompleted = sessionOverviewStats.taskCompleted;
+
+    const focusScore =
+        focusedTimeMinutes > 0
+            ? Math.min(5, Math.round(focusedTimeMinutes / 60))
+            : 0;
+
     return (
         <Dialog open={showAnalytics} onOpenChange={setShowAnalytics}>
             <DialogTitle></DialogTitle>
@@ -60,32 +119,13 @@ export function AnalyticComponent({
                     className="flex max-h-[90vh] flex-col"
                 >
                     <div className="relative overflow-hidden rounded-[28px] border border-white/10 bg-[#0b0b0f]/70 shadow-[0_30px_80px_rgba(0,0,0,.6)] ring-1 ring-white/10 backdrop-blur-2xl">
-                        <div
-                            aria-hidden
-                            className="pointer-events-none absolute -inset-16 -z-10 opacity-40 blur-3xl"
-                            style={{
-                                background:
-                                    'radial-gradient(1200px 600px at 20% 10%, rgba(255,255,255,.08), transparent 60%), radial-gradient(800px 500px at 80% 0%, rgba(255,255,255,.05), transparent 60%)',
-                            }}
-                        />
-                        <div
-                            aria-hidden
-                            className="pointer-events-none absolute inset-0 rounded-[inherit] opacity-40"
-                            style={{
-                                background:
-                                    'linear-gradient(to bottom right, rgba(255,255,255,.18), rgba(255,255,255,.04) 30%, rgba(255,255,255,0) 60%)',
-                                maskImage:
-                                    'radial-gradient(120% 120% at 0% 0%, black 40%, transparent 60%)',
-                            }}
-                        />
-
                         <div className="border-white/10/50 flex-shrink-0 border-b p-6">
                             <h2 className="mb-6 text-2xl font-bold">
                                 Activities summary
                             </h2>
 
                             <Tabs defaultValue="analytics" className="w-full">
-                                <TabsList className="mb-6 grid w-full grid-cols-2 rounded-xl border border-white/15 bg-white/5 backdrop-blur-sm">
+                                <TabsList className="mb-6 grid w-full grid-cols-1 rounded-xl border border-white/15 bg-white/5 backdrop-blur-sm">
                                     <TabsTrigger
                                         value="analytics"
                                         className="font-semibold text-white/80 transition-colors hover:text-white data-[state=active]:bg-white/25 data-[state=active]:text-white"
@@ -93,16 +133,35 @@ export function AnalyticComponent({
                                         <BarChart3 className="mr-2 h-4 w-4" />
                                         Analytics
                                     </TabsTrigger>
-                                    <TabsTrigger
-                                        value="sessions"
-                                        className="font-semibold text-white/80 transition-colors hover:text-white data-[state=active]:bg-white/25 data-[state=active]:text-white"
-                                    >
-                                        <ListTodo className="mr-2 h-4 w-4" />
-                                        Review Sessions
-                                    </TabsTrigger>
                                 </TabsList>
 
-                                <div className="relative">
+                                {/* PERIOD BUTTONS */}
+                                <div className="flex items-center justify-center gap-4">
+                                    {(['day', 'month', 'year'] as const).map(
+                                        (p) => (
+                                            <button
+                                                key={p}
+                                                onClick={() =>
+                                                    setAnalyticsPeriod(p)
+                                                }
+                                                className={`rounded-xl px-6 py-2.5 text-sm font-semibold transition-all duration-200 ${
+                                                    analyticsPeriod === p
+                                                        ? 'scale-105 bg-white text-black shadow-xl shadow-white/20'
+                                                        : 'border border-white/15 bg-white/10 text-white/80 shadow-[0_8px_25px_rgba(0,0,0,0.4)] hover:scale-105 hover:bg-white/15 hover:text-white'
+                                                }`}
+                                            >
+                                                {p === 'day'
+                                                    ? 'Day'
+                                                    : p === 'month'
+                                                      ? 'Month'
+                                                      : 'Year'}
+                                            </button>
+                                        ),
+                                    )}
+                                </div>
+
+                                {/* CONTENT */}
+                                <div className="relative mt-6">
                                     <div
                                         className="max-h-[calc(85vh-140px)] overflow-y-auto scroll-smooth px-1"
                                         style={{
@@ -114,37 +173,7 @@ export function AnalyticComponent({
                                             value="analytics"
                                             className="space-y-6 pb-4"
                                         >
-                                            <div className="flex items-center justify-center gap-4">
-                                                {(
-                                                    [
-                                                        'today',
-                                                        'week',
-                                                        'month',
-                                                    ] as const
-                                                ).map((p) => (
-                                                    <button
-                                                        key={p}
-                                                        onClick={() =>
-                                                            setAnalyticsPeriod(
-                                                                p,
-                                                            )
-                                                        }
-                                                        className={`rounded-xl px-6 py-2.5 text-sm font-semibold transition-all duration-200 ${
-                                                            analyticsPeriod ===
-                                                            p
-                                                                ? 'scale-105 bg-white text-black shadow-xl shadow-white/20'
-                                                                : 'border border-white/15 bg-white/10 text-white/80 shadow-[0_8px_25px_rgba(0,0,0,0.4)] hover:scale-105 hover:bg-white/15 hover:text-white'
-                                                        }`}
-                                                    >
-                                                        {p === 'today'
-                                                            ? 'Today'
-                                                            : p === 'week'
-                                                              ? 'This week'
-                                                              : 'This month'}
-                                                    </button>
-                                                ))}
-                                            </div>
-
+                                            {/* HEADER */}
                                             <div className="mb-8 rounded-2xl border border-white/12 bg-white/5 p-6 shadow-[0_20px_60px_rgba(0,0,0,.5)] backdrop-blur-2xl">
                                                 <div className="mb-6 flex items-center justify-between">
                                                     <button
@@ -157,6 +186,7 @@ export function AnalyticComponent({
                                                     >
                                                         <ChevronLeft className="h-5 w-5" />
                                                     </button>
+
                                                     <div className="text-center">
                                                         <span className="text-base font-bold">
                                                             {formatAnalyticsDate(
@@ -168,10 +198,13 @@ export function AnalyticComponent({
                                                                 Total Time:{' '}
                                                             </span>
                                                             <span className="text-sm font-bold">
-                                                                0h 0m
+                                                                {formatMinutes(
+                                                                    totalMinutesForPeriod,
+                                                                )}
                                                             </span>
                                                         </div>
                                                     </div>
+
                                                     <button
                                                         onClick={() =>
                                                             navigateAnalyticsDate(
@@ -184,6 +217,7 @@ export function AnalyticComponent({
                                                     </button>
                                                 </div>
 
+                                                {/* CHART */}
                                                 <div className="relative min-h-[480px] overflow-visible">
                                                     <ChartContainer
                                                         config={{
@@ -198,9 +232,7 @@ export function AnalyticComponent({
                                                             height="100%"
                                                         >
                                                             <AreaChart
-                                                                data={
-                                                                    mockAnalyticsData
-                                                                }
+                                                                data={chartData}
                                                                 margin={{
                                                                     top: 10,
                                                                     right: 10,
@@ -232,6 +264,7 @@ export function AnalyticComponent({
                                                                         />
                                                                     </linearGradient>
                                                                 </defs>
+
                                                                 <CartesianGrid
                                                                     strokeDasharray="3 3"
                                                                     stroke="#a1a1aa"
@@ -239,6 +272,7 @@ export function AnalyticComponent({
                                                                         0.15
                                                                     }
                                                                 />
+
                                                                 <XAxis
                                                                     dataKey="time"
                                                                     stroke="#d4d4d8"
@@ -246,17 +280,20 @@ export function AnalyticComponent({
                                                                         12
                                                                     }
                                                                 />
+
                                                                 <YAxis
                                                                     stroke="#d4d4d8"
                                                                     fontSize={
                                                                         12
                                                                     }
                                                                 />
+
                                                                 <ChartTooltip
                                                                     content={
                                                                         <ChartTooltipContent />
                                                                     }
                                                                 />
+
                                                                 <Area
                                                                     type="monotone"
                                                                     dataKey="minutes"
@@ -275,6 +312,7 @@ export function AnalyticComponent({
                                                 </div>
                                             </div>
 
+                                            {/* OVERVIEW CARDS */}
                                             <div className="mt-8 grid grid-cols-3 gap-4">
                                                 {[
                                                     {
@@ -282,28 +320,36 @@ export function AnalyticComponent({
                                                             <BarChart3 className="h-5 w-5 text-white" />
                                                         ),
                                                         label: 'Total Sessions',
-                                                        value: mockStats.totalSessions,
+                                                        value: totalSessions,
                                                     },
                                                     {
                                                         icon: (
                                                             <Clock className="h-5 w-5 text-white" />
                                                         ),
                                                         label: 'Focused Time',
-                                                        value: mockStats.focusedTime,
+                                                        value: formatMinutes(
+                                                            focusedTimeMinutes,
+                                                        ),
                                                     },
                                                     {
                                                         icon: (
                                                             <Flame className="h-5 w-5 text-white" />
                                                         ),
-                                                        label: 'Best Sessions',
-                                                        value: mockStats.bestSessions,
+                                                        label: 'Best Session',
+                                                        value:
+                                                            bestSessionMinutes >
+                                                            0
+                                                                ? formatMinutes(
+                                                                      bestSessionMinutes,
+                                                                  )
+                                                                : '—',
                                                     },
                                                     {
                                                         icon: (
                                                             <CheckCircle2 className="h-5 w-5 text-white" />
                                                         ),
                                                         label: 'Tasks completed',
-                                                        value: mockStats.tasksCompleted,
+                                                        value: tasksCompleted,
                                                     },
                                                 ].map((c, i) => (
                                                     <div
@@ -324,6 +370,7 @@ export function AnalyticComponent({
                                                     </div>
                                                 ))}
 
+                                                {/* FOCUS SCORE */}
                                                 <div className="col-span-2 rounded-2xl border border-white/12 bg-white/5 p-6 shadow-[0_20px_60px_rgba(0,0,0,.5)] backdrop-blur-2xl transition-all hover:scale-105 hover:bg-white/10">
                                                     <div className="mb-3 flex items-center gap-3">
                                                         <div className="flex h-10 w-10 items-center justify-center rounded-xl border border-white/20 bg-white/10">
@@ -333,12 +380,12 @@ export function AnalyticComponent({
                                                             Focus Score
                                                         </span>
                                                     </div>
+
                                                     <div className="flex items-center gap-4">
                                                         <p className="text-4xl font-bold">
-                                                            {
-                                                                mockStats.focusScore
-                                                            }
+                                                            {focusScore}
                                                         </p>
+
                                                         <div className="flex gap-1">
                                                             {[
                                                                 1, 2, 3, 4, 5,
@@ -347,116 +394,20 @@ export function AnalyticComponent({
                                                                     key={star}
                                                                     className="flex h-6 w-6 items-center justify-center rounded-full border-2 border-white/30"
                                                                 >
-                                                                    <div className="h-3 w-3 rounded-full bg-white/20" />
+                                                                    <div
+                                                                        className={`h-3 w-3 rounded-full ${
+                                                                            star <=
+                                                                            focusScore
+                                                                                ? 'bg-white'
+                                                                                : 'bg-white/20'
+                                                                        }`}
+                                                                    />
                                                                 </div>
                                                             ))}
                                                         </div>
                                                     </div>
                                                 </div>
                                             </div>
-                                        </TabsContent>
-
-                                        <TabsContent
-                                            value="sessions"
-                                            className="space-y-4 pb-4"
-                                        >
-                                            {[
-                                                {
-                                                    title: 'Morning Study Session',
-                                                    time: 'Today, 9:00 AM - 10:25 AM',
-                                                    status: {
-                                                        label: 'Completed',
-                                                        cls: 'border-green-500/30 bg-green-500/15 text-green-400',
-                                                    },
-                                                    meta: [
-                                                        '1h 25m',
-                                                        '3 tasks completed',
-                                                        '4 Pomodoros',
-                                                    ],
-                                                },
-                                                {
-                                                    title: 'Afternoon Focus',
-                                                    time: 'Yesterday, 2:00 PM - 3:50 PM',
-                                                    status: {
-                                                        label: 'Completed',
-                                                        cls: 'border-green-500/30 bg-green-500/15 text-green-400',
-                                                    },
-                                                    meta: [
-                                                        '1h 50m',
-                                                        '5 tasks completed',
-                                                        '4 Pomodoros',
-                                                    ],
-                                                },
-                                                {
-                                                    title: 'Evening Review',
-                                                    time: 'Yesterday, 7:30 PM - 8:15 PM',
-                                                    status: {
-                                                        label: 'Completed',
-                                                        cls: 'border-green-500/30 bg-green-500/15 text-green-400',
-                                                    },
-                                                    meta: [
-                                                        '45m',
-                                                        '2 tasks completed',
-                                                        '2 Pomodoros',
-                                                    ],
-                                                },
-                                                {
-                                                    title: 'Quick Study Break',
-                                                    time: '2 days ago, 11:00 AM - 11:30 AM',
-                                                    status: {
-                                                        label: 'Partial',
-                                                        cls: 'border-yellow-500/30 bg-yellow-500/15 text-yellow-400',
-                                                    },
-                                                    meta: [
-                                                        '30m',
-                                                        '1 task completed',
-                                                        '1 Pomodoro',
-                                                    ],
-                                                },
-                                            ].map((s, i) => (
-                                                <div
-                                                    key={i}
-                                                    className="rounded-2xl border border-white/12 bg-white/5 p-5 shadow-[0_20px_60px_rgba(0,0,0,.5)] backdrop-blur-2xl transition-all hover:scale-[1.02] hover:bg-white/10"
-                                                >
-                                                    <div className="mb-3 flex items-start justify-between">
-                                                        <div>
-                                                            <h3 className="mb-1 text-lg font-bold text-white">
-                                                                {s.title}
-                                                            </h3>
-                                                            <p className="text-sm text-white/70">
-                                                                {s.time}
-                                                            </p>
-                                                        </div>
-                                                        <div
-                                                            className={`rounded-xl border px-3 py-1 ${s.status.cls}`}
-                                                        >
-                                                            <span className="text-sm font-semibold">
-                                                                {s.status.label}
-                                                            </span>
-                                                        </div>
-                                                    </div>
-                                                    <div className="flex items-center gap-6 text-sm">
-                                                        <div className="flex items-center gap-2">
-                                                            <Clock className="h-4 w-4 text-white/70" />
-                                                            <span className="text-white/80">
-                                                                {s.meta[0]}
-                                                            </span>
-                                                        </div>
-                                                        <div className="flex items-center gap-2">
-                                                            <CheckCircle2 className="h-4 w-4 text-white/70" />
-                                                            <span className="text-white/80">
-                                                                {s.meta[1]}
-                                                            </span>
-                                                        </div>
-                                                        <div className="flex items-center gap-2">
-                                                            <Flame className="h-4 w-4 text-white/70" />
-                                                            <span className="text-white/80">
-                                                                {s.meta[2]}
-                                                            </span>
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                            ))}
                                         </TabsContent>
                                     </div>
 
