@@ -131,6 +131,9 @@ public class TaskServiceImpl implements TaskService {
     }
 
     private TaskResponse toResponse(Task task) {
-        return modelMapper.map(task, TaskResponse.class);
+
+        TaskResponse response = modelMapper.map(task, TaskResponse.class);
+        response.setUserId(task.getAccount().getId());
+        return response;
     }
 }
