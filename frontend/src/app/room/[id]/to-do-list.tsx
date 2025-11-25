@@ -6,10 +6,10 @@ import {
     PopoverTrigger,
 } from '@/components/ui/popover';
 import { GripVertical, ListTodo, X } from 'lucide-react';
-import { Task } from '@/lib/service/room';
+import { TaskResponse } from '@/lib/service/task';
 
 interface ToDoListBoxProps {
-    taskList: Task[];
+    taskList: TaskResponse[];
     draggedIndex: number | null;
     handleDragStart: (index: number) => void;
     handleDragOver: (e: React.DragEvent, index: number) => void;
@@ -119,7 +119,10 @@ export const ToDoListBox = forwardRef<HTMLButtonElement, ToDoListBoxProps>(
                             ) : (
                                 <div className="space-y-2">
                                     {taskList.map(
-                                        (taskItem: Task, index: number) => (
+                                        (
+                                            taskItem: TaskResponse,
+                                            index: number,
+                                        ) => (
                                             <div
                                                 key={taskItem.id}
                                                 draggable
@@ -153,7 +156,7 @@ export const ToDoListBox = forwardRef<HTMLButtonElement, ToDoListBoxProps>(
                                                             : ''
                                                     }`}
                                                 >
-                                                    {taskItem.text}
+                                                    {taskItem.title}
                                                 </span>
                                                 <button
                                                     onClick={() =>

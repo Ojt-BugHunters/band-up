@@ -39,42 +39,9 @@ export function useCreateTask() {
     return { form, mutation };
 }
 
-export function useUpdateTask(taskId: string) {
+export function useDeleteTask() {
     const mutation = useMutation({
-        mutationFn: async (values: z.infer<typeof TaskSchema>) => {
-            const response = await fetchWrapper(`/tasks/${taskId}`, {
-                method: 'PUT',
-                headers: {
-                    Accept: 'application/json',
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify(values),
-            });
-
-            await throwIfError(response);
-            return response.json();
-        },
-        onError: (error) => {
-            toast.error(error?.message ?? 'Update task failed');
-        },
-        onSuccess: () => {
-            toast.success('Task updated successfully');
-        },
-    });
-
-    const form = useForm<CreateTaskFormValues>({
-        resolver: zodResolver(TaskSchema),
-        defaultValues: {
-            title: '',
-        },
-    });
-
-    return { form, mutation };
-}
-
-export function useDeleteTask(taskId: string) {
-    const mutation = useMutation({
-        mutationFn: async () => {
+        mutationFn: async (taskId: string) => {
             const response = await fetchWrapper(`/tasks/${taskId}`, {
                 method: 'DELETE',
                 headers: {
@@ -97,9 +64,9 @@ export function useDeleteTask(taskId: string) {
     return { mutation };
 }
 
-export function useToggleTask(taskId: string) {
+export function useToggleTask() {
     const mutation = useMutation({
-        mutationFn: async () => {
+        mutationFn: async (taskId: string) => {
             const response = await fetchWrapper(`/tasks/${taskId}/toggle`, {
                 method: 'PATCH',
                 headers: {

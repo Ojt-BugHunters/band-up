@@ -14,7 +14,6 @@ import {
     KeyRound,
 } from 'lucide-react';
 import {
-    Task,
     AmbientSound,
     useGetStudySessions,
     StudySessionStatus,
@@ -43,7 +42,14 @@ import {
 import { EmptyState } from '@/components/ui/empty-state';
 import { LoadingSpinner } from '@/components/ui/loading-spinner';
 import { CollaborationDisplay } from './meeting-room';
-import { TaskResponse, useCreateTask } from '@/lib/service/task';
+import {
+    TaskResponse,
+    useCreateTask,
+    useDeleteTask,
+    useGetAllTasks,
+    useToggleTask,
+} from '@/lib/service/task';
+import { useGetAllTags } from '@/lib/service/tag';
 
 const getIntervalType = (
     index: number,
@@ -503,10 +509,12 @@ export default function RoomPage() {
 
         setTask('');
         setTimeout(() => {
-            const newTask: Task = {
+            const newTask: TaskResponse = {
                 id: tempId,
-                text: trimmed,
+                userId: 'temp-user',
+                title: trimmed,
                 completed: false,
+                createAt: new Date().toISOString(),
             };
 
             setTaskList((prev) => [...prev, newTask]);
@@ -517,14 +525,11 @@ export default function RoomPage() {
                 },
                 {
                     onSuccess: (response: TaskResponse) => {
-                        const realId = response?.id;
-                        if (realId) {
-                            setTaskList((prev) =>
-                                prev.map((t) =>
-                                    t.id === tempId ? { ...t, id: realId } : t,
-                                ),
-                            );
-                        }
+                        setTaskList((prev) =>
+                            prev.map((task) =>
+                                task.id === tempId ? response : task,
+                            ),
+                        );
                         setFlyingTask(null);
                     },
                     onError: () => {
@@ -538,13 +543,33 @@ export default function RoomPage() {
         }, 600);
     };
     /// To do list box
-    const [taskList, setTaskList] = useState<Task[]>([]);
+    const { data: tasks } = useGetAllTasks();
+    const { mutation: toggleTaskMutation } = useToggleTask();
+    const { mutation: deleteTaskMutation } = useDeleteTask();
+    const [taskList, setTaskList] = useState<TaskResponse[]>([]);
+    useEffect(() => {
+        if (tasks && taskList.length === 0) {
+            setTaskList(tasks);
+        }
+    }, [tasks, taskList.length]);
+
     const toggleTaskCompletion = (id: string) => {
         setTaskList(
             taskList.map((task) =>
                 task.id === id ? { ...task, completed: !task.completed } : task,
             ),
         );
+        toggleTaskMutation.mutate(id, {
+            onError: () => {
+                setTaskList((prev) =>
+                    prev.map((task) =>
+                        task.id === id
+                            ? { ...task, completed: !task.completed }
+                            : task,
+                    ),
+                );
+            },
+        });
     };
     const removeTask = (id: string) => {
         setTaskList(taskList.filter((task) => task.id !== id));

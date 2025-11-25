@@ -8,11 +8,11 @@ export interface TimerSettings {
     cycle: number;
 }
 
-export interface Task {
-    id: string;
-    text: string;
-    completed: boolean;
-}
+// export interface Task {
+//     id: string;
+//     text: string;
+//     completed: boolean;
+// }
 
 export interface AccountRoomMember {
     id: string;
