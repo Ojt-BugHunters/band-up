@@ -182,31 +182,27 @@
 [data-sonner-toast][data-type='info'] {
     --normal-bg: color-mix(
         in oklab,
-        light-dark(var(--color-sky-600), var(--color-sky-400)) 10%,
+        oklch(0.8 0.05 235) 10%,
         var(--background)
     );
-    --normal-text: light-dark(var(--color-sky-600), var(--color-sky-400));
-    --normal-border: light-dark(var(--color-sky-600), var(--color-sky-400));
+    --normal-text: oklch(0.4 0.05 235);
+    --normal-border: oklch(0.55 0.06 235);
 }
 
 [data-sonner-toast][data-type='success'] {
     --normal-bg: color-mix(
         in oklab,
-        light-dark(var(--color-green-600), var(--color-green-400)) 10%,
+        oklch(0.82 0.09 150) 10%,
         var(--background)
     );
-    --normal-text: light-dark(var(--color-green-600), var(--color-green-400));
-    --normal-border: light-dark(var(--color-green-600), var(--color-green-400));
+    --normal-text: oklch(0.45 0.1 150);
+    --normal-border: oklch(0.6 0.11 150);
 }
 
 [data-sonner-toast][data-type='warning'] {
-    --normal-bg: color-mix(
-        in oklab,
-        light-dark(var(--color-amber-600), var(--color-amber-400)) 10%,
-        var(--background)
-    );
-    --normal-text: light-dark(var(--color-amber-600), var(--color-amber-400));
-    --normal-border: light-dark(var(--color-amber-600), var(--color-amber-400));
+    --normal-bg: color-mix(in oklab, oklch(0.9 0.12 85) 10%, var(--background));
+    --normal-text: oklch(0.55 0.13 85);
+    --normal-border: oklch(0.7 0.14 85);
 }
 
 [data-sonner-toast][data-type='error'] {
