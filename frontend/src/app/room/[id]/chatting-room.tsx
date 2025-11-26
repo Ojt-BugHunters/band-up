@@ -28,6 +28,7 @@ type Message = {
 type SenderDto = {
     id: string;
     name: string;
+    avatarUrl: string;
 };
 
 type RoomAction = 'JOIN' | 'LEAVE';
@@ -118,21 +119,11 @@ export function ChattingRoomDisplay({ roomId }: ChattingRoomProps) {
                             const body: WsMessageDto = JSON.parse(message.body);
                             const sender = body.sender;
 
-                            const initials = sender.name
-                                .split(' ')
-                                .map((p) => p[0])
-                                .join('')
-                                .toUpperCase();
-
-                            const isMe = sender.id === currentUserId;
-
                             const uiMessage: Message = {
                                 id: Date.now().toString(),
                                 userId: sender.id,
                                 userName: sender.name,
-                                userAvatar: isMe
-                                    ? currentUserAvatar || initials
-                                    : initials,
+                                userAvatar: sender.avatarUrl,
                                 text: body.content,
                                 time: new Date().toLocaleTimeString([], {
                                     hour: '2-digit',
@@ -255,6 +246,7 @@ export function ChattingRoomDisplay({ roomId }: ChattingRoomProps) {
                     sender: {
                         id: currentUserId,
                         name: currentUserName,
+                        avatarUrl: currentUserAvatar as string,
                     },
                     target: roomId,
                     images: null,
@@ -340,6 +332,7 @@ export function ChattingRoomDisplay({ roomId }: ChattingRoomProps) {
             sender: {
                 id: currentUserId,
                 name: currentUserName,
+                avatarUrl: currentUserAvatar as string,
             },
             target: roomId,
             images: null,
