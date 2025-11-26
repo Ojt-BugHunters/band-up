@@ -3,7 +3,7 @@
 import { usePathname } from 'next/navigation';
 import { Header } from '@/components/header';
 import { Footer } from '@/components/footer';
-import { Toaster } from 'sonner';
+import { Toaster } from '@/components/ui/sonner';
 import { useRefreshToken } from '@/lib/service/auth';
 import { useEffect } from 'react';
 import { initDeckAutoClear } from '@/lib/utils';
@@ -36,7 +36,7 @@ export default function ClientLayout({
             {!hideLayout && <Header />}
             {children}
             {!hideLayout && <Footer />}
-            <Toaster richColors />
+            <Toaster />
         </>
     );
 }

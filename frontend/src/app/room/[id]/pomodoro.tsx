@@ -12,8 +12,11 @@ import { AnalyticComponent } from './analytic-dialog';
 import {
     AmbientSound,
     FocusTimerFormValues,
+    LearningStatsDay,
+    LearningStatsMonth,
+    LearningStatsYear,
     PomodoroPreset,
-    Task,
+    SessionOverviewStats,
 } from '@/lib/service/room';
 import { RefObject } from 'react';
 import { TimePeriod } from './page';
@@ -21,10 +24,12 @@ import { RoomMenuDialog } from './room-menu';
 import { Room } from '@/lib/service/room';
 import { AccountRoomMember } from '@/lib/service/room';
 import { UseFormReturn } from 'react-hook-form';
+import { TaskResponse } from '@/lib/service/task';
+
 export type DisplayMode = 'pomodoro' | 'ai-chat' | 'room' | 'collaboration';
 export type SessionType = 'focus' | 'shortBreak' | 'longBreak';
 export type TimerTab = 'focus' | 'stopwatch';
-export type AnalyticsPeriod = 'today' | 'week' | 'month';
+export type AnalyticsPeriod = 'day' | 'month' | 'year';
 
 export interface PomodoroDisplayProps {
     // room menu dialog
@@ -43,7 +48,7 @@ export interface PomodoroDisplayProps {
     // Task system
     task: string;
     setTask: (task: string) => void;
-    taskList: Task[];
+    taskList: TaskResponse[];
     handleTaskKeyDown: (e: React.KeyboardEvent<HTMLInputElement>) => void;
     toggleTaskCompletion: (id: string) => void;
     removeTask: (id: string) => void;
@@ -106,6 +111,10 @@ export interface PomodoroDisplayProps {
     analyticsDate: Date;
     formatAnalyticsDate: (date: Date) => string;
     navigateAnalyticsDate: (direction: 'prev' | 'next') => void;
+    dayStats: LearningStatsDay;
+    monthStats: LearningStatsMonth;
+    yearStats: LearningStatsYear;
+    sessionOverviewStats: SessionOverviewStats;
 
     // Refs
     inputRef: RefObject<HTMLDivElement | null>;
@@ -124,6 +133,32 @@ export function PomodoroDisplay({
     members,
     room,
     onLeaveRoom,
+    // task props
+    task,
+    setTask,
+    handleTaskKeyDown,
+    inputRef,
+    // to do list box
+    taskList,
+    taskButtonRef,
+    handleDragStart,
+    handleDragOver,
+    handleDragEnd,
+    toggleTaskCompletion,
+    removeTask,
+    draggedIndex,
+    // analytic component
+    showAnalytics,
+    setShowAnalytics,
+    analyticsPeriod,
+    setAnalyticsPeriod,
+    analyticsDate,
+    formatAnalyticsDate,
+    navigateAnalyticsDate,
+    dayStats,
+    monthStats,
+    yearStats,
+    sessionOverviewStats,
     // timer control dialog
     showTimerSettings,
     setShowTimerSettings,
@@ -137,24 +172,12 @@ export function PomodoroDisplay({
     canToggleTimer,
     isActive,
     minutes,
-    draggedIndex,
     seconds,
     isPomodoroMode,
-    task,
-    setTask,
-    taskList,
-    handleTaskKeyDown,
-    inputRef,
-    taskButtonRef,
 
     totalSteps,
     currentStep,
 
-    toggleTaskCompletion,
-    removeTask,
-    handleDragStart,
-    handleDragOver,
-    handleDragEnd,
     showAmbientMixer,
     setShowAmbientMixer,
     ambientSounds,
@@ -181,13 +204,6 @@ export function PomodoroDisplay({
     leaderboardDate,
     formatLeaderboardDate,
     navigateLeaderboardDate,
-    showAnalytics,
-    setShowAnalytics,
-    analyticsPeriod,
-    setAnalyticsPeriod,
-    analyticsDate,
-    formatAnalyticsDate,
-    navigateAnalyticsDate,
 }: PomodoroDisplayProps) {
     return (
         <div className="flex h-full flex-col">
@@ -304,22 +320,29 @@ export function PomodoroDisplay({
                         className="relative z-10 flex-1 border-0 bg-transparent p-0 font-medium text-white shadow-none placeholder:text-white/70 focus:ring-0 focus:outline-none focus-visible:ring-0"
                     />
                 </div>
-                {taskList.length > 0 && !taskList[0].completed && (
-                    <div className="relative flex items-center gap-2 rounded-2xl border border-white/10 bg-black/40 px-6 py-3 shadow-[0_10px_30px_rgba(0,0,0,0.6),_0_2px_4px_rgba(255,255,255,0.08)_inset] backdrop-blur-xl transition-all hover:bg-black/50">
-                        <span
-                            aria-hidden
-                            className="pointer-events-none absolute inset-0 rounded-2xl opacity-30"
-                            style={{
-                                background:
-                                    'linear-gradient(to bottom, rgba(255,255,255,0.2), rgba(255,255,255,0.05) 40%, transparent 80%)',
-                            }}
-                        />
-                        <ListTodo className="relative z-10 h-4 w-4 text-white/80" />
-                        <span className="relative z-10 text-sm font-semibold text-white">
-                            {taskList[0].text}
-                        </span>
-                    </div>
-                )}
+                {(() => {
+                    const firstActiveTask = taskList.find((t) => !t.completed);
+
+                    if (!firstActiveTask) return null;
+
+                    return (
+                        <div className="relative flex items-center gap-2 rounded-2xl border border-white/10 bg-black/40 px-6 py-3 shadow-[0_10px_30px_rgba(0,0,0,0.6),_0_2px_4px_rgba(255,255,255,0.08)_inset] backdrop-blur-xl transition-all hover:bg-black/50">
+                            <span
+                                aria-hidden
+                                className="pointer-events-none absolute inset-0 rounded-2xl opacity-30"
+                                style={{
+                                    background:
+                                        'linear-gradient(to bottom, rgba(255,255,255,0.2), rgba(255,255,255,0.05) 40%, transparent 80%)',
+                                }}
+                            />
+                            <ListTodo className="relative z-10 h-4 w-4 text-white/80" />
+                            <span className="relative z-10 text-sm font-semibold text-white">
+                                {firstActiveTask.title}
+                            </span>
+                        </div>
+                    );
+                })()}
+
                 <TimerControlDialog
                     showTimerSettings={showTimerSettings}
                     setShowTimerSettings={setShowTimerSettings}
@@ -390,6 +413,10 @@ export function PomodoroDisplay({
                 setAnalyticsPeriod={setAnalyticsPeriod}
                 navigateAnalyticsDate={navigateAnalyticsDate}
                 formatAnalyticsDate={formatAnalyticsDate}
+                dayStats={dayStats}
+                monthStats={monthStats}
+                yearStats={yearStats}
+                sessionOverviewStats={sessionOverviewStats}
             />{' '}
         </div>
     );

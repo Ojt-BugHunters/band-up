@@ -14,7 +14,6 @@ import {
     KeyRound,
 } from 'lucide-react';
 import {
-    Task,
     AmbientSound,
     useGetStudySessions,
     StudySessionStatus,
@@ -25,6 +24,10 @@ import {
     usePingInterval,
     usePauseInterval,
     useResumeInterval,
+    useGetLearningStatsDay,
+    useGetLearningStatsMonth,
+    useGetLearningStatsYear,
+    useGetSessionOverviewStats,
 } from '@/lib/service/room';
 import {
     BACKGROUND_IMAGES,
@@ -43,6 +46,13 @@ import {
 import { EmptyState } from '@/components/ui/empty-state';
 import { LoadingSpinner } from '@/components/ui/loading-spinner';
 import { CollaborationDisplay } from './meeting-room';
+import {
+    TaskResponse,
+    useCreateTask,
+    useDeleteTask,
+    useGetAllTasks,
+    useToggleTask,
+} from '@/lib/service/task';
 
 const getIntervalType = (
     index: number,
@@ -65,9 +75,8 @@ export type TimePeriod = 'daily' | 'weekly' | 'monthly';
 export type DisplayMode = 'pomodoro' | 'ai-chat' | 'room' | 'collaboration';
 
 export default function RoomPage() {
-    const [task, setTask] = useState('');
     const [backgroundImage, setBackgroundImage] = useState('');
-    const [taskList, setTaskList] = useState<Task[]>([]);
+
     const [draggedIndex, setDraggedIndex] = useState<number | null>(null);
     const [flyingTask, setFlyingTask] = useState<FlyingTask | null>(null);
 
@@ -93,14 +102,6 @@ export default function RoomPage() {
         useState<TimePeriod>('daily');
     const [leaderboardDate, setLeaderboardDate] = useState(new Date());
 
-    const [showAnalytics, setShowAnalytics] = useState(false);
-    const [analyticsPeriod, setAnalyticsPeriod] = useState<
-        'today' | 'week' | 'month'
-    >('today');
-    const [analyticsDate, setAnalyticsDate] = useState(new Date());
-
-    const inputRef = useRef<HTMLDivElement>(null);
-    const taskButtonRef = useRef<HTMLButtonElement>(null);
     const fileInputRef = useRef<HTMLInputElement>(null);
 
     // ------------------------------------------------
@@ -473,93 +474,6 @@ export default function RoomPage() {
         setBackgroundImage(randomImage);
     }, []);
 
-    /// --------- Tasks -----------------------------
-    // animation when create new task
-    const handleTaskKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
-        if (e.key === 'Enter' && task.trim()) {
-            const inputRect = inputRef.current?.getBoundingClientRect();
-            const buttonRect = taskButtonRef.current?.getBoundingClientRect();
-
-            if (inputRect && buttonRect) {
-                setFlyingTask({
-                    id: Date.now().toString(),
-                    text: task.trim(),
-                    startX: inputRect.left + inputRect.width / 2,
-                    startY: inputRect.top + inputRect.height / 2,
-                    endX: buttonRect.left + buttonRect.width / 2,
-                    endY: buttonRect.top + buttonRect.height / 2,
-                });
-
-                setTimeout(() => {
-                    const newTask: Task = {
-                        id: Date.now().toString(),
-                        text: task.trim(),
-                        completed: false,
-                    };
-                    setTaskList([...taskList, newTask]);
-
-                    toast.success('Task added to your list');
-                    setFlyingTask(null);
-                }, 600);
-            }
-
-            setTask('');
-        }
-    };
-
-    const toggleTaskCompletion = (id: string) => {
-        setTaskList(
-            taskList.map((task) =>
-                task.id === id ? { ...task, completed: !task.completed } : task,
-            ),
-        );
-    };
-
-    const removeTask = (id: string) => {
-        setTaskList(taskList.filter((task) => task.id !== id));
-    };
-
-    const handleDragStart = (index: number) => {
-        setDraggedIndex(index);
-    };
-
-    const handleDragOver = (e: React.DragEvent, index: number) => {
-        e.preventDefault();
-        if (draggedIndex === null || draggedIndex === index) return;
-
-        const newTaskList = [...taskList];
-        const draggedTask = newTaskList[draggedIndex];
-        newTaskList.splice(draggedIndex, 1);
-        newTaskList.splice(index, 0, draggedTask);
-
-        setTaskList(newTaskList);
-        setDraggedIndex(index);
-    };
-
-    const handleDragEnd = () => {
-        setDraggedIndex(null);
-    };
-
-    const toggleAmbientSound = (id: string) => {
-        setAmbientSounds(
-            ambientSounds.map((sound) =>
-                sound.id === id ? { ...sound, enabled: !sound.enabled } : sound,
-            ),
-        );
-    };
-
-    const handleMusicLinkSubmit = () => {
-        if (musicLink.trim()) {
-            setSavedMusicLinks([...savedMusicLinks, musicLink.trim()]);
-            toast.success('Music Link added');
-            setMusicLink('');
-        }
-    };
-
-    const removeMusicLink = (index: number) => {
-        setSavedMusicLinks(savedMusicLinks.filter((_, i) => i !== index));
-    };
-
     const selectBackgroundImage = (image: string) => {
         setBackgroundImage(image);
         setCustomBackgroundImage(null);
@@ -586,6 +500,232 @@ export default function RoomPage() {
         }
     };
 
+    /// --------- Tasks -----------------------------
+    const [task, setTask] = useState('');
+    const inputRef = useRef<HTMLDivElement>(null);
+    const taskButtonRef = useRef<HTMLButtonElement>(null);
+    const { mutation: createTaskMutation } = useCreateTask();
+
+    const handleTaskKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+        if (e.key !== 'Enter') return;
+
+        const trimmed = task.trim();
+        if (!trimmed) return;
+
+        if (createTaskMutation.isPending) return;
+
+        const inputRect = inputRef.current?.getBoundingClientRect();
+        const buttonRect = taskButtonRef.current?.getBoundingClientRect();
+
+        if (!inputRect || !buttonRect) return;
+
+        const tempId = Date.now().toString();
+
+        setFlyingTask({
+            id: tempId,
+            text: trimmed,
+            startX: inputRect.left + inputRect.width / 2,
+            startY: inputRect.top + inputRect.height / 2,
+            endX: buttonRect.left + buttonRect.width / 2,
+            endY: buttonRect.top + buttonRect.height / 2,
+        });
+
+        setTask('');
+        setTimeout(() => {
+            const newTask: TaskResponse = {
+                id: tempId,
+                userId: 'temp-user',
+                title: trimmed,
+                completed: false,
+                createAt: new Date().toISOString(),
+            };
+
+            setTaskList((prev) => [...prev, newTask]);
+
+            createTaskMutation.mutate(
+                {
+                    title: trimmed,
+                },
+                {
+                    onSuccess: (response: TaskResponse) => {
+                        setTaskList((prev) =>
+                            prev.map((task) =>
+                                task.id === tempId ? response : task,
+                            ),
+                        );
+                        setFlyingTask(null);
+                    },
+                    onError: () => {
+                        setTaskList((prev) =>
+                            prev.filter((t) => t.id !== tempId),
+                        );
+                        setFlyingTask(null);
+                    },
+                },
+            );
+        }, 600);
+    };
+    /// --------- To do list box -------------
+    const { data: tasks } = useGetAllTasks();
+    const { mutation: toggleTaskMutation } = useToggleTask();
+    const { mutation: deleteTaskMutation } = useDeleteTask();
+    const [taskList, setTaskList] = useState<TaskResponse[]>([]);
+    useEffect(() => {
+        if (tasks && taskList.length === 0) {
+            setTaskList(tasks);
+        }
+    }, [tasks, taskList.length]);
+
+    const toggleTaskCompletion = (id: string) => {
+        setTaskList(
+            taskList.map((task) =>
+                task.id === id ? { ...task, completed: !task.completed } : task,
+            ),
+        );
+        toggleTaskMutation.mutate(id, {
+            onError: () => {
+                setTaskList((prev) =>
+                    prev.map((task) =>
+                        task.id === id
+                            ? { ...task, completed: !task.completed }
+                            : task,
+                    ),
+                );
+            },
+        });
+    };
+    const removeTask = (id: string) => {
+        deleteTaskMutation.mutate(id, {
+            onSuccess: () => {
+                setTaskList((prev) => prev.filter((task) => task.id !== id));
+            },
+        });
+    };
+    const handleDragStart = (index: number) => {
+        setDraggedIndex(index);
+    };
+    const handleDragOver = (e: React.DragEvent, index: number) => {
+        e.preventDefault();
+        if (draggedIndex === null || draggedIndex === index) return;
+
+        const newTaskList = [...taskList];
+        const draggedTask = newTaskList[draggedIndex];
+        newTaskList.splice(draggedIndex, 1);
+        newTaskList.splice(index, 0, draggedTask);
+
+        setTaskList(newTaskList);
+        setDraggedIndex(index);
+    };
+    const handleDragEnd = () => {
+        setDraggedIndex(null);
+    };
+
+    // --------------- Analytic dialog ---------------
+    const [analyticsDate, setAnalyticsDate] = useState(new Date());
+    const [showAnalytics, setShowAnalytics] = useState(false);
+    const [analyticsPeriod, setAnalyticsPeriod] = useState<
+        'day' | 'month' | 'year'
+    >('day');
+
+    const navigateAnalyticsDate = (direction: 'prev' | 'next') => {
+        const newDate = new Date(analyticsDate);
+        const step = direction === 'next' ? 1 : -1;
+
+        if (analyticsPeriod === 'day') {
+            newDate.setDate(newDate.getDate() + step);
+        } else if (analyticsPeriod === 'month') {
+            newDate.setMonth(newDate.getMonth() + step);
+        } else {
+            newDate.setFullYear(newDate.getFullYear() + step);
+        }
+
+        setAnalyticsDate(newDate);
+    };
+
+    const formatAnalyticsDate = (date: Date) => {
+        if (analyticsPeriod === 'day') {
+            return date.toLocaleDateString('en-US', {
+                month: 'short',
+                day: '2-digit',
+                year: 'numeric',
+            });
+        }
+
+        if (analyticsPeriod === 'month') {
+            return date.toLocaleDateString('en-US', {
+                month: 'long',
+                year: 'numeric',
+            });
+        }
+        return date.getFullYear().toString();
+    };
+
+    const analyticsDateString = useMemo(() => {
+        const y = analyticsDate.getFullYear();
+        const m = String(analyticsDate.getMonth() + 1).padStart(2, '0');
+        const d = String(analyticsDate.getDate()).padStart(2, '0');
+        return `${y}-${m}-${d}`;
+    }, [analyticsDate]);
+
+    const analyticsYear = analyticsDate.getFullYear();
+    const analyticsMonth = analyticsDate.getMonth() + 1;
+
+    const { data: dayStats } = useGetLearningStatsDay(analyticsDateString);
+    const { data: monthStats } = useGetLearningStatsMonth(
+        analyticsYear,
+        analyticsMonth,
+    );
+    const { data: yearStats } = useGetLearningStatsYear(analyticsYear);
+    const { data: overviewStats } =
+        useGetSessionOverviewStats(analyticsDateString);
+
+    const safeDayStats = dayStats ?? {
+        date: analyticsDateString,
+        totalMinutes: 0,
+        hourlyMinutes: Array(24).fill(0),
+    };
+
+    const safeMonthStats = monthStats ?? {
+        year: analyticsYear,
+        month: analyticsMonth,
+        totalMinutes: 0,
+        dailyMinutes: Array(31).fill(0),
+    };
+
+    const safeYearStats = yearStats ?? {
+        year: analyticsYear,
+        totalMinutes: 0,
+        monthlyMinutes: Array(12).fill(0),
+    };
+
+    const safeOverviewStats = overviewStats ?? {
+        totalSessions: 0,
+        focusedTime: 0,
+        bestSession: 0,
+        taskCompleted: 0,
+    };
+
+    /// ----------- Ambient Sound -------------
+    const toggleAmbientSound = (id: string) => {
+        setAmbientSounds(
+            ambientSounds.map((sound) =>
+                sound.id === id ? { ...sound, enabled: !sound.enabled } : sound,
+            ),
+        );
+    };
+
+    const handleMusicLinkSubmit = () => {
+        if (musicLink.trim()) {
+            setSavedMusicLinks([...savedMusicLinks, musicLink.trim()]);
+            toast.success('Music Link added');
+            setMusicLink('');
+        }
+    };
+
+    const removeMusicLink = (index: number) => {
+        setSavedMusicLinks(savedMusicLinks.filter((_, i) => i !== index));
+    };
+
     const formatLeaderboardDate = (date: Date) => {
         return date.toLocaleDateString('en-GB', {
             day: '2-digit',
@@ -610,31 +750,6 @@ export default function RoomPage() {
             );
         }
         setLeaderboardDate(newDate);
-    };
-
-    const formatAnalyticsDate = (date: Date) => {
-        return date.toLocaleDateString('en-US', {
-            month: 'short',
-            day: '2-digit',
-        });
-    };
-
-    const navigateAnalyticsDate = (direction: 'prev' | 'next') => {
-        const newDate = new Date(analyticsDate);
-        if (analyticsPeriod === 'today') {
-            newDate.setDate(
-                newDate.getDate() + (direction === 'next' ? 1 : -1),
-            );
-        } else if (analyticsPeriod === 'week') {
-            newDate.setDate(
-                newDate.getDate() + (direction === 'next' ? 7 : -7),
-            );
-        } else {
-            newDate.setMonth(
-                newDate.getMonth() + (direction === 'next' ? 1 : -1),
-            );
-        }
-        setAnalyticsDate(newDate);
     };
 
     if (isLoading || isFetching)
@@ -739,26 +854,40 @@ export default function RoomPage() {
                                 toggleTimer={toggleTimer}
                                 canToggleTimer={canToggleTimer}
                                 isActive={isActive}
+                                // task input
+                                task={task}
+                                setTask={setTask}
+                                handleTaskKeyDown={handleTaskKeyDown}
+                                inputRef={inputRef}
+                                // to do list box
+                                taskList={taskList}
+                                handleDragStart={handleDragStart}
+                                handleDragOver={handleDragOver}
+                                handleDragEnd={handleDragEnd}
+                                draggedIndex={draggedIndex}
+                                toggleTaskCompletion={toggleTaskCompletion}
+                                removeTask={removeTask}
+                                taskButtonRef={taskButtonRef}
+                                // analytic dialog
+                                analyticsDate={analyticsDate}
+                                showAnalytics={showAnalytics}
+                                setShowAnalytics={setShowAnalytics}
+                                analyticsPeriod={analyticsPeriod}
+                                setAnalyticsPeriod={setAnalyticsPeriod}
+                                formatAnalyticsDate={formatAnalyticsDate}
+                                navigateAnalyticsDate={navigateAnalyticsDate}
+                                dayStats={safeDayStats}
+                                monthStats={safeMonthStats}
+                                yearStats={safeYearStats}
+                                sessionOverviewStats={safeOverviewStats}
                                 // core timer
                                 minutes={minutes}
                                 seconds={seconds}
                                 totalSteps={totalSteps}
                                 currentStep={currentStep}
                                 isPomodoroMode={isPomodoroMode}
-                                task={task}
-                                setTask={setTask}
-                                taskList={taskList}
                                 pomodoroSession={pomodoroSession}
                                 sessionType={sessionType}
-                                handleTaskKeyDown={handleTaskKeyDown}
-                                inputRef={inputRef}
-                                taskButtonRef={taskButtonRef}
-                                toggleTaskCompletion={toggleTaskCompletion}
-                                removeTask={removeTask}
-                                handleDragStart={handleDragStart}
-                                handleDragOver={handleDragOver}
-                                handleDragEnd={handleDragEnd}
-                                draggedIndex={draggedIndex}
                                 showAmbientMixer={showAmbientMixer}
                                 setShowAmbientMixer={setShowAmbientMixer}
                                 ambientSounds={ambientSounds}
@@ -791,13 +920,6 @@ export default function RoomPage() {
                                 navigateLeaderboardDate={
                                     navigateLeaderboardDate
                                 }
-                                showAnalytics={showAnalytics}
-                                setShowAnalytics={setShowAnalytics}
-                                analyticsPeriod={analyticsPeriod}
-                                setAnalyticsPeriod={setAnalyticsPeriod}
-                                analyticsDate={analyticsDate}
-                                formatAnalyticsDate={formatAnalyticsDate}
-                                navigateAnalyticsDate={navigateAnalyticsDate}
                             />
                         </motion.div>
                     )}
@@ -830,7 +952,7 @@ export default function RoomPage() {
                             }}
                             className="absolute inset-0"
                         >
-                            <ChattingRoomDisplay />
+                            <ChattingRoomDisplay roomId={id as string} />
                         </motion.div>
                     )}
 

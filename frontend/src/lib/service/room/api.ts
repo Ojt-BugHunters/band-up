@@ -10,7 +10,12 @@ import {
 } from '@tanstack/react-query';
 import { Resolver, useForm } from 'react-hook-form';
 import { toast } from 'sonner';
-import { deserialize, fetchWrapper, throwIfError } from '@/lib/service';
+import {
+    buildParams,
+    deserialize,
+    fetchWrapper,
+    throwIfError,
+} from '@/lib/service';
 import {
     RoomSchema,
     CreateRoomFormValues,
@@ -22,6 +27,10 @@ import {
     FocusTimerFormValues,
     IntervalMutationPayload,
     AccountRoomMember,
+    LearningStatsDay,
+    LearningStatsMonth,
+    LearningStatsYear,
+    SessionOverviewStats,
 } from './type';
 
 export enum StudySessionStatus {
@@ -443,3 +452,66 @@ export function useResumeInterval() {
         },
     });
 }
+
+export const useGetLearningStatsDay = (date: string | undefined) => {
+    return useQuery({
+        queryKey: ['learning-stats', 'day', date],
+        enabled: !!date,
+        queryFn: async () => {
+            const params = buildParams({ date });
+            const response = await fetchWrapper(
+                `/stats/day?${params.toString()}`,
+            );
+            return await deserialize<LearningStatsDay>(response);
+        },
+        staleTime: 10 * 1000,
+    });
+};
+
+export const useGetLearningStatsMonth = (
+    year: number | undefined,
+    month: number | undefined,
+) => {
+    return useQuery({
+        queryKey: ['learning-stats', 'month', year, month],
+        enabled: year != null && month != null,
+        queryFn: async () => {
+            const params = buildParams({ year, month });
+            const response = await fetchWrapper(
+                `/stats/month?${params.toString()}`,
+            );
+            return await deserialize<LearningStatsMonth>(response);
+        },
+        staleTime: 10 * 1000,
+    });
+};
+
+export const useGetLearningStatsYear = (year: number | undefined) => {
+    return useQuery({
+        queryKey: ['learning-stats', 'year', year],
+        enabled: year != null,
+        queryFn: async () => {
+            const params = buildParams({ year });
+            const response = await fetchWrapper(
+                `/stats/year?${params.toString()}`,
+            );
+            return await deserialize<LearningStatsYear>(response);
+        },
+        staleTime: 10 * 1000,
+    });
+};
+
+export const useGetSessionOverviewStats = (date: string | undefined) => {
+    return useQuery({
+        queryKey: ['learning-stats', 'session-overview', date],
+        enabled: !!date,
+        queryFn: async () => {
+            const params = buildParams({ date });
+            const response = await fetchWrapper(
+                `/stats/session-overview?${params.toString()}`,
+            );
+            return await deserialize<SessionOverviewStats>(response);
+        },
+        staleTime: 10 * 1000,
+    });
+};
