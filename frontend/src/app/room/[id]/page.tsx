@@ -952,7 +952,7 @@ export default function RoomPage() {
                             }}
                             className="absolute inset-0"
                         >
-                            <ChattingRoomDisplay />
+                            <ChattingRoomDisplay roomId={id as string} />
                         </motion.div>
                     )}
 

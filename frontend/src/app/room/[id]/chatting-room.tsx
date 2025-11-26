@@ -4,244 +4,206 @@ import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Send, Users } from 'lucide-react';
-import { useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { cn } from '@/lib/utils';
 
+import { Client, IMessage } from '@stomp/stompjs';
+import SockJS from 'sockjs-client';
+import { toast } from 'sonner';
+import { useGetAvatar, useUser } from '@/lib/service/account';
+
+interface ChattingRoomProps {
+    roomId: string;
+}
+// ====== TYPES UI ======
 type User = {
     id: number;
     name: string;
     avatar: string;
     status: 'online' | 'away';
 };
+
 type Message = {
-    id: number;
-    userId: number;
+    id: string;
+    userId: string;
     userName: string;
     userAvatar: string;
     text: string;
     time: string;
 };
 
-const mockUsers: User[] = [
-    { id: 1, name: 'Nam Dang', avatar: 'ND', status: 'online' },
-    { id: 2, name: 'John Doe', avatar: 'JD', status: 'online' },
-    { id: 3, name: 'Jane Smith', avatar: 'JS', status: 'away' },
-    { id: 4, name: 'Mike Wilson', avatar: 'MW', status: 'online' },
-];
+type SenderDto = {
+    id: string;
+    name: string;
+};
 
-const long = (s: string) =>
-    `${s} This took me a while to figure out, but the key was to break the problem into parts and verify each step carefully.`;
+type RoomAction = 'JOIN' | 'LEAVE';
 
-const mockMessages: Message[] = [
-    {
-        id: 1,
-        userId: 2,
-        userName: 'John Doe',
-        userAvatar: 'JD',
-        text: 'Hey everyone! Ready for the study session?',
-        time: '10:30 AM',
-    },
-    {
-        id: 2,
-        userId: 3,
-        userName: 'Jane Smith',
-        userAvatar: 'JS',
-        text: 'Yesss! Let’s focus on the math assignment today.',
-        time: '10:32 AM',
-    },
-    {
-        id: 3,
-        userId: 1,
-        userName: 'Nam Dang',
-        userAvatar: 'ND',
-        text: 'Great. I’ll share my solutions for Q1–Q3 first.',
-        time: '10:33 AM',
-    },
-    {
-        id: 4,
-        userId: 4,
-        userName: 'Mike Wilson',
-        userAvatar: 'MW',
-        text: 'I’m stuck at Q2. Can someone explain the approach?',
-        time: '10:34 AM',
-    },
-    {
-        id: 5,
-        userId: 1,
-        userName: 'Nam Dang',
-        userAvatar: 'ND',
-        text: 'Sure, it’s basically about factoring and using the identity. I’ll type it below.',
-        time: '10:35 AM',
-    },
-    {
-        id: 6,
-        userId: 2,
-        userName: 'John Doe',
-        userAvatar: 'JD',
-        text: long('I tried substitution but it got messy.'),
-        time: '10:36 AM',
-    },
-    {
-        id: 7,
-        userId: 1,
-        userName: 'Nam Dang',
-        userAvatar: 'ND',
-        text: 'For Q2, start by isolating the squared term, then complete the square. After that, compare coefficients.',
-        time: '10:37 AM',
-    },
-    {
-        id: 8,
-        userId: 3,
-        userName: 'Jane Smith',
-        userAvatar: 'JS',
-        text: 'I can share how I wrote the steps if that helps.',
-        time: '10:38 AM',
-    },
-    {
-        id: 9,
-        userId: 4,
-        userName: 'Mike Wilson',
-        userAvatar: 'MW',
-        text: 'Please do! Screenshots or a short summary?',
-        time: '10:39 AM',
-    },
-    {
-        id: 10,
-        userId: 3,
-        userName: 'Jane Smith',
-        userAvatar: 'JS',
-        text: long(
-            'Summary incoming! I’ll outline the factorization pattern first, then the identity we used.',
-        ),
-        time: '10:40 AM',
-    },
-    {
-        id: 11,
-        userId: 1,
-        userName: 'Nam Dang',
-        userAvatar: 'ND',
-        text: 'Also remember the discriminant check so we know roots are real.',
-        time: '10:41 AM',
-    },
-    {
-        id: 12,
-        userId: 2,
-        userName: 'John Doe',
-        userAvatar: 'JD',
-        text: 'Good call. I forgot to check that earlier.',
-        time: '10:42 AM',
-    },
-    {
-        id: 13,
-        userId: 4,
-        userName: 'Mike Wilson',
-        userAvatar: 'MW',
-        text: long('I’ll try rewriting Q2 now with your hints. Thanks!'),
-        time: '10:43 AM',
-    },
-    {
-        id: 14,
-        userId: 1,
-        userName: 'Nam Dang',
-        userAvatar: 'ND',
-        text: 'Ping when you’re done. We can compare answers.',
-        time: '10:44 AM',
-    },
-    {
-        id: 15,
-        userId: 3,
-        userName: 'Jane Smith',
-        userAvatar: 'JS',
-        text: 'Uploading my notes...',
-        time: '10:45 AM',
-    },
-    {
-        id: 16,
-        userId: 2,
-        userName: 'John Doe',
-        userAvatar: 'JD',
-        text: long(
-            'I think Q3 is trickier. The last step with the inequality signs always trips me up.',
-        ),
-        time: '10:46 AM',
-    },
-    {
-        id: 17,
-        userId: 1,
-        userName: 'Nam Dang',
-        userAvatar: 'ND',
-        text: 'For inequalities, flip the sign when multiplying/dividing by negative numbers. Easy to miss.',
-        time: '10:47 AM',
-    },
-    {
-        id: 18,
-        userId: 4,
-        userName: 'Mike Wilson',
-        userAvatar: 'MW',
-        text: 'That was it. I messed that part. Fixed now and it matches!',
-        time: '10:48 AM',
-    },
-    {
-        id: 19,
-        userId: 3,
-        userName: 'Jane Smith',
-        userAvatar: 'JS',
-        text: long('Notes uploaded. Tell me if any step is unclear.'),
-        time: '10:49 AM',
-    },
-    {
-        id: 20,
-        userId: 2,
-        userName: 'John Doe',
-        userAvatar: 'JD',
-        text: 'Looks good. Let’s wrap after Q4 plan.',
-        time: '10:50 AM',
-    },
-    {
-        id: 21,
-        userId: 1,
-        userName: 'Nam Dang',
-        userAvatar: 'ND',
-        text: 'Deal. I’ll draft the outline for Q4 and send shortly.',
-        time: '10:51 AM',
-    },
-];
+type WsMessageDto = {
+    content: string;
+    sender: SenderDto;
+    target: string;
+    images?: string[] | null;
+    action?: RoomAction | null;
+};
 
-export function ChattingRoomDisplay() {
+export function ChattingRoomDisplay({ roomId }: ChattingRoomProps) {
+    const user = useUser();
+    const { data: avatarResponse } = useGetAvatar();
     const [roomMessage, setRoomMessage] = useState('');
-    const [messages, setMessages] = useState<Message[]>(mockMessages);
+    const [messages, setMessages] = useState<Message[]>([]);
+    const [isConnected, setIsConnected] = useState(false);
 
-    const currentUserId = 1;
+    const currentUserId = user?.id as string;
+    const currentUserName = user?.name as string;
+    const currentUserAvatar = avatarResponse?.cloudFrontUrl;
+    const stompClientRef = useRef<Client | null>(null);
 
+    useEffect(() => {
+        const client = new Client({
+            webSocketFactory: () => new SockJS('http://localhost:8080/ws'),
+            reconnectDelay: 5000,
+            onConnect: () => {
+                setIsConnected(true);
+                toast.success('Connect Successfully');
+
+                client.subscribe(
+                    `/topic/room/${roomId}`,
+                    (message: IMessage) => {
+                        try {
+                            const body: WsMessageDto = JSON.parse(message.body);
+
+                            const sender = body.sender;
+
+                            const initials = sender.name
+                                .split(' ')
+                                .map((p) => p[0])
+                                .join('')
+                                .toUpperCase();
+
+                            const uiMessage: Message = {
+                                id: Date.now().toString(),
+                                userId:
+                                    sender.id === user?.id
+                                        ? currentUserId
+                                        : '999',
+                                userName: sender.name,
+                                userAvatar: initials,
+                                text: body.content,
+                                time: new Date().toLocaleTimeString([], {
+                                    hour: '2-digit',
+                                    minute: '2-digit',
+                                }),
+                            };
+
+                            setMessages((prev) => [...prev, uiMessage]);
+                        } catch (e) {
+                            console.error('Failed to parse message', e);
+                        }
+                    },
+                );
+
+                // Gửi JOIN event: @MessageMapping("/chat.addUser")
+                const addUserPayload: WsMessageDto = {
+                    content: `${currentUserName} joined`,
+                    sender: {
+                        id: user?.id as string,
+                        name: currentUserName,
+                    },
+                    target: roomId,
+                    images: null,
+                    action: 'JOIN',
+                };
+
+                client.publish({
+                    destination: '/app/chat.addUser',
+                    body: JSON.stringify(addUserPayload),
+                });
+            },
+            onStompError: (frame) => {
+                console.error(
+                    'Broker reported error: ' + frame.headers['message'],
+                );
+                console.error('Additional details: ' + frame.body);
+            },
+            onWebSocketClose: () => {
+                setIsConnected(false);
+            },
+        });
+
+        stompClientRef.current = client;
+        client.activate();
+
+        return () => {
+            client.deactivate();
+            stompClientRef.current = null;
+        };
+    }, [roomId, currentUserName, user?.id, currentUserId]);
+
+    // ====== SEND MESSAGE ======
     const sendMessage = () => {
         const text = roomMessage.trim();
         if (!text) return;
-        const newMsg: Message = {
-            id: Date.now(),
-            userId: currentUserId,
-            userName: 'Nam Dang',
-            userAvatar: 'ND',
-            text,
-            time: new Date().toLocaleTimeString([], {
-                hour: '2-digit',
-                minute: '2-digit',
-            }),
+
+        const now = new Date().toLocaleTimeString([], {
+            hour: '2-digit',
+            minute: '2-digit',
+        });
+
+        const client = stompClientRef.current;
+
+        // Nếu chưa connect → đẩy local cho đỡ trống
+        if (!client || !isConnected) {
+            const localMsg: Message = {
+                id: Date.now().toString(),
+                userId: currentUserId,
+                userName: currentUserName,
+                userAvatar: currentUserAvatar as string,
+                text,
+                time: now,
+            };
+            setMessages((prev) => [...prev, localMsg]);
+            setRoomMessage('');
+            return;
+        }
+
+        const payload: WsMessageDto = {
+            content: text,
+            sender: {
+                id: user?.id as string,
+                name: currentUserName,
+            },
+            target: roomId,
+            images: null,
+            action: null,
         };
-        setMessages((prev) => [...prev, newMsg]);
+
+        client.publish({
+            destination: '/app/chat.sendMessage',
+            body: JSON.stringify(payload),
+        });
+
         setRoomMessage('');
     };
 
     return (
         <div className="flex h-full w-full">
             <div className="flex min-w-0 flex-1 flex-col">
-                <header className="relative z-10 flex items-center justify-between border-b border-white/10 bg-black/20 px-6 py-4 shadow-[0_8px_25px_rgba(0,0,0,.45)] backdrop-blur-xl">
+                <header className="justify_between relative z-10 flex items-center border-b border-white/10 bg-black/20 px-6 py-4 shadow-[0_8px_25px_rgba(0,0,0,.45)] backdrop-blur-xl">
                     <div className="flex items-center gap-2">
                         <div className="flex h-10 w-10 items-center justify-center rounded-xl border border-white/10 bg-black/20 shadow-[inset_0_2px_4px_rgba(255,255,255,.08)]">
                             <Users className="h-5 w-5 text-white" />
                         </div>
-                        <h1 className="text-lg font-semibold text-white">
-                            Study Room Chat
-                        </h1>
+                        <div className="flex flex-col">
+                            <h1 className="text-lg font-semibold text-white">
+                                Study Room Chat
+                            </h1>
+                            <span className="text-xs text-white/60">
+                                {isConnected
+                                    ? 'Connected to room realtime'
+                                    : 'Offline (showing mock/local messages)'}
+                            </span>
+                        </div>
                     </div>
                     <span
                         aria-hidden
@@ -355,9 +317,9 @@ export function ChattingRoomDisplay() {
 
             <aside className="hidden w-80 border-l border-white/10 bg-black/20 p-4 backdrop-blur-xl md:block">
                 <h2 className="mb-3 text-xs font-semibold tracking-wide text-white/70">
-                    MEMBERS — {mockUsers.length}
+                    MEMBERS — 4
                 </h2>
-                <div className="space-y-2">
+                {/* <div className="space-y-2">
                     {mockUsers.map((user) => (
                         <div
                             key={user.id}
@@ -383,7 +345,7 @@ export function ChattingRoomDisplay() {
                             </span>
                         </div>
                     ))}
-                </div>
+                </div> */}
             </aside>
         </div>
     );

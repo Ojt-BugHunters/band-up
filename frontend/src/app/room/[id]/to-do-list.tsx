@@ -73,9 +73,7 @@ export const ToDoListBox = forwardRef<HTMLButtonElement, ToDoListBoxProps>(
                     align="start"
                     className="w-96 border-none bg-transparent p-0 shadow-none"
                 >
-                    {/* Liquid glass card shell */}
                     <div className="relative overflow-hidden rounded-[28px] border border-white/15 bg-white/5 shadow-[0_30px_80px_rgba(0,0,0,.55)] ring-1 ring-white/10 backdrop-blur-2xl">
-                        {/* glow + angle sheen */}
                         <div
                             aria-hidden
                             className="pointer-events-none absolute -inset-16 -z-10 opacity-40 blur-3xl"
