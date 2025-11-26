@@ -8,10 +8,7 @@ import com.project.Band_Up.entities.Account;
 import com.project.Band_Up.entities.Room;
 import com.project.Band_Up.entities.RoomMember;
 import com.project.Band_Up.enums.Role;
-import com.project.Band_Up.repositories.AccountRepository;
-import com.project.Band_Up.repositories.RoomMemberRepository;
-import com.project.Band_Up.repositories.RoomRepository;
-import com.project.Band_Up.repositories.StudySessionRepository;
+import com.project.Band_Up.repositories.*;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
@@ -37,6 +34,7 @@ public class RoomServiceImpl implements RoomService {
     private final ModelMapper modelMapper;
     private final StudySessionRepository studySessionRepository;
     private final SimpMessagingTemplate messagingTemplate;
+    private final RoomChatRepository roomChatRepository;
 
     // ================== ROOM CRUD + MEMBER =====================
 
@@ -44,6 +42,10 @@ public class RoomServiceImpl implements RoomService {
     public RoomResponse createRoom(UUID creatorId, RoomCreateRequest request) {
         Account creator = accountRepository.findById(creatorId)
                 .orElseThrow(() -> new EntityNotFoundException("Creator not found"));
+        assertUserNotInAnyRoom(creatorId);
+        if (request.getRoomName() == null || request.getRoomName().isBlank()) {
+            throw new IllegalArgumentException("Room name must not be empty");
+        }
 
         Room room = modelMapper.map(request, Room.class);
         room.setCreatorId(creator.getId());
@@ -158,7 +160,7 @@ public class RoomServiceImpl implements RoomService {
                 .orElseThrow(() -> new EntityNotFoundException("Room not found"));
         Account user = accountRepository.findById(userId)
                 .orElseThrow(() -> new EntityNotFoundException("User not found"));
-
+        assertUserNotInAnyRoom(userId);
         boolean alreadyJoined = roomMemberRepository.findByRoom(room).stream()
                 .anyMatch(member -> member.getUser().getId().equals(userId));
         if (alreadyJoined)
@@ -262,6 +264,7 @@ public class RoomServiceImpl implements RoomService {
 
         studySessionRepository.clearRoomReferenceByRoom(room);
         roomMemberRepository.deleteAllByRoom(room);
+        roomChatRepository.deleteAllByRoomId(roomId);
         roomRepository.delete(room);
 
         publishRoomEvent(roomId, "ROOM_DELETED",
@@ -296,6 +299,7 @@ public class RoomServiceImpl implements RoomService {
                 Map.of("userId", userId));
 
         if (remaining.isEmpty()) {
+            roomChatRepository.deleteAllByRoomId(roomId);
             roomRepository.delete(room);
 
             publishRoomEvent(roomId, "ROOM_DELETED",
@@ -392,4 +396,11 @@ public class RoomServiceImpl implements RoomService {
                 event
         );
     }
+    private void assertUserNotInAnyRoom(UUID userId) {
+        boolean inAnyRoom = roomMemberRepository.existsByUser_IdAndIsActiveTrue(userId);
+        if (inAnyRoom) {
+            throw new IllegalStateException("User is already in a room. Please leave current room before creating a new one.");
+        }
+    }
+
 }
