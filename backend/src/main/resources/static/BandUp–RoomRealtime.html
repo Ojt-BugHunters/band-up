@@ -1,0 +1,643 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>BandUp – Room Realtime Tester</title>
+
+    <script src="https://cdn.jsdelivr.net/npm/sockjs-client@1/dist/sockjs.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/stompjs@2.3.3/lib/stomp.min.js"></script>
+
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: linear-gradient(135deg, #4c6ef5, #d6336c);
+            margin: 0;
+            padding: 30px;
+            min-height: 100vh;
+            color: #333;
+        }
+
+        .container {
+            max-width: 1100px;
+            margin: 0 auto;
+            background: white;
+            padding: 25px;
+            border-radius: 12px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+        }
+
+        h1 {
+            text-align: center;
+            margin-bottom: 25px;
+            color: #333;
+        }
+
+        .status {
+            text-align: center;
+            padding: 12px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            font-weight: bold;
+        }
+
+        .connected {
+            background: #d4edda;
+            color: #155724;
+            border: 2px solid #28a745;
+        }
+
+        .disconnected {
+            background: #f8d7da;
+            color: #721c24;
+            border: 2px solid #dc3545;
+        }
+
+        .section-title {
+            font-size: 18px;
+            border-left: 4px solid #4c6ef5;
+            padding-left: 10px;
+            margin-top: 25px;
+            margin-bottom: 10px;
+        }
+
+        input[type=text], textarea {
+            width: 100%;
+            padding: 8px 10px;
+            border-radius: 6px;
+            border: 2px solid #ddd;
+            margin-bottom: 8px;
+            font-size: 13px;
+        }
+
+        label {
+            font-size: 13px;
+            font-weight: 600;
+            display: block;
+            margin-bottom: 4px;
+        }
+
+        .row {
+            display: flex;
+            gap: 16px;
+            flex-wrap: wrap;
+        }
+
+        .col {
+            flex: 1;
+            min-width: 260px;
+        }
+
+        button {
+            padding: 10px 16px;
+            font-weight: bold;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: 0.2s;
+            font-size: 13px;
+        }
+
+        button:hover {
+            transform: translateY(-2px);
+        }
+
+        button:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .btn-connect {
+            background: #28a745;
+            color: white;
+        }
+
+        .btn-disconnect {
+            background: #dc3545;
+            color: white;
+        }
+
+        .btn-primary {
+            background: #4c6ef5;
+            color: white;
+        }
+
+        .btn-danger {
+            background: #e03131;
+            color: white;
+        }
+
+        .btn-secondary {
+            background: #868e96;
+            color: white;
+        }
+
+        .events-box, .rooms-box, .rest-box {
+            margin-top: 12px;
+            background: #f8f9fa;
+            border-radius: 10px;
+            padding: 10px;
+            max-height: 400px;
+            overflow-y: auto;
+            font-size: 12px;
+        }
+
+        .event-item, .room-item {
+            background: white;
+            border-left: 4px solid #4c6ef5;
+            padding: 8px;
+            margin-bottom: 8px;
+            border-radius: 5px;
+            animation: fadeIn 0.3s ease;
+        }
+
+        .room-item.selected {
+            border-left-color: #20c997;
+            box-shadow: 0 0 0 1px #20c99755;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateX(-10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+
+        .pill {
+            display: inline-block;
+            padding: 2px 6px;
+            border-radius: 999px;
+            font-size: 11px;
+            background: #e9ecef;
+            margin-right: 4px;
+        }
+
+        .pill-private {
+            background: #ffa8a8;
+        }
+
+        .pill-public {
+            background: #69db7c;
+        }
+
+        .small {
+            font-size: 11px;
+            color: #666;
+        }
+    </style>
+</head>
+
+<body>
+
+<div class="container">
+    <h1>🔥 BandUp – Room Realtime Tester</h1>
+
+    <div id="status" class="status disconnected">Disconnected</div>
+
+    <!-- === GLOBAL CONFIG === -->
+    <h2 class="section-title">Global Configuration</h2>
+    <div class="row">
+        <div class="col">
+            <label for="wsUrl">WebSocket URL</label>
+            <input id="wsUrl" type="text" value="http://localhost:8080/ws"/>
+        </div>
+
+        <div class="col">
+            <label for="apiUrl">Base REST API URL</label>
+            <input id="apiUrl" type="text" value="http://localhost:8080/api"/>
+        </div>
+
+        <div class="col">
+            <label for="userId">Current User ID (UUID)</label>
+            <input id="userId" type="text" placeholder="Your user UUID (optional, just for bạn nhớ)"/>
+        </div>
+    </div>
+
+    <div style="margin-bottom:10px;">
+        <button class="btn-connect" onclick="connectWS()">Connect WS</button>
+        <button class="btn-disconnect" onclick="disconnectWS()">Disconnect WS</button>
+    </div>
+
+    <div class="row">
+        <!-- LEFT -->
+        <div class="col">
+
+            <!-- PUBLIC ROOMS -->
+            <h2 class="section-title">Public Rooms (REST + Realtime)</h2>
+
+            <div style="display:flex; gap:8px; flex-wrap:wrap; margin-bottom:6px;">
+                <button class="btn-primary" onclick="fetchPublicRooms()">Load Public Rooms (REST)</button>
+                <button class="btn-secondary" onclick="subscribePublic()">Re-Subscribe /topic/rooms/public</button>
+            </div>
+
+            <div class="small">
+                On WebSocket connect: auto subscribe <code>/topic/rooms/public</code> & load list.
+                <br/>
+                When a public room is created/updated/deleted, backend broadcast → UI tự update.
+            </div>
+
+            <div id="roomsBox" class="rooms-box"></div>
+
+            <!-- CREATE ROOM -->
+            <h2 class="section-title">Create Room (REST)</h2>
+
+            <label for="roomName">Room Name</label>
+            <input id="roomName" type="text"/>
+
+            <label for="roomDesc">Description</label>
+            <input id="roomDesc" type="text"/>
+
+            <label for="roomPrivate">
+                <input id="roomPrivate" type="checkbox" checked/>
+                Private Room
+            </label>
+
+            <button class="btn-primary" onclick="createRoom()" style="margin-top:6px;">Create Room</button>
+
+            <!-- SELECTED ROOM ACTIONS -->
+            <h2 class="section-title">Actions for Selected Room</h2>
+
+            <div id="selectedRoomInfo" class="small">No room selected</div>
+
+            <div style="display:flex; flex-direction:column; gap:6px; margin-top:6px;">
+                <button class="btn-primary" onclick="subscribeSelectedRoom()">Subscribe Room Events</button>
+                <button class="btn-primary" onclick="joinRoom()">Join Room (auto subscribe)</button>
+                <button class="btn-secondary" onclick="leaveRoom()">Leave Room</button>
+                <button class="btn-danger" onclick="deleteRoom()">Delete Room</button>
+            </div>
+
+            <!-- KICK MEMBER -->
+            <h2 class="section-title">Kick Member (Host only)</h2>
+            <label for="targetUserId">Target User ID (UUID)</label>
+            <input id="targetUserId" type="text" placeholder="User ID to be kicked"/>
+            <button class="btn-danger" onclick="kickMember()">Kick Member</button>
+
+        </div>
+
+        <!-- RIGHT -->
+        <div class="col">
+
+            <h2 class="section-title">Room Events (WebSocket)</h2>
+            <div id="eventsBox" class="events-box"></div>
+
+            <h2 class="section-title">REST Responses</h2>
+            <div id="restBox" class="rest-box"></div>
+
+        </div>
+    </div>
+
+</div>
+
+<script>
+    let stompClient = null;
+    let subsRoom = null;
+    let subsPublic = null;
+    let selectedRoom = null;
+    let currentRooms = []; // giữ list room current để render + update theo event
+
+    // ========= WS CONNECT ==========
+    function connectWS() {
+        const wsUrl = document.getElementById("wsUrl").value;
+        const socket = new SockJS(wsUrl);
+        stompClient = Stomp.over(socket);
+        stompClient.debug = null;
+
+        stompClient.connect({}, () => {
+            setStatus(true);
+            logEvent("Connected to WebSocket");
+
+            // ✅ tự động subscribe public rooms + load danh sách ban đầu
+            subscribePublic();
+            fetchPublicRooms();
+        }, () => {
+            setStatus(false);
+            alert("WebSocket error. Check the URL and backend.");
+        });
+    }
+
+    function disconnectWS() {
+        if (stompClient) {
+            stompClient.disconnect(() => {
+                setStatus(false);
+                logEvent("WebSocket disconnected");
+            });
+        }
+    }
+
+    function setStatus(connected) {
+        const el = document.getElementById("status");
+        el.textContent = connected ? "Connected" : "Disconnected";
+        el.className = connected ? "status connected" : "status disconnected";
+    }
+
+    // ========= REST CALLS ==========
+    async function apiFetch(path, options = {}) {
+        const base = document.getElementById("apiUrl").value.replace(/\/+$/, "");
+        const url = base + path;
+
+        try {
+            const res = await fetch(url, {
+                headers: {"Content-Type": "application/json"},
+                credentials: "include",          // gửi cookie nếu có (JWT qua cookie/session)
+                ...options
+            });
+
+            const text = await res.text();
+            let data = null;
+
+            try {
+                data = text ? JSON.parse(text) : null;
+            } catch (_) {
+                data = text;
+            }
+
+            logRest(`${options.method || "GET"} ${path}`, data, res.status);
+            return {ok: res.ok, data};
+        } catch (err) {
+            logRest(`ERROR ${options.method || "GET"} ${path}`, String(err), 0);
+            throw err;
+        }
+    }
+
+    // ========= PUBLIC ROOMS ==========
+    async function fetchPublicRooms() {
+        const result = await apiFetch("/rooms/public", {method: "GET"});
+        if (result.ok) {
+            currentRooms = result.data || [];
+            renderRooms(currentRooms);
+        } else {
+            alert("Failed to load public rooms (check REST log).");
+        }
+    }
+
+    function subscribePublic() {
+        if (!stompClient || !stompClient.connected) {
+            alert("WebSocket not connected");
+            return;
+        }
+
+        if (subsPublic) subsPublic.unsubscribe();
+        const topic = "/topic/rooms/public";
+
+        subsPublic = stompClient.subscribe(topic, msg => {
+            const event = JSON.parse(msg.body);
+            logEvent("PUBLIC ROOM EVENT", event);
+            applyPublicRoomEvent(event);
+        });
+
+        logEvent(`Subscribed to ${topic}`);
+    }
+
+    // xử lý event từ /topic/rooms/public để update UI realtime
+    function applyPublicRoomEvent(event) {
+        if (!event || !event.payload) return;
+        const room = event.payload;
+        const id = room.id || room.Id;
+        if (!id) return;
+
+        if (event.type === "ROOM_DELETED") {
+            currentRooms = currentRooms.filter(r => (r.id || r.Id) !== id);
+        } else if (event.type === "ROOM_CREATED" || event.type === "ROOM_UPDATED") {
+            const idx = currentRooms.findIndex(r => (r.id || r.Id) === id);
+            if (idx >= 0) currentRooms[idx] = room;
+            else currentRooms.push(room);
+        }
+        renderRooms(currentRooms);
+    }
+
+    function renderRooms(rooms) {
+        const box = document.getElementById("roomsBox");
+        box.innerHTML = "";
+
+        rooms.forEach(room => {
+            const id = room.id || room.Id;
+            const name = room.roomName || "(Unnamed)";
+            const code = room.roomCode;
+            const members = room.numberOfMembers ?? (room.members ? room.members.length : "?");
+            const isPrivate = room.privateRoom;
+
+            const div = document.createElement("div");
+            div.className = "room-item";
+
+            div.innerHTML = `
+                <div><strong>${name}</strong></div>
+                <div class="small">ID: ${id}</div>
+                <div class="small">Code: ${code}</div>
+                <div class="small">
+                    <span class="pill ${isPrivate ? "pill-private" : "pill-public"}">
+                        ${isPrivate ? "Private" : "Public"}
+                    </span>
+                    <span class="pill">Members: ${members}</span>
+                </div>
+                <button class="btn-primary" style="margin-top:6px; font-size:11px;"
+                    onclick='selectRoom(${JSON.stringify(JSON.stringify(room))})'>
+                    Select Room
+                </button>
+            `;
+
+            box.appendChild(div);
+        });
+    }
+
+    function selectRoom(roomJson) {
+        const room = JSON.parse(roomJson);
+        selectedRoom = room;
+
+        const id = room.id || room.Id;
+        const name = room.roomName || "(Unnamed)";
+
+        document.getElementById("selectedRoomInfo").textContent =
+            `Selected Room: ${name} (ID: ${id})`;
+
+        logEvent("Selected room: " + id);
+    }
+
+    // ========= ROOM ACTIONS ==========
+    function getSelectedRoomId() {
+        return selectedRoom ? (selectedRoom.id || selectedRoom.Id) : null;
+    }
+
+    function getUserId() {
+        return document.getElementById("userId").value.trim();
+    }
+
+    function getTargetUserId() {
+        return document.getElementById("targetUserId").value.trim();
+    }
+
+    // POST /api/rooms
+    async function createRoom() {
+        const body = {
+            roomName: document.getElementById("roomName").value.trim(),
+            description: document.getElementById("roomDesc").value.trim(),
+            privateRoom: document.getElementById("roomPrivate").checked
+        };
+
+        if (!body.roomName) {
+            alert("Room name is required.");
+            return;
+        }
+
+        const result = await apiFetch(`/rooms`, {
+            method: "POST",
+            body: JSON.stringify(body)
+        });
+
+        if (result.ok) {
+            alert("Room created (check REST + events).");
+            // nếu room public, backend sẽ bắn ROOM_CREATED → applyPublicRoomEvent tự update
+        } else {
+            alert("Create room failed (check REST log).");
+        }
+    }
+
+    // POST /api/rooms/{roomId}/join
+    async function joinRoom() {
+        const roomId = getSelectedRoomId();
+        if (!roomId) {
+            alert("Select a room first.");
+            return;
+        }
+
+        const result = await apiFetch(`/rooms/${roomId}/join`, {
+            method: "POST"
+        });
+
+        if (!result.ok) {
+            alert("Join room failed (check REST log).");
+        } else {
+            // ✅ join xong tự động subscribe event của room
+            subscribeSelectedRoom();
+        }
+    }
+
+    // POST /api/rooms/{roomId}/leave
+    async function leaveRoom() {
+        const roomId = getSelectedRoomId();
+        if (!roomId) {
+            alert("Select a room first.");
+            return;
+        }
+
+        const result = await apiFetch(`/rooms/${roomId}/leave`, {
+            method: "POST"
+        });
+
+        if (!result.ok) {
+            alert("Leave room failed (check REST log).");
+        }
+    }
+
+    // DELETE /api/rooms/{roomId}
+    async function deleteRoom() {
+        const roomId = getSelectedRoomId();
+        if (!roomId) {
+            alert("Select a room first.");
+            return;
+        }
+
+        if (!confirm("Are you sure you want to delete this room as Host?")) {
+            return;
+        }
+
+        const result = await apiFetch(`/rooms/${roomId}`, {
+            method: "DELETE"
+        });
+
+        if (!result.ok) {
+            alert("Delete room failed (check REST log).");
+        }
+    }
+
+    // DELETE /api/rooms/{roomId}/members/{targetUserId}
+    async function kickMember() {
+        const roomId = getSelectedRoomId();
+        if (!roomId) {
+            alert("Select a room first.");
+            return;
+        }
+
+        const targetUserId = getTargetUserId();
+        if (!targetUserId) {
+            alert("Enter target user ID to kick.");
+            return;
+        }
+
+        if (!confirm(`Kick user ${targetUserId} from room?`)) {
+            return;
+        }
+
+        const result = await apiFetch(`/rooms/${roomId}/members/${targetUserId}`, {
+            method: "DELETE"
+        });
+
+        if (!result.ok) {
+            alert("Kick member failed (check REST log).");
+        }
+    }
+
+    // subscribe /topic/room/{roomId}/events
+    function subscribeSelectedRoom() {
+        const roomId = getSelectedRoomId();
+
+        if (!stompClient || !stompClient.connected) {
+            alert("WebSocket not connected.");
+            return;
+        }
+        if (!roomId) {
+            alert("Select a room first.");
+            return;
+        }
+
+        if (subsRoom) subsRoom.unsubscribe();
+
+        const topic = `/topic/room/${roomId}/events`;
+
+        subsRoom = stompClient.subscribe(topic, msg => {
+            logEvent("ROOM EVENT", JSON.parse(msg.body));
+        });
+
+        logEvent(`Subscribed to ${topic}`);
+    }
+
+    // ========= LOGGING ==========
+    function logEvent(title, data = null) {
+        const box = document.getElementById("eventsBox");
+        const div = document.createElement("div");
+        div.className = "event-item";
+
+        div.innerHTML = `
+            <div><strong>${title}</strong></div>
+            <pre>${data ? escapeHtml(JSON.stringify(data, null, 2)) : ""}</pre>
+        `;
+
+        box.prepend(div);
+    }
+
+    function logRest(title, data, status) {
+        const box = document.getElementById("restBox");
+        const div = document.createElement("div");
+        div.className = "event-item";
+
+        div.innerHTML = `
+            <div><strong>${title}</strong> (status: ${status})</div>
+            <pre>${data ? escapeHtml(JSON.stringify(data, null, 2)) : ""}</pre>
+        `;
+
+        box.prepend(div);
+    }
+
+    function escapeHtml(str) {
+        const div = document.createElement("div");
+        div.textContent = str;
+        return div.innerHTML;
+    }
+</script>
+
+</body>
+</html>
