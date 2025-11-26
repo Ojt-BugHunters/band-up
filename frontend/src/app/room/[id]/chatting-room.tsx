@@ -1,6 +1,6 @@
 'use client';
 
-import { Avatar, AvatarFallback } from '@/components/ui/avatar';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Send, Users } from 'lucide-react';
@@ -15,21 +15,14 @@ import { useGetAvatar, useUser } from '@/lib/service/account';
 interface ChattingRoomProps {
     roomId: string;
 }
-// ====== TYPES UI ======
-type User = {
-    id: number;
-    name: string;
-    avatar: string;
-    status: 'online' | 'away';
-};
 
 type Message = {
     id: string;
     userId: string;
     userName: string;
-    userAvatar: string;
-    text: string;
+    userAvatar: string; // URL hoặc initials
     time: string;
+    text: string;
 };
 
 type SenderDto = {
@@ -50,16 +43,33 @@ type WsMessageDto = {
 export function ChattingRoomDisplay({ roomId }: ChattingRoomProps) {
     const user = useUser();
     const { data: avatarResponse } = useGetAvatar();
+
     const [roomMessage, setRoomMessage] = useState('');
     const [messages, setMessages] = useState<Message[]>([]);
     const [isConnected, setIsConnected] = useState(false);
 
     const currentUserId = user?.id as string;
     const currentUserName = user?.name as string;
-    const currentUserAvatar = avatarResponse?.cloudFrontUrl;
+    const currentUserAvatar = avatarResponse?.cloudFrontUrl as
+        | string
+        | undefined;
+
     const stompClientRef = useRef<Client | null>(null);
+    const messagesEndRef = useRef<HTMLDivElement | null>(null);
+
+    const scrollToBottom = () => {
+        if (messagesEndRef.current) {
+            messagesEndRef.current.scrollIntoView({ behavior: 'smooth' });
+        }
+    };
 
     useEffect(() => {
+        scrollToBottom();
+    }, [messages]);
+
+    useEffect(() => {
+        if (!user?.id || !roomId) return;
+
         const client = new Client({
             webSocketFactory: () => new SockJS('http://localhost:8080/ws'),
             reconnectDelay: 5000,
@@ -72,7 +82,6 @@ export function ChattingRoomDisplay({ roomId }: ChattingRoomProps) {
                     (message: IMessage) => {
                         try {
                             const body: WsMessageDto = JSON.parse(message.body);
-
                             const sender = body.sender;
 
                             const initials = sender.name
@@ -81,14 +90,15 @@ export function ChattingRoomDisplay({ roomId }: ChattingRoomProps) {
                                 .join('')
                                 .toUpperCase();
 
+                            const isMe = sender.id === currentUserId;
+
                             const uiMessage: Message = {
                                 id: Date.now().toString(),
-                                userId:
-                                    sender.id === user?.id
-                                        ? currentUserId
-                                        : '999',
+                                userId: sender.id,
                                 userName: sender.name,
-                                userAvatar: initials,
+                                userAvatar: isMe
+                                    ? currentUserAvatar || initials
+                                    : initials,
                                 text: body.content,
                                 time: new Date().toLocaleTimeString([], {
                                     hour: '2-digit',
@@ -103,11 +113,10 @@ export function ChattingRoomDisplay({ roomId }: ChattingRoomProps) {
                     },
                 );
 
-                // Gửi JOIN event: @MessageMapping("/chat.addUser")
                 const addUserPayload: WsMessageDto = {
                     content: `${currentUserName} joined`,
                     sender: {
-                        id: user?.id as string,
+                        id: currentUserId,
                         name: currentUserName,
                     },
                     target: roomId,
@@ -138,12 +147,11 @@ export function ChattingRoomDisplay({ roomId }: ChattingRoomProps) {
             client.deactivate();
             stompClientRef.current = null;
         };
-    }, [roomId, currentUserName, user?.id, currentUserId]);
+    }, [roomId, currentUserId, currentUserName, user?.id, currentUserAvatar]);
 
-    // ====== SEND MESSAGE ======
     const sendMessage = () => {
         const text = roomMessage.trim();
-        if (!text) return;
+        if (!text || !currentUserId || !currentUserName) return;
 
         const now = new Date().toLocaleTimeString([], {
             hour: '2-digit',
@@ -152,13 +160,18 @@ export function ChattingRoomDisplay({ roomId }: ChattingRoomProps) {
 
         const client = stompClientRef.current;
 
-        // Nếu chưa connect → đẩy local cho đỡ trống
         if (!client || !isConnected) {
             const localMsg: Message = {
                 id: Date.now().toString(),
                 userId: currentUserId,
                 userName: currentUserName,
-                userAvatar: currentUserAvatar as string,
+                userAvatar:
+                    currentUserAvatar ||
+                    currentUserName
+                        .split(' ')
+                        .map((p) => p[0])
+                        .join('')
+                        .toUpperCase(),
                 text,
                 time: now,
             };
@@ -170,7 +183,7 @@ export function ChattingRoomDisplay({ roomId }: ChattingRoomProps) {
         const payload: WsMessageDto = {
             content: text,
             sender: {
-                id: user?.id as string,
+                id: currentUserId,
                 name: currentUserName,
             },
             target: roomId,
@@ -201,7 +214,7 @@ export function ChattingRoomDisplay({ roomId }: ChattingRoomProps) {
                             <span className="text-xs text-white/60">
                                 {isConnected
                                     ? 'Connected to room realtime'
-                                    : 'Offline (showing mock/local messages)'}
+                                    : 'Offline (showing local messages)'}
                             </span>
                         </div>
                     </div>
@@ -228,6 +241,10 @@ export function ChattingRoomDisplay({ roomId }: ChattingRoomProps) {
                         <div className="flex h-full flex-col gap-6">
                             {messages.map((m) => {
                                 const isMe = m.userId === currentUserId;
+                                const isImage =
+                                    m.userAvatar &&
+                                    m.userAvatar.startsWith('http');
+
                                 return (
                                     <div
                                         key={m.id}
@@ -244,10 +261,17 @@ export function ChattingRoomDisplay({ roomId }: ChattingRoomProps) {
                                                 isMe && 'order-2',
                                             )}
                                         >
-                                            <Avatar className="h-10 w-10 border border-white/10 bg-black/30">
-                                                <AvatarFallback className="bg-transparent text-xs font-semibold text-white">
-                                                    {m.userAvatar}
-                                                </AvatarFallback>
+                                            <Avatar className="h-10 w-10 overflow-hidden border border-white/10 bg-black/30">
+                                                {isImage ? (
+                                                    <AvatarImage
+                                                        src={m.userAvatar}
+                                                        alt={m.userName}
+                                                    />
+                                                ) : (
+                                                    <AvatarFallback className="bg-transparent text-xs font-semibold text-white">
+                                                        {m.userAvatar}
+                                                    </AvatarFallback>
+                                                )}
                                             </Avatar>
                                         </div>
 
@@ -287,6 +311,7 @@ export function ChattingRoomDisplay({ roomId }: ChattingRoomProps) {
                                     </div>
                                 );
                             })}
+                            <div ref={messagesEndRef} />
                         </div>
                     </div>
                 </main>
@@ -317,35 +342,8 @@ export function ChattingRoomDisplay({ roomId }: ChattingRoomProps) {
 
             <aside className="hidden w-80 border-l border-white/10 bg-black/20 p-4 backdrop-blur-xl md:block">
                 <h2 className="mb-3 text-xs font-semibold tracking-wide text-white/70">
-                    MEMBERS — 4
+                    MEMBERS
                 </h2>
-                {/* <div className="space-y-2">
-                    {mockUsers.map((user) => (
-                        <div
-                            key={user.id}
-                            className="flex items-center gap-3 rounded-2xl border border-white/10 bg-black/30 p-3 shadow-[0_12px_40px_rgba(0,0,0,.30)] backdrop-blur-xl transition-all hover:bg-black/40"
-                        >
-                            <div className="relative">
-                                <Avatar className="h-8 w-8 border border-white/10 bg-black/30">
-                                    <AvatarFallback className="bg-transparent text-xs font-semibold text-white">
-                                        {user.avatar}
-                                    </AvatarFallback>
-                                </Avatar>
-                                <div
-                                    className={cn(
-                                        'absolute -right-0.5 -bottom-0.5 h-3 w-3 rounded-full border-2 border-black/40',
-                                        user.status === 'online'
-                                            ? 'bg-emerald-400'
-                                            : 'bg-amber-400',
-                                    )}
-                                />
-                            </div>
-                            <span className="text-sm text-white/90">
-                                {user.name}
-                            </span>
-                        </div>
-                    ))}
-                </div> */}
             </aside>
         </div>
     );
