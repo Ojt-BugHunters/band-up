@@ -40,12 +40,44 @@ type WsMessageDto = {
     action?: RoomAction | null;
 };
 
+// ====== ROOM EVENTS ======
+type RoomEventType =
+    | 'MEMBER_JOINED'
+    | 'MEMBER_LEFT'
+    | 'MEMBER_KICKED'
+    | 'HOST_CHANGED'
+    | 'ROOM_UPDATED'
+    | 'ROOM_DELETED'
+    | string;
+
+type RoomEvent = {
+    type: RoomEventType;
+    roomId: string;
+    payload: any;
+};
+
+type RoomMemberPayload = {
+    id: string;
+    roomId: string;
+    userId: string;
+    role: string; // Host / Guest
+    joinedAt: string;
+};
+
+// Member cho sidebar
+type Member = {
+    userId: string;
+    role?: string;
+    name?: string;
+};
+
 export function ChattingRoomDisplay({ roomId }: ChattingRoomProps) {
     const user = useUser();
     const { data: avatarResponse } = useGetAvatar();
 
     const [roomMessage, setRoomMessage] = useState('');
     const [messages, setMessages] = useState<Message[]>([]);
+    const [members, setMembers] = useState<Member[]>([]);
     const [isConnected, setIsConnected] = useState(false);
 
     const currentUserId = user?.id as string;
@@ -63,6 +95,7 @@ export function ChattingRoomDisplay({ roomId }: ChattingRoomProps) {
         }
     };
 
+    // Auto scroll khi có tin nhắn mới
     useEffect(() => {
         scrollToBottom();
     }, [messages]);
@@ -77,6 +110,7 @@ export function ChattingRoomDisplay({ roomId }: ChattingRoomProps) {
                 setIsConnected(true);
                 toast.success('Connect Successfully');
 
+                // ===== SUBSCRIBE CHAT MESSAGES =====
                 client.subscribe(
                     `/topic/room/${roomId}`,
                     (message: IMessage) => {
@@ -107,12 +141,115 @@ export function ChattingRoomDisplay({ roomId }: ChattingRoomProps) {
                             };
 
                             setMessages((prev) => [...prev, uiMessage]);
+
+                            // Đảm bảo người gửi có trong danh sách members
+                            setMembers((prev) => {
+                                const exists = prev.find(
+                                    (m) => m.userId === sender.id,
+                                );
+                                if (exists) {
+                                    return prev.map((m) =>
+                                        m.userId === sender.id
+                                            ? { ...m, name: sender.name }
+                                            : m,
+                                    );
+                                }
+                                return [
+                                    ...prev,
+                                    { userId: sender.id, name: sender.name },
+                                ];
+                            });
                         } catch (e) {
                             console.error('Failed to parse message', e);
                         }
                     },
                 );
 
+                // ===== SUBSCRIBE ROOM EVENTS (member join/left/...) =====
+                client.subscribe(
+                    `/topic/room/${roomId}/events`,
+                    (message: IMessage) => {
+                        try {
+                            const event: RoomEvent = JSON.parse(message.body);
+
+                            switch (event.type) {
+                                case 'MEMBER_JOINED': {
+                                    const payload =
+                                        event.payload as RoomMemberPayload;
+                                    setMembers((prev) => {
+                                        const exists = prev.find(
+                                            (m) => m.userId === payload.userId,
+                                        );
+                                        if (exists) {
+                                            return prev.map((m) =>
+                                                m.userId === payload.userId
+                                                    ? {
+                                                          ...m,
+                                                          role: payload.role,
+                                                      }
+                                                    : m,
+                                            );
+                                        }
+                                        return [
+                                            ...prev,
+                                            {
+                                                userId: payload.userId,
+                                                role: payload.role,
+                                            },
+                                        ];
+                                    });
+                                    break;
+                                }
+                                case 'MEMBER_LEFT':
+                                case 'MEMBER_KICKED': {
+                                    const { userId } = event.payload as {
+                                        userId: string;
+                                    };
+                                    setMembers((prev) =>
+                                        prev.filter((m) => m.userId !== userId),
+                                    );
+                                    break;
+                                }
+                                case 'HOST_CHANGED': {
+                                    const { newHostId, oldHostId } =
+                                        event.payload as {
+                                            newHostId: string;
+                                            oldHostId?: string;
+                                        };
+                                    setMembers((prev) =>
+                                        prev.map((m) => {
+                                            if (m.userId === newHostId) {
+                                                return { ...m, role: 'Host' };
+                                            }
+                                            if (
+                                                oldHostId &&
+                                                m.userId === oldHostId &&
+                                                m.role === 'Host'
+                                            ) {
+                                                return { ...m, role: 'Guest' };
+                                            }
+                                            return m;
+                                        }),
+                                    );
+                                    break;
+                                }
+                                case 'ROOM_DELETED': {
+                                    toast.info(
+                                        'This room has been deleted by host',
+                                    );
+                                    // TODO: điều hướng ra ngoài nếu cần
+                                    break;
+                                }
+                                default:
+                                    break;
+                            }
+                        } catch (e) {
+                            console.error('Failed to parse room event', e);
+                        }
+                    },
+                );
+
+                // Gửi JOIN (BE có thể dựa vào đây để bắn MEMBER_JOINED, v.v.)
                 const addUserPayload: WsMessageDto = {
                     content: `${currentUserName} joined`,
                     sender: {
@@ -147,7 +284,8 @@ export function ChattingRoomDisplay({ roomId }: ChattingRoomProps) {
             client.deactivate();
             stompClientRef.current = null;
         };
-    }, [roomId, currentUserId, currentUserName, user?.id, currentUserAvatar]);
+        // KHÔNG để currentUserAvatar vào deps để tránh connect 2 lần
+    }, [roomId, currentUserId, currentUserName, user?.id]);
 
     const sendMessage = () => {
         const text = roomMessage.trim();
@@ -160,6 +298,7 @@ export function ChattingRoomDisplay({ roomId }: ChattingRoomProps) {
 
         const client = stompClientRef.current;
 
+        // Nếu chưa connect → vẫn push local cho đỡ trống
         if (!client || !isConnected) {
             const localMsg: Message = {
                 id: Date.now().toString(),
@@ -176,6 +315,22 @@ export function ChattingRoomDisplay({ roomId }: ChattingRoomProps) {
                 time: now,
             };
             setMessages((prev) => [...prev, localMsg]);
+
+            // đảm bảo mình có trong members
+            setMembers((prev) => {
+                const exists = prev.find((m) => m.userId === currentUserId);
+                if (exists)
+                    return prev.map((m) =>
+                        m.userId === currentUserId
+                            ? { ...m, name: currentUserName }
+                            : m,
+                    );
+                return [
+                    ...prev,
+                    { userId: currentUserId, name: currentUserName },
+                ];
+            });
+
             setRoomMessage('');
             return;
         }
@@ -241,9 +396,21 @@ export function ChattingRoomDisplay({ roomId }: ChattingRoomProps) {
                         <div className="flex h-full flex-col gap-6">
                             {messages.map((m) => {
                                 const isMe = m.userId === currentUserId;
+
+                                const avatarToShow =
+                                    isMe && currentUserAvatar
+                                        ? currentUserAvatar
+                                        : m.userAvatar;
+
                                 const isImage =
-                                    m.userAvatar &&
-                                    m.userAvatar.startsWith('http');
+                                    avatarToShow &&
+                                    avatarToShow.startsWith('http');
+
+                                const initialsFromName = m.userName
+                                    .split(' ')
+                                    .map((p) => p[0])
+                                    .join('')
+                                    .toUpperCase();
 
                                 return (
                                     <div
@@ -264,12 +431,13 @@ export function ChattingRoomDisplay({ roomId }: ChattingRoomProps) {
                                             <Avatar className="h-10 w-10 overflow-hidden border border-white/10 bg-black/30">
                                                 {isImage ? (
                                                     <AvatarImage
-                                                        src={m.userAvatar}
+                                                        src={avatarToShow}
                                                         alt={m.userName}
                                                     />
                                                 ) : (
                                                     <AvatarFallback className="bg-transparent text-xs font-semibold text-white">
-                                                        {m.userAvatar}
+                                                        {avatarToShow ||
+                                                            initialsFromName}
                                                     </AvatarFallback>
                                                 )}
                                             </Avatar>
@@ -340,10 +508,68 @@ export function ChattingRoomDisplay({ roomId }: ChattingRoomProps) {
                 </footer>
             </div>
 
+            {/* Thanh members bên phải, mặc định xem như ONLINE nếu đang trong list */}
             <aside className="hidden w-80 border-l border-white/10 bg-black/20 p-4 backdrop-blur-xl md:block">
                 <h2 className="mb-3 text-xs font-semibold tracking-wide text-white/70">
-                    MEMBERS
+                    MEMBERS — {members.length}
                 </h2>
+                <div className="space-y-2">
+                    {members.map((m) => {
+                        const isMe = m.userId === currentUserId;
+                        const displayName =
+                            m.name ||
+                            (isMe
+                                ? currentUserName
+                                : m.userId.slice(0, 8) + '...');
+                        const avatarUrl =
+                            isMe && currentUserAvatar
+                                ? currentUserAvatar
+                                : undefined;
+                        const initials = displayName
+                            .split(' ')
+                            .map((p) => p[0])
+                            .join('')
+                            .toUpperCase();
+
+                        return (
+                            <div
+                                key={m.userId}
+                                className="flex items-center gap-3 rounded-2xl border border-white/10 bg-black/30 p-3 shadow-[0_12px_40px_rgba(0,0,0,.30)] backdrop-blur-xl transition-all hover:bg-black/40"
+                            >
+                                <div className="relative">
+                                    <Avatar className="h-8 w-8 overflow-hidden border border-white/10 bg-black/30">
+                                        {avatarUrl ? (
+                                            <AvatarImage
+                                                src={avatarUrl}
+                                                alt={displayName}
+                                            />
+                                        ) : (
+                                            <AvatarFallback className="bg-transparent text-xs font-semibold text-white">
+                                                {initials}
+                                            </AvatarFallback>
+                                        )}
+                                    </Avatar>
+                                    <div className="absolute -right-0.5 -bottom-0.5 h-3 w-3 rounded-full border-2 border-black/40 bg-emerald-400" />
+                                </div>
+                                <div className="flex flex-col">
+                                    <span className="text-sm text-white/90">
+                                        {displayName}
+                                        {isMe && (
+                                            <span className="ml-1 text-[11px] text-emerald-300/80">
+                                                (You)
+                                            </span>
+                                        )}
+                                    </span>
+                                    {m.role && (
+                                        <span className="text-[11px] tracking-wide text-white/50 uppercase">
+                                            {m.role}
+                                        </span>
+                                    )}
+                                </div>
+                            </div>
+                        );
+                    })}
+                </div>
             </aside>
         </div>
     );
