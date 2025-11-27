@@ -1,6 +1,6 @@
 # 🎯 IELTS Test Processing - Complete Implementation Guide
 
-**Last Updated**: November 22, 2025  
+**Last Updated**: November 27, 2025  
 **Project**: IELTS Test Crawler, Parser & AI Enhancement System  
 **Location**: `e:\OJT\band-up\`
 
@@ -43,6 +43,8 @@ This system processes IELTS tests through a **3-step pipeline**:
 
 - **Reading Tests**: 1-111 (3 passages per test, 40 questions)
 - **Listening Tests**: 1-50 (4 sections per test, 40 questions, audio files)
+- **Writing Tests**: 1-50 (Task 1 with images, Task 2 essay)
+- **Speaking Tests**: 1-24 (Part 1, Part 2 Cue Card, Part 3 with sample answers)
 
 ### Key Features
 
@@ -185,6 +187,50 @@ python -m web_scraping.parser.listening_parser_main --all --force --verbose
 **File Format**: `listening_test_XX.json`  
 **Audio Files**: `web_scraping/media/listening/practice/test_XX/` (if downloaded)
 
+#### **Writing Tests (1-50)**
+
+```bash
+# Single test
+python -m web_scraping.parser.writing_parser_main --test 1
+
+# Range of tests (recommended for testing)
+python -m web_scraping.parser.writing_parser_main --start 1 --end 10
+
+# All writing tests (takes ~17-20 seconds)
+python -m web_scraping.parser.writing_parser_main --all
+
+# Force reprocess existing tests
+python -m web_scraping.parser.writing_parser_main --start 1 --end 50 --force
+
+# With verbose logging
+python -m web_scraping.parser.writing_parser_main --start 1 --end 10 --verbose
+```
+
+**Output Location**: `parsed/writing/practice/`  
+**File Format**: `writing_test_XX.json`
+
+#### **Speaking Tests (1-24)**
+
+```bash
+# Single test
+python -m web_scraping.parser.speaking_parser_main --test 1
+
+# Range of tests (recommended for testing)
+python -m web_scraping.parser.speaking_parser_main --start 1 --end 10
+
+# All speaking tests (takes ~10-15 seconds)
+python -m web_scraping.parser.speaking_parser_main --all
+
+# Force reprocess existing tests
+python -m web_scraping.parser.speaking_parser_main --start 1 --end 24 --force
+
+# With verbose logging
+python -m web_scraping.parser.speaking_parser_main --start 1 --end 10 --verbose
+```
+
+**Output Location**: `parsed/speaking/practice/`  
+**File Format**: `speaking_test_XX.json`
+
 ---
 
 ### STEP 2: Enhance with Gemini AI
@@ -305,6 +351,106 @@ python -m web_scraping.parser.gemini_enhancement.enhance_tests --start 1 --end 5
     "section_count": 4,
     "question_count": 40,
     "answer_count": 40
+  }
+}
+```
+
+**Writing Test Structure**:
+```json
+{
+  "test_metadata": {
+    "source_url": "https://ieltstrainingonline.com/ielts-writing-practice-test-01/",
+    "test_name": "Writing Practice Test 01",
+    "test_type": "writing",
+    "test_number": 1,
+    "crawl_date": "2025-11-27T08:32:06Z",
+    "total_tasks": 2
+  },
+  "tasks": [
+    {
+      "task_number": 1,
+      "title": "Writing Task 1",
+      "instruction": "You should spend about 20 minutes on this task...",
+      "content_html": "<div>...</div>",
+      "content_text": "The graph below shows...",
+      "images": ["https://ieltstrainingonline.com/wp-content/uploads/..."]
+    },
+    {
+      "task_number": 2,
+      "title": "Writing Task 2",
+      "instruction": "You should spend about 40 minutes on this task...",
+      "content_html": "<div>...</div>",
+      "content_text": "Some people think that...",
+      "question": "Discuss both views and give your own opinion"
+    }
+  ],
+  "validation": {
+    "is_valid": true,
+    "task1_has_content": true,
+    "task2_has_content": true,
+    "task1_has_images": true
+  }
+}
+```
+
+**Speaking Test Structure**:
+```json
+{
+  "test_metadata": {
+    "source_url": "https://ieltstrainingonline.com/ielts-speaking-practice-test-01/",
+    "test_name": "Speaking Practice Test 01",
+    "test_type": "speaking",
+    "test_number": 1,
+    "crawl_date": "2025-11-27T09:24:57Z",
+    "total_parts": 3
+  },
+  "parts": [
+    {
+      "part_number": 1,
+      "title": "Part 1 - Introduction & Interview",
+      "topic": "Work/Study",
+      "questions": [
+        {
+          "question": "Are you a student or do you work?",
+          "sample_answer": "I'm a student at Foreign Trade University..."
+        },
+        {
+          "question": "Do you enjoy what you study?",
+          "sample_answer": "Not really. I don't think what I am learning..."
+        }
+      ]
+    },
+    {
+      "part_number": 2,
+      "title": "Part 2 - Cue Card",
+      "topic": "Describe a time someone gave you money as a gift",
+      "questions": [
+        {
+          "question": "Describe a time someone gave you money as a gift",
+          "cue_points": [
+            "When you received money",
+            "Who the person was",
+            "Why he/she gave you money"
+          ],
+          "sample_answer": "Let me tell you about the time my parents..."
+        }
+      ]
+    },
+    {
+      "part_number": 3,
+      "title": "Part 3 - Discussion",
+      "questions": [
+        {
+          "question": "Do you think money management skills are important?",
+          "sample_answer": "Absolutely. Knowing how to manage money properly..."
+        }
+      ]
+    }
+  ],
+  "validation": {
+    "is_valid": true,
+    "parts_count": 3,
+    "has_questions": true
   }
 }
 ```
@@ -613,6 +759,8 @@ findstr /i "failed" logs\*.log
 3. **Content Extractors**
    - **Reading**: Extracts 3 passages, preserves HTML formatting
    - **Listening**: Extracts 4 sections, downloads audio files
+   - **Writing**: Extracts Task 1 (with images) and Task 2 (essay question)
+   - **Speaking**: Extracts Part 1-3 with questions and sample answer
 
 4. **Content Validator** (`content_validator.py`)
    - Validates structure (3 passages or 4 sections)
@@ -663,6 +811,8 @@ e:\OJT\band-up\
 │   ├── parser/
 │   │   ├── reading_parser_main.py       # Reading CLI
 │   │   ├── listening_parser_main.py     # Listening CLI
+│   │   ├── writing_parser_main.py       # Writing CLI
+│   │   ├── speaking_parser_main.py      # Speaking CLI
 │   │   ├── url_generator.py
 │   │   ├── html_crawler.py
 │   │   ├── content_validator.py
@@ -680,7 +830,9 @@ e:\OJT\band-up\
 │   └── gemini_enhancement.yaml          # Configuration
 ├── parsed/                              # Step 1 output
 │   ├── reading/practice/
-│   └── listening/practice/
+│   ├── listening/practice/
+│   ├── writing/practice/
+│   └── speaking/practice/
 ├── parsed_enhanced/                     # Step 2 output
 │   ├── reading/practice/
 │   └── listening/practice/
@@ -688,6 +840,8 @@ e:\OJT\band-up\
 ├── run_enhancement.bat                  # Enhancement script
 ├── reading_crawler_progress.json        # Progress tracking
 ├── listening_crawler_progress.json
+├── writing_crawler_progress.json
+├── speaking_crawler_progress.json
 └── IELTS_PROCESSING_COMPLETE_GUIDE.md  # This file
 ```
 
@@ -703,6 +857,8 @@ e:\OJT\band-up\
 |-----------|-------|---------------|------------|
 | Reading   | 111   | ~0.4s         | ~40-50s    |
 | Listening | 50    | ~0.4s         | ~17-20s    |
+| Writing   | 50    | ~0.4s         | ~17-20s    |
+| Speaking  | 24    | ~0.4s         | ~10-15s    |
 
 **Step 2: Enhance with Gemini**
 
@@ -767,8 +923,10 @@ e:\OJT\band-up\
 # Step 1: Crawl & Parse
 python -m web_scraping.parser.reading_parser_main --start 1 --end 10
 python -m web_scraping.parser.listening_parser_main --start 1 --end 10
+python -m web_scraping.parser.writing_parser_main --start 1 --end 10
+python -m web_scraping.parser.speaking_parser_main --start 1 --end 10
 
-# Step 2: Enhance
+# Step 2: Enhance (for reading/listening only)
 python -m web_scraping.parser.gemini_enhancement.enhance_tests --start 1 --end 10 --type reading
 python -m web_scraping.parser.gemini_enhancement.enhance_tests --start 1 --end 10 --type listening
 ```
@@ -779,8 +937,10 @@ python -m web_scraping.parser.gemini_enhancement.enhance_tests --start 1 --end 1
 # Step 1: Crawl & Parse all tests
 python -m web_scraping.parser.reading_parser_main --all
 python -m web_scraping.parser.listening_parser_main --all
+python -m web_scraping.parser.writing_parser_main --all
+python -m web_scraping.parser.speaking_parser_main --all
 
-# Step 2: Enhance all tests
+# Step 2: Enhance all tests (reading/listening only)
 run_enhancement.bat reading-all
 run_enhancement.bat listening-all
 ```
@@ -790,6 +950,8 @@ run_enhancement.bat listening-all
 ```bash
 # Test the complete pipeline with one test
 python -m web_scraping.parser.reading_parser_main --test 1
+python -m web_scraping.parser.writing_parser_main --test 1
+python -m web_scraping.parser.speaking_parser_main --test 1
 python -m web_scraping.parser.gemini_enhancement.enhance_tests --start 1 --end 1 --type reading
 ```
 
@@ -797,15 +959,25 @@ python -m web_scraping.parser.gemini_enhancement.enhance_tests --start 1 --end 1
 
 **Crawling & Parsing**:
 ```bash
-# Reading
+# Reading (1-111)
 python -m web_scraping.parser.reading_parser_main --test N
 python -m web_scraping.parser.reading_parser_main --start N --end M
 python -m web_scraping.parser.reading_parser_main --all
 
-# Listening
+# Listening (1-50)
 python -m web_scraping.parser.listening_parser_main --test N
 python -m web_scraping.parser.listening_parser_main --start N --end M
 python -m web_scraping.parser.listening_parser_main --all
+
+# Writing (1-50)
+python -m web_scraping.parser.writing_parser_main --test N
+python -m web_scraping.parser.writing_parser_main --start N --end M
+python -m web_scraping.parser.writing_parser_main --all
+
+# Speaking (1-24)
+python -m web_scraping.parser.speaking_parser_main --test N
+python -m web_scraping.parser.speaking_parser_main --start N --end M
+python -m web_scraping.parser.speaking_parser_main --all
 ```
 
 **Enhancement**:
@@ -836,6 +1008,8 @@ python -m web_scraping.parser.gemini_enhancement.enhance_tests --start N --end M
 ```
 parsed/reading/practice/          # Step 1 reading output
 parsed/listening/practice/        # Step 1 listening output
+parsed/writing/practice/          # Step 1 writing output
+parsed/speaking/practice/         # Step 1 speaking output
 parsed_enhanced/reading/practice/ # Step 2 reading output
 parsed_enhanced/listening/practice/ # Step 2 listening output
 web_scraping/media/               # Audio files
@@ -849,12 +1023,16 @@ config/gemini_enhancement.yaml    # Configuration
 # Check if files exist
 dir parsed\reading\practice\*.json
 dir parsed\listening\practice\*.json
+dir parsed\writing\practice\*.json
+dir parsed\speaking\practice\*.json
 dir parsed_enhanced\reading\practice\*.json
 dir parsed_enhanced\listening\practice\*.json
 
 # Count files
 dir /b parsed\reading\practice\*.json | find /c /v ""
 dir /b parsed\listening\practice\*.json | find /c /v ""
+dir /b parsed\writing\practice\*.json | find /c /v ""
+dir /b parsed\speaking\practice\*.json | find /c /v ""
 ```
 
 ---
@@ -881,7 +1059,19 @@ def load_listening_test(test_number):
     with open(file_path, 'r', encoding='utf-8') as f:
         return json.load(f)
 
-# Example: Get question types
+# Load writing test
+def load_writing_test(test_number):
+    file_path = f"parsed/writing/practice/writing_test_{test_number:02d}.json"
+    with open(file_path, 'r', encoding='utf-8') as f:
+        return json.load(f)
+
+# Load speaking test
+def load_speaking_test(test_number):
+    file_path = f"parsed/speaking/practice/speaking_test_{test_number:02d}.json"
+    with open(file_path, 'r', encoding='utf-8') as f:
+        return json.load(f)
+
+# Example: Get question types (reading/listening)
 test = load_reading_test(1)
 question_types = test['questionTypes']
 
@@ -891,6 +1081,22 @@ for qt in question_types:
         # Question_1: SA
         # Question_2: MC
         # etc.
+
+# Example: Get writing tasks
+writing_test = load_writing_test(1)
+for task in writing_test['tasks']:
+    print(f"Task {task['task_number']}: {task['title']}")
+    print(f"Instruction: {task['instruction']}")
+    if task.get('images'):
+        print(f"Images: {task['images']}")
+
+# Example: Get speaking questions with sample answers
+speaking_test = load_speaking_test(1)
+for part in speaking_test['parts']:
+    print(f"\n{part['title']} - Topic: {part.get('topic', 'N/A')}")
+    for q in part['questions']:
+        print(f"Q: {q['question']}")
+        print(f"A: {q['sample_answer'][:100]}...")
 ```
 
 #### Frontend Integration (JavaScript)

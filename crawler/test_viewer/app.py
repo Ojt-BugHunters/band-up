@@ -14,6 +14,7 @@ app = Flask(__name__)
 # Base paths
 BASE_DIR = Path(__file__).parent.parent
 ENHANCED_DIR = BASE_DIR / "web_scraping" / "parsed_enhanced"
+PARSED_DIR = BASE_DIR / "web_scraping" / "parsed"
 MEDIA_DIR = BASE_DIR / "web_scraping" / "media"
 
 
@@ -21,10 +22,12 @@ def get_available_tests():
     """Get all available enhanced tests organized by skill and type"""
     tests = {
         "reading": {},
-        "listening": {}
+        "listening": {},
+        "writing": {},
+        "speaking": {}
     }
     
-    # Reading tests
+    # Reading tests (from enhanced)
     reading_base = ENHANCED_DIR / "reading"
     if reading_base.exists():
         for subdir in reading_base.iterdir():
@@ -39,7 +42,7 @@ def get_available_tests():
                 if test_files:
                     tests["reading"][subdir.name] = test_files
     
-    # Listening tests
+    # Listening tests (from enhanced)
     listening_base = ENHANCED_DIR / "listening"
     if listening_base.exists():
         for subdir in listening_base.iterdir():
@@ -53,6 +56,36 @@ def get_available_tests():
                         })
                 if test_files:
                     tests["listening"][subdir.name] = test_files
+    
+    # Writing tests (from parsed - no enhancement needed)
+    writing_base = PARSED_DIR / "writing"
+    if writing_base.exists():
+        for subdir in writing_base.iterdir():
+            if subdir.is_dir():
+                test_files = []
+                for test_file in sorted(subdir.glob("*.json")):
+                    if test_file.name not in ["batch_summary.json", "validation_summary.json"]:
+                        test_files.append({
+                            "filename": test_file.name,
+                            "path": str(test_file.relative_to(BASE_DIR))
+                        })
+                if test_files:
+                    tests["writing"][subdir.name] = test_files
+    
+    # Speaking tests (from parsed - no enhancement needed)
+    speaking_base = PARSED_DIR / "speaking"
+    if speaking_base.exists():
+        for subdir in speaking_base.iterdir():
+            if subdir.is_dir():
+                test_files = []
+                for test_file in sorted(subdir.glob("*.json")):
+                    if test_file.name not in ["batch_summary.json", "validation_summary.json"]:
+                        test_files.append({
+                            "filename": test_file.name,
+                            "path": str(test_file.relative_to(BASE_DIR))
+                        })
+                if test_files:
+                    tests["speaking"][subdir.name] = test_files
     
     return tests
 
@@ -68,7 +101,11 @@ def index():
 def get_test(skill, test_type, filename):
     """API endpoint to get enhanced test data"""
     try:
-        test_path = ENHANCED_DIR / skill / test_type / filename
+        # Writing and Speaking tests are in parsed dir, others in enhanced dir
+        if skill in ['writing', 'speaking']:
+            test_path = PARSED_DIR / skill / test_type / filename
+        else:
+            test_path = ENHANCED_DIR / skill / test_type / filename
         
         if not test_path.exists():
             return jsonify({"error": "Test not found"}), 404
@@ -96,6 +133,10 @@ def serve_media(filepath):
 @app.route('/test/<skill>/<test_type>/<filename>')
 def view_test(skill, test_type, filename):
     """View a specific test with enhanced viewer"""
+    if skill == 'writing':
+        return render_template('writing_viewer.html', skill=skill, test_type=test_type, filename=filename)
+    if skill == 'speaking':
+        return render_template('speaking_viewer.html', skill=skill, test_type=test_type, filename=filename)
     return render_template('enhanced_viewer.html', skill=skill, test_type=test_type, filename=filename)
 
 
