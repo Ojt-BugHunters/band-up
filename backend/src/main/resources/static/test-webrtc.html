@@ -1,0 +1,297 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>WebRTC Video Call - Room Test</title>
+
+    <script src="https://cdn.jsdelivr.net/npm/sockjs-client@1/dist/sockjs.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/stompjs@2.3.3/lib/stomp.min.js"></script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: #f0f2f5;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+        }
+
+        .container {
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        h1 {
+            text-align: center;
+        }
+
+        input {
+            margin-bottom: 15px;
+            padding: 10px;
+            width: 100%;
+            border-radius: 5px;
+            border: 1px solid #ddd;
+        }
+
+        button {
+            padding: 10px 20px;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            width: 100%;
+        }
+
+        button:disabled {
+            opacity: 0.5;
+        }
+
+        video {
+            width: 100%;
+            max-width: 300px;
+            height: auto;
+            background: #333;
+            margin-top: 10px;
+            border: 2px solid #ddd;
+        }
+
+        .video-container {
+            display: flex;
+            justify-content: space-between;
+        }
+
+        .video-container video {
+            width: 48%; /* Keep videos side by side */
+        }
+
+        .label {
+            font-weight: bold;
+            text-align: center;
+        }
+    </style>
+</head>
+
+<body>
+<div class="container">
+    <h1>WebRTC Video Call in Room</h1>
+
+    <!-- Login Section -->
+    <div id="loginSection">
+        <input type="text" id="userId" placeholder="Enter your user ID" />
+        <input type="text" id="roomId" placeholder="Enter Room ID" />
+        <button id="loginBtn" onclick="login()">Login</button>
+    </div>
+
+    <!-- Video Section -->
+    <div id="videoSection" style="display: none;">
+        <div class="video-container">
+            <div>
+                <div class="label">Your Video (Local)</div>
+                <video id="localVideo" autoplay muted></video>
+            </div>
+            <div>
+                <div class="label">Remote Video</div>
+                <video id="remoteVideo" autoplay></video>
+            </div>
+        </div>
+
+        <button id="callBtn" onclick="startCall()">Start Call</button>
+        <button id="hangupBtn" onclick="hangupCall()" disabled>Hang Up</button>
+    </div>
+</div>
+
+<script>
+    let stompClient = null;
+    let localStream = null;
+    let remoteStream = null;
+    let localPeerConnection = null;
+    let remotePeerConnection = null;
+    let userId = null;
+    let roomId = null;
+    const wsUrl = "http://localhost:8080/ws"; // WebSocket URL
+
+    // Video elements
+    const localVideo = document.getElementById('localVideo');
+    const remoteVideo = document.getElementById('remoteVideo');
+    const loginSection = document.getElementById('loginSection');
+    const videoSection = document.getElementById('videoSection');
+    const loginBtn = document.getElementById('loginBtn');
+    const callBtn = document.getElementById('callBtn');
+    const hangupBtn = document.getElementById('hangupBtn');
+
+    // ========== LOGIN FUNCTION ==========
+
+    function login() {
+        userId = document.getElementById('userId').value.trim();
+        roomId = document.getElementById('roomId').value.trim();
+
+        if (!userId || !roomId) {
+            alert("Please enter both User ID and Room ID.");
+            return;
+        }
+
+        loginSection.style.display = 'none';
+        videoSection.style.display = 'block';
+        connectWS();
+    }
+
+    // ========== CONNECT WEBSOCKET ==========
+
+    function connectWS() {
+        const socket = new SockJS(wsUrl);
+        stompClient = Stomp.over(socket);
+        stompClient.debug = null;
+
+        stompClient.connect({}, function (frame) {
+            console.log("Connected to WebSocket");
+            subscribeRoomEvents();
+        }, function (error) {
+            console.log("WebSocket error", error);
+            alert("WebSocket error");
+        });
+    }
+
+    // Subscribe to room events via WebSocket
+    function subscribeRoomEvents() {
+        const topic = `/topic/room/${roomId}`; // Subscribing to events for the room
+        stompClient.subscribe(topic, function (message) {
+            const signal = JSON.parse(message.body);
+            handleSignal(signal);
+        });
+    }
+
+    // ========== WEBRTC VIDEO CALL ==========
+
+    function startCall() {
+        // Start video capture
+        navigator.mediaDevices.getUserMedia({ video: true, audio: true })
+            .then(function (stream) {
+                localStream = stream;
+                localVideo.srcObject = stream;
+                setupPeerConnection();
+                createOffer();
+            })
+            .catch(function (err) {
+                console.log("Error getting media: ", err);
+                alert("Error getting media");
+            });
+    }
+
+    function setupPeerConnection() {
+    // Tạo kết nối peer-to-peer giữa local và remote
+    localPeerConnection = new RTCPeerConnection();
+    remotePeerConnection = new RTCPeerConnection();
+
+    // Thêm các track video/audio của người gọi vào kết nối
+    localStream.getTracks().forEach(track => localPeerConnection.addTrack(track, localStream));
+
+    // Đảm bảo rằng khi remote peer gửi video/audio thì sẽ nhận và hiển thị video
+    remotePeerConnection.ontrack = function (event) {
+        // Khi remote peer gửi stream, gán nó cho video của remote
+        if (event.streams && event.streams[0]) {
+            remoteStream = event.streams[0];
+            remoteVideo.srcObject = remoteStream; // Đảm bảo remote video nhận stream
+        }
+    };
+
+    // Xử lý ICE candidates từ local peer
+    localPeerConnection.onicecandidate = function (event) {
+        if (event.candidate) {
+            sendICECandidate(event.candidate); // Gửi candidate cho remote peer
+        }
+    };
+
+    // Xử lý ICE candidates từ remote peer
+    remotePeerConnection.onicecandidate = function (event) {
+        if (event.candidate) {
+            sendICECandidate(event.candidate); // Gửi candidate cho local peer
+        }
+    };
+}
+
+function createOffer() {
+    localPeerConnection.createOffer()
+        .then(function (offer) {
+            return localPeerConnection.setLocalDescription(offer);  // Thiết lập local SDP
+        })
+        .then(function () {
+            const signal = {
+                type: 'offer',
+                sdp: localPeerConnection.localDescription,
+                userId: userId,
+                roomId: roomId, // Gửi roomId cùng với offer
+            };
+            sendSignal(signal); // Gửi offer tới remote peer
+        })
+        .catch(function (err) {
+            console.log("Error creating offer: ", err);
+        });
+}
+
+function handleSignal(signal) {
+    if (signal.type === 'offer') {
+        // Đặt SDP offer cho remote peer
+        remotePeerConnection.setRemoteDescription(new RTCSessionDescription(signal.sdp))
+            .then(function () {
+                return remotePeerConnection.createAnswer();  // Tạo answer sau khi nhận offer
+            })
+            .then(function (answer) {
+                return remotePeerConnection.setLocalDescription(answer);  // Thiết lập answer
+            })
+            .then(function () {
+                const answerSignal = {
+                    type: 'answer',
+                    sdp: remotePeerConnection.localDescription,
+                    userId: userId,
+                    roomId: roomId, // Gửi roomId cùng với answer
+                };
+                sendSignal(answerSignal); // Gửi answer về phía local peer
+            });
+    } else if (signal.type === 'answer') {
+        // Đặt SDP answer cho local peer
+        localPeerConnection.setRemoteDescription(new RTCSessionDescription(signal.sdp));
+    } else if (signal.type === 'ice') {
+        // Xử lý ICE candidate
+        if (signal.sdp) {
+            localPeerConnection.addIceCandidate(new RTCIceCandidate(signal.sdp));
+        }
+    }
+}
+
+function sendSignal(signal) {
+    if (stompClient && stompClient.connected) {
+        stompClient.send("/app/webrtc.signal", {}, JSON.stringify(signal));  // Gửi tín hiệu qua WebSocket
+    }
+}
+
+function sendICECandidate(candidate) {
+    const signal = {
+        type: 'ice',
+        sdp: candidate,
+        userId: userId,
+        roomId: roomId, // Gửi roomId cùng với ICE candidate
+    };
+    sendSignal(signal);
+}
+
+
+    // Hangup the call
+    function hangupCall() {
+        localPeerConnection.close();
+        remotePeerConnection.close();
+        localStream.getTracks().forEach(track => track.stop());
+        localPeerConnection = null;
+        remotePeerConnection = null;
+        localStream = null;
+        remoteStream = null;
+        callBtn.disabled = false;
+        hangupBtn.disabled = true;
+    }
+
+</script>
+</body>
+</html>

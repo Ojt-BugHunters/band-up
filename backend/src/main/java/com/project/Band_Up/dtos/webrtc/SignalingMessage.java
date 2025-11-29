@@ -7,7 +7,6 @@ import java.util.UUID;
 public class SignalingMessage {
     private String type;    // offer, answer, ice
     private UUID senderId;
-    private UUID targetId;  // người nhận
     private UUID roomId;
 
     private Object sdp;     // SDP object
