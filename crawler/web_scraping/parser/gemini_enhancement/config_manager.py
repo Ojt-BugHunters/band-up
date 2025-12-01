@@ -54,7 +54,7 @@ class ProcessingConfig:
 @dataclass
 class PathConfig:
     """Path configuration."""
-    input_dir: str = "parsed"
+    input_dir: str = "web_scraping/parsed"
     output_dir: str = "web_scraping/parsed_enhanced"
     progress_file: str = "enhancement_progress.json"
     log_dir: str = "logs/enhancement"
@@ -165,7 +165,7 @@ class ConfigManager:
                 'timeout': 60
             },
             'paths': {
-                'input_dir': 'parsed',
+                'input_dir': 'web_scraping/parsed',
                 'output_dir': 'web_scraping/parsed_enhanced',
                 'progress_file': 'enhancement_progress.json',
                 'log_dir': 'logs/enhancement'

@@ -23,8 +23,8 @@ pydantic>=2.0.0
 # YAML configuration parsing
 PyYAML>=6.0.0
 
-# Google Gemini API
-google-generativeai>=0.3.0
+# Google Gemini API (new SDK)
+google-genai>=1.0.0
 
 # Retry logic
 tenacity>=8.2.0
