@@ -54,6 +54,7 @@ type RoomEventType =
 type RoomEvent = {
     type: RoomEventType;
     roomId: string;
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     payload: any;
 };
 
@@ -276,8 +277,7 @@ export function ChattingRoomDisplay({ roomId }: ChattingRoomProps) {
             client.deactivate();
             stompClientRef.current = null;
         };
-        // KHÔNG để currentUserAvatar vào deps để tránh connect 2 lần
-    }, [roomId, currentUserId, currentUserName, user?.id]);
+    }, [roomId, currentUserId, currentUserName, user?.id, currentUserAvatar]);
 
     const sendMessage = () => {
         const text = roomMessage.trim();
