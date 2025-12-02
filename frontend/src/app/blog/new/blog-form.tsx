@@ -1,11 +1,7 @@
 'use client';
-import {
-    type CreateBlogFormValues,
-    useCreateBlog,
-    useUpdateBlog,
-} from '@/lib/service/blog';
+import { type CreateBlogFormValues, useCreateBlog } from '@/lib/service/blog';
 import { Upload, X } from 'lucide-react';
-import { useEffect, useMemo } from 'react';
+import { useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { type Tag, TagInput } from 'emblor';
 import { Card } from '@/components/ui/card';
@@ -97,42 +93,13 @@ export default function BlogForm({
     const [activeTagIndex, setActiveTagIndex] = React.useState<number | null>(
         null,
     );
-    const isUpdate = mode === 'update';
-    const create = useCreateBlog();
-    const update = useUpdateBlog(initialValues?.id ?? '');
-    const { form, mutation } = isUpdate ? update : create;
-    const { setValue } = form;
+    const { form, mutation } = useCreateBlog();
     const [progressMap, setProgressMap] = React.useState<
         Record<string, number>
     >({});
 
-    const safeDefaults: CreateBlogFormValues = useMemo(
-        () => ({
-            title: initialValues?.title ?? '',
-            description: initialValues?.description ?? '',
-            topics: initialValues?.topics ?? [],
-        }),
-        [initialValues],
-    );
-
-    useEffect(() => {
-        form.reset(safeDefaults, {
-            keepDirty: false,
-            keepTouched: false,
-        });
-        setTags(safeDefaults.topics ?? []);
-    }, [isUpdate, safeDefaults, form]);
-
-    useEffect(() => {
-        setValue('topics', tags);
-    }, [setValue, tags]);
-
     const onSubmit = (data: CreateBlogFormValues) => {
-        if (isUpdate && initialValues?.id) {
-            mutation.mutate(data);
-        } else {
-            mutation.mutate(data);
-        }
+        console.log(data);
     };
 
     const pending = mutation.isPending;
@@ -187,12 +154,10 @@ export default function BlogForm({
                     <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
                         <div>
                             <h1 className="text-3xl font-bold tracking-tight">
-                                {isUpdate ? 'Update Blog' : 'Create New Blog'}
+                                Create New Blog
                             </h1>
                             <p className="text-muted-foreground">
-                                {isUpdate
-                                    ? 'Modify your blog'
-                                    : 'Start creating your blog'}
+                                Start creating your blog
                             </p>
                         </div>
                         <div className="flex gap-2">
@@ -201,12 +166,7 @@ export default function BlogForm({
                                 disabled={pending}
                                 className="bg-primary hover:bg-primary/90"
                             >
-                                {pending
-                                    ? isUpdate
-                                        ? 'Updating...'
-                                        : 'Creating...'
-                                    : submitText ||
-                                      (isUpdate ? 'Update' : 'Create')}
+                                Create
                             </Button>
                         </div>
                     </div>
@@ -235,7 +195,7 @@ export default function BlogForm({
 
                             <FormField
                                 control={form.control}
-                                name="description"
+                                name="content"
                                 render={({ field }) => (
                                     <FormItem>
                                         <FormLabel className="text-base font-semibold">
@@ -333,7 +293,7 @@ export default function BlogForm({
 
                         <FormField
                             control={form.control}
-                            name="topics"
+                            name="tags"
                             render={({ field }) => (
                                 <FormItem className="mt-6 flex flex-col items-start">
                                     <FormLabel className="text-base font-semibold">

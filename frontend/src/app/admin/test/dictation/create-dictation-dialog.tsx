@@ -119,7 +119,6 @@ export function CreateDictationDialog() {
             sectionId: getSectionId(q.sectionIndex, sectionMap),
         }));
         createQuestionsMutation.mutate(mappedQuestions);
-        console.log(mappedQuestions);
     };
     return (
         <Dialog open={open} onOpenChange={setOpen}>

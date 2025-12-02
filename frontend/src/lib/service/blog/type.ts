@@ -41,13 +41,14 @@ export interface BlogReact {
 
 // ---------- Schema for react-hook-form--------
 
-export const blogBaseSchema = z.object({
+export const CreateBlogSchema = z.object({
     title: z.string().min(1, 'Title is required'),
-    description: z
+    titleImg: z.string(),
+    content: z
         .string()
         .min(1, 'Content is required')
         .max(100_000, 'Content is too long'),
-    topics: TagSchema.shape.topics,
+    tags: TagSchema,
 });
 
-export type CreateBlogFormValues = z.infer<typeof blogBaseSchema>;
+export type CreateBlogFormValues = z.infer<typeof CreateBlogSchema>;

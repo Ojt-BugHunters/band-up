@@ -111,10 +111,10 @@ export default function HomePage() {
             <div className="flex flex-col overflow-hidden">
                 <ContainerScroll>
                     <Image
-                        src="/hero-writing.jpg"
+                        src="/room-hero.jpg"
                         alt="hero"
                         height={720}
-                        width={1400}
+                        width={2000}
                         className="mx-auto h-full rounded-2xl object-cover object-left-top"
                         draggable={false}
                     />
@@ -122,7 +122,7 @@ export default function HomePage() {
             </div>
             <div className="mt-20 text-center">
                 <h2 className="text-3xl font-bold sm:text-4xl">
-                    A web app tool with
+                    A platform with
                     <PointerHighlight
                         rectangleClassName="bg-blue-400 dark:bg-rose-700 border-neutral-300 dark:border-neutral-600 leading-loose"
                         pointerClassName="text-yellow-500 h-3 w-3"

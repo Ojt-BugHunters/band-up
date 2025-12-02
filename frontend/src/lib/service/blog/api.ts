@@ -6,7 +6,7 @@ import {
     throwIfError,
 } from '@/lib/service';
 import {
-    blogBaseSchema,
+    CreateBlogSchema,
     BlogPost,
     CreateBlogFormValues,
     PaginationInfo,
@@ -84,58 +84,12 @@ export const useGetBlogDetail = (id: string) => {
     });
 };
 
-// update a blog
-export function useUpdateBlog(blogId: string | null | undefined) {
-    const router = useRouter();
-    const queryClient = useQueryClient();
-
-    const mutation = useMutation({
-        mutationFn: async (values: CreateBlogFormValues) => {
-            if (!blogId) {
-                throw new Error('Missing blog id');
-            }
-
-            const response = await fetchWrapper(`/blog/${blogId}/update`, {
-                method: 'PUT',
-                headers: {
-                    Accept: 'application/json',
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify(values),
-            });
-
-            await throwIfError(response);
-            return response.json();
-        },
-        onError: (error) => {
-            toast.error(error.message);
-        },
-        onSuccess: () => {
-            toast.success('Blog updated successfully');
-            queryClient.invalidateQueries({ queryKey: ['blog', blogId] });
-            queryClient.invalidateQueries({ queryKey: ['blogs'] });
-            router.push('/blog');
-        },
-    });
-
-    const form = useForm<CreateBlogFormValues>({
-        resolver: zodResolver(blogBaseSchema),
-        defaultValues: {
-            title: '',
-            description: '',
-            topics: [],
-        },
-    });
-
-    return { form, mutation };
-}
-
 // create new blog
 export function useCreateBlog() {
     const router = useRouter();
 
     const mutation = useMutation({
-        mutationFn: async (values: z.infer<typeof blogBaseSchema>) => {
+        mutationFn: async (values: z.infer<typeof CreateBlogSchema>) => {
             const response = await fetchWrapper('/blog/create', {
                 method: 'POST',
                 headers: {
@@ -158,12 +112,7 @@ export function useCreateBlog() {
     });
 
     const form = useForm<CreateBlogFormValues>({
-        resolver: zodResolver(blogBaseSchema),
-        defaultValues: {
-            title: '',
-            description: '',
-            topics: [],
-        },
+        resolver: zodResolver(CreateBlogSchema),
     });
 
     return {

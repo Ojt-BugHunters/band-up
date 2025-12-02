@@ -22,14 +22,19 @@ export default function ClientLayout({
     const hideLayout =
         pathname.startsWith('/do') ||
         pathname.startsWith('/memorize') ||
-        /^\/flashcard\/[^/]+\/test$/.test(pathname) ||
         pathname.startsWith('/admin') ||
         pathname.startsWith('/dictation/') ||
-        pathname.startsWith('/room');
+        pathname.startsWith('/room') ||
+        pathname.startsWith('/writing/') ||
+        pathname.startsWith('/listening/') ||
+        pathname.startsWith('/reading/') ||
+        pathname.startsWith('/speaking/') ||
+        pathname.includes('/reading/');
 
     useEffect(() => {
         initDeckAutoClear();
     }, []);
+
     return (
         <>
             <AutoRefeshToken />

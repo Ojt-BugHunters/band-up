@@ -41,7 +41,7 @@ export function useSaveFile() {
 }
 
 // get key for uploading to s3
-export function usePresignUpload(endpoint: string = 'media/presign') {
+export function usePresignUpload(endpoint: string = '/media/presign') {
     const mutation = useMutation({
         mutationFn: async (body: MediaRequest) => {
             const response = await fetchWrapper(endpoint, {
