@@ -29,8 +29,7 @@ public class Question {
     @JoinColumn(name = "section_id", nullable = false, foreignKey = @ForeignKey(name = "fk_question_section"))
     private Section section;
     @NotNull
-    private String type; // multiple-choice, true-false, short-answer, etc.
-
+    private String type;
     @Column(columnDefinition = "jsonb")
     @JdbcTypeCode(SqlTypes.JSON)
     private Map<String, Object> content;
