@@ -6,10 +6,10 @@ import {
     PopoverTrigger,
 } from '@/components/ui/popover';
 import { GripVertical, ListTodo, X } from 'lucide-react';
-import { Task } from '@/lib/service/room';
+import { TaskResponse } from '@/lib/service/task';
 
 interface ToDoListBoxProps {
-    taskList: Task[];
+    taskList: TaskResponse[];
     draggedIndex: number | null;
     handleDragStart: (index: number) => void;
     handleDragOver: (e: React.DragEvent, index: number) => void;
@@ -73,9 +73,7 @@ export const ToDoListBox = forwardRef<HTMLButtonElement, ToDoListBoxProps>(
                     align="start"
                     className="w-96 border-none bg-transparent p-0 shadow-none"
                 >
-                    {/* Liquid glass card shell */}
                     <div className="relative overflow-hidden rounded-[28px] border border-white/15 bg-white/5 shadow-[0_30px_80px_rgba(0,0,0,.55)] ring-1 ring-white/10 backdrop-blur-2xl">
-                        {/* glow + angle sheen */}
                         <div
                             aria-hidden
                             className="pointer-events-none absolute -inset-16 -z-10 opacity-40 blur-3xl"
@@ -119,7 +117,10 @@ export const ToDoListBox = forwardRef<HTMLButtonElement, ToDoListBoxProps>(
                             ) : (
                                 <div className="space-y-2">
                                     {taskList.map(
-                                        (taskItem: Task, index: number) => (
+                                        (
+                                            taskItem: TaskResponse,
+                                            index: number,
+                                        ) => (
                                             <div
                                                 key={taskItem.id}
                                                 draggable
@@ -153,7 +154,7 @@ export const ToDoListBox = forwardRef<HTMLButtonElement, ToDoListBoxProps>(
                                                             : ''
                                                     }`}
                                                 >
-                                                    {taskItem.text}
+                                                    {taskItem.title}
                                                 </span>
                                                 <button
                                                     onClick={() =>

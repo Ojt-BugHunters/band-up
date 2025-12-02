@@ -8,12 +8,6 @@ export interface TimerSettings {
     cycle: number;
 }
 
-export interface Task {
-    id: string;
-    text: string;
-    completed: boolean;
-}
-
 export interface AccountRoomMember {
     id: string;
     name: string;
@@ -99,6 +93,32 @@ export interface StudySession {
     createdAt: string;
     totalFocusTime: number;
     interval: Interval[];
+}
+
+export interface LearningStatsDay {
+    date: string;
+    totalMinutes: number;
+    hourlyMinutes: number[];
+}
+
+export interface LearningStatsMonth {
+    year: number;
+    month: number;
+    totalMinutes: number;
+    dailyMinutes: number[];
+}
+
+export interface LearningStatsYear {
+    year: number;
+    totalMinutes: number;
+    monthlyMinutes: number[];
+}
+
+export interface SessionOverviewStats {
+    totalSessions: number;
+    focusedTime: number;
+    bestSession: number;
+    taskCompleted: number;
 }
 
 export type IntervalMutationPayload = {
