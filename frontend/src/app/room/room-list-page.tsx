@@ -113,7 +113,10 @@ export default function RoomListPage() {
 
     const roomsPerPage = 10;
 
-    const effectiveRooms = wsRooms ?? roomList ?? [];
+    const effectiveRooms = useMemo(
+        () => wsRooms ?? roomList ?? [],
+        [wsRooms, roomList],
+    );
 
     const filteredRooms = useMemo(() => {
         return effectiveRooms.filter((room) =>
