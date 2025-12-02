@@ -1,4 +1,5 @@
 'use client';
+
 import { Room } from '@/lib/service/room';
 import { useState, useEffect, useMemo } from 'react';
 import { motion } from 'framer-motion';
@@ -10,6 +11,22 @@ import { useGetPublicRooms } from '@/lib/service/room';
 import { JoinRoomDialog } from './join-room-dialog';
 import { JoinRoomByCodeDialog } from './join-room-by-code';
 
+import { Client, IMessage } from '@stomp/stompjs';
+import SockJS from 'sockjs-client';
+
+const WS_URL = process.env.NEXT_PUBLIC_WS_URL ?? 'http://localhost:8080/ws';
+
+type PublicRoomEventType =
+    | 'ROOM_CREATED'
+    | 'ROOM_UPDATED'
+    | 'ROOM_DELETED'
+    | string;
+
+type PublicRoomEvent = {
+    type: PublicRoomEventType;
+    payload: Room;
+};
+
 export default function RoomListPage() {
     const [searchQuery, setSearchQuery] = useState('');
     const [joinCodeDialogOpen, setJoinCodeDialogOpen] = useState(false);
@@ -20,14 +37,92 @@ export default function RoomListPage() {
 
     const { data: roomList } = useGetPublicRooms();
 
+    // danh sách room đã apply realtime (nếu null thì dùng roomList từ REST)
+    const [wsRooms, setWsRooms] = useState<Room[] | null>(null);
+
+    // khi roomList từ REST về lần đầu (hoặc refetch) → sync vào wsRooms (server truth)
+    useEffect(() => {
+        if (roomList) {
+            setWsRooms(roomList);
+        }
+    }, [roomList]);
+
+    // WebSocket: /topic/rooms/public
+    useEffect(() => {
+        // nếu chưa có WS_URL thì thôi
+        if (!WS_URL) return;
+
+        const client = new Client({
+            webSocketFactory: () => new SockJS(WS_URL),
+            reconnectDelay: 5000,
+            debug: () => {
+                // tắt log, cần thì mở ra
+                // console.log('[STOMP]', str);
+            },
+            onConnect: () => {
+                client.subscribe('/topic/rooms/public', (message: IMessage) => {
+                    try {
+                        const event: PublicRoomEvent = JSON.parse(message.body);
+
+                        setWsRooms((prevRooms) => {
+                            const rooms = prevRooms ?? roomList ?? [];
+                            if (!event || !event.payload) return rooms;
+
+                            const room = event.payload;
+                            const id = room.id;
+
+                            if (!id) return rooms;
+
+                            switch (event.type) {
+                                case 'ROOM_DELETED': {
+                                    return rooms.filter((r) => r.id !== id);
+                                }
+                                case 'ROOM_CREATED': {
+                                    const exists = rooms.some(
+                                        (r) => r.id === id,
+                                    );
+                                    if (exists) return rooms;
+                                    return [...rooms, room];
+                                }
+                                case 'ROOM_UPDATED': {
+                                    return rooms.map((r) =>
+                                        r.id === id ? room : r,
+                                    );
+                                }
+                                default:
+                                    return rooms;
+                            }
+                        });
+                    } catch (e) {
+                        console.error(
+                            '[WS] Failed to parse public room event',
+                            e,
+                        );
+                    }
+                });
+            },
+        });
+
+        client.activate();
+
+        return () => {
+            client.deactivate();
+        };
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [WS_URL, roomList]);
+
     const roomsPerPage = 10;
 
+    const effectiveRooms = useMemo(
+        () => wsRooms ?? roomList ?? [],
+        [wsRooms, roomList],
+    );
+
     const filteredRooms = useMemo(() => {
-        if (!roomList) return [];
-        return roomList.filter((room) =>
+        return effectiveRooms.filter((room) =>
             room.roomName.toLowerCase().includes(searchQuery.toLowerCase()),
         );
-    }, [roomList, searchQuery]);
+    }, [effectiveRooms, searchQuery]);
 
     const totalPages = Math.ceil(filteredRooms.length / roomsPerPage) || 1;
     const startIndex = (currentPage - 1) * roomsPerPage;
@@ -36,7 +131,7 @@ export default function RoomListPage() {
 
     useEffect(() => {
         setCurrentPage(1);
-    }, [searchQuery, roomList]);
+    }, [searchQuery, effectiveRooms.length]);
 
     const handleJoinClick = (room: Room) => {
         setSelectedRoom(room);

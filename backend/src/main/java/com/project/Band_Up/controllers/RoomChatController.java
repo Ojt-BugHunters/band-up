@@ -1,7 +1,9 @@
 package com.project.Band_Up.controllers;
 
+import com.project.Band_Up.dtos.profile.AvtName;
 import com.project.Band_Up.dtos.roomChat.MessageDto;
 import com.project.Band_Up.services.media.MediaService;
+import com.project.Band_Up.services.profile.ProfileService;
 import com.project.Band_Up.services.roomChat.RoomChatService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -33,6 +35,8 @@ public class RoomChatController {
     private MediaService mediaService;
     @Autowired
     private RoomChatService roomChatService;
+    @Autowired
+    private ProfileService profileService;
 
     @MessageMapping("/chat.sendMessage")
     @Operation(
@@ -83,9 +87,15 @@ public class RoomChatController {
                     )
             )
             @Payload MessageDto messageDto) {
-        if(messageDto.getImages() != null && !messageDto.getImages().isEmpty()) {
-            for (String image : messageDto.getImages()) {
-                image = mediaService.createCloudFrontSignedUrl(image).getCloudFrontUrl();
+        if (messageDto.getSender() != null && messageDto.getSender().getId() != null) {
+            UUID senderId = messageDto.getSender().getId();
+
+            try {
+                var avt = profileService.getAvatarName(senderId);
+                messageDto.getSender().setAvatarUrl(avt.getCloudFrontUrl());
+                messageDto.getSender().setName(avt.getName()); // muốn đồng bộ tên thì giữ, không thì bỏ
+            } catch (Exception e) {
+                // Nếu user chưa có avatar thì avatarUrl = null → FE tự xử lý fallback
             }
         }
         roomChatService.saveMessage(messageDto);

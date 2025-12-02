@@ -12,4 +12,5 @@ import java.util.UUID;
 public class SenderDto {
     private UUID id;
     private String name;
+    private String avatarUrl;
 }

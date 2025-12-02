@@ -1,10 +1,11 @@
 import { Author } from '../blog';
 import z from 'zod';
 
-export interface Task {
-    id: string;
-    text: string;
-    completed: boolean;
+export interface TimerSettings {
+    focus: number;
+    shortBreak: number;
+    longBreak: number;
+    cycle: number;
 }
 
 export interface AccountRoomMember {
@@ -73,6 +74,7 @@ export interface Interval {
     startedAt: string;
     endedAt: string;
     pingedAt: string;
+    duration: number;
     status: string;
 }
 
@@ -93,6 +95,37 @@ export interface StudySession {
     interval: Interval[];
 }
 
+export interface LearningStatsDay {
+    date: string;
+    totalMinutes: number;
+    hourlyMinutes: number[];
+}
+
+export interface LearningStatsMonth {
+    year: number;
+    month: number;
+    totalMinutes: number;
+    dailyMinutes: number[];
+}
+
+export interface LearningStatsYear {
+    year: number;
+    totalMinutes: number;
+    monthlyMinutes: number[];
+}
+
+export interface SessionOverviewStats {
+    totalSessions: number;
+    focusedTime: number;
+    bestSession: number;
+    taskCompleted: number;
+}
+
+export type IntervalMutationPayload = {
+    sessionId: string;
+    intervalId: string;
+};
+
 // --------------------- Schema for react-hook-form-----------
 export const RoomSchema = z.object({
     roomName: z.string().max(50, 'Max length of room name is 50 characters'),
@@ -106,13 +139,31 @@ export const RoomSchema = z.object({
 
 export type CreateRoomFormValues = z.infer<typeof RoomSchema>;
 
-export const TimerSettingSchema = z.object({
-    roomId: z.string(),
-    mode: z.string(),
+export const FocusTimerFormSchema = z.object({
+    focusTime: z.coerce.number(),
+    shortBreak: z.coerce.number(),
+    longBreak: z.coerce.number(),
+    cycles: z.coerce.number(),
+});
+
+export type FocusTimerFormValues = z.infer<typeof FocusTimerFormSchema>;
+
+export const FocusTimerSettingSchema = z.object({
+    mode: z.literal('FocusTimer'),
     focusTime: z.number(),
     shortBreak: z.number(),
     longBreak: z.number(),
     cycles: z.number(),
 });
 
-export type CreateTimerSettingValues = z.infer<typeof TimerSettingSchema>;
+export type FocusCreateTimerSettingValues = z.infer<
+    typeof FocusTimerSettingSchema
+>;
+
+export const StopWatchSettingSchema = z.object({
+    mode: z.literal('StopWatch'),
+});
+
+export type StopWatchTimerSettingValues = z.infer<
+    typeof StopWatchSettingSchema
+>;

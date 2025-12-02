@@ -10,6 +10,7 @@ import jakarta.persistence.PersistenceContext;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.UUID;
 
@@ -39,5 +40,10 @@ public class RoomChatServiceImpl implements RoomChatService {
         roomChat.setAccount(accountRef);
 
         roomChatRepository.save(roomChat);
+    }
+    @Override
+    @Transactional
+    public void deleteAllMessagesInRoom(UUID roomId) {
+        roomChatRepository.deleteAllByRoomId(roomId);
     }
 }

@@ -19,8 +19,8 @@ public class CorsConfig {
             public void addCorsMappings(CorsRegistry registry) {
                 registry.addMapping("/**")
                         .allowedOrigins("http://localhost:3000", frontendURL,
-                                "https://bandupdb.bughunters.site", "https://bandup.bughunters.site")
-                        .allowedMethods("GET", "POST", "PUT", "DELETE", "OPTIONS")
+                                "https://bandupdb.bughunters.site", "https://bandup.bughunters.site","http://localhost:63342")
+                        .allowedMethods("GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH")
                         .allowedHeaders("*")
                         .exposedHeaders("Authorization")
                         .allowCredentials(true);

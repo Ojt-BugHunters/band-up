@@ -8,11 +8,30 @@ import {
     useQueryClient,
     UseQueryResult,
 } from '@tanstack/react-query';
-import { useForm } from 'react-hook-form';
+import { Resolver, useForm } from 'react-hook-form';
 import { toast } from 'sonner';
-import { deserialize, fetchWrapper, throwIfError } from '@/lib/service';
-import { RoomSchema, CreateRoomFormValues, Room, StudySession } from './type';
-import { AccountRoomMember } from './type';
+import {
+    buildParams,
+    deserialize,
+    fetchWrapper,
+    throwIfError,
+} from '@/lib/service';
+import {
+    RoomSchema,
+    CreateRoomFormValues,
+    Room,
+    StudySession,
+    StopWatchTimerSettingValues,
+    FocusCreateTimerSettingValues,
+    FocusTimerFormSchema,
+    FocusTimerFormValues,
+    IntervalMutationPayload,
+    AccountRoomMember,
+    LearningStatsDay,
+    LearningStatsMonth,
+    LearningStatsYear,
+    SessionOverviewStats,
+} from './type';
 
 export enum StudySessionStatus {
     PENDING = 'PENDING',
@@ -191,6 +210,23 @@ export const useGetRoomMember = (userId: string) => {
     });
 };
 
+export const useGetStudySessions = (
+    status: StudySessionStatus,
+    roomId: string,
+) => {
+    return useQuery({
+        queryKey: ['study-sessions', status, roomId],
+        queryFn: async () => {
+            const response = await fetchWrapper(
+                `/study-sessions/status/${status}`,
+            );
+            return await deserialize<StudySession[]>(response);
+        },
+        staleTime: Infinity,
+        refetchOnWindowFocus: true,
+    });
+};
+
 export const useGetRoomMembers = (roomId: string) => {
     const { data: room, ...roomQuery } = useGetRoomById(roomId);
 
@@ -229,31 +265,253 @@ export const useGetRoomMembers = (roomId: string) => {
 };
 
 export const useCreateTimerSetting = (roomId: string) => {
-    const router = useRouter();
     const queryClient = useQueryClient();
     const mutation = useMutation({
-        mutationFn: async (values: z.infer<typeof RoomSchema>) => {
-            const response = await fetchWrapper('/rooms', {
-                method: 'POST',
-                headers: {
-                    Accept: 'application/json',
-                    'Content-Type': 'application/json',
+        mutationFn: async (
+            values: FocusCreateTimerSettingValues | StopWatchTimerSettingValues,
+        ) => {
+            const response = await fetchWrapper(
+                `/study-sessions/create?roomId=${roomId}`,
+                {
+                    method: 'POST',
+                    headers: {
+                        Accept: 'application/json',
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(values),
                 },
-                body: JSON.stringify(values),
-            });
+            );
 
             await throwIfError(response);
             return response.json();
         },
         onError: (error) => {
-            toast.error(error?.message ?? 'Create room failed');
+            toast.error(error?.message ?? 'Create TimerSessions fail');
         },
-        onSuccess: (data: Room) => {
-            toast.success('Room created successfully');
-            queryClient.setQueryData(['room', data.id], data);
-            router.push(`/room/${data.id}`);
+        onSuccess: () => {
+            toast.success('Create sessions successfully');
+            queryClient.invalidateQueries({ queryKey: ['study-sessions'] });
         },
     });
 
-    return mutation;
+    const form = useForm<FocusTimerFormValues>({
+        resolver: zodResolver(
+            FocusTimerFormSchema,
+        ) as Resolver<FocusTimerFormValues>,
+        defaultValues: {
+            focusTime: 25,
+            shortBreak: 5,
+            longBreak: 15,
+            cycles: 4,
+        },
+    });
+
+    return { form, mutation };
+};
+
+export function useStartInterval() {
+    const queryClient = useQueryClient();
+
+    return useMutation({
+        mutationFn: async ({
+            sessionId,
+            intervalId,
+        }: IntervalMutationPayload) => {
+            const response = await fetchWrapper(
+                `/study-sessions/${sessionId}/intervals/${intervalId}/start`,
+                {
+                    method: 'POST',
+                    headers: {
+                        Accept: 'application/json',
+                    },
+                },
+            );
+
+            await throwIfError(response);
+            return response.json();
+        },
+        onError: (error) => {
+            toast.error(error?.message ?? 'Start interval failed');
+        },
+        onSuccess: () => {
+            queryClient.invalidateQueries({ queryKey: ['study-sessions'] });
+        },
+    });
+}
+
+export function usePingInterval() {
+    return useMutation({
+        mutationFn: async ({
+            sessionId,
+            intervalId,
+        }: IntervalMutationPayload) => {
+            const response = await fetchWrapper(
+                `/study-sessions/${sessionId}/intervals/${intervalId}/ping`,
+                {
+                    method: 'PATCH',
+                    headers: {
+                        Accept: 'application/json',
+                    },
+                },
+            );
+            await throwIfError(response);
+            return response.json();
+        },
+        onError: (error) => {
+            toast.error(error?.message ?? 'Ping interval fail');
+        },
+        onSuccess: () => {
+            toast.success('Ping interval successfully');
+        },
+    });
+}
+
+export function usePauseInterval() {
+    const queryClient = useQueryClient();
+
+    return useMutation({
+        mutationFn: async ({
+            sessionId,
+            intervalId,
+        }: IntervalMutationPayload) => {
+            const response = await fetchWrapper(
+                `/study-sessions/${sessionId}/intervals/${intervalId}/pause`,
+                {
+                    method: 'POST',
+                    headers: {
+                        Accept: 'application/json',
+                    },
+                },
+            );
+
+            await throwIfError(response);
+            return response.json();
+        },
+        onError: (error) => {
+            toast.error(error?.message ?? 'Pause interval failed');
+        },
+        onSuccess: () => {
+            queryClient.invalidateQueries({ queryKey: ['study-sessions'] });
+        },
+    });
+}
+
+export function useEndInterval() {
+    const queryClient = useQueryClient();
+
+    return useMutation({
+        mutationFn: async ({
+            sessionId,
+            intervalId,
+        }: IntervalMutationPayload) => {
+            const response = await fetchWrapper(
+                `/study-sessions/${sessionId}/intervals/${intervalId}/end`,
+                {
+                    method: 'POST',
+                    headers: {
+                        Accept: 'application/json',
+                    },
+                },
+            );
+
+            await throwIfError(response);
+            return response.json();
+        },
+        onError: (error) => {
+            toast.error(error?.message ?? 'End interval failed');
+        },
+        onSuccess: () => {
+            queryClient.invalidateQueries({ queryKey: ['study-sessions'] });
+        },
+    });
+}
+
+export function useResumeInterval() {
+    return useMutation({
+        mutationFn: async ({
+            sessionId,
+            intervalId,
+        }: IntervalMutationPayload) => {
+            const response = await fetchWrapper(
+                `/study-sessions/${sessionId}/intervals/${intervalId}/resume`,
+                {
+                    method: 'POST',
+                    headers: {
+                        Accept: 'application/json',
+                    },
+                },
+            );
+            await throwIfError(response);
+            return response.json();
+        },
+        onError: (error) => {
+            toast.error(error?.message ?? 'Resume interval fail');
+        },
+        onSuccess: () => {
+            toast.success('Resume interval successfully');
+        },
+    });
+}
+
+export const useGetLearningStatsDay = (date: string | undefined) => {
+    return useQuery({
+        queryKey: ['learning-stats', 'day', date],
+        enabled: !!date,
+        queryFn: async () => {
+            const params = buildParams({ date });
+            const response = await fetchWrapper(
+                `/stats/day?${params.toString()}`,
+            );
+            return await deserialize<LearningStatsDay>(response);
+        },
+        staleTime: 10 * 1000,
+    });
+};
+
+export const useGetLearningStatsMonth = (
+    year: number | undefined,
+    month: number | undefined,
+) => {
+    return useQuery({
+        queryKey: ['learning-stats', 'month', year, month],
+        enabled: year != null && month != null,
+        queryFn: async () => {
+            const params = buildParams({ year, month });
+            const response = await fetchWrapper(
+                `/stats/month?${params.toString()}`,
+            );
+            return await deserialize<LearningStatsMonth>(response);
+        },
+        staleTime: 10 * 1000,
+    });
+};
+
+export const useGetLearningStatsYear = (year: number | undefined) => {
+    return useQuery({
+        queryKey: ['learning-stats', 'year', year],
+        enabled: year != null,
+        queryFn: async () => {
+            const params = buildParams({ year });
+            const response = await fetchWrapper(
+                `/stats/year?${params.toString()}`,
+            );
+            return await deserialize<LearningStatsYear>(response);
+        },
+        staleTime: 10 * 1000,
+    });
+};
+
+export const useGetSessionOverviewStats = (date: string | undefined) => {
+    return useQuery({
+        queryKey: ['learning-stats', 'session-overview', date],
+        enabled: !!date,
+        queryFn: async () => {
+            const params = buildParams({ date });
+            const response = await fetchWrapper(
+                `/stats/session-overview?${params.toString()}`,
+            );
+            return await deserialize<SessionOverviewStats>(response);
+        },
+        staleTime: 10 * 1000,
+    });
 };

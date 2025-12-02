@@ -3,11 +3,15 @@ package com.project.Band_Up.services.attempt;
 import com.project.Band_Up.dtos.attempt.AttemptCreateRequest;
 import com.project.Band_Up.dtos.attempt.AttemptResponse;
 import com.project.Band_Up.dtos.attempt.AttemptUpdateRequest;
+import com.project.Band_Up.dtos.attemptSection.AttemptSectionResponse;
 import com.project.Band_Up.entities.Account;
 import com.project.Band_Up.entities.Attempt;
+import com.project.Band_Up.entities.AttemptSection;
 import com.project.Band_Up.entities.Test;
+import com.project.Band_Up.enums.Status;
 import com.project.Band_Up.repositories.AccountRepository;
 import com.project.Band_Up.repositories.AttemptRepository;
+import com.project.Band_Up.repositories.AttemptSectionRepository;
 import com.project.Band_Up.repositories.TestRepository;
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
@@ -21,6 +25,7 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class AttemptServiceImpl implements AttemptService {
     private final AttemptRepository attemptRepository;
+    private final AttemptSectionRepository attemptSectionRepository;
     private final AccountRepository accountRepository;
     private final TestRepository testRepository;
     private final ModelMapper modelMapper;
@@ -57,7 +62,7 @@ public class AttemptServiceImpl implements AttemptService {
     }
 
     @Override
-    public List<AttemptResponse> getAttemptsByUserIdAndStatus(UUID userId, String status) {
+    public List<AttemptResponse> getAttemptsByUserIdAndStatus(UUID userId, Status status) {
         accountRepository.findById(userId)
                 .orElseThrow(() -> new RuntimeException("User not found"));
 
@@ -77,6 +82,7 @@ public class AttemptServiceImpl implements AttemptService {
         Attempt attempt = modelMapper.map(createRequest, Attempt.class);
         attempt.setUser(user);
         attempt.setTest(test);
+        attempt.setStatus(Status.PENDING);
 
         Attempt saved = attemptRepository.save(attempt);
         return toResponse(saved);
@@ -91,7 +97,7 @@ public class AttemptServiceImpl implements AttemptService {
             throw new RuntimeException("You are not the owner of this attempt");
         }
 
-        modelMapper.map(updateRequest, attempt); // map các field cập nhật vào entity
+        modelMapper.map(updateRequest, attempt);
         Attempt updated = attemptRepository.save(attempt);
 
         return toResponse(updated);
@@ -109,17 +115,27 @@ public class AttemptServiceImpl implements AttemptService {
         attemptRepository.delete(attempt);
     }
 
-    // Helper: map Attempt -> AttemptResponse và set userId/testId
     private AttemptResponse toResponse(Attempt attempt) {
         AttemptResponse response = modelMapper.map(attempt, AttemptResponse.class);
-
         if (attempt.getUser() != null) {
             response.setUserId(attempt.getUser().getId());
         }
         if (attempt.getTest() != null) {
             response.setTestId(attempt.getTest().getId());
         }
-
+        List<AttemptSection> sections =
+                attemptSectionRepository.findAllByAttempt_IdOrderByStartAtDesc(attempt.getId());
+        List<AttemptSectionResponse> sectionResponses = sections.stream()
+                .map(s -> AttemptSectionResponse.builder()
+                        .id(s.getId())
+                        .attemptId(s.getAttempt().getId())
+                        .sectionId(s.getSection().getId())
+                        .startAt(s.getStartAt())
+                        .status(s.getStatus())
+                        .build()
+                )
+                .toList();
+        response.setAttemptSections(sectionResponses);
         return response;
     }
 }

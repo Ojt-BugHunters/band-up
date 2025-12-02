@@ -1,5 +1,6 @@
 package com.project.Band_Up.entities;
 
+import com.project.Band_Up.enums.Status;
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.UuidGenerator;
@@ -27,5 +28,6 @@ public class AttemptSection {
     @JoinColumn (name = "section_id", nullable = false,
             foreignKey = @ForeignKey(name = "fk_attempt_section_section"))
     private Section section ;
+    private Status status;
     private LocalDateTime startAt;
 }

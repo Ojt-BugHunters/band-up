@@ -51,6 +51,7 @@ public class Account {
     @DateTimeFormat(pattern = "dd-MM-yyyy")
     private LocalDate birthday;
 
+    private Integer bestSession;
                                                                                                                                                                                                                             @Column(name = "is_active", nullable = false)
     private boolean isActive = true;
 
@@ -61,4 +62,6 @@ public class Account {
     @OneToMany(fetch = FetchType.LAZY, mappedBy = "account", cascade = CascadeType.ALL)
     private List<Deck> decks;
 
+    @OneToMany(fetch = FetchType.LAZY, mappedBy = "account", cascade = CascadeType.ALL)
+    private List<Subscriptions> subscriptions;
 }
