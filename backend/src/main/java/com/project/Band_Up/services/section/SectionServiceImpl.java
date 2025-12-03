@@ -7,8 +7,10 @@ import com.project.Band_Up.dtos.test.TestResponse;
 import com.project.Band_Up.entities.Section;
 import com.project.Band_Up.entities.Test;
 import com.project.Band_Up.enums.Status;
+import com.project.Band_Up.repositories.MediaRepository;
 import com.project.Band_Up.repositories.SectionRepository;
 import com.project.Band_Up.repositories.TestRepository;
+import com.project.Band_Up.services.awsService.S3Service;
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Service;
@@ -23,6 +25,8 @@ public class SectionServiceImpl implements SectionService {
     private final SectionRepository sectionRepository;
     private final TestRepository testRepository;
     private final ModelMapper modelMapper;
+    private final S3Service s3Service;
+    private final MediaRepository mediaRepository;
 
     @Override
     public SectionResponse createSection(SectionCreateRequest request, UUID testId, UUID actorId) {
@@ -71,6 +75,11 @@ public class SectionServiceImpl implements SectionService {
                 .orElseThrow(() -> new RuntimeException("Section not found"));
         SectionResponse response = modelMapper.map(section, SectionResponse.class);
         response.setTestId(section.getTest().getId());
+        mediaRepository.findFirstBySection_Id(section.getId())
+                .ifPresent(media -> {
+                    String signedUrl = s3Service.createCloudFrontSignedUrl(media.getS3Key());
+                    response.setCloudfrontUrl(signedUrl);
+                });
         return response;
     }
 
@@ -80,6 +89,11 @@ public class SectionServiceImpl implements SectionService {
         return sections.stream().map(section -> {
             SectionResponse response = modelMapper.map(section, SectionResponse.class);
             response.setTestId(section.getTest().getId());
+            mediaRepository.findFirstBySection_Id(section.getId())
+                    .ifPresent(media -> {
+                        String signedUrl = s3Service.createCloudFrontSignedUrl(media.getS3Key());
+                        response.setCloudfrontUrl(signedUrl);
+                    });
             return response;
         }).toList();
     }
@@ -122,6 +136,11 @@ public class SectionServiceImpl implements SectionService {
     public SectionResponse toResponse(Section section) {
         SectionResponse response = modelMapper.map(section, SectionResponse.class);
         response.setTestId(section.getTest().getId());
+        mediaRepository.findFirstBySection_Id(section.getId())
+                .ifPresent(media -> {
+                    String signedUrl = s3Service.createCloudFrontSignedUrl(media.getS3Key());
+                    response.setCloudfrontUrl(signedUrl);
+                });
         return response;
     }
 }
