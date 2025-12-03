@@ -2,6 +2,8 @@ package com.project.Band_Up.controllers;
 
 import com.project.Band_Up.services.crawTest.CrawReadingTestService;
 import com.project.Band_Up.services.crawTest.CrawListeningTestService;
+import com.project.Band_Up.services.crawTest.CrawSpeakingTestService;
+import com.project.Band_Up.services.crawTest.CrawWritingTestService;
 import com.project.Band_Up.utils.JwtUserDetails;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -18,6 +20,7 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.UUID;
 
 @RestController
 @RequestMapping(value = "/api/admin/craw-tests", produces = MediaType.APPLICATION_JSON_VALUE)
@@ -27,6 +30,8 @@ public class CrawTestController {
 
     private final CrawReadingTestService crawReadingTestService;
     private final CrawListeningTestService crawListeningTestService;
+    private final CrawSpeakingTestService crawSpeakingTestService;
+    private final CrawWritingTestService crawWritingTestService;
 
     // ============ READING TEST ENDPOINTS ============
 
@@ -280,7 +285,57 @@ public class CrawTestController {
 
         return ResponseEntity.ok(response);
     }
+    @PostMapping("/speaking/import-all")
+    public ResponseEntity<ImportResponse> importAllSpeakingTests(
+            @AuthenticationPrincipal JwtUserDetails userDetails) {
 
+        List<String> results = crawSpeakingTestService.importAllSpeakingTests(userDetails.getAccountId());
+
+        long successCount = results.stream().filter(r -> r.startsWith("✓")).count();
+        long failCount = results.stream().filter(r -> r.startsWith("✗")).count();
+
+        ImportResponse response = ImportResponse.builder()
+                .success(true)
+                .message(String.format("Speaking import completed: %d succeeded, %d failed", successCount, failCount))
+                .totalFiles(results.size())
+                .successCount((int) successCount)
+                .failCount((int) failCount)
+                .details(results)
+                .build();
+
+        return ResponseEntity.ok(response);
+    }
+    @Operation(
+            summary = "Import tất cả Writing tests từ folder",
+            description = "Import tất cả file JSON IELTS Writing tests từ folder được cấu hình. " +
+                    "Chỉ Admin mới có quyền thực hiện. Trả về danh sách kết quả import cho từng file."
+    )
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "Import thành công (có thể có file lỗi)"),
+            @ApiResponse(responseCode = "401", description = "Chưa đăng nhập"),
+            @ApiResponse(responseCode = "403", description = "Không có quyền Admin"),
+            @ApiResponse(responseCode = "500", description = "Lỗi server khi đọc folder hoặc xử lý file")
+    })
+    @PostMapping("/writing/import-all")
+    public ResponseEntity<ImportResponse> importAllWritingTests(
+            @AuthenticationPrincipal JwtUserDetails userDetails) {
+
+        List<String> results = crawWritingTestService.importAllWritingTests(userDetails.getAccountId());
+
+        long successCount = results.stream().filter(r -> r.startsWith("✓")).count();
+        long failCount = results.stream().filter(r -> r.startsWith("✗")).count();
+
+        ImportResponse response = ImportResponse.builder()
+                .success(true)
+                .message(String.format("Writing import completed: %d succeeded, %d failed", successCount, failCount))
+                .totalFiles(results.size())
+                .successCount((int) successCount)
+                .failCount((int) failCount)
+                .details(results)
+                .build();
+
+        return ResponseEntity.ok(response);
+    }
     /**
      * DTO cho response của import
      */
