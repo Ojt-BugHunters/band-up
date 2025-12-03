@@ -1,0 +1,168 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
+Description: SAM Template for RAG Lambda Functions - Local Testing
+
+# Global configuration for all functions
+Globals:
+  Function:
+    Timeout: 300
+    MemorySize: 2048
+    Runtime: python3.11
+    Architectures:
+      - x86_64
+    Environment:
+      Variables:
+        ENVIRONMENT: dev
+        S3_BUCKET_DOCUMENTS: ielts-ai-dev-documents
+        S3_BUCKET_RESULTS: ielts-ai-dev-results
+        DYNAMODB_TABLE_NAME: ielts-ai-dev-faiss-indices
+        ENABLE_RAG: "true"
+
+Resources:
+  # RAG Lambda Layer
+  RAGLayer:
+    Type: AWS::Serverless::LayerVersion
+    Properties:
+      LayerName: rag-layer
+      Description: RAG dependencies (sentence-transformers, faiss-cpu, PyMuPDF)
+      ContentUri: build/rag-layer.zip
+      CompatibleRuntimes:
+        - python3.11
+      RetentionPolicy: Retain
+    Metadata:
+      BuildMethod: makefile
+
+  # Document Indexer Lambda Function
+  DocumentIndexerFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      FunctionName: document-indexer
+      Description: Processes PDFs and creates FAISS indices
+      CodeUri: build/document-indexer-lambda.zip
+      Handler: lambda_handler.lambda_handler
+      Layers:
+        - !Ref RAGLayer
+      MemorySize: 2048
+      Timeout: 300
+      EphemeralStorage:
+        Size: 1024
+      Environment:
+        Variables:
+          RESULTS_BUCKET: ielts-ai-dev-results
+          DYNAMODB_TABLE_NAME: ielts-ai-dev-faiss-indices
+      Events:
+        S3Upload:
+          Type: S3
+          Properties:
+            Bucket: !Ref DocumentsBucket
+            Events: s3:ObjectCreated:*
+            Filter:
+              S3Key:
+                Rules:
+                  - Name: prefix
+                    Value: uploads/
+                  - Name: suffix
+                    Value: .pdf
+      Policies:
+        - S3ReadPolicy:
+            BucketName: ielts-ai-dev-documents
+        - S3CrudPolicy:
+            BucketName: ielts-ai-dev-results
+        - DynamoDBCrudPolicy:
+            TableName: ielts-ai-dev-faiss-indices
+
+  # Flashcard Generator Lambda Function (Enhanced with RAG)
+  FlashcardGeneratorFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      FunctionName: flashcard-generator
+      Description: Generates flashcards using RAG-enhanced context
+      CodeUri: build/flashcard-generator-lambda.zip
+      Handler: lambda_handler.lambda_handler
+      Layers:
+        - !Ref RAGLayer
+      MemorySize: 1024
+      Timeout: 600
+      EphemeralStorage:
+        Size: 512
+      Environment:
+        Variables:
+          RESULTS_BUCKET: ielts-ai-dev-results
+          DYNAMODB_TABLE_NAME: ielts-ai-dev-faiss-indices
+          ENABLE_RAG: "true"
+      Policies:
+        - S3ReadPolicy:
+            BucketName: ielts-ai-dev-results
+        - DynamoDBReadPolicy:
+            TableName: ielts-ai-dev-faiss-indices
+
+  # S3 Bucket for Documents (for local testing)
+  DocumentsBucket:
+    Type: AWS::S3::Bucket
+    Properties:
+      BucketName: ielts-ai-dev-documents-local
+      NotificationConfiguration:
+        LambdaConfigurations:
+          - Event: s3:ObjectCreated:*
+            Function: !GetAtt DocumentIndexerFunction.Arn
+            Filter:
+              S3Key:
+                Rules:
+                  - Name: prefix
+                    Value: uploads/
+                  - Name: suffix
+                    Value: .pdf
+
+  # DynamoDB Table for Index Metadata (for local testing)
+  IndexMetadataTable:
+    Type: AWS::DynamoDB::Table
+    Properties:
+      TableName: ielts-ai-dev-faiss-indices
+      BillingMode: PAY_PER_REQUEST
+      AttributeDefinitions:
+        - AttributeName: document_id
+          AttributeType: S
+        - AttributeName: user_id
+          AttributeType: S
+        - AttributeName: created_at
+          AttributeType: N
+      KeySchema:
+        - AttributeName: document_id
+          KeyType: HASH
+      GlobalSecondaryIndexes:
+        - IndexName: user_id-created_at-index
+          KeySchema:
+            - AttributeName: user_id
+              KeyType: HASH
+            - AttributeName: created_at
+              KeyType: RANGE
+          Projection:
+            ProjectionType: ALL
+      TimeToLiveSpecification:
+        AttributeName: ttl
+        Enabled: true
+
+Outputs:
+  RAGLayerArn:
+    Description: ARN of the RAG Lambda Layer
+    Value: !Ref RAGLayer
+    Export:
+      Name: RAGLayerArn
+
+  DocumentIndexerFunctionArn:
+    Description: ARN of the Document Indexer Lambda Function
+    Value: !GetAtt DocumentIndexerFunction.Arn
+    Export:
+      Name: DocumentIndexerFunctionArn
+
+  FlashcardGeneratorFunctionArn:
+    Description: ARN of the Flashcard Generator Lambda Function
+    Value: !GetAtt FlashcardGeneratorFunction.Arn
+    Export:
+      Name: FlashcardGeneratorFunctionArn
+
+  IndexMetadataTableName:
+    Description: Name of the DynamoDB table for index metadata
+    Value: !Ref IndexMetadataTable
+    Export:
+      Name: IndexMetadataTableName
