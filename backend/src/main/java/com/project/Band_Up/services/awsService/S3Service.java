@@ -7,4 +7,5 @@ public interface S3Service {
     public String createCloudFrontSignedUrl(String key);
     public boolean exists(String key);
     void deleteObject(String key);
+    void uploadFile(String key, byte[] data, String contentType);
 }
