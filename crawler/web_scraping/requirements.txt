@@ -1,0 +1,30 @@
+# Firecrawl Test Scraper Dependencies
+
+# Firecrawl API client
+firecrawl-py>=0.0.16
+
+# HTML parsing
+beautifulsoup4>=4.12.0
+lxml>=4.9.0
+bleach>=6.0.0
+
+# HTTP requests
+requests>=2.31.0
+
+# CLI framework
+click>=8.1.0
+
+# Environment variable management
+python-dotenv>=1.0.0
+
+# Data validation
+pydantic>=2.0.0
+
+# YAML configuration parsing
+PyYAML>=6.0.0
+
+# Google Gemini API (new SDK)
+google-genai>=1.0.0
+
+# Retry logic
+tenacity>=8.2.0

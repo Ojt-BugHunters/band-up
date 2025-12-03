@@ -1,0 +1,30 @@
+# AI Service Dependencies for AWS Lambda
+# Note: Using AWS Transcribe for audio (no Whisper needed)
+google-generativeai==0.3.2
+pydantic==2.5.0
+pydantic-core==2.14.1
+numpy==1.26.4
+
+# AWS Services
+boto3==1.34.0
+botocore==1.34.0
+
+# AWS Bedrock (included in boto3, but explicitly noted for clarity)
+# bedrock-runtime client is part of boto3
+
+# Database/Cache
+
+requests-aws4auth==1.2.3
+aiohttp==3.9.1  # Required by opensearch-py for async operations
+
+# PDF Processing
+PyPDF2==3.0.1
+
+# Utilities
+python-dotenv==1.0.0
+packaging==24.0
+requests==2.31.0
+tenacity==8.2.3
+
+# Note: Whisper removed - using AWS Transcribe instead
+# Note: cost_tracker removed - using AWS CloudWatch for cost tracking
