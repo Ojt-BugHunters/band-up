@@ -252,4 +252,51 @@ public class BlogServiceImpl implements BlogService {
         }
     }
 
+    @Override
+    @Transactional
+    public BlogPosts updateBlogPost(UUID blogPostId, BlogRequest blogRequest, UUID accountId) {
+        BlogPost blogPost = blogRepository.findById(blogPostId)
+                .orElseThrow(() -> new ResourceNotFoundException("Blog post not found"));
+
+        // Check if the user is the author of the blog post
+        if (!blogPost.getAuthor().getId().equals(accountId)) {
+            throw new RuntimeException("You are not authorized to update this blog post");
+        }
+
+        // Update blog post fields
+        if (blogRequest.getTitle() != null) {
+            blogPost.setTitle(blogRequest.getTitle());
+        }
+        if (blogRequest.getContent() != null) {
+            blogPost.setContent(blogRequest.getContent());
+        }
+        if (blogRequest.getTitleImg() != null) {
+            blogPost.setTitleImg(blogRequest.getTitleImg());
+        }
+        if (blogRequest.getTags() != null) {
+            List<Tag> tags = blogRequest.getTags().stream()
+                    .map(tagDto -> tagRepository.findById(tagDto.getId())
+                            .orElseThrow(() -> new ResourceNotFoundException("Tag not found")))
+                    .collect(Collectors.toList());
+            blogPost.setTags(tags);
+        }
+
+        BlogPost updatedBlogPost = blogRepository.save(blogPost);
+        return modelMapper.map(updatedBlogPost, BlogPosts.class);
+    }
+
+    @Override
+    @Transactional
+    public void deleteBlogPost(UUID blogPostId, UUID accountId) {
+        BlogPost blogPost = blogRepository.findById(blogPostId)
+                .orElseThrow(() -> new ResourceNotFoundException("Blog post not found"));
+
+        // Check if the user is the author of the blog post
+        if (!blogPost.getAuthor().getId().equals(accountId)) {
+            throw new RuntimeException("You are not authorized to delete this blog post");
+        }
+
+        blogRepository.delete(blogPost);
+    }
+
 }

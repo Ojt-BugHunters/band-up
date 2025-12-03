@@ -1,0 +1,11 @@
+# FAISS Indexer Lambda Requirements
+# Install these packages in Lambda layer
+# Optimized for AWS Lambda Python 3.11 runtime (Amazon Linux 2023)
+
+faiss-cpu==1.8.0
+numpy==1.24.4
+PyPDF2==3.0.1
+google-generativeai==0.3.2
+python-dotenv==1.0.0
+requests==2.31.0
+

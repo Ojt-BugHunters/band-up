@@ -1,0 +1,124 @@
+{
+    "essay_text": "The original essay text submitted for evaluation",
+    "task_type": "Task 2",
+    "task_description": "Optional task description if provided",
+    "structure_analysis": {
+      "word_count": 287,
+      "sentence_count": 18,
+      "paragraph_count": 4,
+      "avg_sentence_length": 15.9,
+      "complex_sentence_count": 8,
+      "complexity_ratio": 0.44,
+      "transition_word_count": 12,
+      "avg_words_per_paragraph": 71.8
+    },
+    "lexical_analysis": {
+      "vocabulary_size": 156,
+      "total_words": 287,
+      "type_token_ratio": 0.543,
+      "academic_word_count": 23,
+      "academic_word_ratio": 0.147,
+      "academic_words_found": ["significant", "demonstrate", "analysis"],
+      "avg_word_length": 5.2,
+      "long_word_ratio": 0.28,
+      "collocation_count": 8,
+      "collocations_found": ["in addition", "on the other hand", "as a result"],
+      "most_common_words": [
+        ["the", 25],
+        ["and", 18],
+        ["of", 15]
+      ],
+      "repeated_words": ["important", "good", "very"],
+      "lexical_sophistication_score": 0.68
+    },
+    "grammatical_analysis": {
+      "sentence_count": 18,
+      "error_count": 3,
+      "detected_errors": [
+        "subject_verb_disagreement: 1 instances",
+        "wrong_preposition: 2 instances"
+      ],
+      "error_rate": 0.17,
+      "sentence_variety": 0.78,
+      "tense_consistency": 0.12,
+      "present_tense_count": 12,
+      "past_tense_count": 4,
+      "future_tense_count": 2,
+      "accuracy_score": 8.3
+    },
+    "evaluation": {
+      "overall_band": 6.5,
+      "task_achievement": {
+        "band": 6.5,
+        "feedback": "Essay addresses the task requirements adequately with clear position and some development.",
+        "strengths": ["Clear position taken", "Addresses all parts of the question"],
+        "weaknesses": ["Could develop ideas further", "Some examples lack depth"],
+        "improvements": ["Provide more supporting examples", "Develop each point more thoroughly"]
+      },
+      "coherence_cohesion": {
+        "band": 6.0,
+        "feedback": "Ideas are generally well-organized with clear paragraph structure.",
+        "strengths": ["Clear paragraph structure", "Logical progression"],
+        "weaknesses": ["Some linking words missing", "Transitions could be smoother"],
+        "improvements": ["Use more transition phrases", "Improve paragraph connections"]
+      },
+      "lexical_resource": {
+        "band": 6.5,
+        "feedback": "Good vocabulary range with some academic words and collocations.",
+        "strengths": ["Appropriate word choice", "Some sophisticated vocabulary"],
+        "weaknesses": ["Limited vocabulary variety", "Some repetition"],
+        "improvements": ["Expand vocabulary range", "Use more varied expressions"]
+      },
+      "grammatical_range_accuracy": {
+        "band": 6.0,
+        "feedback": "Generally accurate grammar with some complex structures.",
+        "strengths": ["Good sentence structure", "Some complex sentences"],
+        "weaknesses": ["Some grammatical errors", "Limited sentence variety"],
+        "improvements": ["Review grammar rules", "Practice complex sentence structures"]
+      }
+    },
+    "improvement_suggestions": {
+      "word_replacements": [
+        {
+          "original": "good",
+          "suggested": "excellent/outstanding",
+          "reason": "More sophisticated vocabulary"
+        },
+        {
+          "original": "bad",
+          "suggested": "negative/detrimental",
+          "reason": "More academic tone"
+        }
+      ],
+      "grammar_improvements": [
+        {
+          "error": "Common errors",
+          "correction": "Review subject-verb agreement",
+          "explanation": "Ensure singular/plural consistency"
+        }
+      ],
+      "structure_improvements": [
+        "Use clear topic sentences for each paragraph",
+        "Add transition words between paragraphs",
+        "Ensure logical flow of ideas"
+      ],
+      "content_additions": [
+        "Add more specific examples",
+        "Include statistical data where relevant",
+        "Provide counter-arguments for stronger analysis"
+      ],
+      "improved_sentences": [
+        {
+          "original": "This is very important.",
+          "improved": "This is extremely significant for several reasons.",
+          "improvement": "More sophisticated vocabulary and clearer reasoning"
+        }
+      ]
+    },
+    "system_info": {
+      "evaluator": "IELTS Writing AI Assessment System",
+      "model": "Gemini 2.5 Flash API",
+      "version": "1.0.0"
+    },
+    "timestamp": "2024-01-01T00:00:00Z"
+  }

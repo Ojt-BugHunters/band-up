@@ -1,0 +1,24 @@
+# Core runtime dependencies for Gemini-based services
+pydantic==2.5.0
+python-dotenv==1.0.0
+requests==2.31.0
+
+# Audio processing (Gemini native audio + optional Whisper fallback)
+librosa==0.10.1
+soundfile==0.12.1
+
+# AWS SDK (S3 access for media/PDF retrieval)
+boto3==1.29.7
+botocore==1.32.7
+
+# Redis caching
+redis==5.0.1
+
+# OpenSearch (flashcard retrieval pipeline)
+opensearch-py==2.4.0
+requests-aws4auth==1.2.3
+
+# PDF handling for flashcards
+PyPDF2==3.0.1
+pdfplumber==0.10.3
+

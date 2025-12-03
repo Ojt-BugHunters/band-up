@@ -1,0 +1,23 @@
+# Core dependencies for IELTS Speaking AI Assessment
+# For audio processing and transcription
+torch>=2.0.0
+transformers>=4.44.0  # For Whisper Large-v3-turbo via Hugging Face
+librosa>=0.10.0
+soundfile>=0.12.0
+numpy>=1.24.0,<2.0.0  # Fix NumPy compatibility issue
+
+# For API integration
+requests>=2.31.0
+python-dotenv>=1.0.0
+
+# For text processing
+nltk>=3.8.1
+spacy>=3.7.0
+
+# For mathematical operations
+scipy>=1.11.0
+
+# For testing (optional)
+pytest>=7.4.0
+
+

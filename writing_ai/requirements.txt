@@ -1,0 +1,16 @@
+# Core dependencies for IELTS Writing AI Assessment
+requests>=2.31.0
+python-dotenv>=1.0.0
+
+# For JSON handling and data processing
+pydantic>=2.0.0
+
+# For text processing and analysis
+nltk>=3.8.1
+spacy>=3.7.0
+
+# For mathematical operations
+numpy>=1.24.0
+
+# For testing (optional)
+pytest>=7.4.0
