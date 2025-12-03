@@ -13,7 +13,6 @@ import com.project.Band_Up.utils.JwtUserDetails;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
-import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
@@ -138,5 +137,32 @@ public class BlogController {
             @RequestParam StatsInterval statsInterval) {
         BlogStatsDto stats = blogStatService.getStats(statsInterval);
         return ResponseEntity.ok(stats);
+    }
+
+    @PutMapping("/{blogPostId}")
+    @Operation(
+            summary = "Update a blog post",
+            description = "Updates an existing blog post. Only the author of the blog post can update it. Requires authentication."
+    )
+    public ResponseEntity<BlogPosts> updateBlogPost(
+            @Parameter(description = "ID of the blog post to update")
+            @PathVariable UUID blogPostId,
+            @RequestBody BlogRequest blogRequest,
+            @AuthenticationPrincipal JwtUserDetails userDetails) {
+        BlogPosts updatedPost = blogService.updateBlogPost(blogPostId, blogRequest, userDetails.getAccountId());
+        return ResponseEntity.ok(updatedPost);
+    }
+
+    @DeleteMapping("/{blogPostId}")
+    @Operation(
+            summary = "Delete a blog post",
+            description = "Deletes a blog post. Only the author of the blog post can delete it. Requires authentication."
+    )
+    public ResponseEntity<Void> deleteBlogPost(
+            @Parameter(description = "ID of the blog post to delete")
+            @PathVariable UUID blogPostId,
+            @AuthenticationPrincipal JwtUserDetails userDetails) {
+        blogService.deleteBlogPost(blogPostId, userDetails.getAccountId());
+        return ResponseEntity.noContent().build();
     }
 }
