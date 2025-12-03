@@ -1,0 +1,317 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>IELTS Test Viewer</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+            padding: 40px;
+        }
+        
+        h1 {
+            color: #333;
+            text-align: center;
+            margin-bottom: 10px;
+            font-size: 2.5em;
+        }
+        
+        .subtitle {
+            text-align: center;
+            color: #666;
+            margin-bottom: 40px;
+            font-size: 1.1em;
+        }
+        
+        .skill-section {
+            margin-bottom: 40px;
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+            padding: 25px;
+            transition: all 0.3s ease;
+        }
+        
+        .skill-section:hover {
+            border-color: #667eea;
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.2);
+        }
+        
+        .skill-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+        
+        .skill-icon {
+            font-size: 2em;
+            margin-right: 15px;
+        }
+        
+        .skill-title {
+            color: #667eea;
+            font-size: 1.8em;
+            font-weight: bold;
+            text-transform: uppercase;
+        }
+        
+        .test-type {
+            margin-bottom: 20px;
+        }
+        
+        .test-type-title {
+            color: #555;
+            font-size: 1.2em;
+            margin-bottom: 10px;
+            font-weight: 600;
+            text-transform: capitalize;
+        }
+        
+        .test-count {
+            color: #888;
+            font-size: 0.9em;
+            margin-left: 10px;
+        }
+        
+        .test-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+            gap: 10px;
+        }
+        
+        .test-button {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 12px 20px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 1em;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: block;
+            text-align: center;
+        }
+        
+        .test-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+        
+        .no-tests {
+            color: #999;
+            font-style: italic;
+            padding: 20px;
+            text-align: center;
+            background: #f5f5f5;
+            border-radius: 8px;
+        }
+        
+        .stats {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 30px;
+            display: flex;
+            justify-content: space-around;
+            flex-wrap: wrap;
+        }
+        
+        .stat-item {
+            text-align: center;
+            padding: 10px 20px;
+        }
+        
+        .stat-number {
+            font-size: 2em;
+            font-weight: bold;
+            color: #667eea;
+        }
+        
+        .stat-label {
+            color: #666;
+            font-size: 0.9em;
+            margin-top: 5px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>📚 IELTS Enhanced Test Viewer</h1>
+        <p class="subtitle">Select a test to view with auto-rendered answer areas based on question types</p>
+        
+        <div class="stats">
+            <div class="stat-item">
+                <div class="stat-number" id="total-tests">0</div>
+                <div class="stat-label">Total Tests</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-number" id="reading-count">0</div>
+                <div class="stat-label">Reading</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-number" id="listening-count">0</div>
+                <div class="stat-label">Listening</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-number" id="writing-count">0</div>
+                <div class="stat-label">Writing</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-number" id="speaking-count">0</div>
+                <div class="stat-label">Speaking</div>
+            </div>
+        </div>
+        
+        <!-- Reading Tests -->
+        <div class="skill-section">
+            <div class="skill-header">
+                <div class="skill-icon">📖</div>
+                <div class="skill-title">Reading</div>
+            </div>
+            {% if tests.reading %}
+                {% for test_type, test_files in tests.reading.items() %}
+                <div class="test-type">
+                    <div class="test-type-title">
+                        {{ test_type }}
+                        <span class="test-count">({{ test_files|length }} tests)</span>
+                    </div>
+                    <div class="test-grid">
+                        {% for test in test_files %}
+                        <a href="/test/reading/{{ test_type }}/{{ test.filename }}" class="test-button">
+                            Test {{ loop.index }}
+                        </a>
+                        {% endfor %}
+                    </div>
+                </div>
+                {% endfor %}
+            {% else %}
+                <div class="no-tests">No reading tests available</div>
+            {% endif %}
+        </div>
+        
+        <!-- Listening Tests -->
+        <div class="skill-section">
+            <div class="skill-header">
+                <div class="skill-icon">🎧</div>
+                <div class="skill-title">Listening</div>
+            </div>
+            {% if tests.listening %}
+                {% for test_type, test_files in tests.listening.items() %}
+                <div class="test-type">
+                    <div class="test-type-title">
+                        {{ test_type }}
+                        <span class="test-count">({{ test_files|length }} tests)</span>
+                    </div>
+                    <div class="test-grid">
+                        {% for test in test_files %}
+                        <a href="/test/listening/{{ test_type }}/{{ test.filename }}" class="test-button">
+                            Test {{ loop.index }}
+                        </a>
+                        {% endfor %}
+                    </div>
+                </div>
+                {% endfor %}
+            {% else %}
+                <div class="no-tests">No listening tests available</div>
+            {% endif %}
+        </div>
+        
+        <!-- Writing Tests -->
+        <div class="skill-section">
+            <div class="skill-header">
+                <div class="skill-icon">✍️</div>
+                <div class="skill-title">Writing</div>
+            </div>
+            {% if tests.writing %}
+                {% for test_type, test_files in tests.writing.items() %}
+                <div class="test-type">
+                    <div class="test-type-title">
+                        {{ test_type }}
+                        <span class="test-count">({{ test_files|length }} tests)</span>
+                    </div>
+                    <div class="test-grid">
+                        {% for test in test_files %}
+                        <a href="/test/writing/{{ test_type }}/{{ test.filename }}" class="test-button">
+                            Test {{ loop.index }}
+                        </a>
+                        {% endfor %}
+                    </div>
+                </div>
+                {% endfor %}
+            {% else %}
+                <div class="no-tests">No writing tests available</div>
+            {% endif %}
+        </div>
+        
+        <!-- Speaking Tests -->
+        <div class="skill-section">
+            <div class="skill-header">
+                <div class="skill-icon">🎤</div>
+                <div class="skill-title">Speaking</div>
+            </div>
+            {% if tests.speaking %}
+                {% for test_type, test_files in tests.speaking.items() %}
+                <div class="test-type">
+                    <div class="test-type-title">
+                        {{ test_type }}
+                        <span class="test-count">({{ test_files|length }} tests)</span>
+                    </div>
+                    <div class="test-grid">
+                        {% for test in test_files %}
+                        <a href="/test/speaking/{{ test_type }}/{{ test.filename }}" class="test-button">
+                            Test {{ loop.index }}
+                        </a>
+                        {% endfor %}
+                    </div>
+                </div>
+                {% endfor %}
+            {% else %}
+                <div class="no-tests">No speaking tests available</div>
+            {% endif %}
+        </div>
+    </div>
+    
+    <script>
+        // Calculate and display statistics
+        document.addEventListener('DOMContentLoaded', function() {
+            const tests = {{ tests | tojson }};
+            
+            let readingCount = 0;
+            let listeningCount = 0;
+            let writingCount = 0;
+            let speakingCount = 0;
+            
+            Object.values(tests.reading).forEach(arr => readingCount += arr.length);
+            Object.values(tests.listening).forEach(arr => listeningCount += arr.length);
+            Object.values(tests.writing).forEach(arr => writingCount += arr.length);
+            Object.values(tests.speaking).forEach(arr => speakingCount += arr.length);
+            
+            const totalCount = readingCount + listeningCount + writingCount + speakingCount;
+            
+            document.getElementById('total-tests').textContent = totalCount;
+            document.getElementById('reading-count').textContent = readingCount;
+            document.getElementById('listening-count').textContent = listeningCount;
+            document.getElementById('writing-count').textContent = writingCount;
+            document.getElementById('speaking-count').textContent = speakingCount;
+        });
+    </script>
+</body>
+</html>

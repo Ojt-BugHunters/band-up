@@ -1,0 +1,133 @@
+'use client';
+import React, { AnchorHTMLAttributes, ReactNode } from 'react';
+import { motion, Transition } from 'framer-motion';
+import Image from 'next/image';
+
+const transition: Transition = {
+    type: 'spring',
+    mass: 0.5,
+    damping: 11.5,
+    stiffness: 100,
+    restDelta: 0.001,
+    restSpeed: 0.001,
+};
+
+type HoveredLinkProps = AnchorHTMLAttributes<HTMLAnchorElement> & {
+    children: ReactNode;
+};
+
+export const MenuItem = ({
+    setActive,
+    active,
+    item,
+    children,
+}: {
+    setActive: (item: string) => void;
+    active: string | null;
+    item: string;
+    children?: React.ReactNode;
+}) => {
+    const isActive = active === item;
+
+    return (
+        <div
+            onMouseEnter={() => setActive(item)}
+            className="relative px-4 py-2"
+        >
+            {isActive && (
+                <motion.div
+                    layoutId="hovered"
+                    transition={{ type: 'spring', stiffness: 300, damping: 40 }}
+                    className="absolute inset-0 z-0 h-full w-full rounded-full bg-gray-100 dark:bg-neutral-800"
+                />
+            )}
+
+            <motion.p
+                transition={{ duration: 0.3 }}
+                className="relative z-10 cursor-pointer text-neutral-700 hover:text-black dark:text-neutral-200 dark:hover:text-white"
+            >
+                {item}
+            </motion.p>
+
+            {isActive && (
+                <motion.div
+                    initial={{ opacity: 0, scale: 0.85, y: 10 }}
+                    animate={{ opacity: 1, scale: 1, y: 0 }}
+                    transition={transition}
+                >
+                    <div className="absolute top-[calc(100%_+_1.2rem)] left-1/2 -translate-x-1/2 transform pt-4">
+                        <motion.div
+                            transition={transition}
+                            layoutId="active"
+                            className="overflow-hidden rounded-2xl border border-black/[0.2] bg-white shadow-xl backdrop-blur-sm dark:border-white/[0.2] dark:bg-black"
+                        >
+                            <motion.div layout className="h-full w-max p-4">
+                                {children}
+                            </motion.div>
+                        </motion.div>
+                    </div>
+                </motion.div>
+            )}
+        </div>
+    );
+};
+
+export const Menu = ({
+    setActive,
+    children,
+}: {
+    setActive: (item: string | null) => void;
+    children: React.ReactNode;
+}) => {
+    return (
+        <nav
+            onMouseLeave={() => setActive(null)}
+            className="shadow-input relative flex justify-center space-x-4 rounded-full border border-transparent bg-white px-8 py-6 dark:border-white/[0.2] dark:bg-black"
+        >
+            {children}
+        </nav>
+    );
+};
+
+export const ProductItem = ({
+    title,
+    description,
+    href,
+    src,
+}: {
+    title: string;
+    description: string;
+    href: string;
+    src: string;
+}) => {
+    return (
+        <a href={href} className="flex space-x-2">
+            <Image
+                src={src}
+                width={140}
+                height={70}
+                alt={title}
+                className="shrink-0 rounded-md shadow-2xl"
+            />
+            <div>
+                <h4 className="mb-1 text-xl font-bold text-black dark:text-white">
+                    {title}
+                </h4>
+                <p className="max-w-[10rem] text-sm text-neutral-700 dark:text-neutral-300">
+                    {description}
+                </p>
+            </div>
+        </a>
+    );
+};
+
+export const HoveredLink = ({ children, ...rest }: HoveredLinkProps) => {
+    return (
+        <a
+            {...rest}
+            className="cursor-pointer text-neutral-700 hover:text-black dark:text-neutral-200 dark:hover:text-white"
+        >
+            {children}
+        </a>
+    );
+};

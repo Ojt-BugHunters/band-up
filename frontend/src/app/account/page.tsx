@@ -1,0 +1,247 @@
+'use client';
+
+import { Avatar, AvatarImage } from '@/components/ui/avatar';
+import { Badge } from '@/components/ui/badge';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { CalendarDays, Edit, Mail, Pencil, Phone, User } from 'lucide-react';
+import { user } from '../../../constants/sample-data';
+import { useMemo, useState } from 'react';
+import AccountBlogSection from './account-blog-section';
+import { Button } from '@/components/ui/button';
+import EditProfileDialog from './edit-profile-dialog';
+import { useSaveFile } from '@/lib/service/s3-upload';
+import {
+    Dialog,
+    DialogClose,
+    DialogContent,
+    DialogFooter,
+    DialogHeader,
+    DialogTitle,
+    DialogTrigger,
+} from '@/components/ui/dialog';
+import S3FileUploader from '@/components/s3-file-uploader';
+import { useGetAvatar } from '@/lib/service/account';
+
+const bgGradients = [
+    'from-blue-50 to-indigo-50',
+    'from-pink-50 to-rose-100',
+    'from-emerald-50 to-green-100',
+    'from-yellow-50 to-amber-100',
+    'from-sky-50 to-cyan-100',
+    'from-purple-50 to-fuchsia-100',
+];
+
+const quotes = [
+    '"Practice makes perfect!"',
+    '"Step by step to 9.0 IELTS!"',
+    '"Small progress is still progress."',
+    '"Consistency beats talent."',
+    '"Your effort will pay off."',
+    '"Believe in your journey!"',
+    '"Stay focused, stay strong."',
+    '"One more test, one step closer."',
+];
+
+export default function ViewProfilePage() {
+    const [openDialog, setOpenDialog] = useState(false);
+    const [openEditAvatar, setOpenEditAvatar] = useState(false);
+    const mutation = useSaveFile();
+    const { data, refetch } = useGetAvatar();
+
+    const bgClass = useMemo(
+        () => bgGradients[Math.floor(Math.random() * bgGradients.length)],
+        [],
+    );
+
+    const quote = useMemo(
+        () => quotes[Math.floor(Math.random() * quotes.length)],
+        [],
+    );
+
+    const handleSave = async () => {
+        const key = localStorage.getItem('uploadedKeys');
+        if (!key) return;
+        await mutation.mutateAsync({ key });
+        localStorage.removeItem('uploadedKeys');
+    };
+
+    const handleUploaded = async () => {
+        await handleSave();
+        setOpenEditAvatar(false);
+    };
+
+    return (
+        <div className="mx-auto flex-1 space-y-6 p-6">
+            <div className="mx-auto max-w-7xl">
+                <div className="relative mt-16">
+                    <div className="overflow-hidden rounded-xl bg-white shadow-sm">
+                        <div
+                            className={`bg-gradient-to-r ${bgClass} px-6 py-8 text-center`}
+                        >
+                            <p className="text-xl font-semibold text-zinc-700 italic md:text-xl">
+                                {quote}
+                            </p>
+                        </div>
+
+                        <div className="relative -mt-10 ml-6 flex flex-col items-start px-6 pb-8">
+                            <div className="flex w-full items-center justify-between gap-3">
+                                <div className="flex items-center gap-3">
+                                    <Avatar className="size-20 rounded-lg border-4 border-white shadow-md">
+                                        <AvatarImage
+                                            src={
+                                                data?.cloudFrontUrl ??
+                                                '/writing.png'
+                                            }
+                                        />
+                                    </Avatar>
+                                    <Badge
+                                        variant="outline"
+                                        className={
+                                            user?.role === 'Premium Member'
+                                                ? 'aura-premium'
+                                                : 'bg-rose-500 text-white'
+                                        }
+                                    >
+                                        {user?.role}
+                                    </Badge>
+                                    <Dialog
+                                        open={openEditAvatar}
+                                        onOpenChange={setOpenEditAvatar}
+                                    >
+                                        <DialogTrigger asChild>
+                                            <Button
+                                                type="button"
+                                                variant="outline"
+                                                size="icon"
+                                                className="ml-2"
+                                            >
+                                                <Pencil className="size-4" />
+                                            </Button>
+                                        </DialogTrigger>
+
+                                        <DialogContent className="sm:max-w-md">
+                                            <DialogHeader>
+                                                <DialogTitle>
+                                                    Edit your avatar
+                                                </DialogTitle>
+                                            </DialogHeader>
+
+                                            <S3FileUploader
+                                                presignEndpoint="/profile/avatar/presign"
+                                                accept="image/*"
+                                                maxFiles={1}
+                                                multiple={false}
+                                                onUploaded={async () => {
+                                                    handleUploaded();
+                                                    refetch();
+                                                }}
+                                            />
+
+                                            <DialogFooter className="sm:justify-end">
+                                                <DialogClose asChild>
+                                                    <Button
+                                                        type="button"
+                                                        variant="secondary"
+                                                    >
+                                                        Close
+                                                    </Button>
+                                                </DialogClose>
+                                            </DialogFooter>
+                                        </DialogContent>
+                                    </Dialog>
+                                </div>
+                                <Button
+                                    variant="outline"
+                                    className="h-10 w-10"
+                                    onClick={() => setOpenDialog(true)}
+                                >
+                                    <Edit className="h-4 w-4" />
+                                </Button>
+                            </div>
+                            <h1 className="mt-4 text-2xl font-bold text-zinc-900">
+                                {user?.name}
+                            </h1>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div className="mx-auto max-w-7xl py-8">
+                <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
+                    <div className="lg:col-span-1">
+                        <Card>
+                            <CardHeader>
+                                <CardTitle className="text-lg font-semibold">
+                                    Personal Information
+                                </CardTitle>
+                            </CardHeader>
+                            <CardContent className="space-y-4">
+                                <div className="flex items-center gap-3">
+                                    <Mail className="h-5 w-5 text-zinc-500" />
+                                    <div>
+                                        <p className="text-sm text-zinc-500">
+                                            Email
+                                        </p>
+                                        <p className="font-medium">
+                                            {user?.email}
+                                        </p>
+                                    </div>
+                                </div>
+
+                                <div className="flex items-center gap-3">
+                                    <Phone className="h-5 w-5 text-zinc-500" />
+                                    <div>
+                                        <p className="text-sm text-zinc-500">
+                                            Phone number:
+                                        </p>
+                                        <p className="font-medium">
+                                            {' '}
+                                            {user?.phone}
+                                        </p>
+                                    </div>
+                                </div>
+
+                                <div className="flex items-center gap-3">
+                                    <User className="h-5 w-5 text-zinc-500" />
+                                    <div>
+                                        <p className="text-sm text-zinc-500">
+                                            Sex
+                                        </p>
+                                        <p className="font-medium">
+                                            {user?.gender}
+                                        </p>
+                                    </div>
+                                </div>
+
+                                <div className="flex items-center gap-3">
+                                    <CalendarDays className="h-5 w-5 text-zinc-500" />
+                                    <div>
+                                        <p className="text-sm text-zinc-500">
+                                            BirthDay:
+                                        </p>
+                                        <p className="font-medium">
+                                            {user?.birthday
+                                                ? user.birthday.toLocaleDateString()
+                                                : ''}
+                                        </p>
+                                    </div>
+                                </div>
+                            </CardContent>
+                        </Card>
+                    </div>
+
+                    <div className="lg:col-span-2">
+                        <Card>
+                            <CardHeader>
+                                <CardTitle className="text-lg font-semibold">
+                                    Blog
+                                </CardTitle>
+                            </CardHeader>
+                            <AccountBlogSection />
+                        </Card>
+                    </div>
+                </div>
+            </div>
+            <EditProfileDialog open={openDialog} onOpenChange={setOpenDialog} />
+        </div>
+    );
+}

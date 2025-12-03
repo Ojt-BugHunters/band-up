@@ -1,0 +1,31 @@
+package com.project.Band_Up.services.quizlet;
+
+import com.project.Band_Up.dtos.quizlet.DeckDto;
+import com.project.Band_Up.dtos.quizlet.DeckDtoResponse;
+import com.project.Band_Up.dtos.quizlet.DeckResponse;
+import com.project.Band_Up.dtos.quizlet.QuizletStatsDto;
+import com.project.Band_Up.entities.Deck;
+import com.project.Band_Up.enums.StatsInterval;
+import org.springframework.data.domain.Page;
+
+import java.util.List;
+import java.util.UUID;
+
+public interface DeckService {
+
+    public DeckDtoResponse createDeck(UUID account_id, DeckDto deckDto);
+
+    public Page<DeckDtoResponse> getDecks(Integer pageNo, Integer pageSize,
+                                          String sortBy, Boolean ascending,
+                                          String query, String visibility,
+                                          boolean isLearned, UUID accountId);
+
+    public DeckResponse getDeck(UUID deckId, String password);
+
+    public DeckDto deleteDeck(UUID deckId, UUID accountId);
+
+    public DeckDtoResponse updateDeck(UUID deckId, DeckDto deckDto, UUID accountId);
+
+    public void updateLearnerNumber(UUID deckId, UUID accountId);
+
+}

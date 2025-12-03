@@ -1,0 +1,50 @@
+package com.project.Band_Up.controllers;
+
+import com.project.Band_Up.dtos.quizlet.CardDto;
+import com.project.Band_Up.services.quizlet.CardService;
+import com.project.Band_Up.utils.JwtUserDetails;
+import io.swagger.v3.oas.annotations.tags.Tag;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
+import java.util.UUID;
+
+@RestController
+@RequestMapping("/api/quizlet")
+@Tag(name = "Card API", description = "Các endpoint để quản lý Card (tạo, đọc, cập nhật, xóa).")
+public class CardController {
+
+    @Autowired
+    private CardService cardService;
+
+    @PostMapping("/deck/{deckId}/card/create")
+    public ResponseEntity<?> createCard(@RequestBody List<CardDto> cards,
+                                        @PathVariable UUID deckId) {
+        List<CardDto> cardDtos = cardService.createCard(cards, deckId);
+        return ResponseEntity.ok().body(cardDtos);
+    }
+
+    @PostMapping("/deck/{deckId}/card")
+    public ResponseEntity<?> getCards(@PathVariable UUID deckId,
+                                      @AuthenticationPrincipal JwtUserDetails userDetails,
+                                      @RequestBody String password) {
+        List<CardDto> cardDtos = cardService.getCards(deckId, password);
+        return ResponseEntity.ok().body(cardDtos);
+    }
+
+    @DeleteMapping("/deck/card/{cardId}")
+    public ResponseEntity<?> deleteCard(@PathVariable UUID cardId,
+                                        @AuthenticationPrincipal JwtUserDetails userDetails) {
+        return ResponseEntity.ok().body(cardService.deleteCard(cardId, userDetails.getAccountId()));
+    }
+
+    @PutMapping("/deck/card/{cardId}/update")
+    public ResponseEntity<?> updateCard(@PathVariable UUID cardId,
+                                        @RequestBody CardDto cardDto,
+                                        @AuthenticationPrincipal JwtUserDetails userDetails) {
+        return ResponseEntity.ok().body(cardService.updateCard(cardId, cardDto, userDetails.getAccountId()));
+    }
+}

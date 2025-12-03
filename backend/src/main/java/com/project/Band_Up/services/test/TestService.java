@@ -1,0 +1,39 @@
+package com.project.Band_Up.services.test;
+
+import com.project.Band_Up.dtos.test.TestCreateRequest;
+import com.project.Band_Up.dtos.test.TestUpdateRequest;
+import com.project.Band_Up.dtos.test.TestResponse;
+import com.project.Band_Up.enums.Status;
+
+import java.util.List;
+import java.util.UUID;
+
+public interface TestService {
+
+    //  Tạo mới Test
+    TestResponse createTest(UUID accountId, TestCreateRequest request);
+
+
+    //  Lấy tất cả Test
+    List<TestResponse> getAllTests();
+
+    TestResponse getTestById(UUID testId);
+    //  Lấy tất cả Test theo ngày tạo giảm dần
+    List<TestResponse> getAllTestsSortedByCreateAt();
+
+    //  Lấy tất cả Test theo skillName
+    List<TestResponse> getTestsBySkillName(String skillName);
+
+    //  Tìm kiếm Test theo title (search)
+    List<TestResponse> searchTestsByTitle(String keyword);
+
+    //  Cập nhật Test
+    TestResponse updateTest(UUID testId,TestUpdateRequest request);
+
+    TestResponse plusNumberOfMembers(UUID testId);
+
+    //  Xóa Test
+    void deleteTest(UUID id);
+    // Xóa tất cả test của user theo Status
+    void deleteAllTestsByUserIdAndStatus(UUID userId, Status status);
+}

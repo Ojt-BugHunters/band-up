@@ -35,3 +35,6 @@ Thumbs.db
 # Logs
 *.log
 logs/
+.idea/workspace.xml
+backend/.env.backend
+frontend/.env.frontend
