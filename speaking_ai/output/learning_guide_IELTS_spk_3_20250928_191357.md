@@ -52,7 +52,6 @@ Your transcript shows a good start with some idiomatic language, but we can enha
 *   **"loneliness creeps in"**: "solitude can emerge," "a sense of loneliness can manifest," or "isolation can insidiously set in."
 *   **"success overshadows balance"**: "when professional achievements eclipse personal well-being," "when the pursuit of success compromises equilibrium," or "when ambition detracts from life's balance."
 
-**Weekly Goal:** Learn and actively use 5 new vocabulary words or collocations related to success, achievement, and social dynamics each week. Practice incorporating them into your speaking practice.
 
 ## 3. 📚 Grammar Enhancements
 
@@ -63,7 +62,6 @@ Your grammar is a significant strength. You have excellent accuracy and a good c
 *   **Natural Integration of Complexity**: While you use complex sentences effectively, ensure they always serve to enhance clarity and expressiveness, rather than sounding forced. Continue to vary your sentence structures to avoid predictability.
 *   **Refinement of Complex Structures**: Explore more sophisticated ways to combine clauses. For instance, instead of a simple conjunction, consider using participial phrases or appositives to add detail and conciseness.
 
-**Weekly Goal:** Identify one complex sentence structure you used this week and rewrite it in two different ways, focusing on greater nuance or conciseness. For example, try converting a sentence with a subordinate clause into one using a participle.
 
 ## 4. 🗣️ Fluency Development
 
@@ -79,7 +77,6 @@ Your speech rate is good, and you speak without significant hesitation. The key 
     *   **To conclude or summarize**: "In conclusion," "To summarize," "Ultimately."
 *   **Structuring Your Response**: Before speaking, take a moment to mentally (or briefly jot down) the main points you want to make. This will help you organize your thoughts and ensure a logical progression. Think of it as building a bridge between your ideas.
 
-**Weekly Goal:** In your speaking practice, aim to use at least 3 different discourse markers or cohesive devices in each response. Focus on integrating them naturally, not just inserting them. Practice answering questions and consciously linking your points.
 
 ## 5. 📋 Improved Version
 
