@@ -1,7 +1,0 @@
-# RAG Flashcard Lambda - Minimal dependencies
-langchain-core>=0.3.0
-langchain-google-genai>=2.0.0
-google-generativeai>=0.8.0
-pymupdf>=1.24.0
-python-dotenv>=1.0.0
-boto3>=1.34.0
