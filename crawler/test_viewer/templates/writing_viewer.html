@@ -1,0 +1,525 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>IELTS Writing Test Viewer</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+        }
+
+        .header {
+            background: white;
+            padding: 15px 20px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .header-content {
+            max-width: 1800px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .back-btn {
+            background: #667eea;
+            color: white;
+            padding: 10px 20px;
+            border-radius: 5px;
+            text-decoration: none;
+            transition: background 0.3s;
+        }
+
+        .back-btn:hover { background: #5568d3; }
+
+        .test-info { text-align: center; flex-grow: 1; }
+        .test-info h1 { color: #333; font-size: 22px; margin-bottom: 5px; }
+        .test-meta { color: #666; font-size: 13px; }
+
+        .task-tabs {
+            display: flex;
+            gap: 10px;
+        }
+
+        .task-tab {
+            padding: 10px 20px;
+            border: 2px solid #667eea;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s;
+            background: white;
+            color: #667eea;
+        }
+
+        .task-tab:hover { background: #f0f4ff; }
+        .task-tab.active { background: #667eea; color: white; }
+
+        .container {
+            max-width: 1800px;
+            margin: 20px auto;
+            display: flex;
+            gap: 20px;
+            padding: 0 20px;
+            height: calc(100vh - 120px);
+        }
+
+        .left-panel, .right-panel {
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .left-panel { flex: 1; }
+        .right-panel { flex: 1; }
+
+        .panel-header {
+            position: sticky;
+            top: 0;
+            background: white;
+            padding: 20px 25px 15px;
+            border-bottom: 3px solid #667eea;
+            z-index: 10;
+        }
+
+        .panel-header h2 { color: #667eea; font-size: 18px; }
+
+        .panel-content {
+            padding: 25px;
+            flex: 1;
+            overflow-y: auto;
+        }
+
+        /* Content styling */
+        .content-area { line-height: 1.8; color: #333; font-size: 15px; }
+        .content-area h2, .content-area h3, .content-area h4 { color: #667eea; margin: 15px 0 10px; }
+        .content-area p { margin-bottom: 12px; }
+        .content-area img { max-width: 100%; height: auto; margin: 15px 0; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
+        .content-area ul, .content-area ol { margin: 12px 0; padding-left: 25px; }
+        .content-area li { margin-bottom: 6px; }
+
+        /* Task info box */
+        .task-info-box {
+            background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+            padding: 15px 20px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            border-left: 4px solid #667eea;
+        }
+
+        .task-info-box h3 { color: #667eea; margin-bottom: 8px; font-size: 16px; }
+        .task-info-box p { color: #555; margin: 5px 0; font-size: 14px; }
+        .task-info-box .time { color: #e74c3c; font-weight: 600; }
+        .task-info-box .words { color: #27ae60; font-weight: 600; }
+
+        /* Question box */
+        .question-box {
+            background: #fff3cd;
+            border: 2px solid #ffc107;
+            padding: 20px;
+            border-radius: 10px;
+            margin: 20px 0;
+        }
+
+        .question-box h4 { color: #856404; margin-bottom: 10px; }
+        .question-box p { color: #333; font-weight: 500; line-height: 1.7; }
+
+        /* Writing area */
+        .writing-container {
+            display: flex;
+            flex-direction: column;
+            height: 100%;
+        }
+
+        .writing-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+
+        .word-count {
+            background: #f0f4ff;
+            padding: 8px 15px;
+            border-radius: 20px;
+            font-size: 14px;
+            color: #667eea;
+            font-weight: 600;
+        }
+
+        .word-count.warning { background: #fff3cd; color: #856404; }
+        .word-count.good { background: #d4edda; color: #155724; }
+
+        .writing-textarea {
+            flex: 1;
+            width: 100%;
+            min-height: 500px;
+            padding: 20px;
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+            font-size: 16px;
+            line-height: 1.8;
+            resize: none;
+            font-family: 'Georgia', serif;
+            transition: border-color 0.3s;
+        }
+
+        .writing-textarea:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        .writing-textarea::placeholder {
+            color: #aaa;
+            font-style: italic;
+        }
+
+        /* Action buttons */
+        .action-buttons {
+            display: flex;
+            gap: 10px;
+            margin-top: 15px;
+        }
+
+        .action-btn {
+            padding: 12px 25px;
+            border: none;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .action-btn.primary {
+            background: #667eea;
+            color: white;
+        }
+
+        .action-btn.primary:hover {
+            background: #5568d3;
+            transform: translateY(-2px);
+        }
+
+        .action-btn.secondary {
+            background: #f8f9fa;
+            color: #333;
+            border: 2px solid #e0e0e0;
+        }
+
+        .action-btn.secondary:hover {
+            background: #e9ecef;
+        }
+
+        /* Timer */
+        .timer {
+            background: #333;
+            color: white;
+            padding: 10px 20px;
+            border-radius: 8px;
+            font-family: 'Courier New', monospace;
+            font-size: 18px;
+            font-weight: bold;
+        }
+
+        .timer.warning { background: #e74c3c; }
+
+        /* Scrollbar */
+        .left-panel::-webkit-scrollbar, .right-panel::-webkit-scrollbar,
+        .panel-content::-webkit-scrollbar { width: 8px; }
+        .left-panel::-webkit-scrollbar-track, .right-panel::-webkit-scrollbar-track,
+        .panel-content::-webkit-scrollbar-track { background: #f1f1f1; border-radius: 10px; }
+        .left-panel::-webkit-scrollbar-thumb, .right-panel::-webkit-scrollbar-thumb,
+        .panel-content::-webkit-scrollbar-thumb { background: #667eea; border-radius: 10px; }
+
+        /* Hide ads */
+        .ielts-manual-ads, .et_pb_code, .adsbygoogle, .ielts-adlabel,
+        [class*="ad-"], [class*="ads-"] { display: none !important; }
+
+        /* Responsive */
+        @media (max-width: 1200px) {
+            .container { flex-direction: column; height: auto; }
+            .left-panel, .right-panel { flex: none; }
+            .writing-textarea { min-height: 400px; }
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <div class="header-content">
+            <a href="/" class="back-btn">← Back</a>
+            <div class="test-info">
+                <h1 id="test-title">Loading...</h1>
+                <div class="test-meta">
+                    <span id="test-type"></span> | <span id="test-number"></span>
+                </div>
+            </div>
+            <div class="task-tabs">
+                <div class="task-tab active" onclick="switchTask(1)">Task 1</div>
+                <div class="task-tab" onclick="switchTask(2)">Task 2</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="container">
+        <div class="left-panel">
+            <div class="panel-header">
+                <h2 id="left-header">📝 Writing Task</h2>
+            </div>
+            <div class="panel-content">
+                <div id="task-info" class="task-info-box"></div>
+                <div id="content-area" class="content-area"></div>
+            </div>
+        </div>
+
+        <div class="right-panel">
+            <div class="panel-header">
+                <h2>✍️ Your Response</h2>
+            </div>
+            <div class="panel-content">
+                <div class="writing-container">
+                    <div class="writing-header">
+                        <div class="timer" id="timer">00:00</div>
+                        <div class="word-count" id="word-count">Words: 0</div>
+                    </div>
+                    <textarea 
+                        class="writing-textarea" 
+                        id="writing-area"
+                        placeholder="Start writing your response here...
+
+For Task 1: Describe the main features and make comparisons where relevant.
+
+For Task 2: Present your argument clearly with supporting examples."
+                    ></textarea>
+                    <div class="action-buttons">
+                        <button class="action-btn primary" onclick="startTimer()">⏱️ Start Timer</button>
+                        <button class="action-btn secondary" onclick="resetTimer()">🔄 Reset Timer</button>
+                        <button class="action-btn secondary" onclick="clearText()">🗑️ Clear</button>
+                        <button class="action-btn secondary" onclick="copyText()">📋 Copy</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const skill = "{{ skill }}";
+        const testType = "{{ test_type }}";
+        const filename = "{{ filename }}";
+        let testData = null;
+        let currentTask = 1;
+        let timerInterval = null;
+        let seconds = 0;
+        let timerRunning = false;
+
+        // Load test data
+        fetch(`/api/test/${skill}/${testType}/${filename}`)
+            .then(response => response.json())
+            .then(data => {
+                testData = data;
+                renderTest(data);
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                document.getElementById('content-area').innerHTML = `<p style="color:red;">Error loading test</p>`;
+            });
+
+        function renderTest(data) {
+            const testName = data.test_metadata?.test_name || 'Writing Test';
+            const testTypeStr = data.test_metadata?.test_type || 'practice';
+            const testNum = data.test_metadata?.test_number || 'N/A';
+            
+            document.getElementById('test-title').textContent = testName;
+            document.getElementById('test-type').textContent = `Type: ${testTypeStr}`;
+            document.getElementById('test-number').textContent = `Test #${testNum}`;
+
+            renderTask(currentTask);
+        }
+
+        function switchTask(taskNum) {
+            currentTask = taskNum;
+            
+            // Update tabs
+            document.querySelectorAll('.task-tab').forEach((tab, idx) => {
+                tab.classList.toggle('active', idx + 1 === taskNum);
+            });
+            
+            renderTask(taskNum);
+        }
+
+        function renderTask(taskNum) {
+            if (!testData || !testData.tasks) return;
+            
+            const task = testData.tasks[taskNum - 1];
+            if (!task) return;
+
+            // Update header
+            document.getElementById('left-header').textContent = `📝 Writing Task ${taskNum}`;
+
+            // Task info
+            const infoBox = document.getElementById('task-info');
+            if (taskNum === 1) {
+                infoBox.innerHTML = `
+                    <h3>📋 Task 1 Requirements</h3>
+                    <p><span class="time">⏱️ Time: 20 minutes</span></p>
+                    <p><span class="words">📝 Minimum: 150 words</span></p>
+                    <p>Summarise the information by selecting and reporting the main features, and make comparisons where relevant.</p>
+                `;
+            } else {
+                infoBox.innerHTML = `
+                    <h3>📋 Task 2 Requirements</h3>
+                    <p><span class="time">⏱️ Time: 40 minutes</span></p>
+                    <p><span class="words">📝 Minimum: 250 words</span></p>
+                    <p>Write an essay in response to the question. Give reasons for your answer and include relevant examples.</p>
+                `;
+            }
+
+            // Content
+            const contentArea = document.getElementById('content-area');
+            let html = '';
+
+            // Show images for Task 1
+            if (task.images && task.images.length > 0) {
+                html += '<div class="images-section">';
+                task.images.forEach(img => {
+                    html += `<img src="${img}" alt="Task image" />`;
+                });
+                html += '</div>';
+            }
+
+            // Show question/content
+            if (task.content_html) {
+                html += `<div class="content-area">${cleanHtml(task.content_html)}</div>`;
+            } else if (task.content_text) {
+                html += `<div class="question-box"><p>${task.content_text}</p></div>`;
+            }
+
+            contentArea.innerHTML = html;
+
+            // Update placeholder based on task
+            const textarea = document.getElementById('writing-area');
+            if (taskNum === 1) {
+                textarea.placeholder = `Start writing your Task 1 response here...
+
+Tips:
+• Describe the main features shown in the visual
+• Make comparisons where relevant
+• Use appropriate vocabulary for describing trends/data
+• Aim for at least 150 words`;
+            } else {
+                textarea.placeholder = `Start writing your Task 2 essay here...
+
+Tips:
+• Introduction: Paraphrase the question and state your position
+• Body paragraphs: Present your arguments with examples
+• Conclusion: Summarize your main points
+• Aim for at least 250 words`;
+            }
+        }
+
+        function cleanHtml(html) {
+            const div = document.createElement('div');
+            div.innerHTML = html;
+            
+            const adSelectors = [
+                '.ielts-manual-ads', '.et_pb_code', '.adsbygoogle', '.ielts-adlabel',
+                'script', 'ins', '[class*="ad-"]'
+            ];
+            
+            adSelectors.forEach(sel => {
+                div.querySelectorAll(sel).forEach(el => el.remove());
+            });
+            
+            return div.innerHTML;
+        }
+
+        // Word counter
+        document.getElementById('writing-area').addEventListener('input', function() {
+            const text = this.value.trim();
+            const words = text ? text.split(/\s+/).length : 0;
+            const wordCountEl = document.getElementById('word-count');
+            
+            wordCountEl.textContent = `Words: ${words}`;
+            
+            const minWords = currentTask === 1 ? 150 : 250;
+            
+            if (words < minWords * 0.5) {
+                wordCountEl.className = 'word-count warning';
+            } else if (words >= minWords) {
+                wordCountEl.className = 'word-count good';
+            } else {
+                wordCountEl.className = 'word-count';
+            }
+        });
+
+        // Timer functions
+        function startTimer() {
+            if (timerRunning) {
+                // Pause
+                clearInterval(timerInterval);
+                timerRunning = false;
+                document.querySelector('.action-btn.primary').textContent = '▶️ Resume Timer';
+            } else {
+                // Start/Resume
+                timerRunning = true;
+                document.querySelector('.action-btn.primary').textContent = '⏸️ Pause Timer';
+                timerInterval = setInterval(() => {
+                    seconds++;
+                    updateTimerDisplay();
+                }, 1000);
+            }
+        }
+
+        function resetTimer() {
+            clearInterval(timerInterval);
+            seconds = 0;
+            timerRunning = false;
+            updateTimerDisplay();
+            document.querySelector('.action-btn.primary').textContent = '⏱️ Start Timer';
+            document.getElementById('timer').classList.remove('warning');
+        }
+
+        function updateTimerDisplay() {
+            const mins = Math.floor(seconds / 60);
+            const secs = seconds % 60;
+            const display = `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+            const timerEl = document.getElementById('timer');
+            timerEl.textContent = display;
+            
+            // Warning at time limit
+            const limit = currentTask === 1 ? 20 : 40;
+            if (mins >= limit) {
+                timerEl.classList.add('warning');
+            }
+        }
+
+        function clearText() {
+            if (confirm('Are you sure you want to clear your response?')) {
+                document.getElementById('writing-area').value = '';
+                document.getElementById('word-count').textContent = 'Words: 0';
+                document.getElementById('word-count').className = 'word-count';
+            }
+        }
+
+        function copyText() {
+            const textarea = document.getElementById('writing-area');
+            textarea.select();
+            document.execCommand('copy');
+            alert('Text copied to clipboard!');
+        }
+    </script>
+</body>
+</html>
