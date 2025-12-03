@@ -1,0 +1,104 @@
+{
+    "transcription": {
+      "transcript": "The actual transcribed text from the audio",
+      "chunks": [
+        {
+          "timestamp": [0.0, 2.5],
+          "text": "chunk of transcribed text"
+        }
+      ],
+      "language": "english",
+      "duration": 45.2
+    },
+    "fluency_analysis": {
+      "speech_rate_wpm": 125.5,
+      "articulation_rate_sps": 3.2,
+      "word_count": 95,
+      "syllable_count": 142,
+      "duration": 45.2,
+      "pause_count": 8,
+      "total_pause_duration": 3.2,
+      "pause_frequency": 0.18,
+      "avg_pause_duration": 0.4,
+      "mid_clause_pauses": 2,
+      "pause_ratio": 0.07,
+      "filled_pauses": 3,
+      "filled_pause_rate": 0.07,
+      "repetitions": 1,
+      "self_corrections": 2,
+      "total_disfluencies": 6,
+      "speech_runs": [2.5, 3.1, 4.2],
+      "avg_speech_run_length": 3.3,
+      "longest_speech_run": 4.2,
+      "coherence_score": 6.5,
+      "transcript": "The actual transcribed text"
+    },
+    "lexical_analysis": {
+      "vocabulary_size": 67,
+      "total_words": 95,
+      "vocabulary_ratio": 0.705,
+      "guiraud_index": 6.87,
+      "academic_word_count": 8,
+      "academic_word_ratio": 0.119,
+      "idiom_count": 2,
+      "frequency_diversity": 0.82,
+      "avg_word_length": 4.8,
+      "long_word_ratio": 0.15,
+      "most_common_words": [
+        ["the", 8],
+        ["and", 6],
+        ["is", 5]
+      ],
+      "lexical_sophistication_score": 0.42
+    },
+    "grammatical_analysis": {
+      "sentence_count": 12,
+      "avg_sentence_length": 7.9,
+      "complex_sentence_count": 4,
+      "complexity_ratio": 0.33,
+      "error_count": 2,
+      "detected_errors": [
+        "subject_verb_disagreement: 1 instances"
+      ],
+      "error_rate": 0.17,
+      "tense_consistency": 0.15,
+      "sentence_variety": 0.75,
+      "accuracy_score": 8.3,
+      "grammatical_range_score": 6.7
+    },
+    "evaluation": {
+      "overall_band": 6.5,
+      "fluency_coherence": {
+        "band": 6.5,
+        "feedback": "Speech rate: 125.5 WPM, 3 filled pauses, 8 pauses",
+        "strengths": ["Good speech rate"],
+        "weaknesses": ["Some hesitation"],
+        "improvements": ["Practice speaking fluency", "Reduce filled pauses"]
+      },
+      "lexical_resource": {
+        "band": 6.0,
+        "feedback": "Vocabulary: 67 unique words, TTR: 0.705, Academic words: 8",
+        "strengths": ["Good vocabulary range"],
+        "weaknesses": ["Some repetition"],
+        "improvements": ["Expand vocabulary range", "Use more varied expressions"]
+      },
+      "grammatical_range_accuracy": {
+        "band": 6.5,
+        "feedback": "Sentences: 12, Errors: 2, Complexity: 33.3%",
+        "strengths": ["Good sentence structure"],
+        "weaknesses": ["Some grammatical errors"],
+        "improvements": ["Review grammar rules", "Practice complex sentences"]
+      },
+      "pronunciation": {
+        "band": 6.5,
+        "feedback": "Pronunciation analysis based on transcription quality and speech clarity",
+        "strengths": ["Clear speech"],
+        "weaknesses": ["Some unclear sounds"],
+        "improvements": ["Practice difficult sounds", "Work on clarity", "Record and listen to yourself"]
+      },
+      "raw_response": "Raw LLM response text (when available)",
+      "model_used": "gemini-2.5-flash-lite",
+      "fallback": false
+    },
+    "timestamp": "2024-01-01T00:00:00Z"
+  }
