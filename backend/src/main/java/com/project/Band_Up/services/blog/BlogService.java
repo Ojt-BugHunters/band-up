@@ -21,4 +21,6 @@ public interface BlogService {
     public List<BlogPosts> getFeaturedBlogPosts();
     public List<TagDto> getAllTags();
     public ReactDto reactToBlogPost(UUID userId, UUID blogId, ReactDto reactDto);
+    public BlogPosts updateBlogPost(UUID blogPostId, BlogRequest blogRequest, UUID accountId);
+    public void deleteBlogPost(UUID blogPostId, UUID accountId);
 }
