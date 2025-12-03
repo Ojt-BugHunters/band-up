@@ -12,4 +12,5 @@ public interface MediaRepository extends JpaRepository<Media, UUID> {
     // Lấy tất cả media theo sectionId
     List<Media> findAllBySection_Id(UUID sectionId);
     Optional<Media> findFirstByQuestion_Id(UUID questionId);
+    Optional<Media> findFirstBySection_Id(UUID sectionId);
 }
