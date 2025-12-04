@@ -247,7 +247,7 @@ export function ListeningTest({
                             </CardHeader>
 
                             <CardContent className="p-0">
-                                <div className="h-full overflow-auto p-6">
+                                <div className="h-full overflow-auto">
                                     {currentSectionData &&
                                         availableSections && (
                                             <AudioPlayer
@@ -260,6 +260,8 @@ export function ListeningTest({
                                                             '',
                                                         duration:
                                                             section.timeLimitSeconds,
+                                                        metadata:
+                                                            section.metadata,
                                                     }),
                                                 )}
                                                 currentSection={currentSection}
