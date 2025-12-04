@@ -28,6 +28,8 @@ public class AttemptSection {
     @JoinColumn (name = "section_id", nullable = false,
             foreignKey = @ForeignKey(name = "fk_attempt_section_section"))
     private Section section ;
+
+    @Enumerated(EnumType.STRING)
     private Status status;
     private LocalDateTime startAt;
 }

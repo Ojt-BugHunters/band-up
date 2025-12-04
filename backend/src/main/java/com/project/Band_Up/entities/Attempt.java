@@ -32,6 +32,8 @@ public class Attempt {
     private Test test;
     private LocalDateTime startAt;
     private LocalDateTime submitAt;
+
+    @Enumerated(EnumType.STRING)
     private Status status;
     private Integer score; // điểm số
     private Double overallBand; // điểm band overall
