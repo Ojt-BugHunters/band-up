@@ -54,15 +54,6 @@ export type TestHistory = {
         total: number;
     }>;
 };
-export interface TestOverview {
-    id: string;
-    title: string;
-    created_at: string;
-    skill: string;
-    number_participant: number;
-    comments: number;
-    duration: number;
-}
 
 export interface Test {
     id: string;

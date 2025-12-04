@@ -32,52 +32,54 @@ import {
     User,
     BookOpenCheck,
     BookOpen,
-    Plus,
 } from 'lucide-react';
 import { useEffect, useMemo, useState } from 'react';
-import { mockTests } from '../../../constants/sample-data';
 import { TestCard } from '@/components/test-card';
 import { PaginationState } from '@tanstack/react-table';
 import { PaginationControl } from '@/components/ui/pagination-control';
 import Link from 'next/link';
-import { Button } from '@/components/ui/button';
+import { useGetDictationTests } from '@/lib/service/dictation';
+import LiquidLoading from '@/components/ui/liquid-loader';
+import { NotFound } from '@/components/not-found';
 
 export default function TestListPage() {
-    const [skill, setSkill] = useState<string | undefined>();
-    const [search, setSearch] = useState<string | undefined>();
+    const [skill, setSkill] = useState<string>('all');
+    const [search, setSearch] = useState<string>('');
     const [sort, setSort] = useState<string | undefined>();
     const [pagination, setPagination] = useState<PaginationState>({
-        pageSize: 12,
+        pageSize: 8,
         pageIndex: 0,
     });
+    const { data: tests, isLoading, isError } = useGetDictationTests();
 
     const filteredTests = useMemo(() => {
-        return mockTests.filter((test) => {
+        return tests?.filter((test) => {
             const matchesSearch = search
                 ? test.title.toLowerCase().includes(search.toLowerCase())
                 : true;
 
             const matchesSkill =
-                skill && skill !== 'all' ? test.skill === skill : true;
+                skill && skill !== 'all' ? test.skillName === skill : true;
 
-            return matchesSearch && matchesSkill;
+            const skillIsNotDictation = test.skillName !== 'Dictation';
+            return matchesSearch && matchesSkill && skillIsNotDictation;
         });
-    }, [search, skill]);
+    }, [search, skill, tests]);
 
     const sortedTests = useMemo(() => {
         if (!sort) return filteredTests;
 
-        return [...filteredTests].sort((a, b) => {
+        return [...(filteredTests ?? [])].sort((a, b) => {
             if (sort === 'latest') {
                 return (
-                    new Date(b.created_at).getTime() -
-                    new Date(a.created_at).getTime()
+                    new Date(b.createAt).getTime() -
+                    new Date(a.createAt).getTime()
                 );
             }
             if (sort === 'oldest') {
                 return (
-                    new Date(a.created_at).getTime() -
-                    new Date(b.created_at).getTime()
+                    new Date(a.createAt).getTime() -
+                    new Date(b.createAt).getTime()
                 );
             }
             return 0;
@@ -87,7 +89,7 @@ export default function TestListPage() {
     const paginatedTests = useMemo(() => {
         const start = pagination.pageIndex * pagination.pageSize;
         const end = start + pagination.pageSize;
-        return sortedTests.slice(start, end);
+        return sortedTests?.slice(start, end);
     }, [sortedTests, pagination]);
 
     useEffect(() => {
@@ -96,6 +98,18 @@ export default function TestListPage() {
             pageIndex: 0,
         }));
     }, [search, skill, sort]);
+
+    if (isLoading) {
+        return (
+            <div className="bg-background flex min-h-screen w-full items-center justify-center rounded-lg border p-4">
+                <LiquidLoading />
+            </div>
+        );
+    }
+
+    if (isError) {
+        return <NotFound />;
+    }
 
     return (
         <div className="flex-1 space-y-6 p-6">
@@ -199,19 +213,13 @@ export default function TestListPage() {
                             </SelectItem>
                         </SelectContent>
                     </Select>
-                    <Link href="/test/create">
-                        <Button className="rounded-xl bg-red-600 font-medium text-white shadow-lg shadow-red-600/25 hover:bg-red-700">
-                            <Plus className="mr-2 h-4 w-4" />
-                            Create New Test
-                        </Button>
-                    </Link>
                 </div>
             </div>
             <div className="mx-auto mb-12 grid max-w-7xl grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-4">
-                {paginatedTests.map((test) => (
+                {paginatedTests?.map((test) => (
                     <Link
                         key={test.id}
-                        href={`/test/${test.skill.toLowerCase()}/${test.id}`}
+                        href={`/test/${test.skillName.toLowerCase()}/${test.id}`}
                     >
                         <TestCard test={test} />
                     </Link>
@@ -220,7 +228,7 @@ export default function TestListPage() {
             <div className="mx-auto max-w-7xl">
                 <PaginationControl
                     className="mt-6"
-                    itemCount={sortedTests.length}
+                    itemCount={sortedTests?.length ?? 0}
                     pagination={pagination}
                     setPagination={setPagination}
                 />

@@ -1,58 +1,51 @@
-import { TestOverview } from '@/lib/service/test';
 import { Card, CardContent, CardHeader, CardTitle } from './ui/card';
 import { Badge } from './ui/badge';
-import {
-    BookOpen,
-    Calendar,
-    Clock,
-    MessageSquare,
-    Play,
-    Users,
-} from 'lucide-react';
+import { BookOpen, Calendar, Clock, Play, Users } from 'lucide-react';
 import { Button } from './ui/button';
+import type { Dictation } from '@/lib/service/dictation';
 
 const getCardGradient = (skill: string) => {
     switch (skill.toLowerCase()) {
         case 'reading':
-            return 'bg-gradient-to-br from-blue-50 via-white to-indigo-50 dark:bg-gradient-to-br dark:from-blue-900/40 dark:via-slate-800/50 dark:to-indigo-900/30';
+            return 'from-blue-500/10 via-blue-400/5 to-indigo-500/10 dark:from-blue-500/20 dark:via-blue-400/10 dark:to-indigo-500/20';
         case 'writing':
-            return 'bg-gradient-to-br from-emerald-50 via-white to-teal-50 dark:bg-gradient-to-br dark:from-emerald-900/40 dark:via-slate-800/50 dark:to-teal-900/30';
+            return 'from-emerald-500/10 via-teal-400/5 to-teal-500/10 dark:from-emerald-500/20 dark:via-teal-400/10 dark:to-teal-500/20';
         case 'listening':
-            return 'bg-gradient-to-br from-violet-50 via-white to-purple-50 dark:bg-gradient-to-br dark:from-violet-900/40 dark:via-slate-800/50 dark:to-purple-900/30';
+            return 'from-violet-500/10 via-purple-400/5 to-indigo-500/10 dark:from-violet-500/20 dark:via-purple-400/10 dark:to-indigo-500/20';
         case 'speaking':
-            return 'bg-gradient-to-br from-amber-50 via-white to-orange-50 dark:bg-gradient-to-br dark:from-amber-900/40 dark:via-slate-800/50 dark:to-orange-900/30';
+            return 'from-amber-500/10 via-orange-400/5 to-orange-500/10 dark:from-amber-500/20 dark:via-orange-400/10 dark:to-orange-500/20';
         default:
-            return 'bg-gradient-to-br from-slate-50 via-white to-gray-50 dark:bg-gradient-to-br dark:from-slate-800/40 dark:via-slate-800/50 dark:to-gray-800/30';
+            return 'from-gray-400/10 via-white/5 to-gray-400/10 dark:from-slate-500/20 dark:via-slate-400/10 dark:to-gray-500/20';
     }
 };
 
 const getSkillColor = (skill: string) => {
     switch (skill.toLowerCase()) {
         case 'reading':
-            return 'bg-blue-100 text-blue-700 border-blue-200 dark:bg-blue-500/20 dark:text-blue-300 dark:border-blue-400/30';
+            return 'bg-blue-500/90 text-white border-blue-400/50 dark:bg-blue-600/80 dark:border-blue-500/50';
         case 'writing':
-            return 'bg-emerald-100 text-emerald-700 border-emerald-200 dark:bg-emerald-500/20 dark:text-emerald-300 dark:border-emerald-400/30';
+            return 'bg-emerald-500/90 text-white border-emerald-400/50 dark:bg-emerald-600/80 dark:border-emerald-500/50';
         case 'listening':
-            return 'bg-violet-100 text-violet-700 border-violet-200 dark:bg-violet-500/20 dark:text-violet-300 dark:border-violet-400/30';
+            return 'bg-violet-500/90 text-white border-violet-400/50 dark:bg-violet-600/80 dark:border-violet-500/50';
         case 'speaking':
-            return 'bg-amber-100 text-amber-700 border-amber-200 dark:bg-amber-500/20 dark:text-amber-300 dark:border-amber-400/30';
+            return 'bg-amber-500/90 text-white border-amber-400/50 dark:bg-amber-600/80 dark:border-amber-500/50';
         default:
-            return 'bg-slate-100 text-slate-700 border-slate-200 dark:bg-slate-500/20 dark:text-slate-300 dark:border-slate-400/30';
+            return 'bg-gray-500/90 text-white border-gray-400/50 dark:bg-gray-600/80 dark:border-gray-500/50';
     }
 };
 
-const getHoverShadow = (skill: string) => {
+const getHoverGlow = (skill: string) => {
     switch (skill.toLowerCase()) {
         case 'reading':
-            return 'hover:shadow-blue-200/50 dark:hover:shadow-blue-500/20';
+            return 'hover:shadow-[0_20px_40px_-10px_rgba(59,130,246,0.3)] dark:hover:shadow-[0_20px_40px_-10px_rgba(37,99,235,0.2)]';
         case 'writing':
-            return 'hover:shadow-emerald-200/50 dark:hover:shadow-emerald-500/20';
+            return 'hover:shadow-[0_20px_40px_-10px_rgba(16,185,129,0.3)] dark:hover:shadow-[0_20px_40px_-10px_rgba(5,150,105,0.2)]';
         case 'listening':
-            return 'hover:shadow-violet-200/50 dark:hover:shadow-violet-500/20';
+            return 'hover:shadow-[0_20px_40px_-10px_rgba(139,92,246,0.3)] dark:hover:shadow-[0_20px_40px_-10px_rgba(124,58,255,0.2)]';
         case 'speaking':
-            return 'hover:shadow-amber-200/50 dark:hover:shadow-amber-500/20';
+            return 'hover:shadow-[0_20px_40px_-10px_rgba(217,119,6,0.3)] dark:hover:shadow-[0_20px_40px_-10px_rgba(180,83,9,0.2)]';
         default:
-            return 'hover:shadow-slate-200/50 dark:hover:shadow-slate-500/20';
+            return 'hover:shadow-[0_20px_40px_-10px_rgba(107,114,128,0.3)] dark:hover:shadow-[0_20px_40px_-10px_rgba(75,85,99,0.2)]';
     }
 };
 
@@ -64,49 +57,53 @@ const formatDate = (dateString: string) => {
     });
 };
 
-export function TestCard({ test }: { test: TestOverview }) {
+const formatDuration = (durationSeconds: number) => {
+    const minutes = Math.floor(durationSeconds / 60);
+    return `${minutes} min`;
+};
+
+export function TestCard({ test }: { test: Dictation }) {
     return (
         <Card
-            className={`${getCardGradient(test.skill)} group flex min-h-[220px] flex-col overflow-hidden border border-slate-200 shadow-md transition-all duration-300 hover:-translate-y-1 hover:scale-[1.02] hover:border-slate-300 hover:shadow-xl ${getHoverShadow(test.skill)} dark:border-border dark:hover:border-border/80`}
+            className={`bg-gradient-to-br ${getCardGradient(test.skillName)} group relative flex min-h-[220px] flex-col overflow-hidden rounded-xl border border-white/30 backdrop-blur-sm transition-all duration-500 ease-out hover:border-white/50 dark:border-white/10 dark:hover:border-white/20 ${getHoverGlow(test.skillName)}`}
         >
-            <CardHeader className="flex-grow pb-3">
+            <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-white/5 to-transparent opacity-0 transition-opacity duration-500 group-hover:opacity-100" />
+
+            <CardHeader className="relative z-10 flex-grow pb-3">
                 <div className="mb-3 flex items-start justify-between gap-4">
-                    <CardTitle className="dark:text-foreground line-clamp-2 min-h-[4.5rem] text-lg leading-tight font-semibold text-slate-900 transition-colors">
+                    <CardTitle className="line-clamp-2 min-h-[4.5rem] text-lg font-semibold text-slate-900 transition-all duration-300 group-hover:text-slate-950 dark:text-white dark:group-hover:text-white/95">
                         {test.title}
                     </CardTitle>
                     <Badge
-                        className={`${getSkillColor(test.skill)} shrink-0 font-medium`}
+                        className={`${getSkillColor(test.skillName)} shrink-0 border font-medium backdrop-blur-md transition-all duration-300 group-hover:scale-110 group-hover:shadow-lg`}
                     >
                         <BookOpen className="mr-1 h-3 w-3" />
-                        {test.skill}
+                        {test.skillName}
                     </Badge>
                 </div>
-                <div className="dark:text-muted-foreground grid grid-cols-2 gap-x-6 gap-y-2 text-sm text-slate-600">
+                <div className="grid grid-cols-2 gap-x-6 gap-y-2 text-sm text-slate-600 transition-colors duration-300 group-hover:text-slate-700 dark:text-slate-400 dark:group-hover:text-slate-300">
                     <div className="flex items-center gap-1">
-                        <Calendar className="dark:text-muted-foreground/80 h-4 w-4 text-slate-500" />
-                        {formatDate(test.created_at)}
+                        <Calendar className="h-4 w-4 text-slate-500 transition-colors duration-300 group-hover:text-slate-600 dark:text-slate-500 dark:group-hover:text-slate-400" />
+                        {formatDate(test.createAt)}
                     </div>
                     <div className="flex items-center gap-1">
-                        <Clock className="dark:text-muted-foreground/80 h-4 w-4 text-slate-500" />
-                        {test.duration} min
+                        <Clock className="h-4 w-4 text-slate-500 transition-colors duration-300 group-hover:text-slate-600 dark:text-slate-500 dark:group-hover:text-slate-400" />
+                        {formatDuration(test.durationSeconds)}
                     </div>
                     <div className="flex items-center gap-1">
-                        <MessageSquare className="dark:text-muted-foreground/80 h-4 w-4 text-slate-500" />
-                        {test.comments}
-                    </div>
-                    <div className="flex items-center gap-1">
-                        <Users className="dark:text-muted-foreground/80 h-4 w-4 text-slate-500" />
-                        {test.number_participant}
+                        <Users className="h-4 w-4 text-slate-500 transition-colors duration-300 group-hover:text-slate-600 dark:text-slate-500 dark:group-hover:text-slate-400" />
+                        {test.numberOfPeople}
                     </div>
                 </div>
             </CardHeader>
-            <CardContent className="mt-auto pt-0">
+            <CardContent className="relative z-10 mt-auto pt-0">
                 <Button
                     size="sm"
-                    className="dark:bg-primary dark:text-primary-foreground dark:hover:bg-primary/90 w-full bg-slate-900 py-2.5 font-medium text-white transition-all hover:bg-slate-800 hover:shadow-lg"
+                    className="group/btn relative w-full overflow-hidden bg-gradient-to-r from-slate-900 to-slate-800 py-2.5 font-medium text-white transition-all duration-300 hover:scale-105 hover:shadow-lg active:scale-95 dark:from-white dark:to-slate-100 dark:text-slate-900"
                 >
-                    <Play className="mr-2 h-4 w-4" />
-                    Start Test
+                    <span className="absolute inset-0 translate-x-[-100%] bg-gradient-to-r from-transparent via-white/30 to-transparent transition-transform duration-700 group-hover/btn:translate-x-[100%]" />
+                    <Play className="mr-2 h-4 w-4 transition-transform duration-300 group-hover/btn:scale-125" />
+                    <span className="relative">Start Test</span>
                 </Button>
             </CardContent>
         </Card>
