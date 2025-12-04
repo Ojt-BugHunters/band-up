@@ -11,6 +11,7 @@ import {
     ListeningQuestion,
     ReadingQuestion,
     ReadingQuestionType,
+    ListeningQuestionType,
 } from '@/lib/service/test/question';
 import Image from 'next/image';
 import { useState } from 'react';
@@ -24,7 +25,9 @@ interface QuestionPanelProps {
     passageTitle: string;
 }
 
-const getQuestionTypeLabel = (type: ReadingQuestionType) => {
+const getQuestionTypeLabel = (
+    type: ReadingQuestionType | ListeningQuestionType,
+) => {
     switch (type) {
         case 'MC':
             return 'Multiple Choice';
@@ -39,22 +42,39 @@ const getQuestionTypeLabel = (type: ReadingQuestionType) => {
         case 'MF':
             return 'Matching Features';
         case 'MI':
-            return 'Matching Features';
+            return 'Matching Information';
+        case 'TB':
+            return 'Table Completion';
+        case 'MP':
+            return 'Map/Plan Labeling';
+        case 'MT':
+            return 'Matching';
+        case 'FC':
+            return 'Form Completion';
+        case 'NC':
+            return 'Note Completion';
         default:
             return type;
     }
 };
 
-const getQuestionTypeColor = (type: ReadingQuestionType) => {
+const getQuestionTypeColor = (
+    type: ReadingQuestionType | ListeningQuestionType,
+) => {
     switch (type) {
         case 'MC':
             return 'bg-primary/10 text-primary border-primary/20';
         case 'SA':
         case 'SC':
         case 'MF':
+        case 'FC':
+        case 'NC':
             return 'bg-success/10 text-success border-success/20';
         case 'TF':
         case 'YN':
+        case 'TB':
+        case 'MP':
+        case 'MT':
             return 'bg-warning/10 text-warning border-warning/20';
         default:
             return 'bg-muted text-muted-foreground';
@@ -81,8 +101,20 @@ export default function QuestionPanel({
         );
     }
 
+    function isListeningQuestion(
+        question: ReadingQuestion | ListeningQuestion,
+    ): question is ListeningQuestion {
+        return (
+            (question as ListeningQuestion).content &&
+            typeof (question as ListeningQuestion).content.type === 'string' &&
+            ['SA', 'MC', 'TB', 'MP', 'MT', 'SC', 'FC', 'NC'].includes(
+                (question as ListeningQuestion).content.type,
+            )
+        );
+    }
+
     const renderQuestion = (question: ReadingQuestion | ListeningQuestion) => {
-        if (!isReadingQuestion(question)) {
+        if (!isReadingQuestion(question) && !isListeningQuestion(question)) {
             return null;
         }
 
@@ -226,14 +258,27 @@ export default function QuestionPanel({
                     {(questionType === 'SA' ||
                         questionType === 'SC' ||
                         questionType === 'MF' ||
-                        questionType === 'MI') && (
+                        questionType === 'MI' ||
+                        questionType === 'TB' ||
+                        questionType === 'MP' ||
+                        questionType === 'MT' ||
+                        questionType === 'FC' ||
+                        questionType === 'NC') && (
                         <Input
                             placeholder={
                                 questionType === 'SC'
                                     ? 'Complete the sentence...'
                                     : questionType === 'MF'
                                       ? 'Match the feature...'
-                                      : 'Type your answer...'
+                                      : questionType === 'TB'
+                                        ? 'Complete the table...'
+                                        : questionType === 'MP'
+                                          ? 'Label the map/plan...'
+                                          : questionType === 'FC'
+                                            ? 'Complete the form...'
+                                            : questionType === 'NC'
+                                              ? 'Complete the note...'
+                                              : 'Type your answer...'
                             }
                             value={answers[question.id] || ''}
                             onChange={(e) =>
