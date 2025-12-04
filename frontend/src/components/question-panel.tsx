@@ -8,6 +8,7 @@ import { ScrollArea } from '@/components/ui/scroll-area';
 import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
 import {
+    ListeningQuestion,
     ReadingQuestion,
     ReadingQuestionType,
 } from '@/lib/service/test/question';
@@ -17,7 +18,7 @@ import { ZoomIn } from 'lucide-react';
 import { Dialog, DialogContent } from './ui/dialog';
 
 interface QuestionPanelProps {
-    questions: ReadingQuestion[];
+    questions: ReadingQuestion[] | ListeningQuestion[];
     answers: Record<string, string>;
     onAnswerChange: (questionId: string, answer: string) => void;
     passageTitle: string;
@@ -68,7 +69,23 @@ export default function QuestionPanel({
 }: QuestionPanelProps) {
     const [zoomedImage, setZoomedImage] = useState<string | null>(null);
 
-    const renderQuestion = (question: ReadingQuestion) => {
+    function isReadingQuestion(
+        question: ReadingQuestion | ListeningQuestion,
+    ): question is ReadingQuestion {
+        return (
+            (question as ReadingQuestion).content &&
+            typeof (question as ReadingQuestion).content.type === 'string' &&
+            ['MC', 'SA', 'TF', 'YN', 'SC', 'MF', 'MI'].includes(
+                (question as ReadingQuestion).content.type,
+            )
+        );
+    }
+
+    const renderQuestion = (question: ReadingQuestion | ListeningQuestion) => {
+        if (!isReadingQuestion(question)) {
+            return null;
+        }
+
         const isAnswered =
             answers[question.id] && answers[question.id].trim() !== '';
         const questionType = question.content.type;

@@ -4,11 +4,15 @@ import { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Clock, Headphones } from 'lucide-react';
-import ProgressDialog from '@/components/progress-dialog';
+import ProgressDialog, { Question } from '@/components/progress-dialog';
 import QuestionPanel from '@/components/question-panel';
 import AudioPlayer from '@/components/audio-player';
-import { mockListeningSections } from '../../constants/sample-data';
 import { NotFound } from './not-found';
+import {
+    ListeningQuestion,
+    useGetListeningWithQuestions,
+} from '@/lib/service/test/question';
+import LiquidLoading from './ui/liquid-loader';
 
 type ListeningTestProps = {
     mode?: string;
@@ -19,19 +23,38 @@ export function ListeningTest({
     mode = 'full',
     sections = [],
 }: ListeningTestProps) {
+    const {
+        data: listeningSections,
+        isLoading: isSectionsLoading,
+        error: isSectionsError,
+    } = useGetListeningWithQuestions(sections);
+
     const availableSections =
         mode === 'full'
-            ? mockListeningSections
-            : mockListeningSections.filter((section) =>
+            ? listeningSections
+            : listeningSections?.filter((section) =>
                   sections.includes(section.id),
               );
 
-    const [currentSection, setCurrentSection] = useState(
-        availableSections[0]?.id ?? '',
-    );
-    const [answers, setAnswers] = useState<Record<number, string>>({});
-    const [timeRemaining, setTimeRemaining] = useState(2400);
+    const [currentPassage, setCurrentPassage] = useState('');
+    const [timeRemaining, setTimeRemaining] = useState(0);
     const [isTestStarted, setIsTestStarted] = useState(false);
+    const [answers, setAnswers] = useState<Record<string, string>>({});
+
+    useEffect(() => {
+        if (availableSections && availableSections.length > 0) {
+            if (!currentPassage) {
+                setCurrentPassage(availableSections[0].id);
+            }
+
+            if (!isTestStarted && timeRemaining === 0) {
+                const totalTime = availableSections.reduce((total, section) => {
+                    return total + section.timeLimitSeconds;
+                }, 0);
+                setTimeRemaining(totalTime);
+            }
+        }
+    }, [availableSections, currentPassage, isTestStarted, timeRemaining]);
 
     useEffect(() => {
         if (!isTestStarted) return;
@@ -56,40 +79,60 @@ export function ListeningTest({
         return `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
     };
 
-    const handleAnswerChange = (questionId: number, answer: string) => {
+    const handleAnswerChange = (questionId: string, answer: string) => {
         setAnswers((prev) => ({ ...prev, [questionId]: answer }));
     };
 
-    const getTotalQuestions = () => {
-        return availableSections.reduce(
-            (total, section) => total + section.questions.length,
+    const normalizeListeningQuestion = (
+        listeningQuestion: ListeningQuestion,
+    ): Question => {
+        return {
+            id: listeningQuestion.content.questionNumber,
+            type: listeningQuestion.content.type,
+            question: `Question ${listeningQuestion.content.questionNumber}`,
+        };
+    };
+
+    const totalQuestions =
+        availableSections?.reduce(
+            (total, passage) => total + passage.questions.length,
             0,
+        ) ?? 0;
+
+    const getUnansweredQuestions = (): Question[] => {
+        const allQuestions = availableSections?.flatMap(
+            (passage) => passage.questions,
         );
+
+        const unansweredReadingQuestions =
+            allQuestions?.filter(
+                (q) => !answers[q.id] || answers[q.id].trim() === '',
+            ) ?? [];
+
+        return unansweredReadingQuestions.map(normalizeListeningQuestion);
     };
 
-    const getAnsweredQuestions = () => {
-        return Object.keys(answers).filter(
-            (key) => answers[Number.parseInt(key)].trim() !== '',
-        ).length;
-    };
+    const answeredQuestions = totalQuestions - getUnansweredQuestions().length;
 
-    const getUnansweredQuestions = () => {
-        const allQuestions = availableSections.flatMap(
-            (section) => section.questions,
-        );
-        return allQuestions.filter(
-            (q) => !answers[q.id] || answers[q.id].trim() === '',
-        );
-    };
-
-    const currentSectionData = availableSections.find(
-        (s) => s.id === currentSection,
+    const currentSectionData = availableSections?.find(
+        (s) => s.id === currentPassage,
     );
 
-    if (availableSections.length === 0) {
+    if (availableSections?.length === 0) {
         return <NotFound />;
     }
 
+    if (isSectionsLoading) {
+        return (
+            <div className="bg-background flex min-h-screen w-full items-center justify-center rounded-lg border p-4">
+                <LiquidLoading />
+            </div>
+        );
+    }
+
+    if (isSectionsError) {
+        return <NotFound />;
+    }
     return (
         <div className="bg-background min-h-screen">
             <header className="border-border bg-card border-b">
@@ -116,8 +159,8 @@ export function ListeningTest({
                             </div>
 
                             <ProgressDialog
-                                totalQuestions={getTotalQuestions()}
-                                answeredQuestions={getAnsweredQuestions()}
+                                totalQuestions={totalQuestions}
+                                answeredQuestions={answeredQuestions}
                                 unansweredQuestions={getUnansweredQuestions()}
                             />
 
@@ -156,8 +199,8 @@ export function ListeningTest({
                     <div className="lg:col-span-1">
                         <AudioPlayer
                             sections={availableSections}
-                            currentSection={currentSection}
-                            onSectionChange={setCurrentSection}
+                            currentSection={currentPassage}
+                            onSectionChange={setCurrentPassage}
                             isTestStarted={isTestStarted}
                             onTestStart={() => setIsTestStarted(true)}
                         />

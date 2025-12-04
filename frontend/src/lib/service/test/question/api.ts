@@ -1,7 +1,11 @@
 import { useQuery } from '@tanstack/react-query';
 import { deserialize, fetchWrapper } from '../..';
 import { TestSection } from '../section';
-import { PassageQuestion, ReadingQuestion } from './type';
+import {
+    ListeningSectionsQuestion,
+    PassageQuestion,
+    ReadingQuestion,
+} from './type';
 
 export const useGetTestSections = (sectionIds: string[]) => {
     return useQuery({
@@ -35,6 +39,39 @@ export const useGetSectionsWithQuestions = (sectionIds: string[]) => {
                     );
                     const questions =
                         await deserialize<ReadingQuestion[]>(questionsResponse);
+
+                    return {
+                        ...section,
+                        questions: questions,
+                    };
+                }),
+            );
+
+            return sectionsWithQuestions;
+        },
+        queryKey: ['sections-with-questions', sectionIds],
+        staleTime: 60 * 60 * 1000,
+    });
+};
+
+export const useGetListeningWithQuestions = (sectionIds: string[]) => {
+    return useQuery({
+        queryFn: async () => {
+            const sectionsWithQuestions = await Promise.all(
+                sectionIds.map(async (id) => {
+                    const sectionResponse = await fetchWrapper(
+                        `/sections/${id}`,
+                    );
+                    const section =
+                        await deserialize<PassageQuestion>(sectionResponse);
+
+                    const questionsResponse = await fetchWrapper(
+                        `/sections/${id}/questions`,
+                    );
+                    const questions =
+                        await deserialize<ListeningSectionsQuestion[]>(
+                            questionsResponse,
+                        );
 
                     return {
                         ...section,

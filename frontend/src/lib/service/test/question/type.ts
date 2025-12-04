@@ -14,21 +14,18 @@ export type ReadingQuestionType =
     | 'MI';
 
 export type ListeningQuestionType =
-    | 'multiple-choice'
-    | 'completion'
-    | 'true-false';
+    | 'SA'
+    | 'MC'
+    | 'TB'
+    | 'MP'
+    | 'MT'
+    | 'SC'
+    | 'FC'
+    | 'NC';
 
 export type WritingQuestionType = 'task1' | 'task2';
 
 export type SpeakingQuestionType = 'part1' | 'part23';
-
-export interface ListeningQuestion {
-    id: number;
-    type: ListeningQuestionType;
-    question: string;
-    options?: string[];
-    image?: string;
-}
 
 export interface SpeakingQuestion {
     id: number;
@@ -125,10 +122,10 @@ export type CreateQuestionRes = {
     createdAt: string;
 };
 // -------------------------------
-export interface ReadingQuestion {
+
+export interface BaseQuestion {
     id: string;
     sectionId: string;
-    content: ReadingQuestionContent;
     difficult: string;
     isActive: boolean;
     uploadUrl: string | null;
@@ -137,9 +134,22 @@ export interface ReadingQuestion {
     script: string | null;
     createdAt: string | null;
 }
+export interface ReadingQuestion extends BaseQuestion {
+    content: ReadingQuestionContent;
+}
+
+export interface ListeningQuestion extends BaseQuestion {
+    content: ListeningQuestionContent;
+}
 
 export interface ReadingQuestionContent {
     type: ReadingQuestionType;
+    correctAnswer: string;
+    questionNumber: number;
+}
+
+export interface ListeningQuestionContent {
+    type: ListeningQuestionType;
     correctAnswer: string;
     questionNumber: number;
 }
@@ -153,4 +163,15 @@ export type PassageQuestion = {
     metadata: string;
     cloudfrontUrl: string | null;
     questions: ReadingQuestion[];
+};
+
+export type ListeningSectionsQuestion = {
+    id: string;
+    testId: string;
+    title: string;
+    orderIndex: number;
+    timeLimitSeconds: number;
+    metadata: string;
+    cloudfrontUrl: string | null;
+    questions: ListeningQuestion[];
 };
