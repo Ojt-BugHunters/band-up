@@ -6,11 +6,13 @@ import { Button } from '@/components/ui/button';
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Badge } from '@/components/ui/badge';
 import { Clock, FileText } from 'lucide-react';
-import ProgressDialog from '@/components/progress-dialog';
+import ProgressDialog, { Question } from '@/components/progress-dialog';
 import QuestionPanel from '@/components/question-panel';
 import ReadingPassage from '@/components/reading-passage';
-import { mockPassages } from '../../constants/sample-data';
 import { NotFound } from './not-found';
+import { useGetSectionsWithQuestions } from '@/lib/service/test/question/api';
+import LiquidLoading from './ui/liquid-loader';
+import { ReadingQuestion } from '@/lib/service/test/question';
 
 type ReadingTestProps = {
     mode?: string;
@@ -21,18 +23,36 @@ export function ReadingTest({
     mode = 'full',
     sections = [],
 }: ReadingTestProps) {
-    console.log(sections);
+    const {
+        data: passages,
+        isLoading: isPassageLoading,
+        error: isPassageError,
+    } = useGetSectionsWithQuestions(sections);
+
     const availablePassages =
         mode === 'full'
-            ? mockPassages
-            : mockPassages.filter((passage) => sections.includes(passage.id));
-    const [currentPassage, setCurrentPassage] = useState(
-        availablePassages[0]?.id ?? '',
-    );
-    const timeLimit = availablePassages.length * 20 * 60;
-    const [answers, setAnswers] = useState<Record<number, string>>({});
-    const [timeRemaining, setTimeRemaining] = useState(timeLimit);
+            ? passages
+            : passages?.filter((passage) => sections.includes(passage.id));
+
+    const [currentPassage, setCurrentPassage] = useState('');
+    const [timeRemaining, setTimeRemaining] = useState(0);
     const [isTestStarted, setIsTestStarted] = useState(false);
+    const [answers, setAnswers] = useState<Record<string, string>>({});
+
+    useEffect(() => {
+        if (availablePassages && availablePassages.length > 0) {
+            if (!currentPassage) {
+                setCurrentPassage(availablePassages[0].id);
+            }
+
+            if (!isTestStarted && timeRemaining === 0) {
+                const totalTime = availablePassages.reduce((total, passage) => {
+                    return total + passage.timeLimitSeconds;
+                }, 0);
+                setTimeRemaining(totalTime);
+            }
+        }
+    }, [availablePassages, currentPassage, isTestStarted, timeRemaining]);
 
     useEffect(() => {
         if (!isTestStarted) return;
@@ -57,37 +77,57 @@ export function ReadingTest({
         return `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
     };
 
-    const handleAnswerChange = (questionId: number, answer: string) => {
+    const handleAnswerChange = (questionId: string, answer: string) => {
         setAnswers((prev) => ({ ...prev, [questionId]: answer }));
     };
 
-    const getTotalQuestions = () => {
-        return availablePassages.reduce(
+    const normalizeReadingQuestion = (
+        readingQuestion: ReadingQuestion,
+    ): Question => {
+        return {
+            id: readingQuestion.content.questionNumber,
+            type: readingQuestion.content.type,
+            question: `Question ${readingQuestion.content.questionNumber}`,
+        };
+    };
+
+    const totalQuestions =
+        availablePassages?.reduce(
             (total, passage) => total + passage.questions.length,
             0,
-        );
-    };
+        ) ?? 0;
 
-    const getAnsweredQuestions = () => {
-        return Object.keys(answers).filter(
-            (key) => answers[Number.parseInt(key)].trim() !== '',
-        ).length;
-    };
-
-    const getUnansweredQuestions = () => {
-        const allQuestions = availablePassages.flatMap(
+    const getUnansweredQuestions = (): Question[] => {
+        const allQuestions = availablePassages?.flatMap(
             (passage) => passage.questions,
         );
-        return allQuestions.filter(
-            (q) => !answers[q.id] || answers[q.id].trim() === '',
-        );
+
+        const unansweredReadingQuestions =
+            allQuestions?.filter(
+                (q) => !answers[q.id] || answers[q.id].trim() === '',
+            ) ?? [];
+
+        return unansweredReadingQuestions.map(normalizeReadingQuestion);
     };
 
-    const currentPassageData = availablePassages.find(
+    const answeredQuestions = totalQuestions - getUnansweredQuestions().length;
+
+    const currentPassageData = availablePassages?.find(
         (p) => p.id === currentPassage,
     );
 
-    if (availablePassages.length === 0) {
+    if (availablePassages?.length === 0) {
+        return <NotFound />;
+    }
+    if (isPassageLoading) {
+        return (
+            <div className="bg-background flex min-h-screen w-full items-center justify-center rounded-lg border p-4">
+                <LiquidLoading />
+            </div>
+        );
+    }
+
+    if (isPassageError) {
         return <NotFound />;
     }
 
@@ -117,8 +157,8 @@ export function ReadingTest({
                             </div>
 
                             <ProgressDialog
-                                totalQuestions={getTotalQuestions()}
-                                answeredQuestions={getAnsweredQuestions()}
+                                totalQuestions={totalQuestions}
+                                answeredQuestions={answeredQuestions}
                                 unansweredQuestions={getUnansweredQuestions()}
                             />
 
@@ -143,8 +183,8 @@ export function ReadingTest({
             </header>
 
             <div className="container mx-auto px-4 py-6">
-                <div className="grid h-[calc(100vh-140px)] grid-cols-1 gap-6 lg:grid-cols-2">
-                    <div className="lg:col-span-1">
+                <div className="grid h-[calc(100vh-140px)] grid-cols-1 gap-6 lg:grid-cols-3">
+                    <div className="lg:col-span-2">
                         <Card className="h-full">
                             <CardHeader className="pb-4">
                                 <div className="flex items-center justify-between">
@@ -155,10 +195,13 @@ export function ReadingTest({
                                         variant="outline"
                                         className="text-xs"
                                     >
-                                        {availablePassages.findIndex(
-                                            (p) => p.id === currentPassage,
-                                        ) + 1}{' '}
-                                        of {availablePassages.length}
+                                        {availablePassages
+                                            ? availablePassages.findIndex(
+                                                  (p) =>
+                                                      p.id === currentPassage,
+                                              ) + 1
+                                            : 0}{' '}
+                                        of {availablePassages?.length ?? 0}
                                     </Badge>
                                 </div>
 
@@ -167,40 +210,45 @@ export function ReadingTest({
                                     onValueChange={setCurrentPassage}
                                     className="w-full"
                                 >
-                                    {availablePassages.length > 1 && (
-                                        <TabsList
-                                            className={`bg-muted grid w-full ${
-                                                availablePassages.length === 2
-                                                    ? 'grid-cols-2'
-                                                    : 'grid-cols-3'
-                                            }`}
-                                        >
-                                            {availablePassages.map(
-                                                (passage) => (
-                                                    <TabsTrigger
-                                                        key={passage.id}
-                                                        value={passage.id}
-                                                        className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground text-sm"
-                                                    >
-                                                        Passage{' '}
-                                                        {passage.id
-                                                            .split('-')
-                                                            .pop()}
-                                                    </TabsTrigger>
-                                                ),
-                                            )}
-                                        </TabsList>
-                                    )}
+                                    {availablePassages &&
+                                        availablePassages.length > 1 && (
+                                            <TabsList
+                                                className={`bg-muted grid w-full ${
+                                                    availablePassages.length ===
+                                                    2
+                                                        ? 'grid-cols-2'
+                                                        : 'grid-cols-3'
+                                                }`}
+                                            >
+                                                {availablePassages.map(
+                                                    (passage) => (
+                                                        <TabsTrigger
+                                                            key={passage.id}
+                                                            value={passage.id}
+                                                            className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground text-sm"
+                                                        >
+                                                            Passage{' '}
+                                                            {passage.orderIndex}
+                                                        </TabsTrigger>
+                                                    ),
+                                                )}
+                                            </TabsList>
+                                        )}
                                 </Tabs>
                             </CardHeader>
 
-                            <CardContent className="h-[calc(100%-120px)]">
-                                {currentPassageData && (
-                                    <ReadingPassage
-                                        title={currentPassageData.title}
-                                        content={currentPassageData.content}
-                                    />
-                                )}
+                            <CardContent className="p-0">
+                                <div className="h-full overflow-auto">
+                                    {' '}
+                                    {currentPassageData && (
+                                        <ReadingPassage
+                                            title={currentPassageData.title}
+                                            metadata={
+                                                currentPassageData.metadata
+                                            }
+                                        />
+                                    )}
+                                </div>
                             </CardContent>
                         </Card>
                     </div>

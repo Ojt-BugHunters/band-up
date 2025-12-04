@@ -12,5 +12,5 @@ export interface TestSection {
     orderIndex: number;
     timeLimitSeconds: number;
     metadata: string;
-    cloudfrontUrl: string;
+    cloudfrontUrl: string | null;
 }

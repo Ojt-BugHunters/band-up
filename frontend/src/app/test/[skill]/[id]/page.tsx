@@ -117,7 +117,6 @@ export default function TestOverview({ params }: PageProps) {
     } = useGetTestSections(id);
 
     const handleSubmit = async () => {
-        // mutation
         setValue(null);
         setSubmitting(true);
     };
@@ -233,7 +232,6 @@ export default function TestOverview({ params }: PageProps) {
                                             {formatDuration(
                                                 test?.durationSeconds as number,
                                             )}{' '}
-                                            minutes
                                         </Badge>
                                     </CardTitle>
                                     <CardDescription className="text-slate-500 dark:text-slate-400">
@@ -307,7 +305,7 @@ export default function TestOverview({ params }: PageProps) {
                                         size="lg"
                                     >
                                         <Link
-                                            href={`/test/${skill}/${test?.id}/do?mode=single&section=${selectedSections.join(',')}`}
+                                            href={`/test/${skill}/${test?.id}/do?mode=single&skill=${skill}&section=${selectedSections.join(',')}`}
                                         >
                                             Start Selected Sections (
                                             {selectedSections.length})
@@ -373,7 +371,7 @@ export default function TestOverview({ params }: PageProps) {
                                         </ul>
                                     </div>
                                     <Link
-                                        href={`/test/${skill}/${test?.id}/do?mode=full&skill=${skill}`}
+                                        href={`/test/${skill}/${test?.id}/do?mode=full&skill=${skill}&section=${sections?.map((section) => section.id).join(',')}`}
                                     >
                                         <Button
                                             size="lg"

@@ -29,7 +29,6 @@ import { ThemeToggleButton } from './theme-toggle-button';
 
 export function Header() {
     const user = useUser();
-    console.log(user);
     const isMember = user?.role === 'Member';
     const logout = useLogout();
 

@@ -13,7 +13,7 @@ import { Eye, CheckCircle, AlertCircle } from 'lucide-react';
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 
-interface Question {
+export interface Question {
     id: number;
     type: string;
     question: string;

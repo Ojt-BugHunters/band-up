@@ -9,6 +9,6 @@ export const useGetTestSections = (testId: string) => {
             return await deserialize<TestSection[]>(response);
         },
         queryKey: ['test-section'],
-        staleTime: 60 * 60 * 1000, // 60 mins
+        refetchOnWindowFocus: true,
     });
 };

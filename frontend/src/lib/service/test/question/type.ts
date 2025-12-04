@@ -1,8 +1,17 @@
+// TF - True false not given
+// SA - Short Answer
+// MC - Multiple Choice
+// MF - Matching Features
+// SC - Sentence Completion
+// YN - Yes No Not Given
 export type ReadingQuestionType =
-    | 'multiple-choice'
-    | 'short-answer'
-    | 'true-false'
-    | 'completion';
+    | 'TF'
+    | 'SA'
+    | 'MC'
+    | 'MF'
+    | 'SC'
+    | 'YN'
+    | 'MI';
 
 export type ListeningQuestionType =
     | 'multiple-choice'
@@ -12,13 +21,6 @@ export type ListeningQuestionType =
 export type WritingQuestionType = 'task1' | 'task2';
 
 export type SpeakingQuestionType = 'part1' | 'part23';
-export interface ReadingQuestion {
-    id: number;
-    type: ReadingQuestionType;
-    question: string;
-    options?: string[];
-    image?: string;
-}
 
 export interface ListeningQuestion {
     id: number;
@@ -33,7 +35,7 @@ export interface SpeakingQuestion {
     question: string;
 }
 
-export interface Passage {
+export interface Passage1 {
     id: string;
     title: string;
     content: string;
@@ -121,4 +123,34 @@ export type CreateQuestionRes = {
     key: string;
     script: string;
     createdAt: string;
+};
+// -------------------------------
+export interface ReadingQuestion {
+    id: string;
+    sectionId: string;
+    content: ReadingQuestionContent;
+    difficult: string;
+    isActive: boolean;
+    uploadUrl: string | null;
+    cloudfrontUrl: string | null;
+    key: string | null;
+    script: string | null;
+    createdAt: string | null;
+}
+
+export interface ReadingQuestionContent {
+    type: ReadingQuestionType;
+    correctAnswer: string;
+    questionNumber: number;
+}
+
+export type PassageQuestion = {
+    id: string;
+    testId: string;
+    title: string;
+    orderIndex: number;
+    timeLimitSeconds: number;
+    metadata: string;
+    cloudfrontUrl: string | null;
+    questions: ReadingQuestion[];
 };
