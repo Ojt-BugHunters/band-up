@@ -38,6 +38,7 @@ export function SpeakingTest({
     mode = 'full',
     sections = [],
 }: SpeakingTestProps) {
+    console.log(sections);
     const enrichedSpeakingTestParts =
         enrichSpeakingTestParts(speakingTestParts);
     const availableParts =

@@ -1,7 +1,9 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
+import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Badge } from '@/components/ui/badge';
 import { Clock, Headphones } from 'lucide-react';
 import ProgressDialog, { Question } from '@/components/progress-dialog';
@@ -36,15 +38,15 @@ export function ListeningTest({
                   sections.includes(section.id),
               );
 
-    const [currentPassage, setCurrentPassage] = useState('');
+    const [currentSection, setCurrentSection] = useState('');
     const [timeRemaining, setTimeRemaining] = useState(0);
     const [isTestStarted, setIsTestStarted] = useState(false);
     const [answers, setAnswers] = useState<Record<string, string>>({});
 
     useEffect(() => {
         if (availableSections && availableSections.length > 0) {
-            if (!currentPassage) {
-                setCurrentPassage(availableSections[0].id);
+            if (!currentSection) {
+                setCurrentSection(availableSections[0].id);
             }
 
             if (!isTestStarted && timeRemaining === 0) {
@@ -54,7 +56,7 @@ export function ListeningTest({
                 setTimeRemaining(totalTime);
             }
         }
-    }, [availableSections, currentPassage, isTestStarted, timeRemaining]);
+    }, [availableSections, currentSection, isTestStarted, timeRemaining]);
 
     useEffect(() => {
         if (!isTestStarted) return;
@@ -95,27 +97,28 @@ export function ListeningTest({
 
     const totalQuestions =
         availableSections?.reduce(
-            (total, passage) => total + passage.questions.length,
+            (total, section) => total + section.questions.length,
             0,
         ) ?? 0;
 
     const getUnansweredQuestions = (): Question[] => {
-        const allQuestions = availableSections?.flatMap(
-            (passage) => passage.questions,
+        if (!availableSections) return [];
+
+        const allQuestions = availableSections.flatMap(
+            (section) => section.questions,
+        ) as unknown as ListeningQuestion[];
+
+        const unansweredListeningQuestions = allQuestions.filter(
+            (q) => !answers[q.id] || answers[q.id].trim() === '',
         );
 
-        const unansweredReadingQuestions =
-            allQuestions?.filter(
-                (q) => !answers[q.id] || answers[q.id].trim() === '',
-            ) ?? [];
-
-        return unansweredReadingQuestions.map(normalizeListeningQuestion);
+        return unansweredListeningQuestions.map(normalizeListeningQuestion);
     };
 
     const answeredQuestions = totalQuestions - getUnansweredQuestions().length;
 
     const currentSectionData = availableSections?.find(
-        (s) => s.id === currentPassage,
+        (s) => s.id === currentSection,
     );
 
     if (availableSections?.length === 0) {
@@ -133,6 +136,7 @@ export function ListeningTest({
     if (isSectionsError) {
         return <NotFound />;
     }
+
     return (
         <div className="bg-background min-h-screen">
             <header className="border-border bg-card border-b">
@@ -187,23 +191,103 @@ export function ListeningTest({
             <div className="container mx-auto px-4 py-6">
                 <div className="grid h-[calc(100vh-140px)] grid-cols-1 gap-6 lg:grid-cols-3">
                     <div className="lg:col-span-2">
+                        <Card className="h-full">
+                            <CardHeader className="pb-4">
+                                <div className="flex items-center justify-between">
+                                    <CardTitle className="text-lg text-balance">
+                                        Audio Player
+                                    </CardTitle>
+                                    <Badge
+                                        variant="outline"
+                                        className="text-xs"
+                                    >
+                                        {availableSections
+                                            ? availableSections.findIndex(
+                                                  (s) =>
+                                                      s.id === currentSection,
+                                              ) + 1
+                                            : 0}{' '}
+                                        of {availableSections?.length ?? 0}
+                                    </Badge>
+                                </div>
+
+                                <Tabs
+                                    value={currentSection}
+                                    onValueChange={setCurrentSection}
+                                    className="w-full"
+                                >
+                                    {availableSections &&
+                                        availableSections.length > 1 && (
+                                            <TabsList
+                                                className={`bg-muted grid w-full ${
+                                                    availableSections.length ===
+                                                    2
+                                                        ? 'grid-cols-2'
+                                                        : availableSections.length ===
+                                                            3
+                                                          ? 'grid-cols-3'
+                                                          : 'grid-cols-4'
+                                                }`}
+                                            >
+                                                {availableSections.map(
+                                                    (section) => (
+                                                        <TabsTrigger
+                                                            key={section.id}
+                                                            value={section.id}
+                                                            className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground text-sm"
+                                                        >
+                                                            Section{' '}
+                                                            {section.orderIndex}
+                                                        </TabsTrigger>
+                                                    ),
+                                                )}
+                                            </TabsList>
+                                        )}
+                                </Tabs>
+                            </CardHeader>
+
+                            <CardContent className="p-0">
+                                <div className="h-full overflow-auto p-6">
+                                    {currentSectionData &&
+                                        availableSections && (
+                                            <AudioPlayer
+                                                sections={availableSections.map(
+                                                    (section) => ({
+                                                        id: section.id,
+                                                        title: section.title,
+                                                        audioUrl:
+                                                            section.cloudfrontUrl ||
+                                                            '',
+                                                        duration:
+                                                            section.timeLimitSeconds,
+                                                    }),
+                                                )}
+                                                currentSection={currentSection}
+                                                onSectionChange={
+                                                    setCurrentSection
+                                                }
+                                                isTestStarted={isTestStarted}
+                                                onTestStart={() =>
+                                                    setIsTestStarted(true)
+                                                }
+                                            />
+                                        )}
+                                </div>
+                            </CardContent>
+                        </Card>
+                    </div>
+
+                    <div className="lg:col-span-1">
                         {currentSectionData && (
                             <QuestionPanel
-                                questions={currentSectionData.questions}
+                                questions={
+                                    currentSectionData.questions as unknown as ListeningQuestion[]
+                                }
                                 answers={answers}
                                 onAnswerChange={handleAnswerChange}
                                 passageTitle={currentSectionData.title}
                             />
                         )}
-                    </div>
-                    <div className="lg:col-span-1">
-                        <AudioPlayer
-                            sections={availableSections}
-                            currentSection={currentPassage}
-                            onSectionChange={setCurrentPassage}
-                            isTestStarted={isTestStarted}
-                            onTestStart={() => setIsTestStarted(true)}
-                        />
                     </div>
                 </div>
             </div>
