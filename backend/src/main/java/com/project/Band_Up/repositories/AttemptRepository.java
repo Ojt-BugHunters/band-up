@@ -16,5 +16,7 @@ public interface AttemptRepository extends JpaRepository<Attempt, UUID> {
     // Lấy Attempt userId và testId sắp xếp theo startAt mới nhất
     List<Attempt> findAllByUser_IdAndTest_IdOrderByStartAtDesc(UUID userId, UUID testId);
 
+    Attempt findByUser_IdAndTest_Id(UUID userId, UUID testId);
+
 
 }

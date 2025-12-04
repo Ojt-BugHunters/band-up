@@ -6,6 +6,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 @Repository
 public interface AttemptSectionRepository extends JpaRepository<AttemptSection, UUID> {
@@ -15,4 +16,5 @@ public interface AttemptSectionRepository extends JpaRepository<AttemptSection, 
     List<AttemptSection> findAllByAttempt_IdOrderByStartAtDesc(UUID attemptId);
     // lấy tất cả attemptSection theo attemptId và status
     List<AttemptSection> findAllByAttempt_IdAndStatus(UUID attemptId, Status status);
+    List<AttemptSection> findByAttemptId(UUID attemptId);
 }
