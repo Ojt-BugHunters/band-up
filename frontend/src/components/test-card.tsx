@@ -3,6 +3,7 @@ import { Badge } from './ui/badge';
 import { BookOpen, Calendar, Clock, Play, Users } from 'lucide-react';
 import { Button } from './ui/button';
 import type { Dictation } from '@/lib/service/dictation';
+import { formatDate, formatDuration } from '@/lib/utils';
 
 const getCardGradient = (skill: string) => {
     switch (skill.toLowerCase()) {
@@ -47,19 +48,6 @@ const getHoverGlow = (skill: string) => {
         default:
             return 'hover:shadow-[0_20px_40px_-10px_rgba(107,114,128,0.3)] dark:hover:shadow-[0_20px_40px_-10px_rgba(75,85,99,0.2)]';
     }
-};
-
-const formatDate = (dateString: string) => {
-    return new Date(dateString).toLocaleDateString('en-US', {
-        year: 'numeric',
-        month: 'short',
-        day: 'numeric',
-    });
-};
-
-const formatDuration = (durationSeconds: number) => {
-    const minutes = Math.floor(durationSeconds / 60);
-    return `${minutes} min`;
 };
 
 export function TestCard({ test }: { test: Dictation }) {
