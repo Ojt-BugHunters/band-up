@@ -142,6 +142,10 @@ export interface ListeningQuestion extends BaseQuestion {
     content: ListeningQuestionContent;
 }
 
+export interface WritingQuestion extends BaseQuestion {
+    content: WritingQuestionContent;
+}
+
 export interface ReadingQuestionContent {
     type: ReadingQuestionType;
     correctAnswer: string;
@@ -152,6 +156,14 @@ export interface ListeningQuestionContent {
     type: ListeningQuestionType;
     correctAnswer: string;
     questionNumber: number;
+}
+
+export interface WritingQuestionContent {
+    type: string;
+    taskNumber: number;
+    instruction: string;
+    minWords: number;
+    question: string;
 }
 
 export type PassageQuestion = {
@@ -174,4 +186,15 @@ export type ListeningSectionsQuestion = {
     metadata: string;
     cloudfrontUrl: string | null;
     questions: ListeningQuestion[];
+};
+
+export type WritingSection = {
+    id: string;
+    testId: string;
+    title: string;
+    orderIndex: number;
+    timeLimitSeconds: number;
+    metadata: string;
+    cloudfrontUrl: string | null;
+    questions: WritingQuestion[];
 };

@@ -6,7 +6,6 @@ import { Badge } from '@/components/ui/badge';
 import { Textarea } from '@/components/ui/textarea';
 import { Button } from '@/components/ui/button';
 import { FileText, RotateCcw, Copy, Check, BookOpen } from 'lucide-react';
-import Image from 'next/image';
 import { toast } from 'sonner';
 
 interface WritingEditorProps {
@@ -17,7 +16,7 @@ interface WritingEditorProps {
     minWords: number;
     value: string;
     onChange: (value: string) => void;
-    imageUrl?: string;
+    imageUrl?: string[];
     layout?: 'full' | 'split';
     showInstructions?: boolean;
 }
@@ -30,7 +29,6 @@ export default function WritingEditor({
     minWords,
     value,
     onChange,
-    imageUrl,
     layout = 'full',
     showInstructions = true,
 }: WritingEditorProps) {
@@ -91,28 +89,10 @@ export default function WritingEditor({
 
                 <CardContent className="h-[calc(100%-80px)] space-y-4 overflow-y-auto">
                     <div className="bg-muted/50 space-y-3 rounded-lg p-4">
-                        <div className="text-foreground text-sm font-medium">
-                            Instructions:
-                        </div>
-                        <div className="text-muted-foreground text-sm leading-relaxed">
-                            {instructions}
-                        </div>
-
-                        {imageUrl && (
-                            <div className="mt-4">
-                                <Image
-                                    width={400}
-                                    height={400}
-                                    src={imageUrl || '/placeholder.svg'}
-                                    alt="Task diagram or chart"
-                                    className="mx-auto w-full max-w-md rounded-lg border"
-                                />
-                            </div>
-                        )}
-
-                        <div className="text-primary text-sm font-medium">
-                            {content}
-                        </div>
+                        <div
+                            className="text-primary prose prose-sm max-w-none text-sm font-medium"
+                            dangerouslySetInnerHTML={{ __html: content }}
+                        />
                     </div>
 
                     <div className="bg-background space-y-2 rounded-lg border p-4">
@@ -275,21 +255,10 @@ export default function WritingEditor({
                         {instructions}
                     </div>
 
-                    {imageUrl && (
-                        <div className="mt-4">
-                            <Image
-                                width={400}
-                                height={400}
-                                src={imageUrl || '/placeholder.svg'}
-                                alt="Task diagram or chart"
-                                className="mx-auto w-full max-w-md rounded-lg border"
-                            />
-                        </div>
-                    )}
-
-                    <div className="text-primary text-sm font-medium">
-                        {content}
-                    </div>
+                    <div
+                        className="text-primary prose prose-sm max-w-none text-sm font-medium"
+                        dangerouslySetInnerHTML={{ __html: content }}
+                    />
                 </div>
 
                 <div className="bg-background flex items-center justify-between rounded-lg border p-3">

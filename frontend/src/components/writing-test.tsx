@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { Card, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
@@ -8,8 +8,9 @@ import { Badge } from '@/components/ui/badge';
 import { Clock, PenTool } from 'lucide-react';
 import ProgressDialog from '@/components/progress-dialog';
 import WritingEditor from '@/components/writing-editor';
-import { writingTasks } from '../../constants/sample-data';
 import { NotFound } from './not-found';
+import { useGetWritingWithQuestions } from '@/lib/service/test/question';
+import LiquidLoading from './ui/liquid-loader';
 
 type WritingTestProps = {
     mode?: string;
@@ -20,17 +21,44 @@ export function WritingTest({
     mode = 'full',
     sections = [],
 }: WritingTestProps) {
-    console.log(sections);
-    const availableTasks =
-        mode === 'full'
-            ? writingTasks
-            : writingTasks.filter((task) => sections.includes(task.id));
-    const [currentTask, setCurrentTask] = useState(availableTasks[0]?.id ?? '');
+    const {
+        data: writingTasks,
+        isLoading: isPassageLoading,
+        error: isPassageError,
+    } = useGetWritingWithQuestions(sections);
+
+    const [htmlContent, setHtmlContent] = useState('');
+
+    const availableTasks = useMemo(() => {
+        return mode === 'full'
+            ? (writingTasks ?? [])
+            : (writingTasks ?? []).filter((task) => sections.includes(task.id));
+    }, [mode, writingTasks, sections]);
+    console.log(availableTasks);
+    const [currentTask, setCurrentTask] = useState('');
+
+    useEffect(() => {
+        if (availableTasks.length > 0) {
+            setCurrentTask(availableTasks[0].title);
+        } else {
+            setCurrentTask('');
+        }
+    }, [availableTasks]);
+
     const [task1Response, setTask1Response] = useState('');
     const [task2Response, setTask2Response] = useState('');
-    const [timeRemaining, setTimeRemaining] = useState(60 * 60);
+    const [timeRemaining, setTimeRemaining] = useState(0);
     const [isTestStarted, setIsTestStarted] = useState(false);
-
+    useEffect(() => {
+        if (availableTasks && availableTasks.length > 0) {
+            if (!isTestStarted && timeRemaining === 0) {
+                const totalTime = availableTasks.reduce((total, task) => {
+                    return total + task.timeLimitSeconds;
+                }, 0);
+                setTimeRemaining(totalTime);
+            }
+        }
+    }, [availableTasks, isTestStarted, timeRemaining]);
     useEffect(() => {
         if (!isTestStarted) return;
 
@@ -61,17 +89,16 @@ export function WritingTest({
             .filter((word) => word.length > 0).length;
     };
 
-    const getTotalQuestions = () => availableTasks.length;
-
+    const getTotalQuestions = () => availableTasks?.length;
     const getAnsweredQuestions = () => {
         let answered = 0;
         if (
-            availableTasks.find((task) => task.id === 'section-1') &&
+            availableTasks?.find((task) => task.id === 'section-1') &&
             getWordCount(task1Response) >= 150
         )
             answered++;
         if (
-            availableTasks.find((task) => task.id === 'section-2') &&
+            availableTasks?.find((task) => task.id === 'section-2') &&
             getWordCount(task2Response) >= 250
         )
             answered++;
@@ -81,7 +108,7 @@ export function WritingTest({
     const getUnansweredQuestions = () => {
         const unanswered = [];
         if (
-            availableTasks.find((task) => task.id === 'task1') &&
+            availableTasks?.find((task) => task.id === 'task1') &&
             getWordCount(task1Response) < 150
         ) {
             unanswered.push({
@@ -91,7 +118,7 @@ export function WritingTest({
             });
         }
         if (
-            availableTasks.find((task) => task.id === 'task2') &&
+            availableTasks?.find((task) => task.id === 'task2') &&
             getWordCount(task2Response) < 250
         ) {
             unanswered.push({
@@ -102,15 +129,39 @@ export function WritingTest({
         }
         return unanswered;
     };
-
     const currentTaskData =
-        currentTask === 'section-1' ? writingTasks[0] : writingTasks[1];
-    const currentResponse =
-        currentTask === 'section-1' ? task1Response : task2Response;
-    const setCurrentResponse =
-        currentTask === 'section-1' ? setTask1Response : setTask2Response;
+        getTotalQuestions() === 2
+            ? currentTask === 'Writing Task 1'
+                ? writingTasks && writingTasks[0]
+                : writingTasks && writingTasks[1]
+            : writingTasks && writingTasks[0];
 
-    if (availableTasks.length === 0) {
+    useEffect(() => {
+        if (currentTaskData?.metadata) {
+            try {
+                const parsedMetadata = JSON.parse(currentTaskData.metadata);
+                setHtmlContent(parsedMetadata.htmlContent ?? '');
+            } catch (error) {
+                console.error('Error parsing metadata:', error);
+                setHtmlContent('');
+            }
+        }
+    }, [currentTaskData]);
+
+    const currentResponse =
+        currentTask === 'Writing Task 1' ? task1Response : task2Response;
+    const setCurrentResponse =
+        currentTask === 'Writing Task 1' ? setTask1Response : setTask2Response;
+
+    if (isPassageLoading) {
+        return (
+            <div className="bg-background flex min-h-screen w-full items-center justify-center rounded-lg border p-4">
+                <LiquidLoading />
+            </div>
+        );
+    }
+
+    if (isPassageError) {
         return <NotFound />;
     }
 
@@ -223,20 +274,22 @@ export function WritingTest({
                                 >
                                     <TabsList className="bg-muted grid w-full grid-cols-2">
                                         {availableTasks.find(
-                                            (task) => task.id === 'section-1',
+                                            (task) =>
+                                                task.title === 'Writing Task 1',
                                         ) && (
                                             <TabsTrigger
-                                                value="section-1"
+                                                value="Writing Task 1"
                                                 className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground"
                                             >
                                                 Task 1 - Academic Writing
                                             </TabsTrigger>
                                         )}
                                         {availableTasks.find(
-                                            (task) => task.id === 'section-2',
+                                            (task) =>
+                                                task.title === 'Writing Task 2',
                                         ) && (
                                             <TabsTrigger
-                                                value="section-2"
+                                                value="Writing Task 2"
                                                 className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground"
                                             >
                                                 Task 2 - Essay Writing
@@ -251,32 +304,34 @@ export function WritingTest({
                     <div className="grid h-[calc(100vh-280px)] grid-cols-2 gap-6">
                         <div className="col-span-1">
                             <WritingEditor
-                                taskNumber={currentTask === 'section-1' ? 1 : 2}
-                                title={currentTaskData.title}
-                                content={currentTaskData.content}
+                                taskNumber={
+                                    currentTask === 'Writing Task 1' ? 1 : 2
+                                }
+                                title={currentTaskData?.title ?? ''}
+                                content={htmlContent}
                                 instructions={
                                     'You should spend about 20 minutes on this task. Write at least 150 words'
                                 }
                                 minWords={150}
                                 value={currentResponse}
                                 onChange={setCurrentResponse}
-                                imageUrl={currentTaskData.imageUrl}
                                 layout="split"
                                 showInstructions={true}
                             />
                         </div>
                         <div className="col-span-1">
                             <WritingEditor
-                                taskNumber={currentTask === 'section-2' ? 2 : 1}
-                                title={currentTaskData.title}
-                                content={currentTaskData.content}
+                                taskNumber={
+                                    currentTask === 'Writing Task 2' ? 2 : 1
+                                }
+                                title={currentTaskData?.title ?? ''}
+                                content={htmlContent}
                                 instructions={
                                     'You should spend about 40 minutes on this task. Write about the following topic:'
                                 }
                                 minWords={250}
                                 value={currentResponse}
                                 onChange={setCurrentResponse}
-                                imageUrl={currentTaskData.imageUrl}
                                 layout="split"
                                 showInstructions={false}
                             />
