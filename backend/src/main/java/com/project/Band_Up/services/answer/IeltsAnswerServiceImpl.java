@@ -103,14 +103,13 @@ public class IeltsAnswerServiceImpl extends AbstractAnswerServiceImpl {
 
             // Lặp qua tất cả các câu hỏi của mỗi section
             for (QuestionResponse question : questions) {
-                // ✅ DEBUG: Log từng question
+
                 Object questionNumberObj = question.getContent().get("questionNumber");
                 System.out.println("\nQuestion ID: " + question.getId());
                 System.out.println("Question Number from DB: " + questionNumberObj +
                         " (Type: " + (questionNumberObj != null ? questionNumberObj.getClass().getName() : "null") + ")");
                 System.out.println("Question Content: " + question.getContent());
 
-                // ✅ Chuyển cả hai về String để so sánh
                 String questionNumberStr = questionNumberObj != null ? String.valueOf(questionNumberObj) : null;
 
                 // Tìm câu trả lời
@@ -191,8 +190,9 @@ public class IeltsAnswerServiceImpl extends AbstractAnswerServiceImpl {
             bandScore = calculateBandScore(totalScore, attempt.getTest().getId());
         }
 
-        // Cập nhật attempt với điểm số và band điểm
+        // Cập nhật attempt với điểm số và band điểm và set status của tất cả về ENDED
         updateAttempt(attemptId, totalScore, bandScore);
+        attemptService.updateAttemptStatus(attemptId);
 
         // Trả về kết quả test
         return TestResultResponseDTO.builder()

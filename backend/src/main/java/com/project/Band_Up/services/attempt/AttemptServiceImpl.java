@@ -115,6 +115,17 @@ public class AttemptServiceImpl implements AttemptService {
         attemptSectionRepository.deleteAll(attemptSection);
         attemptRepository.delete(attempt);
     }
+    @Override
+    public void updateAttemptStatus(UUID attemptId){
+        Attempt attempt = attemptRepository.findById(attemptId)
+                .orElseThrow(() -> new RuntimeException("Attempt not found"));
+        List<AttemptSection> sections =
+                attemptSectionRepository.findAllByAttempt_IdOrderByStartAtDesc(attempt.getId());
+        attempt.setStatus(Status.ENDED);
+        sections.forEach(section -> {
+            section.setStatus(Status.ENDED);
+        });
+    }
 
     private AttemptResponse toResponse(Attempt attempt) {
         AttemptResponse response = modelMapper.map(attempt, AttemptResponse.class);
