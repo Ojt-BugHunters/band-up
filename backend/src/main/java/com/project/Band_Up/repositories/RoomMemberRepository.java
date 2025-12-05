@@ -8,6 +8,7 @@ import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -27,4 +28,17 @@ public interface RoomMemberRepository extends JpaRepository<RoomMember, UUID> {
 
 
     boolean existsByUser_IdAndIsActiveTrue(UUID userId);
+
+    long countByIsActiveTrue();
+
+    long countByJoinedAtBetween(LocalDateTime start, LocalDateTime end);
+
+    @Query("""
+        SELECT rm.room.id, COUNT(rm.id) 
+        FROM RoomMember rm 
+        WHERE rm.isActive = true
+        GROUP BY rm.room.id 
+        ORDER BY COUNT(rm.id) DESC
+    """)
+    List<Object[]> findTopRoomsByActiveMemberCount();
 }
