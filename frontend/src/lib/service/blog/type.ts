@@ -39,6 +39,25 @@ export interface BlogReact {
     reactType: ReactType;
 }
 
+export type StatsInterval =
+    | 'HOURLY'
+    | 'DAILY'
+    | 'WEEKLY'
+    | 'MONTHLY'
+    | 'YEARLY';
+
+export interface BlogStats {
+    totalViews: number;
+    totalViewsDifference: number;
+    totalBlogs: number;
+    totalBlogsDifference: number;
+    avgEngagement: number;
+    avgEngagementDifference: number;
+    avgReadTime: number;
+    avgReadTimeDifference: number;
+    statsInterval: StatsInterval;
+}
+
 // ---------- Schema for react-hook-form--------
 
 export const blogBaseSchema = z.object({

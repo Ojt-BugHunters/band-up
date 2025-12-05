@@ -8,8 +8,10 @@ import {
 import {
     blogBaseSchema,
     BlogPost,
+    BlogStats,
     CreateBlogFormValues,
     PaginationInfo,
+    StatsInterval,
 } from './type';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { toast } from 'sonner';
@@ -32,6 +34,20 @@ export const useGetBlogs = (paginationInfo: PaginationInfo) => {
         staleTime: 10 * 60 * 1000, // 10 mins
         queryKey: ['blog', paginationInfo],
         refetchOnWindowFocus: false,
+    });
+};
+
+export const useGetBlogStats = (statsInterval: StatsInterval = 'WEEKLY') => {
+    const params = buildParams({ statsInterval });
+    return useQuery({
+        queryFn: async () => {
+            const response = await fetchWrapper(
+                `/blog/stats?${params.toString()}`,
+            );
+            return await deserialize<BlogStats>(response);
+        },
+        queryKey: ['blog-stats', statsInterval],
+        staleTime: 5 * 60 * 1000,
     });
 };
 
