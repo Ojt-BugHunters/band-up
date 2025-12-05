@@ -2,7 +2,9 @@ package com.project.Band_Up.controllers;
 
 import com.project.Band_Up.dtos.room.RoomCreateRequest;
 import com.project.Band_Up.dtos.room.RoomResponse;
+import com.project.Band_Up.enums.StatsInterval;
 import com.project.Band_Up.services.room.RoomService;
+import com.project.Band_Up.services.room.RoomStatService;
 import com.project.Band_Up.utils.JwtUserDetails;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -31,6 +33,7 @@ import java.util.UUID;
 @CrossOrigin
 public class RoomController {
     private final RoomService roomService;
+    private final RoomStatService roomStatService;
 
     // ======================= CREATE =========================
     @Operation(summary = "Tạo Room mới", description = "Tạo một phòng mới. Người tạo sẽ tự động trở thành Host.")
@@ -195,5 +198,30 @@ System.out.println(request);
             @AuthenticationPrincipal JwtUserDetails userDetails) {
         List<RoomResponse> response  = roomService.isUserInRoom(userDetails.getAccountId());
         return ResponseEntity.ok(response);
+    }
+
+    // ======================= ROOM STATISTICS =========================
+    @GetMapping("/stats")
+    @Operation(summary = "Get Room statistics",
+            description = "Retrieve statistics for rooms (total, public, private) and active members with differences calculated based on the specified interval (HOURLY, DAILY, WEEKLY, or MONTHLY)")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "Thành công")
+    })
+    public ResponseEntity<?> getStats(
+            @Parameter(description = "Time interval for calculating statistics differences (HOURLY, DAILY, WEEKLY, MONTHLY)",
+                      required = true,
+                      example = "HOURLY")
+            @RequestParam StatsInterval statsInterval) {
+        return ResponseEntity.ok().body(roomStatService.getStats(statsInterval));
+    }
+
+    @GetMapping("/analytics")
+    @Operation(summary = "Get Top 10 Room Analytics",
+            description = "Retrieve top 10 rooms with highest member count in the current hour, including rank, room name, number of members, week trend, average duration, and type (public/private)")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "Successfully retrieved room analytics")
+    })
+    public ResponseEntity<?> getTopRoomsAnalytics() {
+        return ResponseEntity.ok().body(roomStatService.getTopRoomsAnalytics());
     }
 }

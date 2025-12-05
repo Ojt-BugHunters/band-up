@@ -20,4 +20,5 @@ public class SectionResponse {
     private Integer orderIndex;
     private BigInteger timeLimitSeconds;
     private String metadata;
+    private String cloudfrontUrl;
 }

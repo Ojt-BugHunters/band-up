@@ -1,8 +1,13 @@
 package com.project.Band_Up.controllers;
 
 import com.project.Band_Up.dtos.answer.AnswerCreateRequest;
-import com.project.Band_Up.dtos.answer.AnswerResponse;
-import com.project.Band_Up.services.answer.DictationAnswerServiceImpl;
+import com.project.Band_Up.dtos.answer.DictationAnswerResponse;
+import com.project.Band_Up.dtos.answer.IeltsAnswerResponse;
+import com.project.Band_Up.dtos.attempt.TestResultResponseDTO;
+//import com.project.Band_Up.services.answer.DictationAnswerServiceImpl;
+import com.project.Band_Up.services.answer.AbstractAnswerServiceImpl;
+import com.project.Band_Up.services.answer.IeltsAnswerServiceImpl;
+import com.project.Band_Up.utils.JwtUserDetails;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -11,83 +16,119 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
 import java.util.UUID;
 
 @RestController
 @RequestMapping("/api/answers")
 @RequiredArgsConstructor
-@Tag(name = "Answer API", description = "Quản lý bài làm (Answer) của thí sinh trong phần thi — bao gồm Dictation scoring, lấy kết quả, và xóa kết quả.")
-public class AnswerController {
+@Tag(name = "Answer API", description = "Manage answers for the candidates, including Dictation scoring, Ielts scoring, retrieving results, and deleting answers.")
+public class    AnswerController {
 
-    private final DictationAnswerServiceImpl dictationAnswerService;
+//    private final DictationAnswerServiceImpl dictationAnswerService;
+    private final IeltsAnswerServiceImpl ieltsAnswerService;
+    private final AbstractAnswerServiceImpl abstractAnswerService;
 
     // ==========================================================
-    // 🟢 GET - Lấy lại kết quả bài làm theo attemptSectionId + questionId
+    // 🟢 GET - Get the result of a Dictation answer based on attemptSectionId + questionId
+    // ==========================================================
+//    @Operation(
+//            summary = "Get the result of the candidate's answer (Dictation)",
+//            description = "Returns the detailed information about the answer, correct/incorrect status, mistakes, and creation time.",
+//            parameters = {
+//                    @Parameter(name = "attemptSectionId", description = "ID of the attempt section", required = true),
+//                    @Parameter(name = "questionId", description = "ID of the question", required = true)
+//            },
+//            responses = {
+//                    @ApiResponse(responseCode = "200", description = "Successfully retrieved the result",
+//                            content = @Content(mediaType = "application/json",
+//                                    schema = @Schema(implementation = DictationAnswerResponse.class))),
+//                    @ApiResponse(responseCode = "404", description = "Answer not found for the given attemptSectionId/questionId")
+//            }
+//    )
+//    @GetMapping("/dictation/{attemptSectionId}/{questionId}")
+//    public ResponseEntity<DictationAnswerResponse> getDictationAnswerByAttemptAndQuestion(
+//            @PathVariable UUID attemptSectionId,
+//            @PathVariable UUID questionId
+//    ) {
+//        return ResponseEntity.ok(dictationAnswerService.getAnswerByAttemptSectionIdAndQuestionId(attemptSectionId, questionId));
+//    }
+
+//     ==========================================================
+//     🟡 POST - Submit Dictation answer for scoring
+//     ==========================================================
+//    @Operation(
+//            summary = "Submit Dictation answer for scoring",
+//            description = "Receive the user's answer (answerContent), compare it with the correct answer (script in Question), score it, identify mistakes, and store it in the database.",
+//            requestBody = @io.swagger.v3.oas.annotations.parameters.RequestBody(
+//                    description = "User's text answer",
+//                    required = true,
+//                    content = @Content(schema = @Schema(implementation = AnswerCreateRequest.class))
+//            ),
+//            responses = {
+//                    @ApiResponse(responseCode = "200", description = "Scoring successful",
+//                            content = @Content(mediaType = "application/json",
+//                                    schema = @Schema(implementation = DictationAnswerResponse.class))),
+//                    @ApiResponse(responseCode = "400", description = "Invalid data"),
+//                    @ApiResponse(responseCode = "404", description = "AttemptSection or Question not found")
+//            }
+//    )
+//    @PostMapping("/dictation/{attemptSectionId}/{questionId}")
+//    public ResponseEntity<DictationAnswerResponse> submitDictationAnswer(
+//            @PathVariable UUID attemptSectionId,
+//            @PathVariable UUID questionId,
+//            @RequestBody AnswerCreateRequest request
+//    ) {
+//        return ResponseEntity.ok(dictationAnswerService.submitAnswer(attemptSectionId, questionId, request));
+//    }
+
+
+
+    // ==========================================================
+    // 🟡 POST - Submit Ielts answers for the entire test
     // ==========================================================
     @Operation(
-            summary = "Lấy kết quả bài làm của thí sinh",
-            description = "Trả về thông tin chi tiết về câu trả lời, trạng thái đúng/sai, danh sách lỗi (mistakes), và thời gian tạo.",
-            parameters = {
-                    @Parameter(name = "attemptSectionId", description = "ID của attempt section (lượt làm bài)", required = true),
-                    @Parameter(name = "questionId", description = "ID của câu hỏi", required = true)
-            },
-            responses = {
-                    @ApiResponse(responseCode = "200", description = "Lấy kết quả thành công",
-                            content = @Content(mediaType = "application/json",
-                                    schema = @Schema(implementation = AnswerResponse.class))),
-                    @ApiResponse(responseCode = "404", description = "Không tìm thấy câu trả lời cho attemptSectionId/questionId đã cho")
-            }
-    )
-    @GetMapping("/{attemptSectionId}/{questionId}")
-    public ResponseEntity<AnswerResponse> getAnswerByAttemptAndQuestion(
-            @PathVariable UUID attemptSectionId,
-            @PathVariable UUID questionId
-    ) {
-        return ResponseEntity.ok(dictationAnswerService.getAnswerByAttemptSectionIdAndQuestionId(attemptSectionId, questionId));
-    }
-
-    // ==========================================================
-    // 🟡 POST - Nộp câu trả lời dictation để chấm điểm
-    // ==========================================================
-    @Operation(
-            summary = "Nộp câu trả lời Dictation để chấm điểm",
-            description = "Nhận câu trả lời của người dùng (answerContent), so sánh với đáp án đúng (script trong Question), chấm điểm, xác định lỗi (mistakes) và lưu vào DB.",
+            summary = "Submit Ielts answers for the entire test",
+            description = "Score the entire test based on the questions in the test.",
             requestBody = @io.swagger.v3.oas.annotations.parameters.RequestBody(
-                    description = "Câu trả lời người dùng nhập (text answer)",
+                    description = "User's answers for the test",
                     required = true,
                     content = @Content(schema = @Schema(implementation = AnswerCreateRequest.class))
             ),
             responses = {
-                    @ApiResponse(responseCode = "200", description = "Chấm điểm thành công",
+                    @ApiResponse(responseCode = "200", description = "Scoring successful",
                             content = @Content(mediaType = "application/json",
-                                    schema = @Schema(implementation = AnswerResponse.class))),
-                    @ApiResponse(responseCode = "400", description = "Dữ liệu không hợp lệ"),
-                    @ApiResponse(responseCode = "404", description = "Không tìm thấy AttemptSection hoặc Question tương ứng")
+                                    schema = @Schema(implementation = IeltsAnswerResponse.class))),
+                    @ApiResponse(responseCode = "400", description = "Invalid data"),
+                    @ApiResponse(responseCode = "404", description = "Test or corresponding questions not found")
             }
     )
-    @PostMapping("/{attemptSectionId}/{questionId}")
-    public ResponseEntity<AnswerResponse> submitAnswer(
-            @PathVariable UUID attemptSectionId,
-            @PathVariable UUID questionId,
-            @RequestBody AnswerCreateRequest request
+    @PostMapping("/ielts/test/{attemptId}")
+    public ResponseEntity<TestResultResponseDTO> submitIeltsAnswerForTest(
+            @PathVariable UUID attemptId,
+            @RequestBody AnswerCreateRequest request,
+            @AuthenticationPrincipal JwtUserDetails userDetails
     ) {
-        return ResponseEntity.ok(dictationAnswerService.submitAnswer(attemptSectionId, questionId, request));
+        TestResultResponseDTO responses = ieltsAnswerService.submitIeltsAnswerForTest(attemptId, request, userDetails.getAccountId());
+        return ResponseEntity.ok(responses);
     }
+
     // ==========================================================
-    // 🔴 DELETE - Xóa câu trả lời của thí sinh
+    // 🔴 DELETE - Delete an answer for a specific question
     // ==========================================================
     @Operation(
-            summary = "Xóa câu trả lời",
-            description = "Xóa bài làm cụ thể của một câu hỏi trong một attempt section (dành cho admin hoặc khi user làm lại bài).",
+            summary = "Delete an answer",
+            description = "Delete the answer for a specific question in an attempt section (for admin or when the user needs to redo the question).",
             parameters = {
-                    @Parameter(name = "attemptSectionId", description = "ID của attempt section", required = true),
-                    @Parameter(name = "questionId", description = "ID của câu hỏi", required = true)
+                    @Parameter(name = "attemptSectionId", description = "ID of the attempt section", required = true),
+                    @Parameter(name = "questionId", description = "ID of the question", required = true)
             },
             responses = {
-                    @ApiResponse(responseCode = "204", description = "Xóa thành công"),
-                    @ApiResponse(responseCode = "404", description = "Không tìm thấy câu trả lời cần xóa")
+                    @ApiResponse(responseCode = "204", description = "Deleted successfully"),
+                    @ApiResponse(responseCode = "404", description = "Answer not found")
             }
     )
     @DeleteMapping("/{attemptSectionId}/{questionId}")
@@ -95,7 +136,8 @@ public class AnswerController {
             @PathVariable UUID attemptSectionId,
             @PathVariable UUID questionId
     ) {
-        dictationAnswerService.deleteAnswer(attemptSectionId, questionId);
+        abstractAnswerService.deleteAnswer(attemptSectionId, questionId);
         return ResponseEntity.noContent().build();
     }
 }
+

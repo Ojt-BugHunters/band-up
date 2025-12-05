@@ -98,7 +98,7 @@ public class AttemptSectionServiceImpl implements AttemptSectionService {
         AttemptSection attemptSection = modelMapper.map(request, AttemptSection.class);
         attemptSection.setAttempt(attempt);
         attemptSection.setSection(section);
-        attemptSection.setStatus(Status.PENDING);
+        attemptSection.setStatus(Status.ONGOING);
         AttemptSection saved = attemptSectionRepository.save(attemptSection);
         return toResponse(saved);
     }

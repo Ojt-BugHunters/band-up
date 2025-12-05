@@ -1,0 +1,716 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>WebRTC Group Video Call</title>
+    <script src="https://cdn.jsdelivr.net/npm/sockjs-client@1/dist/sockjs.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/stompjs@2.3.3/lib/stomp.min.js"></script>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .header {
+            background: white;
+            padding: 20px 30px;
+            border-radius: 15px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
+        }
+
+        h1 {
+            color: #333;
+            font-size: 28px;
+            margin-bottom: 5px;
+        }
+
+        .room-info {
+            color: #666;
+            font-size: 14px;
+        }
+
+        #loginSection {
+            background: white;
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+            max-width: 500px;
+            margin: 0 auto;
+        }
+
+        .input-group {
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #333;
+            font-size: 14px;
+        }
+
+        input[type="text"] {
+            width: 100%;
+            padding: 12px 15px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 15px;
+            transition: border 0.3s;
+        }
+
+        input[type="text"]:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .checkbox-container {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+        }
+
+        .checkbox-label {
+            display: flex;
+            align-items: center;
+            cursor: pointer;
+        }
+
+        input[type="checkbox"] {
+            width: 20px;
+            height: 20px;
+            margin-right: 10px;
+            cursor: pointer;
+        }
+
+        button {
+            width: 100%;
+            padding: 14px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+
+        button:hover:not(:disabled) {
+            transform: translateY(-2px);
+        }
+
+        button:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+
+        #videoSection {
+            display: none;
+        }
+
+        .video-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+
+        .video-wrapper {
+            position: relative;
+            background: #000;
+            border-radius: 12px;
+            overflow: hidden;
+            aspect-ratio: 16/9;
+            border: 3px solid #e0e0e0;
+        }
+
+        .video-wrapper.local {
+            border-color: #4caf50;
+        }
+
+        video {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .video-label {
+            position: absolute;
+            bottom: 10px;
+            left: 10px;
+            background: rgba(0,0,0,0.7);
+            color: white;
+            padding: 6px 12px;
+            border-radius: 6px;
+            font-size: 14px;
+            font-weight: 600;
+            z-index: 10;
+        }
+
+        .status-bar {
+            background: white;
+            padding: 15px 20px;
+            border-radius: 12px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .participant-count {
+            color: #666;
+            font-weight: 600;
+        }
+
+        .leave-btn {
+            width: auto;
+            padding: 10px 24px;
+            background: #dc3545;
+        }
+
+        @media (max-width: 768px) {
+            .video-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <div id="loginSection">
+        <h1 style="text-align: center; margin-bottom: 25px;">🎥 Group Video Call</h1>
+
+        <div class="input-group">
+            <label for="userId">User ID</label>
+            <input type="text" id="userId" placeholder="Enter your user ID" autofocus/>
+        </div>
+
+        <div class="input-group">
+            <label for="roomId">Room ID</label>
+            <input type="text" id="roomId" placeholder="Enter room ID"/>
+        </div>
+
+        <div class="checkbox-container">
+            <label class="checkbox-label">
+                <input type="checkbox" id="useFakeVideo" checked/>
+                <span><strong>Use Fake Video</strong> (for testing)</span>
+            </label>
+            <p style="margin: 8px 0 0 30px; font-size: 13px; color: #666;">
+                Enable if testing multiple tabs on same device
+            </p>
+        </div>
+
+        <button onclick="joinRoom()">Join Room</button>
+    </div>
+
+    <div id="videoSection">
+        <div class="header">
+            <h1>Group Video Call</h1>
+            <div class="room-info" id="roomInfo">Room: <span id="roomName"></span></div>
+        </div>
+
+        <div class="status-bar">
+            <div class="participant-count" id="participantCount">👥 1 participant</div>
+            <button class="leave-btn" onclick="leaveRoom()">Leave Call</button>
+        </div>
+
+        <div class="video-grid" id="videoGrid"></div>
+    </div>
+</div>
+
+<script>
+    const WS_URL = "http://localhost:8080/ws";
+    const ICE_CONFIG = {
+        iceServers: [
+            { urls: 'stun:stun.l.google.com:19302' },
+            { urls: 'stun:stun1.l.google.com:19302' },
+            { urls: 'stun:stun2.l.google.com:19302' }
+        ],
+        iceTransportPolicy: 'all',
+        iceCandidatePoolSize: 10
+    };
+
+    let stompClient = null;
+    let localStream = null;
+    let roomId = null;
+    let myId = null;
+
+    // MAP: peerId -> { pc, videoElement, iceCandidatesQueue }
+    const peers = new Map();
+
+    const videoGrid = document.getElementById('videoGrid');
+    const loginSection = document.getElementById('loginSection');
+    const videoSection = document.getElementById('videoSection');
+    const participantCount = document.getElementById('participantCount');
+    const roomName = document.getElementById('roomName');
+
+    // ========== JOIN ROOM ==========
+    async function joinRoom() {
+        const userIdInput = document.getElementById('userId').value.trim();
+        roomId = document.getElementById('roomId').value.trim();
+
+        if (!userIdInput || !roomId) {
+            alert("Please enter both User ID and Room ID");
+            return;
+        }
+
+        myId = userIdInput;
+
+        try {
+            await getLocalStream();
+            loginSection.style.display = "none";
+            videoSection.style.display = "block";
+            roomName.textContent = roomId;
+            addLocalVideo();
+            connectWebSocket();
+        } catch (e) {
+            console.error("❌ Error:", e);
+            alert("Cannot access media: " + e.message);
+        }
+    }
+
+    // ========== MEDIA ==========
+    function createFakeVideoStream() {
+        const canvas = document.createElement('canvas');
+        canvas.width = 640;
+        canvas.height = 480;
+        const ctx = canvas.getContext('2d');
+
+        const colors = ['#FF6B6B', '#4ECDC4', '#45B7D1', '#FFA07A', '#98D8C8', '#F7DC6F', '#C44569', '#786FA6'];
+        const color = colors[Math.floor(Math.random() * colors.length)];
+        let frame = 0;
+
+        setInterval(() => {
+            ctx.fillStyle = color;
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+            ctx.fillStyle = 'white';
+            ctx.font = 'bold 40px Arial';
+            ctx.textAlign = 'center';
+            ctx.fillText(myId, canvas.width/2, canvas.height/2 - 20);
+            ctx.font = '24px Arial';
+            ctx.fillText(`Frame: ${frame++}`, canvas.width/2, canvas.height/2 + 30);
+        }, 100);
+
+        const videoStream = canvas.captureStream(30);
+        const audioCtx = new AudioContext();
+        const oscillator = audioCtx.createOscillator();
+        const gainNode = audioCtx.createGain();
+        gainNode.gain.value = 0.01;
+        oscillator.connect(gainNode);
+        const dest = audioCtx.createMediaStreamDestination();
+        gainNode.connect(dest);
+        oscillator.start();
+        videoStream.addTrack(dest.stream.getAudioTracks()[0]);
+
+        return videoStream;
+    }
+
+    async function getLocalStream() {
+        const useFake = document.getElementById('useFakeVideo').checked;
+
+        if (useFake) {
+            console.log("📹 Creating fake video");
+            localStream = createFakeVideoStream();
+        } else {
+            console.log("📹 Requesting camera");
+            localStream = await navigator.mediaDevices.getUserMedia({
+                video: { width: { ideal: 1280 }, height: { ideal: 720 } },
+                audio: { echoCancellation: true, noiseSuppression: true }
+            });
+        }
+
+        console.log("✅ Got local stream");
+    }
+
+    function addLocalVideo() {
+        const wrapper = document.createElement('div');
+        wrapper.className = 'video-wrapper local';
+        wrapper.id = 'local-video-wrapper';
+
+        const video = document.createElement('video');
+        video.autoplay = true;
+        video.muted = true;
+        video.playsInline = true;
+        video.srcObject = localStream;
+
+        const label = document.createElement('div');
+        label.className = 'video-label';
+        label.textContent = `📹 ${myId} (You)`;
+
+        wrapper.appendChild(video);
+        wrapper.appendChild(label);
+        videoGrid.appendChild(wrapper);
+    }
+
+    function addRemoteVideo(peerId) {
+        const existingWrapper = document.getElementById(`video-wrapper-${peerId}`);
+        if (existingWrapper) {
+            console.log("⚠️ Video already exists for", peerId);
+            return document.getElementById(`video-${peerId}`);
+        }
+
+        const wrapper = document.createElement('div');
+        wrapper.className = 'video-wrapper';
+        wrapper.id = `video-wrapper-${peerId}`;
+
+        const video = document.createElement('video');
+        video.id = `video-${peerId}`;
+        video.autoplay = true;
+        video.playsInline = true;
+        video.muted = false;
+
+        const label = document.createElement('div');
+        label.className = 'video-label';
+        label.textContent = `👤 ${peerId}`;
+
+        wrapper.appendChild(video);
+        wrapper.appendChild(label);
+        videoGrid.appendChild(wrapper);
+
+        updateParticipantCount();
+        console.log("✅ Added video element for", peerId);
+        return video;
+    }
+
+    function removeRemoteVideo(peerId) {
+        const wrapper = document.getElementById(`video-wrapper-${peerId}`);
+        if (wrapper) {
+            wrapper.remove();
+            updateParticipantCount();
+        }
+    }
+
+    function updateParticipantCount() {
+        const count = peers.size + 1;
+        participantCount.textContent = `👥 ${count} participant${count > 1 ? 's' : ''}`;
+    }
+
+    // ========== WEBSOCKET ==========
+    function connectWebSocket() {
+        const socket = new SockJS(WS_URL);
+        stompClient = Stomp.over(socket);
+        stompClient.debug = null;
+
+        stompClient.connect({}, () => {
+            console.log("✅ WebSocket connected");
+
+            stompClient.subscribe(`/topic/room/${roomId}`, (msg) => {
+                const signal = JSON.parse(msg.body);
+                handleSignal(signal);
+            });
+
+            sendSignal({ type: "join", senderId: myId, roomId });
+        }, (error) => {
+            console.error("❌ WebSocket error:", error);
+        });
+    }
+
+    function sendSignal(data) {
+        if (stompClient && stompClient.connected) {
+            stompClient.send("/app/webrtc.signal", {}, JSON.stringify(data));
+            console.log("📤", data.type, "to", data.targetId || "all");
+        }
+    }
+
+    // ========== SIGNALING ==========
+    function handleSignal(signal) {
+        if (signal.senderId === myId) return;
+
+        console.log("📨", signal.type, "from", signal.senderId);
+
+        switch(signal.type) {
+            case "join":
+                handleUserJoin(signal);
+                break;
+            case "offer":
+                handleOffer(signal);
+                break;
+            case "answer":
+                handleAnswer(signal);
+                break;
+            case "ice-candidate":
+                handleIceCandidate(signal);
+                break;
+            case "leave":
+                handleUserLeave(signal);
+                break;
+        }
+    }
+
+    async function handleUserJoin(signal) {
+        const peerId = signal.senderId;
+        console.log("👤 User joined:", peerId);
+
+        await createPeerConnection(peerId);
+
+        const pc = peers.get(peerId).pc;
+        const offer = await pc.createOffer();
+        await pc.setLocalDescription(offer);
+
+        sendSignal({
+            type: "offer",
+            senderId: myId,
+            targetId: peerId,
+            roomId: roomId,
+            sdp: offer
+        });
+
+        console.log("✅ Sent offer to", peerId);
+    }
+
+    async function handleOffer(signal) {
+        if (signal.targetId && signal.targetId !== myId) {
+            console.log("⏭️ Offer not for me, ignoring");
+            return;
+        }
+
+        const peerId = signal.senderId;
+        console.log("📨 Handling offer from", peerId);
+
+        await createPeerConnection(peerId);
+
+        const peer = peers.get(peerId);
+        const pc = peer.pc;
+
+        try {
+            await pc.setRemoteDescription(new RTCSessionDescription(signal.sdp));
+            console.log("✅ Remote description set for", peerId);
+
+            // Process queued ICE candidates
+            if (peer.iceCandidatesQueue.length > 0) {
+                console.log(`📦 Processing ${peer.iceCandidatesQueue.length} queued ICE candidates for`, peerId);
+                for (const candidate of peer.iceCandidatesQueue) {
+                    await pc.addIceCandidate(candidate);
+                }
+                peer.iceCandidatesQueue = [];
+            }
+
+            const answer = await pc.createAnswer();
+            await pc.setLocalDescription(answer);
+            console.log("✅ Created answer for", peerId);
+
+            sendSignal({
+                type: "answer",
+                senderId: myId,
+                targetId: peerId,
+                roomId: roomId,
+                sdp: answer
+            });
+
+            console.log("✅ Sent answer to", peerId);
+        } catch (e) {
+            console.error("❌ Error handling offer from", peerId, ":", e);
+        }
+    }
+
+    async function handleAnswer(signal) {
+        if (signal.targetId !== myId) {
+            console.log("⏭️ Answer not for me, ignoring");
+            return;
+        }
+
+        const peerId = signal.senderId;
+        console.log("📨 Handling answer from", peerId);
+
+        const peer = peers.get(peerId);
+        if (!peer) {
+            console.error("❌ No peer connection for", peerId);
+            return;
+        }
+
+        try {
+            await peer.pc.setRemoteDescription(new RTCSessionDescription(signal.sdp));
+            console.log("✅ Answer accepted from", peerId);
+
+            // Process queued ICE candidates
+            if (peer.iceCandidatesQueue.length > 0) {
+                console.log(`📦 Processing ${peer.iceCandidatesQueue.length} queued ICE candidates for`, peerId);
+                for (const candidate of peer.iceCandidatesQueue) {
+                    await peer.pc.addIceCandidate(candidate);
+                }
+                peer.iceCandidatesQueue = [];
+            }
+        } catch (e) {
+            console.error("❌ Error setting remote description:", e);
+        }
+    }
+
+    async function handleIceCandidate(signal) {
+        if (signal.targetId && signal.targetId !== myId) {
+            return;
+        }
+
+        const peerId = signal.senderId;
+        const peer = peers.get(peerId);
+
+        if (!peer) {
+            console.log("⚠️ No peer for ICE from", peerId);
+            return;
+        }
+
+        const candidate = new RTCIceCandidate(signal.candidate);
+
+        if (!peer.pc.remoteDescription) {
+            console.log("⏳ Queueing ICE candidate for", peerId);
+            peer.iceCandidatesQueue.push(candidate);
+            return;
+        }
+
+        try {
+            await peer.pc.addIceCandidate(candidate);
+            console.log("✅ ICE added from", peerId);
+        } catch (e) {
+            console.error("❌ ICE error from", peerId, ":", e);
+        }
+    }
+
+    function handleUserLeave(signal) {
+        const peerId = signal.senderId;
+        console.log("👋 User left:", peerId);
+        closePeerConnection(peerId);
+    }
+
+    // ========== PEER CONNECTION ==========
+    async function createPeerConnection(peerId) {
+        if (peers.has(peerId)) {
+            console.log("⚠️ Peer already exists:", peerId);
+            return;
+        }
+
+        const pc = new RTCPeerConnection(ICE_CONFIG);
+        console.log("🔗 Created peer connection for", peerId);
+
+        const videoElement = addRemoteVideo(peerId);
+
+        // Store peer info with ICE queue
+        peers.set(peerId, {
+            pc,
+            videoElement,
+            iceCandidatesQueue: []
+        });
+
+        // Add local tracks
+        localStream.getTracks().forEach(track => {
+            pc.addTrack(track, localStream);
+            console.log("➕ Added local", track.kind, "to", peerId);
+        });
+
+        // Handle remote tracks
+        pc.ontrack = (event) => {
+            console.log("✅ Remote track from", peerId, ":", event.track.kind);
+
+            if (event.streams && event.streams[0]) {
+                console.log("📺 Setting stream for", peerId);
+
+                // Set srcObject only once when we get the stream
+                if (!videoElement.srcObject) {
+                    videoElement.srcObject = event.streams[0];
+
+                    // Play video
+                    videoElement.play().then(() => {
+                        console.log("▶️ Playing video from", peerId);
+                    }).catch(e => {
+                        console.error("❌ Play error:", e);
+                        // Retry
+                        setTimeout(() => {
+                            videoElement.play().catch(e2 => console.error("❌ Retry play error:", e2));
+                        }, 1000);
+                    });
+                }
+            }
+        };
+
+        // Handle ICE candidates
+        pc.onicecandidate = (event) => {
+            if (event.candidate) {
+                sendSignal({
+                    type: "ice-candidate",
+                    senderId: myId,
+                    targetId: peerId,
+                    roomId: roomId,
+                    candidate: event.candidate
+                });
+                console.log("🧊 Sent ICE to", peerId);
+            }
+        };
+
+        // Connection state
+        pc.onconnectionstatechange = () => {
+            console.log(`🔗 ${peerId} connection state:`, pc.connectionState);
+            if (pc.connectionState === "connected") {
+                console.log("✅ Connected to", peerId);
+            } else if (pc.connectionState === "failed" || pc.connectionState === "closed") {
+                console.log("❌ Connection failed/closed with", peerId);
+                closePeerConnection(peerId);
+            }
+        };
+
+        pc.oniceconnectionstatechange = () => {
+            console.log(`🧊 ${peerId} ICE state:`, pc.iceConnectionState);
+        };
+    }
+
+    function closePeerConnection(peerId) {
+        const peer = peers.get(peerId);
+        if (!peer) return;
+
+        peer.pc.close();
+        peers.delete(peerId);
+        removeRemoteVideo(peerId);
+        console.log("🔒 Closed connection with", peerId);
+    }
+
+    // ========== LEAVE ROOM ==========
+    function leaveRoom() {
+        console.log("🚪 Leaving room");
+
+        sendSignal({ type: "leave", senderId: myId, roomId });
+
+        peers.forEach((peer, peerId) => {
+            peer.pc.close();
+        });
+        peers.clear();
+
+        if (localStream) {
+            localStream.getTracks().forEach(t => t.stop());
+            localStream = null;
+        }
+
+        if (stompClient) {
+            stompClient.disconnect();
+            stompClient = null;
+        }
+
+        videoGrid.innerHTML = '';
+        videoSection.style.display = "none";
+        loginSection.style.display = "block";
+        document.getElementById("userId").value = "";
+        document.getElementById("roomId").value = "";
+        myId = null;
+        roomId = null;
+    }
+
+    window.addEventListener("beforeunload", () => {
+        if (myId && roomId) leaveRoom();
+    });
+</script>
+</body>
+</html>

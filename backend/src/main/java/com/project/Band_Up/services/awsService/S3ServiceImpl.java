@@ -5,6 +5,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import software.amazon.awssdk.core.exception.SdkClientException;
+import software.amazon.awssdk.core.sync.RequestBody;
 import software.amazon.awssdk.services.cloudfront.CloudFrontUtilities;
 import software.amazon.awssdk.services.cloudfront.model.CannedSignerRequest;
 import software.amazon.awssdk.services.s3.S3Client;
@@ -62,6 +63,24 @@ public class S3ServiceImpl implements S3Service {
             throw new RuntimeException("Could not read CloudFront private key file", e);
         }
 
+    }
+
+    public void uploadFile(String key, byte[] data, String contentType) {
+        try {
+            PutObjectRequest putRequest = PutObjectRequest.builder()
+                    .bucket(bucket)
+                    .key(key)
+                    .contentType(contentType)
+                    .build();
+
+            PutObjectResponse response = s3Client.putObject(putRequest, RequestBody.fromBytes(data));
+            log.info("[S3] Upload successful: key={}, ETag={}, size={} bytes",
+                    key, response.eTag(), data.length);
+
+        } catch (S3Exception e) {
+            log.error("[S3] Upload failed for key={}: {}", key, e.awsErrorDetails().errorMessage(), e);
+            throw e;
+        }
     }
 
     @Override

@@ -3,14 +3,16 @@ package com.project.Band_Up.controllers;
 import com.project.Band_Up.dtos.blog.BlogPostDetails;
 import com.project.Band_Up.dtos.blog.BlogPosts;
 import com.project.Band_Up.dtos.blog.BlogRequest;
+import com.project.Band_Up.dtos.blog.BlogStatsDto;
 import com.project.Band_Up.dtos.blog.ReactDto;
 import com.project.Band_Up.dtos.blog.TagDto;
+import com.project.Band_Up.enums.StatsInterval;
 import com.project.Band_Up.services.blog.BlogService;
+import com.project.Band_Up.services.blog.BlogStatService;
 import com.project.Band_Up.utils.JwtUserDetails;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
-import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
@@ -28,6 +30,9 @@ public class BlogController {
 
     @Autowired
     private BlogService blogService;
+
+    @Autowired
+    private BlogStatService blogStatService;
 
     @PostMapping("/create")
     @Operation(
@@ -120,5 +125,44 @@ public class BlogController {
             return ResponseEntity.noContent().build();
         }
         return ResponseEntity.ok(result);
+    }
+
+    @GetMapping("/stats")
+    @Operation(
+            summary = "Get blog statistics",
+            description = "Retrieves blog statistics including total views, total blogs, average engagement, and average read time. Shows comparison with previous period based on the specified interval (DAILY, WEEKLY, MONTHLY, YEARLY)."
+    )
+    public ResponseEntity<BlogStatsDto> getBlogStats(
+            @Parameter(description = "Statistics interval: DAILY, WEEKLY, MONTHLY, or YEARLY", example = "DAILY")
+            @RequestParam StatsInterval statsInterval) {
+        BlogStatsDto stats = blogStatService.getStats(statsInterval);
+        return ResponseEntity.ok(stats);
+    }
+
+    @PutMapping("/{blogPostId}")
+    @Operation(
+            summary = "Update a blog post",
+            description = "Updates an existing blog post. Only the author of the blog post can update it. Requires authentication."
+    )
+    public ResponseEntity<BlogPosts> updateBlogPost(
+            @Parameter(description = "ID of the blog post to update")
+            @PathVariable UUID blogPostId,
+            @RequestBody BlogRequest blogRequest,
+            @AuthenticationPrincipal JwtUserDetails userDetails) {
+        BlogPosts updatedPost = blogService.updateBlogPost(blogPostId, blogRequest, userDetails.getAccountId());
+        return ResponseEntity.ok(updatedPost);
+    }
+
+    @DeleteMapping("/{blogPostId}")
+    @Operation(
+            summary = "Delete a blog post",
+            description = "Deletes a blog post. Only the author of the blog post can delete it. Requires authentication."
+    )
+    public ResponseEntity<Void> deleteBlogPost(
+            @Parameter(description = "ID of the blog post to delete")
+            @PathVariable UUID blogPostId,
+            @AuthenticationPrincipal JwtUserDetails userDetails) {
+        blogService.deleteBlogPost(blogPostId, userDetails.getAccountId());
+        return ResponseEntity.noContent().build();
     }
 }

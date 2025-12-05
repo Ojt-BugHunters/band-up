@@ -11,7 +11,7 @@ import java.util.UUID;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class AnswerResponse {
+public class DictationAnswerResponse {
     private UUID id;
     private UUID attemptSectionId;
     private UUID questionId;
