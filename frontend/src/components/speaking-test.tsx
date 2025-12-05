@@ -1,8 +1,7 @@
 'use client';
 
 import type React from 'react';
-
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useMemo } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -11,8 +10,6 @@ import ProgressDialog from '@/components/progress-dialog';
 import { Separator } from '@/components/ui/separator';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Alert, AlertDescription } from '@/components/ui/alert';
-import { speakingTestParts } from '../../constants/sample-data';
-import { enrichSpeakingTestParts } from '@/lib/service/test/question';
 import { VoiceInput } from './voice-input';
 import { toast } from 'sonner';
 import {
@@ -28,6 +25,11 @@ import {
     FileUploadTrigger,
 } from '@/components/ui/file-upload';
 import { NotFound } from './not-found';
+import {
+    SpeakingQuestion,
+    useGetSpeakingWithQuestions,
+} from '@/lib/service/test/question';
+import LiquidLoading from './ui/liquid-loader';
 
 type SpeakingTestProps = {
     mode?: string;
@@ -38,17 +40,28 @@ export function SpeakingTest({
     mode = 'full',
     sections = [],
 }: SpeakingTestProps) {
-    console.log(sections);
-    const enrichedSpeakingTestParts =
-        enrichSpeakingTestParts(speakingTestParts);
-    const availableParts =
-        mode === 'full'
-            ? enrichedSpeakingTestParts
-            : enrichedSpeakingTestParts.filter((part) =>
+    const {
+        data: speakingQuestions,
+        isLoading: isSpeakingQuestionsLoading,
+        error: isSpeakingQuestionsError,
+    } = useGetSpeakingWithQuestions(sections);
+
+    const availableParts = useMemo(() => {
+        return mode === 'full'
+            ? (speakingQuestions ?? [])
+            : (speakingQuestions ?? []).filter((part) =>
                   sections.includes(part.id),
               );
+    }, [mode, speakingQuestions, sections]);
 
-    const [currentPart, setCurrentPart] = useState(availableParts[0]?.id ?? '');
+    const totalDuration = useMemo(() => {
+        return availableParts.reduce(
+            (total, part) => total + (part?.timeLimitSeconds || 0),
+            0,
+        );
+    }, [availableParts]);
+
+    const [currentPart, setCurrentPart] = useState('');
     const [isTestStarted, setIsTestStarted] = useState(false);
     const [isRecording, setIsRecording] = useState(false);
     const [isPreparing, setIsPreparing] = useState(false);
@@ -57,12 +70,21 @@ export function SpeakingTest({
     const [partAnswers, setPartAnswers] = useState<Record<string, string>>({});
     const [showReview, setShowReview] = useState(false);
     const [files, setFiles] = useState<File[]>([]);
+    const [timeRemaining, setTimeRemaining] = useState(0);
 
-    const totalDuration = availableParts.reduce(
-        (total, part) => total + part.duration,
-        0,
-    );
-    const [timeRemaining, setTimeRemaining] = useState(totalDuration);
+    useEffect(() => {
+        if (availableParts.length > 0 && !currentPart) {
+            setCurrentPart(availableParts[0].id);
+        }
+    }, [availableParts, currentPart]);
+
+    useEffect(() => {
+        if (availableParts && availableParts.length > 0) {
+            if (!isTestStarted && timeRemaining === 0) {
+                setTimeRemaining(totalDuration);
+            }
+        }
+    }, [availableParts, isTestStarted, timeRemaining, totalDuration]);
 
     const currentPartData = availableParts.find((p) => p.id === currentPart);
 
@@ -92,8 +114,8 @@ export function SpeakingTest({
                     if (prev <= 1) {
                         setIsPreparing(false);
                         setPreparationTime(0);
-                        if (currentPartData?.duration) {
-                            setSpeakingTime(currentPartData.duration);
+                        if (currentPartData?.timeLimitSeconds) {
+                            setSpeakingTime(currentPartData.timeLimitSeconds);
                             setIsRecording(true);
                         }
                         return 0;
@@ -189,13 +211,9 @@ export function SpeakingTest({
         }
     };
 
-    const getTotalParts = () => {
-        return availableParts.length;
-    };
+    const getTotalParts = () => availableParts.length;
 
-    const getAnsweredParts = () => {
-        return Object.keys(partAnswers).length;
-    };
+    const getAnsweredParts = () => Object.keys(partAnswers).length;
 
     const getUnansweredQuestions = () => {
         const unansweredParts = availableParts.filter(
@@ -208,7 +226,16 @@ export function SpeakingTest({
         }));
     };
 
-    if (availableParts.length === 0) {
+    // CHECK LOADING SAU KHI ĐÃ GỌI TẤT CẢ HOOKS
+    if (isSpeakingQuestionsLoading) {
+        return (
+            <div className="bg-background flex min-h-screen w-full items-center justify-center rounded-lg border p-4">
+                <LiquidLoading />
+            </div>
+        );
+    }
+
+    if (isSpeakingQuestionsError) {
         return <NotFound />;
     }
 
@@ -290,26 +317,18 @@ export function SpeakingTest({
                                                 }}
                                             >
                                                 <div className="mb-2 flex items-center justify-between">
-                                                    <Badge
-                                                        variant="outline"
-                                                        className="text-xs"
-                                                    >
-                                                        Part{' '}
-                                                        {part.id
-                                                            .split('-')
-                                                            .pop()}
-                                                    </Badge>
                                                     <div className="flex items-center gap-2">
                                                         <Badge
                                                             variant="secondary"
                                                             className="text-xs"
                                                         >
                                                             {formatTime(
-                                                                part.duration,
+                                                                part.timeLimitSeconds ||
+                                                                    0,
                                                             )}
                                                         </Badge>
                                                         {partAnswers[
-                                                            part.id
+                                                            part.orderIndex
                                                         ] && (
                                                             <Badge
                                                                 variant="default"
@@ -323,12 +342,10 @@ export function SpeakingTest({
                                                 <h3 className="mb-2 text-sm font-medium text-balance">
                                                     {part.title}
                                                 </h3>
-                                                <p className="text-muted-foreground text-xs text-pretty">
-                                                    {part.description}
-                                                </p>
                                                 <div className="border-border/50 mt-2 border-t pt-2">
                                                     <span className="text-muted-foreground text-xs">
-                                                        {part.questions.length}{' '}
+                                                        {part.questions
+                                                            ?.length || 0}{' '}
                                                         questions
                                                     </span>
                                                 </div>
@@ -351,7 +368,8 @@ export function SpeakingTest({
                                         variant="outline"
                                         className="text-xs"
                                     >
-                                        {currentPartData?.questions.length}{' '}
+                                        {currentPartData?.questions?.length ||
+                                            0}{' '}
                                         Questions
                                     </Badge>
                                 </div>
@@ -363,8 +381,11 @@ export function SpeakingTest({
                                     <div className="h-100 flex-1 space-y-6">
                                         <ScrollArea className="h-100 flex-1">
                                             <div className="space-y-4 pr-4">
-                                                {currentPartData.questions.map(
-                                                    (question, index) => (
+                                                {currentPartData.questions?.map(
+                                                    (
+                                                        question: SpeakingQuestion,
+                                                        index: number,
+                                                    ) => (
                                                         <div
                                                             key={question.id}
                                                             className="bg-card/50 rounded-lg border p-6"
@@ -375,31 +396,12 @@ export function SpeakingTest({
                                                                     Question{' '}
                                                                     {index + 1}
                                                                 </span>
-                                                                {question.preparationTime >
-                                                                    0 && (
-                                                                    <Badge
-                                                                        variant="outline"
-                                                                        className="ml-auto text-xs"
-                                                                    >
-                                                                        Prep:{' '}
-                                                                        {formatTime(
-                                                                            question.preparationTime,
-                                                                        )}
-                                                                    </Badge>
-                                                                )}
-                                                                <Badge
-                                                                    variant="outline"
-                                                                    className="text-xs"
-                                                                >
-                                                                    Speak:{' '}
-                                                                    {formatTime(
-                                                                        question.speakingTime,
-                                                                    )}
-                                                                </Badge>
                                                             </div>
                                                             <p className="text-lg leading-relaxed text-pretty whitespace-pre-line">
                                                                 {
-                                                                    question.question
+                                                                    question
+                                                                        .content
+                                                                        .question
                                                                 }
                                                             </p>
                                                         </div>
@@ -454,7 +456,8 @@ export function SpeakingTest({
                                                                 time:{' '}
                                                                 {currentPartData
                                                                     ? formatTime(
-                                                                          currentPartData.duration,
+                                                                          currentPartData.timeLimitSeconds ||
+                                                                              0,
                                                                       )
                                                                     : 'N/A'}
                                                             </li>
@@ -515,10 +518,10 @@ export function SpeakingTest({
                                                             Questions:
                                                         </h4>
                                                         <div className="space-y-2">
-                                                            {currentPartData?.questions.map(
+                                                            {currentPartData?.questions?.map(
                                                                 (
-                                                                    question,
-                                                                    index,
+                                                                    question: SpeakingQuestion,
+                                                                    index: number,
                                                                 ) => (
                                                                     <div
                                                                         key={
@@ -532,7 +535,7 @@ export function SpeakingTest({
                                                                                 1}
                                                                             :
                                                                         </span>
-                                                                        <span className="ml-2 text-yellow-800">
+                                                                        {/* <span className="ml-2 text-yellow-800">
                                                                             {
                                                                                 question.question.split(
                                                                                     '\n',
@@ -542,7 +545,7 @@ export function SpeakingTest({
                                                                                 '\n',
                                                                             ) &&
                                                                                 '...'}
-                                                                        </span>
+                                                                        </span> */}
                                                                     </div>
                                                                 ),
                                                             )}
@@ -668,7 +671,7 @@ export function SpeakingTest({
                                                     onClick={handlePreviousPart}
                                                     disabled={
                                                         currentPart ===
-                                                        availableParts[0].id
+                                                        availableParts[0]?.id
                                                     }
                                                 >
                                                     Previous Part
@@ -682,7 +685,7 @@ export function SpeakingTest({
                                                         availableParts[
                                                             availableParts.length -
                                                                 1
-                                                        ].id
+                                                        ]?.id
                                                     }
                                                 >
                                                     Next Part

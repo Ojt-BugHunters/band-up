@@ -34,7 +34,7 @@ export function WritingTest({
             ? (writingTasks ?? [])
             : (writingTasks ?? []).filter((task) => sections.includes(task.id));
     }, [mode, writingTasks, sections]);
-    console.log(availableTasks);
+
     const [currentTask, setCurrentTask] = useState('');
 
     useEffect(() => {

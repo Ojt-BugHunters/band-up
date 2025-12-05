@@ -27,11 +27,6 @@ export type WritingQuestionType = 'task1' | 'task2';
 
 export type SpeakingQuestionType = 'part1' | 'part23';
 
-export interface SpeakingQuestion {
-    id: number;
-    question: string;
-}
-
 export interface Passage1 {
     id: string;
     title: string;
@@ -53,15 +48,6 @@ export interface ListeningSection {
     duration: number;
     questions: ListeningQuestion[];
 }
-
-export interface SpeakingSection {
-    id: string;
-    title: string;
-    duration: number;
-    description: string;
-    questions: SpeakingQuestion[];
-}
-
 export interface EnrichedSpeakingQuestion extends SpeakingQuestion {
     preparationTime: number;
     speakingTime: number;
@@ -146,6 +132,10 @@ export interface WritingQuestion extends BaseQuestion {
     content: WritingQuestionContent;
 }
 
+export interface SpeakingQuestion extends BaseQuestion {
+    content: SpeakingQuestionContent;
+}
+
 export interface ReadingQuestionContent {
     type: ReadingQuestionType;
     correctAnswer: string;
@@ -164,6 +154,12 @@ export interface WritingQuestionContent {
     instruction: string;
     minWords: number;
     question: string;
+}
+
+export interface SpeakingQuestionContent {
+    question: string;
+    sampleAnswer: string;
+    questionNumber: number;
 }
 
 export type PassageQuestion = {
@@ -197,4 +193,15 @@ export type WritingSection = {
     metadata: string;
     cloudfrontUrl: string | null;
     questions: WritingQuestion[];
+};
+
+export type SpeakingSection = {
+    id: string;
+    testId: string;
+    title: string;
+    orderIndex: number;
+    timeLimitSeconds: number;
+    metadata: string;
+    cloudfrontUrl: string | null;
+    questions: SpeakingQuestion[];
 };

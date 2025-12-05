@@ -5,6 +5,8 @@ import {
     ListeningSectionsQuestion,
     PassageQuestion,
     ReadingQuestion,
+    SpeakingQuestion,
+    SpeakingSection,
     WritingQuestion,
     WritingSection,
 } from './type';
@@ -51,7 +53,7 @@ export const useGetSectionsWithQuestions = (sectionIds: string[]) => {
 
             return sectionsWithQuestions;
         },
-        queryKey: ['sections-with-questions', sectionIds],
+        queryKey: ['reading-sections-with-questions', sectionIds],
         staleTime: 60 * 60 * 1000,
     });
 };
@@ -84,7 +86,7 @@ export const useGetListeningWithQuestions = (sectionIds: string[]) => {
 
             return sectionsWithQuestions;
         },
-        queryKey: ['sections-with-questions', sectionIds],
+        queryKey: ['listening-sections-with-questions', sectionIds],
         staleTime: 60 * 60 * 1000,
     });
 };
@@ -112,7 +114,37 @@ export const useGetWritingWithQuestions = (sectionIds: string[]) => {
             );
             return sectionsWithQuestions;
         },
-        queryKey: ['sections-with-questions', sectionIds],
+        queryKey: ['writing-sections-with-questions', sectionIds],
+        staleTime: 60 * 60 * 1000,
+    });
+};
+
+export const useGetSpeakingWithQuestions = (sectionIds: string[]) => {
+    return useQuery({
+        queryFn: async () => {
+            const sectionsWithQuestions = await Promise.all(
+                sectionIds.map(async (id) => {
+                    const sectionResponse = await fetchWrapper(
+                        `/sections/${id}`,
+                    );
+                    const section =
+                        await deserialize<SpeakingSection>(sectionResponse);
+                    const questionsResponse = await fetchWrapper(
+                        `/sections/${id}/questions`,
+                    );
+                    const questions =
+                        await deserialize<SpeakingQuestion[]>(
+                            questionsResponse,
+                        );
+                    return {
+                        ...section,
+                        questions: questions,
+                    };
+                }),
+            );
+            return sectionsWithQuestions;
+        },
+        queryKey: ['speaking-sections-with-questions', sectionIds],
         staleTime: 60 * 60 * 1000,
     });
 };
