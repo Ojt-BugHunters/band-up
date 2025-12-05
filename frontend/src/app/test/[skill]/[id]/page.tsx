@@ -33,7 +33,6 @@ import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Content } from '@tiptap/react';
 import { TooltipProvider } from '@/components/ui/tooltip';
-import Link from 'next/link';
 import CommentSection from '@/components/comment-section';
 import { useGetDictationTest } from '@/lib/service/dictation';
 import LiquidLoading from '@/components/ui/liquid-loader';
@@ -41,6 +40,9 @@ import { NotFound } from '@/components/not-found';
 import { formatDuration } from '@/lib/utils';
 import { useGetTestSections } from '@/lib/service/test/section/api';
 import { TestSection } from '@/lib/service/test/section';
+import { useCreateAttemptSection } from '@/lib/service/attempt';
+import { useSearchParams, useRouter } from 'next/navigation';
+
 interface PageProps {
     params: Promise<{
         skill: string;
@@ -99,9 +101,15 @@ function toTitleCase(str: string): string {
 
 export default function TestOverview({ params }: PageProps) {
     const { skill, id } = React.use(params);
+    const searchParams = useSearchParams();
+    const router = useRouter();
+    const attemptId = searchParams.get('attemptId');
+
     const dataConfig = skillConfig[skill as keyof typeof skillConfig];
     const [value, setValue] = useState<Content>('');
     const [submitting, setSubmitting] = useState(false);
+    const [isCreatingAttemptSections, setIsCreatingAttemptSections] =
+        useState(false);
 
     const [selectedSections, setSelectedSections] = useState<string[]>([]);
     const {
@@ -116,6 +124,8 @@ export default function TestOverview({ params }: PageProps) {
         isError: isSectionsError,
     } = useGetTestSections(id);
 
+    const { mutateAsync: createAttemptSection } = useCreateAttemptSection();
+
     const handleSubmit = async () => {
         setValue(null);
         setSubmitting(true);
@@ -128,8 +138,39 @@ export default function TestOverview({ params }: PageProps) {
                 : [...prev, sectionId],
         );
     };
+
+    const handleStartTest = async (
+        sectionIds: string[],
+        mode: 'single' | 'full',
+    ) => {
+        if (!attemptId || sectionIds.length === 0) return;
+
+        setIsCreatingAttemptSections(true);
+
+        try {
+            const startAt = new Date().toISOString();
+
+            const promises = sectionIds.map((sectionId) =>
+                createAttemptSection({
+                    attemptId,
+                    sectionId,
+                    startAt,
+                }),
+            );
+
+            await Promise.all(promises);
+            const url = `/test/${skill}/${id}/do?mode=${mode}&skill=${skill}&section=${sectionIds.join(',')}`;
+            router.push(url);
+        } catch (error) {
+            console.error('Error creating attempt sections:', error);
+        } finally {
+            setIsCreatingAttemptSections(false);
+        }
+    };
+
     const Icon = dataConfig.icon;
     const instructions = dataConfig.instructions;
+
     if (isTestLoading || isSectionsLoading) {
         return (
             <div className="bg-background flex min-h-screen w-full items-center justify-center rounded-lg border p-4">
@@ -141,6 +182,7 @@ export default function TestOverview({ params }: PageProps) {
     if (isTestError || isSectionsError) {
         return <NotFound />;
     }
+
     return (
         <TooltipProvider>
             <div className="flex-1 space-y-6 bg-white p-6 dark:bg-black">
@@ -300,17 +342,22 @@ export default function TestOverview({ params }: PageProps) {
                                 </CardContent>
                                 <div className="pt-2">
                                     <Button
-                                        asChild
+                                        onClick={() =>
+                                            handleStartTest(
+                                                selectedSections,
+                                                'single',
+                                            )
+                                        }
                                         className="ml-6 bg-gradient-to-r from-blue-600 to-indigo-500 shadow-lg transition-all duration-300 hover:from-blue-700 hover:to-purple-700 hover:shadow-xl dark:from-white dark:to-slate-100 dark:text-black dark:hover:from-slate-100 dark:hover:to-slate-200"
-                                        disabled={selectedSections.length === 0}
+                                        disabled={
+                                            selectedSections.length === 0 ||
+                                            isCreatingAttemptSections
+                                        }
                                         size="lg"
                                     >
-                                        <Link
-                                            href={`/test/${skill}/${test?.id}/do?mode=single&skill=${skill}&section=${selectedSections.join(',')}`}
-                                        >
-                                            Start Selected Sections (
-                                            {selectedSections.length})
-                                        </Link>
+                                        {isCreatingAttemptSections
+                                            ? 'Creating...'
+                                            : `Start Selected Sections (${selectedSections.length})`}
                                     </Button>
                                 </div>
                             </Card>
@@ -371,21 +418,23 @@ export default function TestOverview({ params }: PageProps) {
                                             ))}
                                         </ul>
                                     </div>
-                                    <Link
-                                        href={`/test/${skill}/${test?.id}/do?mode=full&skill=${skill}&section=${sections?.map((section) => section.id).join(',')}`}
+                                    <Button
+                                        onClick={() =>
+                                            handleStartTest(
+                                                sections?.map((s) => s.id) ||
+                                                    [],
+                                                'full',
+                                            )
+                                        }
+                                        size="lg"
+                                        disabled={isCreatingAttemptSections}
+                                        className="w-full bg-gradient-to-r from-green-600 to-blue-600 shadow-lg transition-all duration-300 hover:from-green-700 hover:to-blue-700 hover:shadow-xl dark:from-white dark:to-slate-100 dark:text-black dark:hover:from-slate-100 dark:hover:to-slate-200"
                                     >
-                                        <Button
-                                            size="lg"
-                                            className="w-full bg-gradient-to-r from-green-600 to-blue-600 shadow-lg transition-all duration-300 hover:from-green-700 hover:to-blue-700 hover:shadow-xl dark:from-white dark:to-slate-100 dark:text-black dark:hover:from-slate-100 dark:hover:to-slate-200"
-                                        >
-                                            <Play className="mr-2 h-4 w-4" />
-                                            Start Full Test (
-                                            {formatDuration(
-                                                test?.durationSeconds as number,
-                                            )}{' '}
-                                            minutes)
-                                        </Button>
-                                    </Link>
+                                        <Play className="mr-2 h-4 w-4" />
+                                        {isCreatingAttemptSections
+                                            ? 'Creating...'
+                                            : `Start Full Test (${formatDuration(test?.durationSeconds as number)} minutes)`}
+                                    </Button>
                                 </CardContent>
                             </Card>
                         </TabsContent>

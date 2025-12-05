@@ -66,7 +66,6 @@ export function TestCard({ test }: { test: Dictation }) {
             { id: test.id, startAt },
             {
                 onSuccess: (data) => {
-                    // Chỉ chuyển hướng khi đã có attemptId
                     router.push(
                         `/test/${test.skillName.toLowerCase()}/${test.id}?attemptId=${data.id}`,
                     );

@@ -9,3 +9,11 @@ export type CreateAttemptResponse = {
     overallBand: number | null;
     attemptSections: string[];
 };
+
+export type CreateAttemptSectionResponse = {
+    id: string;
+    attemptId: string;
+    sectionId: string;
+    startAt: string;
+    status: string;
+};
