@@ -17,3 +17,13 @@ export type CreateAttemptSectionResponse = {
     startAt: string;
     status: string;
 };
+
+export type ScoredAnswer = {
+    id: string;
+    attemptSectionId: string;
+    questionId: string;
+    answerContent: string;
+    correctAnswer: string;
+    createAt: string;
+    correct: boolean;
+};
