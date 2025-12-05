@@ -1,9 +1,8 @@
 import { User } from '@/lib/service/account';
 import { BlogReact, Author, ReactType } from '@/lib/service/blog';
 import { Comment } from '@/lib/service/comment';
-import { ListeningSection, WritingTask } from '@/lib/service/test/question';
+import { WritingTask } from '@/lib/service/test/question';
 import { Test, TestHistory } from '@/lib/service/test';
-import { SpeakingSection } from '@/lib/service/test/question';
 import { LeaderboardUser } from '@/lib/service/room';
 
 export const listeningTest: Test = {
@@ -173,153 +172,6 @@ export const comments: Comment[] = [
         reply: [],
     },
 ];
-
-export const mockListeningSections: ListeningSection[] = [
-    {
-        id: 'section-1',
-        title: 'Section 1: Everyday Social Conversation',
-        audioUrl: '/audio/example.mp3',
-        duration: 300,
-        questions: [
-            {
-                id: 1,
-                type: 'completion',
-                question: 'The caller wants to book a table for _____ people.',
-                image: '/listening-image.jpg',
-            },
-            {
-                id: 2,
-                type: 'multiple-choice',
-                question: 'What time does the restaurant close on Sundays?',
-                options: ['8:00 PM', '9:00 PM', '10:00 PM', '11:00 PM'],
-            },
-            {
-                id: 3,
-                type: 'completion',
-                question: 'The restaurant is located on _____ Street.',
-            },
-            {
-                id: 4,
-                type: 'completion',
-                question: 'What is the phone number for reservations?',
-            },
-        ],
-    },
-    {
-        id: 'section-2',
-        title: 'Section 2: Monologue on General Interest',
-        audioUrl: '/audio/example.mp3',
-        duration: 360,
-        questions: [
-            {
-                id: 5,
-                type: 'multiple-choice',
-                question: 'The main purpose of the talk is to:',
-                options: [
-                    'Introduce new museum exhibits',
-                    'Explain museum opening hours',
-                    'Describe the museum layout',
-                    'Announce special events',
-                ],
-            },
-            {
-                id: 6,
-                type: 'completion',
-                question: 'The museum was built in _____.',
-            },
-            {
-                id: 7,
-                type: 'true-false',
-                question: 'Photography is allowed in all areas of the museum.',
-            },
-            {
-                id: 8,
-                type: 'completion',
-                question: 'Match the floor with its main attraction:',
-                options: [
-                    'Ground Floor - Gift Shop',
-                    'First Floor - Ancient History',
-                    'Second Floor - Modern Art',
-                ],
-            },
-        ],
-    },
-    {
-        id: 'section-3',
-        title: 'Section 3: Academic Discussion',
-        audioUrl: '/audio/example.mp3',
-        duration: 420,
-        questions: [
-            {
-                id: 9,
-                type: 'multiple-choice',
-                question: 'What is the main topic of the discussion?',
-                options: [
-                    'Climate change research',
-                    'Renewable energy sources',
-                    'Environmental policies',
-                    'Sustainable development',
-                ],
-            },
-            {
-                id: 10,
-                type: 'completion',
-                question: 'The research project will last for _____ months.',
-            },
-            {
-                id: 11,
-                type: 'completion',
-                question:
-                    'Which country will they visit for their field study?',
-            },
-            {
-                id: 12,
-                type: 'true-false',
-                question:
-                    'The students need to submit their proposal by next Friday.',
-            },
-        ],
-    },
-    {
-        id: 'section-4',
-        title: 'Section 4: Academic Lecture',
-        audioUrl: '/audio/example.mp3',
-        duration: 480,
-        questions: [
-            {
-                id: 13,
-                type: 'completion',
-                question:
-                    'The lecture focuses on the impact of _____ on marine ecosystems.',
-            },
-            {
-                id: 14,
-                type: 'multiple-choice',
-                question:
-                    'According to the lecturer, what is the primary cause of coral bleaching?',
-                options: [
-                    'Ocean pollution',
-                    'Rising water temperatures',
-                    'Overfishing',
-                    'Coastal development',
-                ],
-            },
-            {
-                id: 15,
-                type: 'completion',
-                question:
-                    'What percentage of coral reefs have been affected globally?',
-            },
-            {
-                id: 16,
-                type: 'completion',
-                question:
-                    'The Great Barrier Reef has lost approximately _____% of its coral cover.',
-            },
-        ],
-    },
-];
-
 export const writingTasks: WritingTask[] = [
     {
         id: 'section-1',
@@ -336,7 +188,7 @@ export const writingTasks: WritingTask[] = [
     },
 ];
 
-export const speakingTestParts: SpeakingSection[] = [
+export const speakingTestParts = [
     {
         id: 'section-1',
         title: 'Part 1: Introduction and Interview',
