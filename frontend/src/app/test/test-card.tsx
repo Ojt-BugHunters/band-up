@@ -66,6 +66,11 @@ export function TestCard({ test }: { test: Dictation }) {
             { id: test.id, startAt },
             {
                 onSuccess: (data) => {
+                    try {
+                        localStorage.setItem('currentAttemptId', data.id);
+                    } catch (error) {
+                        console.error('Error saving to localStorage:', error);
+                    }
                     router.push(
                         `/test/${test.skillName.toLowerCase()}/${test.id}?attemptId=${data.id}`,
                     );

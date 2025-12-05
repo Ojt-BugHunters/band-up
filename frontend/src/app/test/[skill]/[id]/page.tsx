@@ -158,22 +158,7 @@ export default function TestOverview({ params }: PageProps) {
                 }),
             );
 
-            const results = await Promise.all(promises);
-
-            // Tạo map: sectionId -> attemptSectionId
-            const sectionAttemptMap = results.reduce(
-                (acc, result) => {
-                    acc[result.sectionId] = result.id;
-                    return acc;
-                },
-                {} as Record<string, string>,
-            );
-
-            localStorage.setItem(
-                `sectionAttemptMap_${attemptId}`,
-                JSON.stringify(sectionAttemptMap),
-            );
-
+            await Promise.all(promises);
             const url = `/test/${skill}/${id}/do?mode=${mode}&skill=${skill}&section=${sectionIds.join(',')}`;
             router.push(url);
         } catch (error) {
