@@ -53,5 +53,13 @@ public interface StudySessionRepository extends JpaRepository<StudySession, UUID
 
     Optional<StudySession> findByUser_IdAndStatus(UUID userId, Status status);
 
+    @Query("""
+        SELECT s.room.id, AVG(s.totalFocusTime)
+        FROM StudySession s
+        WHERE s.room.id IS NOT NULL
+          AND s.totalFocusTime IS NOT NULL
+        GROUP BY s.room.id
+    """)
+    List<Object[]> findAverageFocusTimeByRoom();
 
 }
