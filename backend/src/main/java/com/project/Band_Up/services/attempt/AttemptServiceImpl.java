@@ -82,7 +82,7 @@ public class AttemptServiceImpl implements AttemptService {
         Attempt attempt = modelMapper.map(createRequest, Attempt.class);
         attempt.setUser(user);
         attempt.setTest(test);
-        attempt.setStatus(Status.PENDING);
+        attempt.setStatus(Status.ONGOING);
 
         Attempt saved = attemptRepository.save(attempt);
         return toResponse(saved);
@@ -111,7 +111,8 @@ public class AttemptServiceImpl implements AttemptService {
         if (!attempt.getUser().getId().equals(userId)) {
             throw new RuntimeException("You are not the owner of this attempt");
         }
-
+        List<AttemptSection> attemptSection = attemptSectionRepository.findByAttemptId(attemptId);
+        attemptSectionRepository.deleteAll(attemptSection);
         attemptRepository.delete(attempt);
     }
 
