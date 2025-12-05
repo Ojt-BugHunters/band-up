@@ -1,6 +1,7 @@
 import { useMutation } from '@tanstack/react-query';
 import { fetchWrapper, throwIfError } from '..';
 import { toast } from 'sonner';
+import { CreateAttemptResponse } from './type';
 
 export function useCreateAttempt() {
     return useMutation({
@@ -23,7 +24,8 @@ export function useCreateAttempt() {
             });
 
             await throwIfError(response);
-            return response.json();
+            const data = await response.json();
+            return data as CreateAttemptResponse;
         },
         onError: (error) => {
             toast.error(error?.message ?? 'Join Test Fail');

@@ -5,9 +5,9 @@ import { BookOpen, Calendar, Clock, Play, Users } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import type { Dictation } from '@/lib/service/dictation';
 import { formatDate, formatDuration } from '@/lib/utils';
-import Link from 'next/link';
 import { useState } from 'react';
 import { useCreateAttempt } from '@/lib/service/attempt';
+import { useRouter } from 'next/navigation';
 
 const getCardGradient = (skill: string) => {
     switch (skill.toLowerCase()) {
@@ -55,66 +55,74 @@ const getHoverGlow = (skill: string) => {
 };
 
 export function TestCard({ test }: { test: Dictation }) {
+    const router = useRouter();
     const [startAt] = useState<string>(new Date().toISOString());
-    const { mutate } = useCreateAttempt();
+    const { mutate, isPending } = useCreateAttempt();
 
-    const handleStartTest = () => {
-        mutate({ id: test.id, startAt });
+    const handleClick = (e: React.MouseEvent) => {
+        e.preventDefault();
+
+        mutate(
+            { id: test.id, startAt },
+            {
+                onSuccess: (data) => {
+                    // Chỉ chuyển hướng khi đã có attemptId
+                    router.push(
+                        `/test/${test.skillName.toLowerCase()}/${test.id}?attemptId=${data.id}`,
+                    );
+                },
+            },
+        );
     };
 
-    const CardBody = (
-        <Card
-            className={`bg-gradient-to-br ${getCardGradient(test.skillName)} group relative flex min-h-[220px] flex-col overflow-hidden rounded-xl border border-white/30 backdrop-blur-sm transition-all duration-500 ease-out hover:border-white/50 dark:border-white/10 dark:hover:border-white/20 ${getHoverGlow(test.skillName)}`}
-        >
-            <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-white/5 to-transparent opacity-0 transition-opacity duration-500 group-hover:opacity-100" />
-
-            <CardHeader className="relative z-10 flex-grow pb-3">
-                <div className="mb-3 flex items-start justify-between gap-4">
-                    <CardTitle className="line-clamp-2 min-h-[4.5rem] text-lg font-semibold text-slate-900 transition-all duration-300 group-hover:text-slate-950 dark:text-white dark:group-hover:text-white/95">
-                        {test.title}
-                    </CardTitle>
-                    <Badge
-                        className={`${getSkillColor(test.skillName)} shrink-0 border font-medium backdrop-blur-md transition-all duration-300 group-hover:scale-110 group-hover:shadow-lg`}
-                    >
-                        <BookOpen className="mr-1 h-3 w-3" />
-                        {test.skillName}
-                    </Badge>
-                </div>
-                <div className="grid grid-cols-2 gap-x-6 gap-y-2 text-sm text-slate-600 transition-colors duration-300 group-hover:text-slate-700 dark:text-slate-400 dark:group-hover:text-slate-300">
-                    <div className="flex items-center gap-1">
-                        <Calendar className="h-4 w-4 text-slate-500 transition-colors duration-300 group-hover:text-slate-600 dark:text-slate-500 dark:group-hover:text-slate-400" />
-                        {formatDate(test.createAt)}
-                    </div>
-                    <div className="flex items-center gap-1">
-                        <Clock className="h-4 w-4 text-slate-500 transition-colors duration-300 group-hover:text-slate-600 dark:text-slate-500 dark:group-hover:text-slate-400" />
-                        {formatDuration(test.durationSeconds)}
-                    </div>
-                    <div className="flex items-center gap-1">
-                        <Users className="h-4 w-4 text-slate-500 transition-colors duration-300 group-hover:text-slate-600 dark:text-slate-500 dark:group-hover:text-slate-400" />
-                        {test.numberOfPeople}
-                    </div>
-                </div>
-            </CardHeader>
-            <CardContent className="relative z-10 mt-auto pt-0">
-                <Button
-                    size="sm"
-                    className="group/btn relative w-full overflow-hidden bg-gradient-to-r from-slate-900 to-slate-800 py-2.5 font-medium text-white transition-all duration-300 hover:scale-105 hover:shadow-lg active:scale-95 dark:from-white dark:to-slate-100 dark:text-slate-900"
-                >
-                    <span className="absolute inset-0 translate-x-[-100%] bg-gradient-to-r from-transparent via-white/30 to-transparent transition-transform duration-700 group-hover/btn:translate-x-[100%]" />
-                    <Play className="mr-2 h-4 w-4 transition-transform duration-300 group-hover/btn:scale-125" />
-                    <span className="relative">Start Test</span>
-                </Button>
-            </CardContent>
-        </Card>
-    );
-
     return (
-        <Link
-            href={`/test/${test.skillName.toLowerCase()}/${test.id}`}
-            passHref
-            onClick={handleStartTest}
-        >
-            {CardBody}
-        </Link>
+        <div onClick={handleClick} className="cursor-pointer">
+            <Card
+                className={`bg-gradient-to-br ${getCardGradient(test.skillName)} group relative flex min-h-[220px] flex-col overflow-hidden rounded-xl border border-white/30 backdrop-blur-sm transition-all duration-500 ease-out hover:border-white/50 dark:border-white/10 dark:hover:border-white/20 ${getHoverGlow(test.skillName)} ${isPending ? 'pointer-events-none opacity-60' : ''}`}
+            >
+                <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-white/5 to-transparent opacity-0 transition-opacity duration-500 group-hover:opacity-100" />
+
+                <CardHeader className="relative z-10 flex-grow pb-3">
+                    <div className="mb-3 flex items-start justify-between gap-4">
+                        <CardTitle className="line-clamp-2 min-h-[4.5rem] text-lg font-semibold text-slate-900 transition-all duration-300 group-hover:text-slate-950 dark:text-white dark:group-hover:text-white/95">
+                            {test.title}
+                        </CardTitle>
+                        <Badge
+                            className={`${getSkillColor(test.skillName)} shrink-0 border font-medium backdrop-blur-md transition-all duration-300 group-hover:scale-110 group-hover:shadow-lg`}
+                        >
+                            <BookOpen className="mr-1 h-3 w-3" />
+                            {test.skillName}
+                        </Badge>
+                    </div>
+                    <div className="grid grid-cols-2 gap-x-6 gap-y-2 text-sm text-slate-600 transition-colors duration-300 group-hover:text-slate-700 dark:text-slate-400 dark:group-hover:text-slate-300">
+                        <div className="flex items-center gap-1">
+                            <Calendar className="h-4 w-4 text-slate-500 transition-colors duration-300 group-hover:text-slate-600 dark:text-slate-500 dark:group-hover:text-slate-400" />
+                            {formatDate(test.createAt)}
+                        </div>
+                        <div className="flex items-center gap-1">
+                            <Clock className="h-4 w-4 text-slate-500 transition-colors duration-300 group-hover:text-slate-600 dark:text-slate-500 dark:group-hover:text-slate-400" />
+                            {formatDuration(test.durationSeconds)}
+                        </div>
+                        <div className="flex items-center gap-1">
+                            <Users className="h-4 w-4 text-slate-500 transition-colors duration-300 group-hover:text-slate-600 dark:text-slate-500 dark:group-hover:text-slate-400" />
+                            {test.numberOfPeople}
+                        </div>
+                    </div>
+                </CardHeader>
+                <CardContent className="relative z-10 mt-auto pt-0">
+                    <Button
+                        size="sm"
+                        disabled={isPending}
+                        className="group/btn relative w-full overflow-hidden bg-gradient-to-r from-slate-900 to-slate-800 py-2.5 font-medium text-white transition-all duration-300 hover:scale-105 hover:shadow-lg active:scale-95 disabled:opacity-50 dark:from-white dark:to-slate-100 dark:text-slate-900"
+                    >
+                        <span className="absolute inset-0 translate-x-[-100%] bg-gradient-to-r from-transparent via-white/30 to-transparent transition-transform duration-700 group-hover/btn:translate-x-[100%]" />
+                        <Play className="mr-2 h-4 w-4 transition-transform duration-300 group-hover/btn:scale-125" />
+                        <span className="relative">
+                            {isPending ? 'Starting...' : 'Start Test'}
+                        </span>
+                    </Button>
+                </CardContent>
+            </Card>
+        </div>
     );
 }
