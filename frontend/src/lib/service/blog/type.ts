@@ -23,7 +23,8 @@ export interface BlogPost {
     title: string;
     titleImg?: string;
     tags: Tag[];
-    numberOfReaders: number;
+    numberOfReaders?: number;
+    numberOfReader?: number;
     numberOfComments: number;
     publishedDate: string;
     reacts?: BlogReact[];
