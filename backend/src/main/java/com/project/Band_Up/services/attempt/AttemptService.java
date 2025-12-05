@@ -23,4 +23,6 @@ public interface AttemptService {
     AttemptResponse updateAttempt(UUID attemptId, UUID userId, AttemptUpdateRequest updateRequest);
     // Xóa Attempt
     void deleteAttempt(UUID attemptId, UUID userId);
+
+    void updateAttemptStatus(UUID attemptId);
 }
