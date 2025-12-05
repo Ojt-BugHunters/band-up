@@ -1,9 +1,13 @@
-import { Card, CardContent, CardHeader, CardTitle } from './ui/card';
-import { Badge } from './ui/badge';
+'use client';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
 import { BookOpen, Calendar, Clock, Play, Users } from 'lucide-react';
-import { Button } from './ui/button';
+import { Button } from '@/components/ui/button';
 import type { Dictation } from '@/lib/service/dictation';
 import { formatDate, formatDuration } from '@/lib/utils';
+import Link from 'next/link';
+import { useState } from 'react';
+import { useCreateAttempt } from '@/lib/service/attempt';
 
 const getCardGradient = (skill: string) => {
     switch (skill.toLowerCase()) {
@@ -51,7 +55,14 @@ const getHoverGlow = (skill: string) => {
 };
 
 export function TestCard({ test }: { test: Dictation }) {
-    return (
+    const [startAt] = useState<string>(new Date().toISOString());
+    const { mutate } = useCreateAttempt();
+
+    const handleStartTest = () => {
+        mutate({ id: test.id, startAt });
+    };
+
+    const CardBody = (
         <Card
             className={`bg-gradient-to-br ${getCardGradient(test.skillName)} group relative flex min-h-[220px] flex-col overflow-hidden rounded-xl border border-white/30 backdrop-blur-sm transition-all duration-500 ease-out hover:border-white/50 dark:border-white/10 dark:hover:border-white/20 ${getHoverGlow(test.skillName)}`}
         >
@@ -95,5 +106,15 @@ export function TestCard({ test }: { test: Dictation }) {
                 </Button>
             </CardContent>
         </Card>
+    );
+
+    return (
+        <Link
+            href={`/test/${test.skillName.toLowerCase()}/${test.id}`}
+            passHref
+            onClick={handleStartTest}
+        >
+            {CardBody}
+        </Link>
     );
 }

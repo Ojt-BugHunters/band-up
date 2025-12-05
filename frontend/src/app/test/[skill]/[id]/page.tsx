@@ -120,6 +120,7 @@ export default function TestOverview({ params }: PageProps) {
         setValue(null);
         setSubmitting(true);
     };
+
     const handleSectionToggle = (sectionId: string) => {
         setSelectedSections((prev) =>
             prev.includes(sectionId)

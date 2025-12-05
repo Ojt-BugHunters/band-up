@@ -8,10 +8,10 @@ import { Badge } from '@/components/ui/badge';
 import { Clock, FileText } from 'lucide-react';
 import ProgressDialog, { Question } from '@/components/progress-dialog';
 import QuestionPanel from '@/components/question-panel';
-import ReadingPassage from '@/components/reading-passage';
-import { NotFound } from './not-found';
+import ReadingPassage from './reading-passage';
+import { NotFound } from '@/components/not-found';
 import { useGetSectionsWithQuestions } from '@/lib/service/test/question/api';
-import LiquidLoading from './ui/liquid-loader';
+import LiquidLoading from '@/components/ui/liquid-loader';
 import { ReadingQuestion } from '@/lib/service/test/question';
 
 type ReadingTestProps = {

@@ -34,10 +34,9 @@ import {
     BookOpen,
 } from 'lucide-react';
 import { useEffect, useMemo, useState } from 'react';
-import { TestCard } from '@/components/test-card';
+import { TestCard } from './test-card';
 import { PaginationState } from '@tanstack/react-table';
 import { PaginationControl } from '@/components/ui/pagination-control';
-import Link from 'next/link';
 import { useGetDictationTests } from '@/lib/service/dictation';
 import LiquidLoading from '@/components/ui/liquid-loader';
 import { NotFound } from '@/components/not-found';
@@ -217,12 +216,7 @@ export default function TestListPage() {
             </div>
             <div className="mx-auto mb-12 grid max-w-7xl grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-4">
                 {paginatedTests?.map((test) => (
-                    <Link
-                        key={test.id}
-                        href={`/test/${test.skillName.toLowerCase()}/${test.id}`}
-                    >
-                        <TestCard test={test} />
-                    </Link>
+                    <TestCard key={test.id} test={test} />
                 ))}
             </div>
             <div className="mx-auto max-w-7xl">

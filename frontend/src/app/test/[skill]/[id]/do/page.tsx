@@ -1,4 +1,4 @@
-import { ReadingTest } from '@/components/reading-test';
+import { ReadingTest } from './reading-test';
 import { SpeakingTest } from '@/components/speaking-test';
 import { WritingTest } from '@/components/writing-test';
 import { ListeningTest } from '@/components/listening-test';

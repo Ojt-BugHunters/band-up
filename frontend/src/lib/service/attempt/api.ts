@@ -4,12 +4,22 @@ import { toast } from 'sonner';
 
 export function useCreateAttempt() {
     return useMutation({
-        mutationFn: async (testId: string) => {
-            const response = await fetchWrapper(`/attempts/${testId}`, {
+        mutationFn: async ({
+            id,
+            startAt,
+        }: {
+            id: string;
+            startAt: string;
+        }) => {
+            const response = await fetchWrapper(`/attempts/${id}`, {
                 method: 'POST',
                 headers: {
                     Accept: 'application/json',
+                    'Content-Type': 'application/json',
                 },
+                body: JSON.stringify({
+                    startAt,
+                }),
             });
 
             await throwIfError(response);
