@@ -33,8 +33,9 @@ import {
     TableHeader,
     TableRow,
 } from '@/components/ui/table';
+import type { BlogPost } from '@/lib/service/blog';
 
-export type BlogPost = {
+type TableBlogPost = {
     id: string;
     title: string;
     author: string;
@@ -42,45 +43,7 @@ export type BlogPost = {
     status: 'published' | 'draft' | 'archived';
 };
 
-const mockBlogPosts: BlogPost[] = [
-    {
-        id: 'post-1',
-        title: 'Getting Started with React 19',
-        author: 'John Doe',
-        createdAt: '2024-11-10',
-        status: 'published',
-    },
-    {
-        id: 'post-2',
-        title: 'Advanced TypeScript Patterns',
-        author: 'Jane Smith',
-        createdAt: '2024-11-09',
-        status: 'published',
-    },
-    {
-        id: 'post-3',
-        title: 'Building Scalable APIs',
-        author: 'John Doe',
-        createdAt: '2024-11-07',
-        status: 'draft',
-    },
-    {
-        id: 'post-4',
-        title: 'Next.js 15 Features Explained',
-        author: 'Mike Johnson',
-        createdAt: '2024-11-05',
-        status: 'published',
-    },
-    {
-        id: 'post-5',
-        title: 'Web Performance Optimization',
-        author: 'Jane Smith',
-        createdAt: '2024-11-03',
-        status: 'published',
-    },
-];
-
-export const columns: ColumnDef<BlogPost>[] = [
+export const columns: ColumnDef<TableBlogPost>[] = [
     {
         accessorKey: 'title',
         header: ({ column }) => {
@@ -193,15 +156,34 @@ export const columns: ColumnDef<BlogPost>[] = [
     },
 ];
 
-export function PostsTable() {
+interface PostsTableProps {
+    posts?: BlogPost[];
+    isLoading?: boolean;
+    errorMessage?: string;
+}
+
+export function PostsTable({ posts, isLoading, errorMessage }: PostsTableProps) {
     const [sorting, setSorting] = React.useState<SortingState>([]);
     const [columnFilters, setColumnFilters] =
         React.useState<ColumnFiltersState>([]);
     const [columnVisibility, setColumnVisibility] =
         React.useState<VisibilityState>({});
 
+    const tableData = React.useMemo<TableBlogPost[]>(() => {
+        if (!posts) {
+            return [];
+        }
+        return posts.map((post) => ({
+            id: post.id,
+            title: post.title,
+            author: post.author?.name ?? 'Unknown',
+            createdAt: post.publishedDate ?? new Date().toISOString(),
+            status: post.publishedDate ? 'published' : 'draft',
+        }));
+    }, [posts]);
+
     const table = useReactTable({
-        data: mockBlogPosts,
+        data: tableData,
         columns,
         onSortingChange: setSorting,
         onColumnFiltersChange: setColumnFilters,
@@ -216,6 +198,12 @@ export function PostsTable() {
             columnVisibility,
         },
     });
+
+    const tableStatusMessage = errorMessage
+        ? errorMessage
+        : isLoading
+          ? 'Loading posts...'
+          : 'No posts found.';
 
     return (
         <div className="w-full space-y-4">
@@ -276,7 +264,7 @@ export function PostsTable() {
                                     colSpan={columns.length}
                                     className="h-24 text-center"
                                 >
-                                    No posts found.
+                                    {tableStatusMessage}
                                 </TableCell>
                             </TableRow>
                         )}

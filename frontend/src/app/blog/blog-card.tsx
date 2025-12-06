@@ -104,7 +104,9 @@ export function BlogCard({ blogPost }: BlogCardProps) {
                                 <Users className="h-4 w-4" />
                                 <span>
                                     {Number(
-                                        blogPost.numberOfReaders ?? 0,
+                                        blogPost.numberOfReaders ??
+                                            blogPost.numberOfReader ??
+                                            0,
                                     ).toLocaleString()}
                                 </span>
                             </div>
