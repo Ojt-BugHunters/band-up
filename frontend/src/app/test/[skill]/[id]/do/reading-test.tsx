@@ -13,6 +13,7 @@ import { NotFound } from '@/components/not-found';
 import { useGetSectionsWithQuestions } from '@/lib/service/test/question/api';
 import LiquidLoading from '@/components/ui/liquid-loader';
 import { ReadingQuestion } from '@/lib/service/test/question';
+import { useSubmitAnswers } from '@/lib/service/attempt';
 
 type ReadingTestProps = {
     mode?: string;
@@ -28,6 +29,7 @@ export function ReadingTest({
         isLoading: isPassageLoading,
         error: isPassageError,
     } = useGetSectionsWithQuestions(sections);
+    const { mutate: submitAnswers } = useSubmitAnswers();
 
     const availablePassages =
         mode === 'full'
@@ -79,6 +81,31 @@ export function ReadingTest({
 
     const handleAnswerChange = (questionId: string, answer: string) => {
         setAnswers((prev) => ({ ...prev, [questionId]: answer }));
+    };
+
+    const handleSubmit = () => {
+        const answerArray = Object.keys(answers).map((questionId) => {
+            const question = availablePassages
+                ?.flatMap((passage) => passage.questions)
+                .find((q) => q.id === questionId);
+
+            return {
+                questionNumber: question?.content.questionNumber || 0,
+                answerContent: answers[questionId] || '',
+            };
+        });
+
+        const attemptId = localStorage.getItem('currentAttemptId');
+
+        if (!attemptId) {
+            console.error('No attemptId found in localStorage');
+            return;
+        }
+
+        submitAnswers({
+            attemptId: attemptId,
+            answerArray: answerArray,
+        });
     };
 
     const normalizeReadingQuestion = (
@@ -160,6 +187,7 @@ export function ReadingTest({
                                 totalQuestions={totalQuestions}
                                 answeredQuestions={answeredQuestions}
                                 unansweredQuestions={getUnansweredQuestions()}
+                                onSubmit={handleSubmit}
                             />
 
                             {!isTestStarted ? (

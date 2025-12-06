@@ -27,3 +27,18 @@ export type ScoredAnswer = {
     createAt: string;
     correct: boolean;
 };
+
+export type BandScoreResponse = {
+    testId: string;
+    totalScore: number;
+    bandScore: number;
+    responses: ScoredAnswer[];
+};
+
+export type SubmitAnswerParams = {
+    attemptId: string;
+    answerArray: {
+        questionNumber: number;
+        answerContent: string;
+    }[];
+};

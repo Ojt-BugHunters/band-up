@@ -1,7 +1,12 @@
 import { useMutation } from '@tanstack/react-query';
 import { fetchWrapper, throwIfError } from '..';
 import { toast } from 'sonner';
-import { CreateAttemptResponse, CreateAttemptSectionResponse } from './type';
+import {
+    BandScoreResponse,
+    CreateAttemptResponse,
+    CreateAttemptSectionResponse,
+    SubmitAnswerParams,
+} from './type';
 
 export function useCreateAttempt() {
     return useMutation({
@@ -70,6 +75,38 @@ export function useCreateAttemptSection() {
         },
         onSuccess: () => {
             toast.success('Save attempt successfully. Try your best!');
+        },
+    });
+}
+
+export function useSubmitAnswers() {
+    return useMutation({
+        mutationFn: async ({ attemptId, answerArray }: SubmitAnswerParams) => {
+            const response = await fetchWrapper(
+                `/answers/ielts/test/${attemptId}`,
+                {
+                    method: 'POST',
+                    headers: {
+                        Accept: 'application/json',
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        answers: answerArray,
+                    }),
+                },
+            );
+
+            await throwIfError(response);
+            const data = await response.json();
+            return data as BandScoreResponse;
+        },
+        onError: (error) => {
+            toast.error(error?.message ?? 'Fail to submit answers');
+        },
+        onSuccess: (data) => {
+            toast.success(
+                'Test submitted successfully! Your score: ' + data.bandScore,
+            );
         },
     });
 }
