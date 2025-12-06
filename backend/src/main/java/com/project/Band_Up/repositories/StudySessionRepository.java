@@ -62,4 +62,18 @@ public interface StudySessionRepository extends JpaRepository<StudySession, UUID
     """)
     List<Object[]> findAverageFocusTimeByRoom();
 
+    @Query("""
+        SELECT s.user.id, s.user.name, s.user.avatarKey, SUM(s.totalFocusTime)
+        FROM StudySession s
+        WHERE s.totalFocusTime IS NOT NULL
+          AND s.createAt >= :start
+          AND s.createAt < :end
+        GROUP BY s.user.id, s.user.name, s.user.avatarKey
+        ORDER BY SUM(s.totalFocusTime) DESC
+    """)
+    List<Object[]> findTop10UsersByTotalStudyTime(
+            @Param("start") LocalDateTime start,
+            @Param("end") LocalDateTime end
+    );
+
 }
