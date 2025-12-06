@@ -101,18 +101,17 @@ public class IeltsAnswerServiceImpl extends AbstractAnswerServiceImpl {
             List<QuestionResponse> questions = questionService.getAllQuestionsBySectionId(sectionId);
             System.out.println("Total questions in section: " + questions.size());
 
-            // Lặp qua tất cả các câu hỏi của mỗi section
+            // ✅ THAY ĐỔI CHÍNH: Lặp qua TẤT CẢ câu hỏi, không chỉ câu có answer
             for (QuestionResponse question : questions) {
 
                 Object questionNumberObj = question.getContent().get("questionNumber");
                 System.out.println("\nQuestion ID: " + question.getId());
                 System.out.println("Question Number from DB: " + questionNumberObj +
                         " (Type: " + (questionNumberObj != null ? questionNumberObj.getClass().getName() : "null") + ")");
-                System.out.println("Question Content: " + question.getContent());
 
                 String questionNumberStr = questionNumberObj != null ? String.valueOf(questionNumberObj) : null;
 
-                // Tìm câu trả lời
+                // Tìm câu trả lời của user (nếu có)
                 AnswerDetail answerDetail = request.getAnswers().stream()
                         .filter(a -> {
                             if (a.getQuestionNumber() == null || questionNumberStr == null) {
@@ -128,25 +127,32 @@ public class IeltsAnswerServiceImpl extends AbstractAnswerServiceImpl {
 
                 System.out.println("Answer found: " + (answerDetail != null));
 
-                if (answerDetail != null) {
-                    System.out.println("Processing answer for question " + questionNumberStr);
+                // ✅ Lấy correctAnswer từ question
+                Map<String, Object> questionContentMap = question.getContent();
+                String correctAnswer = (String) questionContentMap.get("correctAnswer");
+                String normalizedCorrectAnswer = normalizeText(correctAnswer);
 
-                    Map<String, Object> questionContentMap = question.getContent();
-                    String correctAnswer = (String) questionContentMap.get("correctAnswer");
-                    String normalizedAnswerContent = normalizeText(answerDetail.getAnswerContent());
-                    String normalizedCorrectAnswer = normalizeText(correctAnswer);
+                // ✅ Xử lý answer content và tính điểm
+                String normalizedAnswerContent = null;
+                Boolean isCorrect = null;
+                Answer savedAnswer = null;
+
+                if (answerDetail != null) {
+                    // User đã trả lời câu này
+                    normalizedAnswerContent = normalizeText(answerDetail.getAnswerContent());
 
                     System.out.println("User answer (normalized): '" + normalizedAnswerContent + "'");
                     System.out.println("Correct answer (normalized): '" + normalizedCorrectAnswer + "'");
 
                     // So sánh sau khi đã normalize cả 2
-                    boolean isCorrect = normalizedAnswerContent.equals(normalizedCorrectAnswer);
+                    isCorrect = normalizedAnswerContent.equals(normalizedCorrectAnswer);
                     System.out.println("Is correct: " + isCorrect);
 
                     if (isCorrect) {
                         correctAnswers++;
                     }
 
+                    // Lưu answer vào DB
                     Answer answer = Answer.builder()
                             .attemptSection(attemptSection)
                             .question(questionRepository.findById(question.getId())
@@ -156,24 +162,40 @@ public class IeltsAnswerServiceImpl extends AbstractAnswerServiceImpl {
                             .createAt(LocalDateTime.now())
                             .build();
 
-                    // Lưu Answer vào DB
-                    Answer savedAnswer = answerRepository.save(answer);
+                    savedAnswer = answerRepository.save(answer);
                     System.out.println("Saved answer with ID: " + savedAnswer.getId());
+                } else {
+                    // User KHÔNG trả lời câu này
+                    System.out.println("⚠️ NO ANSWER PROVIDED for question " + questionNumberStr);
 
-                    IeltsAnswerResponse response = IeltsAnswerResponse.builder()
-                            .id(savedAnswer.getId())
-                            .attemptSectionId(attemptSection.getId())
-                            .questionId(question.getId())
-                            .answerContent(normalizedAnswerContent)
-                            .correctAnswer(normalizedCorrectAnswer)
-                            .isCorrect(isCorrect)
+                    // Vẫn lưu vào DB nhưng với answerContent = null, isCorrect = false
+                    Answer answer = Answer.builder()
+                            .attemptSection(attemptSection)
+                            .question(questionRepository.findById(question.getId())
+                                    .orElseThrow(() -> new RuntimeException("Question not found")))
+                            .answerContent(null)
+                            .isCorrect(false)
                             .createAt(LocalDateTime.now())
                             .build();
 
-                    allResponses.add(response);
-                } else {
-                    System.out.println("⚠️ NO ANSWER FOUND for question " + questionNumberStr);
+                    savedAnswer = answerRepository.save(answer);
+                    System.out.println("Saved empty answer with ID: " + savedAnswer.getId());
+
+                    isCorrect = false;
                 }
+
+                // ✅ LUÔN tạo response cho MỌI câu hỏi (có answer hay không)
+                IeltsAnswerResponse response = IeltsAnswerResponse.builder()
+                        .id(savedAnswer.getId())
+                        .attemptSectionId(attemptSection.getId())
+                        .questionId(question.getId())
+                        .answerContent(normalizedAnswerContent) // null nếu user không trả lời
+                        .correctAnswer(normalizedCorrectAnswer) // luôn hiển thị đáp án đúng
+                        .isCorrect(isCorrect)
+                        .createAt(LocalDateTime.now())
+                        .build();
+
+                allResponses.add(response);
             }
         }
 
