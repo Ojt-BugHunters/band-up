@@ -1,5 +1,7 @@
 import { Author } from '../blog';
 import z from 'zod';
+import type { StatsInterval } from '../stats';
+export type { StatsInterval } from '../stats';
 
 export interface TimerSettings {
     focus: number;
@@ -119,6 +121,18 @@ export interface SessionOverviewStats {
     focusedTime: number;
     bestSession: number;
     taskCompleted: number;
+}
+
+export interface RoomStats {
+    totalRooms: number;
+    totalRoomsDifference: number;
+    publicRooms: number;
+    publicRoomsDifference: number;
+    privateRooms: number;
+    privateRoomsDifference: number;
+    activeMembers: number;
+    activeMembersDifference: number;
+    statsInterval: StatsInterval;
 }
 
 export type IntervalMutationPayload = {

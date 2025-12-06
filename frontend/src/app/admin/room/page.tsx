@@ -16,8 +16,97 @@ import { StatCard } from '@/components/admin-stats-card';
 import { SessionDurationChart } from './session-duration-chart';
 import { FocusVsBreakChart } from './focus-vs-break-chart';
 import { TaskCompletionChart } from './task-completion-chart';
+import { useGetRoomStats } from '@/lib/service/room';
+
+const numberFormatter = new Intl.NumberFormat('en-US');
+
+const formatStatValue = (value?: number, loading?: boolean) => {
+    if (loading) {
+        return 'Loading...';
+    }
+    if (value === undefined || value === null || Number.isNaN(value)) {
+        return '—';
+    }
+    return numberFormatter.format(value);
+};
+
+const formatStatChange = (difference?: number, loading?: boolean) => {
+    if (loading) {
+        return 'Updating';
+    }
+    if (difference === undefined || difference === null || Number.isNaN(difference)) {
+        return 'No data';
+    }
+    if (difference === 0) {
+        return 'No change';
+    }
+    const formatted = numberFormatter.format(Math.abs(difference));
+    return `${difference > 0 ? '+' : '-'}${formatted}`;
+};
+
+const isPositiveTrend = (difference?: number) => {
+    if (difference === undefined || difference === null || Number.isNaN(difference)) {
+        return true;
+    }
+    if (difference === 0) {
+        return true;
+    }
+    return difference > 0;
+};
 
 export default function RoomsAnalyticsPage() {
+    const {
+        data: roomStats,
+        isLoading: isLoadingRoomStats,
+        isFetching: isFetchingRoomStats,
+        error: roomStatsError,
+    } = useGetRoomStats('WEEKLY');
+    const isStatsLoading = isLoadingRoomStats || isFetchingRoomStats;
+    const statsErrorMessage =
+        roomStatsError instanceof Error ? roomStatsError.message : undefined;
+    const statCards = [
+        {
+            title: 'Total Rooms',
+            value: formatStatValue(roomStats?.totalRooms, isStatsLoading),
+            change: formatStatChange(
+                roomStats?.totalRoomsDifference,
+                isStatsLoading,
+            ),
+            icon: BarChart3,
+            isPositive: isPositiveTrend(roomStats?.totalRoomsDifference),
+        },
+        {
+            title: 'Public Rooms',
+            value: formatStatValue(roomStats?.publicRooms, isStatsLoading),
+            change: formatStatChange(
+                roomStats?.publicRoomsDifference,
+                isStatsLoading,
+            ),
+            icon: Unlock,
+            isPositive: isPositiveTrend(roomStats?.publicRoomsDifference),
+        },
+        {
+            title: 'Private Rooms',
+            value: formatStatValue(roomStats?.privateRooms, isStatsLoading),
+            change: formatStatChange(
+                roomStats?.privateRoomsDifference,
+                isStatsLoading,
+            ),
+            icon: Lock,
+            isPositive: isPositiveTrend(roomStats?.privateRoomsDifference),
+        },
+        {
+            title: 'Active Members',
+            value: formatStatValue(roomStats?.activeMembers, isStatsLoading),
+            change: formatStatChange(
+                roomStats?.activeMembersDifference,
+                isStatsLoading,
+            ),
+            icon: Users,
+            isPositive: isPositiveTrend(roomStats?.activeMembersDifference),
+        },
+    ];
+
     return (
         <div className="m-4 mt-2 space-y-6">
             <div>
@@ -39,36 +128,23 @@ export default function RoomsAnalyticsPage() {
 
                 {/* Overview Tab */}
                 <TabsContent value="overview" className="space-y-4">
+                    {statsErrorMessage && (
+                        <p className="text-destructive text-sm">
+                            Failed to load overview stats: {statsErrorMessage}
+                        </p>
+                    )}
                     {/* Main Stats Cards */}
                     <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-                        <StatCard
-                            title="Total Rooms"
-                            value="2,486"
-                            change="14.2%"
-                            icon={BarChart3}
-                            isPositive
-                        />
-                        <StatCard
-                            title="Public Rooms"
-                            value="1,842"
-                            change="73.9%"
-                            icon={Unlock}
-                            isPositive
-                        />
-                        <StatCard
-                            title="Private Rooms"
-                            value="644"
-                            change="25.9%"
-                            icon={Lock}
-                            isPositive
-                        />
-                        <StatCard
-                            title="Active Members"
-                            value="4,352"
-                            change="8.7%"
-                            icon={Users}
-                            isPositive
-                        />
+                        {statCards.map((card) => (
+                            <StatCard
+                                key={card.title}
+                                title={card.title}
+                                value={card.value}
+                                change={card.change}
+                                icon={card.icon}
+                                isPositive={card.isPositive}
+                            />
+                        ))}
                     </div>
 
                     {/* Performance Overview and Fill Rate */}
