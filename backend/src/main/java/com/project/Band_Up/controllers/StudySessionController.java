@@ -2,20 +2,25 @@ package com.project.Band_Up.controllers;
 
 import com.project.Band_Up.dtos.studySession.StudySessionCreateRequest;
 import com.project.Band_Up.dtos.studySession.StudySessionResponse;
+import com.project.Band_Up.dtos.studySession.TopUserStudyTimeDto;
 import com.project.Band_Up.dtos.studySessionInterval.StudySessionIntervalUpdateRequest;
 import com.project.Band_Up.enums.Status;
+import com.project.Band_Up.enums.StatsInterval;
 import com.project.Band_Up.services.studySession.StudySessionService;
 import com.project.Band_Up.utils.JwtUserDetails;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.LocalDate;
 import java.util.List;
 import java.util.UUID;
 
@@ -144,5 +149,26 @@ public class StudySessionController {
     ) {
         List<StudySessionResponse> response = studySessionService.getStudySessionByStatus(userDetails.getAccountId(), status);
         return ResponseEntity.ok(response);
+    }
+
+    @Operation(summary = "Get Top 10 Users by Study Time",
+            description = "Retrieve top 10 users with the longest total study time in StudySession by selected date, week, or month. Returns rank, user name, and total time.")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "Successfully retrieved top users"),
+            @ApiResponse(responseCode = "400", description = "Invalid interval or date format")
+    })
+    @GetMapping("/top-users")
+    public ResponseEntity<List<TopUserStudyTimeDto>> getTopUsersByStudyTime(
+            @Parameter(description = "Time interval for statistics (DAILY, WEEKLY, MONTHLY)",
+                    required = true,
+                    example = "DAILY")
+            @RequestParam StatsInterval interval,
+            @Parameter(description = "Reference date (for DAILY: specific day, for WEEKLY: start of week, for MONTHLY: any day in month)",
+                    required = true,
+                    example = "2024-12-06")
+            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate date
+    ) {
+        List<TopUserStudyTimeDto> topUsers = studySessionService.getTopUsersByStudyTime(interval, date);
+        return ResponseEntity.ok(topUsers);
     }
 }
