@@ -162,12 +162,6 @@ export default function AdminUsersPage() {
                         members.
                     </p>
                 </div>
-                <div className="flex gap-2">
-                    <Button asChild variant="outline">
-                        <Link href="/admin">Back to dashboard</Link>
-                    </Button>
-                    <Button disabled>Create user</Button>
-                </div>
             </div>
 
             <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
