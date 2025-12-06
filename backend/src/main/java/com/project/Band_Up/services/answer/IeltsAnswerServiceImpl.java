@@ -224,6 +224,112 @@ public class IeltsAnswerServiceImpl extends AbstractAnswerServiceImpl {
                 .responses(allResponses)
                 .build();
     }
+    public TestResultResponseDTO getAttemptAnswers(UUID attemptId, UUID userId) {
+        System.out.println("========== GET ATTEMPT ANSWERS START ==========");
+        System.out.println("Attempt ID: " + attemptId);
+        System.out.println("User ID: " + userId);
+
+        // Lấy Attempt từ database
+        Attempt attempt = attemptRepository.findById(attemptId)
+                .orElseThrow(() -> new RuntimeException("Attempt not found"));
+
+        // Kiểm tra quyền sở hữu
+        if (!attempt.getUser().getId().equals(userId)) {
+            throw new RuntimeException("You are not the owner of this attempt");
+        }
+
+        // Kiểm tra attempt đã submit chưa
+        if (attempt.getStatus() != Status.ENDED) {
+            throw new RuntimeException("Attempt has not been submitted yet");
+        }
+
+        System.out.println("Attempt status: " + attempt.getStatus());
+        System.out.println("Total score: " + attempt.getScore());
+        System.out.println("Band score: " + attempt.getOverallBand());
+
+        // Lấy tất cả attemptSection của attempt này
+        List<AttemptSection> attemptSections = attemptSectionRepository.findByAttemptId(attemptId);
+        System.out.println("Total attemptSections: " + attemptSections.size());
+
+        List<IeltsAnswerResponse> allResponses = new ArrayList<>();
+
+        // Lặp qua từng section mà user đã chọn làm
+        for (AttemptSection attemptSection : attemptSections) {
+            UUID sectionId = attemptSection.getSection().getId();
+            System.out.println("\n--- Processing Section: " + sectionId + " ---");
+
+            // Lấy tất cả câu hỏi của section
+            List<QuestionResponse> questions = questionService.getAllQuestionsBySectionId(sectionId);
+            System.out.println("Total questions in section: " + questions.size());
+
+            // Lấy tất cả answers của attemptSection này từ DB
+            List<Answer> savedAnswers = answerRepository.findByAttemptSectionId(attemptSection.getId());
+            System.out.println("Total saved answers: " + savedAnswers.size());
+
+            // Lặp qua tất cả câu hỏi
+            for (QuestionResponse question : questions) {
+                System.out.println("\nProcessing Question ID: " + question.getId());
+
+                // Tìm answer tương ứng với question này
+                Answer answer = savedAnswers.stream()
+                        .filter(a -> a.getQuestion().getId().equals(question.getId()))
+                        .findFirst()
+                        .orElse(null);
+
+                // Lấy correctAnswer từ question
+                Map<String, Object> questionContentMap = question.getContent();
+                String correctAnswer = (String) questionContentMap.get("correctAnswer");
+                String normalizedCorrectAnswer = normalizeText(correctAnswer);
+
+                if (answer != null) {
+                    System.out.println("Found answer - ID: " + answer.getId());
+                    System.out.println("Answer content: " + answer.getAnswerContent());
+                    System.out.println("Is correct: " + answer.isCorrect());
+
+                    // Tạo response từ answer đã lưu
+                    IeltsAnswerResponse response = IeltsAnswerResponse.builder()
+                            .id(answer.getId())
+                            .attemptSectionId(attemptSection.getId())
+                            .questionId(question.getId())
+                            .answerContent(answer.getAnswerContent()) // có thể null nếu user không trả lời
+                            .correctAnswer(normalizedCorrectAnswer)
+                            .isCorrect(answer.isCorrect())
+                            .createAt(answer.getCreateAt())
+                            .build();
+
+                    allResponses.add(response);
+                } else {
+                    // Trường hợp không tìm thấy answer (có thể do data inconsistency)
+                    System.out.println("⚠️ WARNING: No answer found for question " + question.getId());
+
+                    // Vẫn tạo response nhưng với thông tin rỗng
+                    IeltsAnswerResponse response = IeltsAnswerResponse.builder()
+                            .id(null)
+                            .attemptSectionId(attemptSection.getId())
+                            .questionId(question.getId())
+                            .answerContent(null)
+                            .correctAnswer(normalizedCorrectAnswer)
+                            .isCorrect(false)
+                            .createAt(LocalDateTime.now())
+                            .build();
+
+                    allResponses.add(response);
+                }
+            }
+        }
+
+        System.out.println("\n========== SUMMARY ==========");
+        System.out.println("Total responses: " + allResponses.size());
+        System.out.println("========== GET ATTEMPT ANSWERS END ==========\n");
+
+        // Trả về kết quả giống như khi chấm điểm
+        return TestResultResponseDTO.builder()
+                .testId(attempt.getTest().getId())
+                .totalScore(attempt.getScore())
+                .bandScore(attempt.getOverallBand() != null ? attempt.getOverallBand() : 1.0)
+                .responses(allResponses)
+                .build();
+    }
 
     // XÓA method updateAttempt trùng lặp - chỉ giữ lại 1 method này
     private void updateAttempt(UUID attemptId, int score, Double bandScore) {
