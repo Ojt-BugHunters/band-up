@@ -222,23 +222,24 @@ public class IeltsAnswerServiceImpl extends AbstractAnswerServiceImpl {
 
     // Method to calculate IELTS band score based on correct answers
     private double calculateBandScore(int score, UUID testId) {
-        double bandScore = 0.0;
-
-        // Adjust these ranges as necessary based on your scoring system
-        if (score >= 39) bandScore = 9;
-        else if (score >= 37) bandScore = 8.5;
-        else if (score >= 35) bandScore = 8;
-        else if (score >= 33) bandScore = 7.5;
-        else if (score >= 30) bandScore = 7;
-        else if (score >= 27) bandScore = 6.5;
-        else if (score >= 23) bandScore = 6;
-        else if (score >= 19) bandScore = 5.5;
-        else if (score >= 15) bandScore = 5;
-        else if (score >= 10) bandScore = 4.5;
-        else bandScore = 4;
-
-        return bandScore;
+        if (score >= 39) return 9.0;
+        else if (score >= 37) return 8.5;
+        else if (score >= 35) return 8.0;
+        else if (score >= 32) return 7.5;
+        else if (score >= 30) return 7.0;
+        else if (score >= 26) return 6.5;
+        else if (score >= 23) return 6.0;
+        else if (score >= 18) return 5.5;
+        else if (score >= 16) return 5.0;
+        else if (score >= 13) return 4.5;
+        else if (score >= 10) return 4.0;
+        else if (score >= 7)  return 3.5;
+        else if (score >= 5)  return 3.0;
+        else if (score >= 3)  return 2.5;
+        else if (score >= 1)  return 2.0;
+        else return 1.0; // score == 0
     }
+
 
 
 
