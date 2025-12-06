@@ -20,6 +20,10 @@ const nextConfig: NextConfig = {
                 protocol: 'https',
                 hostname: 'i.pravatar.cc',
             },
+            {
+                protocol: 'https',
+                hostname: 'ieltstrainingonline.com',
+            },
         ],
         domains: ['d2ay3or9h1yhxx.cloudfront.net', 'api.microlink.io'],
     },

@@ -47,7 +47,7 @@ public class CrawSpeakingTestService {
 
         try {
             // Đường dẫn folder speaking
-            String folderPath = "D:\\Crawling-test\\band-up-feature-crawling\\crawler\\web_scraping\\parsed\\speaking\\practice";
+            String folderPath = "/home/namdang-fdp/Documents/Crawling-test/band-up-feature-crawling/crawler/web_scraping/parsed/speaking/practice/";
             Path folder = Paths.get(folderPath);
 
             if (!Files.exists(folder)) {

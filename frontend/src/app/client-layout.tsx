@@ -1,5 +1,4 @@
 'use client';
-
 import { usePathname } from 'next/navigation';
 import { Header } from '@/components/header';
 import { Footer } from '@/components/footer';
@@ -20,7 +19,8 @@ export default function ClientLayout({
 }) {
     const pathname = usePathname();
     const hideLayout =
-        pathname.startsWith('/do') ||
+        pathname.includes('/do') ||
+        pathname.includes('/result') ||
         pathname.startsWith('/memorize') ||
         /^\/flashcard\/[^/]+\/test$/.test(pathname) ||
         pathname.startsWith('/admin') ||
@@ -30,6 +30,7 @@ export default function ClientLayout({
     useEffect(() => {
         initDeckAutoClear();
     }, []);
+
     return (
         <>
             <AutoRefeshToken />

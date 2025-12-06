@@ -13,7 +13,7 @@ import { Eye, CheckCircle, AlertCircle } from 'lucide-react';
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 
-interface Question {
+export interface Question {
     id: number;
     type: string;
     question: string;
@@ -23,12 +23,14 @@ interface ProgressDialogProps {
     totalQuestions: number;
     answeredQuestions: number;
     unansweredQuestions: Question[];
+    onSubmit: () => void;
 }
 
 export default function ProgressDialog({
     totalQuestions,
     answeredQuestions,
     unansweredQuestions,
+    onSubmit,
 }: ProgressDialogProps) {
     const [confirmType, setConfirmType] = useState<'quit' | 'submit' | null>(
         null,
@@ -156,7 +158,10 @@ export default function ProgressDialog({
                         <Button
                             variant="default"
                             className="flex-1"
-                            onClick={() => setConfirmType('submit')}
+                            onClick={() => {
+                                setConfirmType('submit');
+                                onSubmit();
+                            }}
                         >
                             Submit Test
                         </Button>

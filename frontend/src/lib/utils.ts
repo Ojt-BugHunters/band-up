@@ -32,13 +32,15 @@ export function useDebounce<T>(value: T, delay = 1000) {
     return debounced;
 }
 
-export function formatDate(input: string) {
-    const d = new Date(input);
-    return isNaN(d.getTime())
-        ? input
-        : d.toLocaleDateString(undefined, {
-              year: 'numeric',
-              month: 'short',
-              day: 'numeric',
-          });
-}
+export const formatDate = (dateString: string) => {
+    return new Date(dateString).toLocaleDateString('en-US', {
+        year: 'numeric',
+        month: 'short',
+        day: 'numeric',
+    });
+};
+
+export const formatDuration = (durationSeconds: number) => {
+    const minutes = Math.floor(durationSeconds / 60);
+    return `${minutes} min`;
+};

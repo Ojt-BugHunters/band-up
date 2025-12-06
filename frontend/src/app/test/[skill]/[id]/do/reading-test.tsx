@@ -5,58 +5,58 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Badge } from '@/components/ui/badge';
-import { Clock, Headphones } from 'lucide-react';
+import { Clock, FileText } from 'lucide-react';
 import ProgressDialog, { Question } from '@/components/progress-dialog';
 import QuestionPanel from '@/components/question-panel';
-import AudioPlayer from '@/components/audio-player';
-import { NotFound } from './not-found';
-import {
-    ListeningQuestion,
-    useGetListeningWithQuestions,
-} from '@/lib/service/test/question';
-import LiquidLoading from './ui/liquid-loader';
+import ReadingPassage from './reading-passage';
+import { NotFound } from '@/components/not-found';
+import { useGetSectionsWithQuestions } from '@/lib/service/test/question/api';
+import LiquidLoading from '@/components/ui/liquid-loader';
+import { ReadingQuestion } from '@/lib/service/test/question';
+import { useSubmitAnswers } from '@/lib/service/attempt';
+import { useRouter } from 'next/navigation';
 
-type ListeningTestProps = {
+type ReadingTestProps = {
     mode?: string;
     sections?: string[];
 };
 
-export function ListeningTest({
+export function ReadingTest({
     mode = 'full',
     sections = [],
-}: ListeningTestProps) {
+}: ReadingTestProps) {
+    const router = useRouter();
     const {
-        data: listeningSections,
-        isLoading: isSectionsLoading,
-        error: isSectionsError,
-    } = useGetListeningWithQuestions(sections);
+        data: passages,
+        isLoading: isPassageLoading,
+        error: isPassageError,
+    } = useGetSectionsWithQuestions(sections);
+    const { mutate: submitAnswers } = useSubmitAnswers();
 
-    const availableSections =
+    const availablePassages =
         mode === 'full'
-            ? listeningSections
-            : listeningSections?.filter((section) =>
-                  sections.includes(section.id),
-              );
+            ? passages
+            : passages?.filter((passage) => sections.includes(passage.id));
 
-    const [currentSection, setCurrentSection] = useState('');
+    const [currentPassage, setCurrentPassage] = useState('');
     const [timeRemaining, setTimeRemaining] = useState(0);
     const [isTestStarted, setIsTestStarted] = useState(false);
     const [answers, setAnswers] = useState<Record<string, string>>({});
 
     useEffect(() => {
-        if (availableSections && availableSections.length > 0) {
-            if (!currentSection) {
-                setCurrentSection(availableSections[0].id);
+        if (availablePassages && availablePassages.length > 0) {
+            if (!currentPassage) {
+                setCurrentPassage(availablePassages[0].id);
             }
 
             if (!isTestStarted && timeRemaining === 0) {
-                const totalTime = availableSections.reduce((total, section) => {
-                    return total + section.timeLimitSeconds;
+                const totalTime = availablePassages.reduce((total, passage) => {
+                    return total + passage.timeLimitSeconds;
                 }, 0);
                 setTimeRemaining(totalTime);
             }
         }
-    }, [availableSections, currentSection, isTestStarted, timeRemaining]);
+    }, [availablePassages, currentPassage, isTestStarted, timeRemaining]);
 
     useEffect(() => {
         if (!isTestStarted) return;
@@ -85,47 +85,81 @@ export function ListeningTest({
         setAnswers((prev) => ({ ...prev, [questionId]: answer }));
     };
 
-    const normalizeListeningQuestion = (
-        listeningQuestion: ListeningQuestion,
+    const handleSubmit = () => {
+        const answerArray = Object.keys(answers).map((questionId) => {
+            const question = availablePassages
+                ?.flatMap((passage) => passage.questions)
+                .find((q) => q.id === questionId);
+
+            return {
+                questionNumber: question?.content.questionNumber || 0,
+                answerContent: answers[questionId] || '',
+            };
+        });
+
+        const attemptId = localStorage.getItem('currentAttemptId');
+
+        if (!attemptId) {
+            console.error('No attemptId found in localStorage');
+            return;
+        }
+
+        submitAnswers(
+            {
+                attemptId,
+                answerArray,
+            },
+            {
+                onSuccess: (data) => {
+                    localStorage.setItem(
+                        'latestTestResult',
+                        JSON.stringify(data),
+                    );
+                    router.push('/test/result');
+                },
+            },
+        );
+    };
+
+    const normalizeReadingQuestion = (
+        readingQuestion: ReadingQuestion,
     ): Question => {
         return {
-            id: listeningQuestion.content.questionNumber,
-            type: listeningQuestion.content.type,
-            question: `Question ${listeningQuestion.content.questionNumber}`,
+            id: readingQuestion.content.questionNumber,
+            type: readingQuestion.content.type,
+            question: `Question ${readingQuestion.content.questionNumber}`,
         };
     };
 
     const totalQuestions =
-        availableSections?.reduce(
-            (total, section) => total + section.questions.length,
+        availablePassages?.reduce(
+            (total, passage) => total + passage.questions.length,
             0,
         ) ?? 0;
 
     const getUnansweredQuestions = (): Question[] => {
-        if (!availableSections) return [];
-
-        const allQuestions = availableSections.flatMap(
-            (section) => section.questions,
-        ) as unknown as ListeningQuestion[];
-
-        const unansweredListeningQuestions = allQuestions.filter(
-            (q) => !answers[q.id] || answers[q.id].trim() === '',
+        const allQuestions = availablePassages?.flatMap(
+            (passage) => passage.questions,
         );
 
-        return unansweredListeningQuestions.map(normalizeListeningQuestion);
+        const unansweredReadingQuestions =
+            allQuestions?.filter(
+                (q) => !answers[q.id] || answers[q.id].trim() === '',
+            ) ?? [];
+
+        return unansweredReadingQuestions.map(normalizeReadingQuestion);
     };
 
     const answeredQuestions = totalQuestions - getUnansweredQuestions().length;
 
-    const currentSectionData = availableSections?.find(
-        (s) => s.id === currentSection,
+    const currentPassageData = availablePassages?.find(
+        (p) => p.id === currentPassage,
     );
 
-    if (availableSections?.length === 0) {
+    if (availablePassages?.length === 0) {
         return <NotFound />;
     }
-
-    if (isSectionsLoading) {
+    if (isPassageLoading) {
         return (
             <div className="bg-background flex min-h-screen w-full items-center justify-center rounded-lg border p-4">
                 <LiquidLoading />
@@ -133,7 +167,7 @@ export function ListeningTest({
         );
     }
 
-    if (isSectionsError) {
+    if (isPassageError) {
         return <NotFound />;
     }
 
@@ -144,9 +178,9 @@ export function ListeningTest({
                     <div className="flex items-center justify-between">
                         <div className="flex items-center gap-4">
                             <div className="flex items-center gap-2">
-                                <Headphones className="text-primary h-6 w-6" />
+                                <FileText className="text-primary h-6 w-6" />
                                 <h1 className="text-xl font-semibold text-balance">
-                                    IELTS Listening Test
+                                    IELTS Reading Test
                                 </h1>
                             </div>
                             <Badge variant="secondary" className="text-sm">
@@ -166,6 +200,7 @@ export function ListeningTest({
                                 totalQuestions={totalQuestions}
                                 answeredQuestions={answeredQuestions}
                                 unansweredQuestions={getUnansweredQuestions()}
+                                onSubmit={handleSubmit}
                             />
 
                             {!isTestStarted ? (
@@ -195,49 +230,46 @@ export function ListeningTest({
                             <CardHeader className="pb-4">
                                 <div className="flex items-center justify-between">
                                     <CardTitle className="text-lg text-balance">
-                                        Audio Player
+                                        Reading Passages
                                     </CardTitle>
                                     <Badge
                                         variant="outline"
                                         className="text-xs"
                                     >
-                                        {availableSections
-                                            ? availableSections.findIndex(
-                                                  (s) =>
-                                                      s.id === currentSection,
+                                        {availablePassages
+                                            ? availablePassages.findIndex(
+                                                  (p) =>
+                                                      p.id === currentPassage,
                                               ) + 1
                                             : 0}{' '}
-                                        of {availableSections?.length ?? 0}
+                                        of {availablePassages?.length ?? 0}
                                     </Badge>
                                 </div>
 
                                 <Tabs
-                                    value={currentSection}
-                                    onValueChange={setCurrentSection}
+                                    value={currentPassage}
+                                    onValueChange={setCurrentPassage}
                                     className="w-full"
                                 >
-                                    {availableSections &&
-                                        availableSections.length > 1 && (
+                                    {availablePassages &&
+                                        availablePassages.length > 1 && (
                                             <TabsList
                                                 className={`bg-muted grid w-full ${
-                                                    availableSections.length ===
+                                                    availablePassages.length ===
                                                     2
                                                         ? 'grid-cols-2'
-                                                        : availableSections.length ===
-                                                            3
-                                                          ? 'grid-cols-3'
-                                                          : 'grid-cols-4'
+                                                        : 'grid-cols-3'
                                                 }`}
                                             >
-                                                {availableSections.map(
-                                                    (section) => (
+                                                {availablePassages.map(
+                                                    (passage) => (
                                                         <TabsTrigger
-                                                            key={section.id}
-                                                            value={section.id}
+                                                            key={passage.id}
+                                                            value={passage.id}
                                                             className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground text-sm"
                                                         >
-                                                            Section{' '}
-                                                            {section.orderIndex}
+                                                            Passage{' '}
+                                                            {passage.orderIndex}
                                                         </TabsTrigger>
                                                     ),
                                                 )}
@@ -248,46 +280,27 @@ export function ListeningTest({
 
                             <CardContent className="p-0">
                                 <div className="h-full overflow-auto">
-                                    {currentSectionData &&
-                                        availableSections && (
-                                            <AudioPlayer
-                                                sections={availableSections.map(
-                                                    (section) => ({
-                                                        id: section.id,
-                                                        title: section.title,
-                                                        audioUrl:
-                                                            section.cloudfrontUrl ||
-                                                            '',
-                                                        duration:
-                                                            section.timeLimitSeconds,
-                                                        metadata:
-                                                            section.metadata,
-                                                    }),
-                                                )}
-                                                currentSection={currentSection}
-                                                onSectionChange={
-                                                    setCurrentSection
-                                                }
-                                                isTestStarted={isTestStarted}
-                                                onTestStart={() =>
-                                                    setIsTestStarted(true)
-                                                }
-                                            />
-                                        )}
+                                    {' '}
+                                    {currentPassageData && (
+                                        <ReadingPassage
+                                            title={currentPassageData.title}
+                                            metadata={
+                                                currentPassageData.metadata
+                                            }
+                                        />
+                                    )}
                                 </div>
                             </CardContent>
                         </Card>
                     </div>
 
                     <div className="lg:col-span-1">
-                        {currentSectionData && (
+                        {currentPassageData && (
                             <QuestionPanel
-                                questions={
-                                    currentSectionData.questions as unknown as ListeningQuestion[]
-                                }
+                                questions={currentPassageData.questions}
                                 answers={answers}
                                 onAnswerChange={handleAnswerChange}
-                                passageTitle={currentSectionData.title}
+                                passageTitle={currentPassageData.title}
                             />
                         )}
                     </div>

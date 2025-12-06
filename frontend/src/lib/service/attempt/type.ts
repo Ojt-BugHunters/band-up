@@ -1,0 +1,44 @@
+export type CreateAttemptResponse = {
+    id: string;
+    userId: string;
+    testId: string;
+    startAt: string;
+    submitAt: string | null;
+    status: string;
+    score: number | null;
+    overallBand: number | null;
+    attemptSections: string[];
+};
+
+export type CreateAttemptSectionResponse = {
+    id: string;
+    attemptId: string;
+    sectionId: string;
+    startAt: string;
+    status: string;
+};
+
+export type ScoredAnswer = {
+    id: string;
+    attemptSectionId: string;
+    questionId: string;
+    answerContent: string;
+    correctAnswer: string;
+    createAt: string;
+    correct: boolean;
+};
+
+export type BandScoreResponse = {
+    testId: string;
+    totalScore: number;
+    bandScore: number;
+    responses: ScoredAnswer[];
+};
+
+export type SubmitAnswerParams = {
+    attemptId: string;
+    answerArray: {
+        questionNumber: number;
+        answerContent: string;
+    }[];
+};
