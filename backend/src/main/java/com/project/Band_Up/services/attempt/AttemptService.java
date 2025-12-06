@@ -1,6 +1,7 @@
 package com.project.Band_Up.services.attempt;
 
 import com.project.Band_Up.dtos.attempt.AttemptCreateRequest;
+import com.project.Band_Up.dtos.attempt.AttemptDetailResponse;
 import com.project.Band_Up.dtos.attempt.AttemptResponse;
 import com.project.Band_Up.dtos.attempt.AttemptUpdateRequest;
 import com.project.Band_Up.enums.Status;
@@ -25,4 +26,6 @@ public interface AttemptService {
     void deleteAttempt(UUID attemptId, UUID userId);
 
     void updateAttemptStatus(UUID attemptId);
+
+    AttemptDetailResponse getAttemptDetail(UUID attemptId, UUID userId);
 }
