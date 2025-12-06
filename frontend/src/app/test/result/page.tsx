@@ -1,13 +1,15 @@
+'use client';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import ResultsTab from './result-tab';
 import CertificateTab from './certificate-tab';
 import { BandScoreResponse, ScoredAnswer } from '@/lib/service/attempt/type';
+import { useEffect, useState } from 'react';
 
 interface ResultsPageProps {
     testData: BandScoreResponse;
 }
 
-export default function ResultsPage({ testData }: ResultsPageProps) {
+export function ResultsPage({ testData }: ResultsPageProps) {
     const correctAnswers = testData.responses.filter(
         (r: ScoredAnswer) => r.correct,
     ).length;
@@ -68,4 +70,32 @@ export default function ResultsPage({ testData }: ResultsPageProps) {
             </div>
         </div>
     );
+}
+
+export default function ResultPage() {
+    const [testData, setTestData] = useState<BandScoreResponse | null>(null);
+
+    useEffect(() => {
+        const raw = localStorage.getItem('latestTestResult');
+        if (!raw) return;
+
+        try {
+            const parsed = JSON.parse(raw) as BandScoreResponse;
+            setTestData(parsed);
+        } catch (err) {
+            console.error('Failed to parse latestTestResult', err);
+        }
+    }, []);
+
+    if (!testData) {
+        return (
+            <div className="flex min-h-screen items-center justify-center">
+                <p className="text-muted-foreground">
+                    No test result found. Please complete a test first.
+                </p>
+            </div>
+        );
+    }
+
+    return <ResultsPage testData={testData} />;
 }

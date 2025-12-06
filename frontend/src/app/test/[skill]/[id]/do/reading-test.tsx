@@ -14,6 +14,7 @@ import { useGetSectionsWithQuestions } from '@/lib/service/test/question/api';
 import LiquidLoading from '@/components/ui/liquid-loader';
 import { ReadingQuestion } from '@/lib/service/test/question';
 import { useSubmitAnswers } from '@/lib/service/attempt';
+import { useRouter } from 'next/navigation';
 
 type ReadingTestProps = {
     mode?: string;
@@ -24,6 +25,7 @@ export function ReadingTest({
     mode = 'full',
     sections = [],
 }: ReadingTestProps) {
+    const router = useRouter();
     const {
         data: passages,
         isLoading: isPassageLoading,
@@ -102,10 +104,21 @@ export function ReadingTest({
             return;
         }
 
-        submitAnswers({
-            attemptId: attemptId,
-            answerArray: answerArray,
-        });
+        submitAnswers(
+            {
+                attemptId,
+                answerArray,
+            },
+            {
+                onSuccess: (data) => {
+                    localStorage.setItem(
+                        'latestTestResult',
+                        JSON.stringify(data),
+                    );
+                    router.push('/test/result');
+                },
+            },
+        );
     };
 
     const normalizeReadingQuestion = (
