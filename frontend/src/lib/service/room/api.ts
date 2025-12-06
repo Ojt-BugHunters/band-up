@@ -32,6 +32,7 @@ import {
     LearningStatsYear,
     SessionOverviewStats,
     RoomStats,
+    RoomAnalytics,
 } from './type';
 import type { StatsInterval } from '../stats';
 
@@ -529,6 +530,17 @@ export const useGetRoomStats = (
                 `/rooms/stats?${params.toString()}`,
             );
             return await deserialize<RoomStats>(response);
+        },
+        staleTime: 5 * 60 * 1000,
+    });
+};
+
+export const useGetTopRoomsAnalytics = () => {
+    return useQuery({
+        queryKey: ['room-analytics'],
+        queryFn: async () => {
+            const response = await fetchWrapper('/rooms/analytics');
+            return await deserialize<RoomAnalytics[]>(response);
         },
         staleTime: 5 * 60 * 1000,
     });

@@ -1,7 +1,6 @@
 'use client';
 import { useMemo, useState } from 'react';
 import StatCard from '@/components/stat-card';
-import RecentPostsCard from '@/components/recent-posts-card';
 import PostsManagementCard from '@/components/posts-management-card';
 import {
     Select,
@@ -100,15 +99,6 @@ export default function AdminBlogPage() {
         isFetching: isFetchingStats,
         error: statsError,
     } = useGetBlogStats(statsInterval);
-    const recentPostsPagination = useMemo(
-        () => ({ pageNo: 0, pageSize: 5, ascending: false }),
-        [],
-    );
-    const {
-        data: recentPostsData,
-        isLoading: isLoadingRecentPosts,
-        error: recentPostsError,
-    } = useGetBlogs(recentPostsPagination);
     const postsManagementPagination = useMemo(
         () => ({ pageNo: 0, pageSize: 20, ascending: false }),
         [],
@@ -118,16 +108,6 @@ export default function AdminBlogPage() {
         isLoading: isLoadingPostsManagement,
         error: postsManagementError,
     } = useGetBlogs(postsManagementPagination);
-    const recentPosts = useMemo(() => {
-        if (!recentPostsData?.content) {
-            return undefined;
-        }
-        return [...recentPostsData.content].sort((a, b) => {
-            const aTime = new Date(a.publishedDate ?? '').getTime();
-            const bTime = new Date(b.publishedDate ?? '').getTime();
-            return isNaN(bTime) || isNaN(aTime) ? 0 : bTime - aTime;
-        });
-    }, [recentPostsData?.content]);
     const postsManagement = useMemo(() => {
         if (!postsManagementData?.content) {
             return undefined;
@@ -145,10 +125,6 @@ export default function AdminBlogPage() {
     const statsErrorMessage =
         statsError && statsError instanceof Error
             ? statsError.message
-            : undefined;
-    const recentPostsErrorMessage =
-        recentPostsError && recentPostsError instanceof Error
-            ? recentPostsError.message
             : undefined;
     const postsManagementErrorMessage =
         postsManagementError && postsManagementError instanceof Error
@@ -271,26 +247,11 @@ export default function AdminBlogPage() {
                     />
                 </div>
 
-                {/* Bento Grid */}
-                <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
-                    {/* Recent Posts - Left side */}
-                    <RecentPostsCard
-                        posts={recentPosts}
-                        isLoading={isLoadingRecentPosts}
-                        errorMessage={recentPostsErrorMessage}
-                        className="lg:col-span-3"
-                    />
-
-                    {/* Top Posts - Right side */}
-                    {/* <TopPostsCard posts={topPosts} className="lg:col-span-1" /> */}
-
-                    {/* Posts Management Card with tabs */}
-                    <PostsManagementCard
-                        posts={postsManagement}
-                        isLoading={isLoadingPostsManagement}
-                        errorMessage={postsManagementErrorMessage}
-                    />
-                </div>
+                <PostsManagementCard
+                    posts={postsManagement}
+                    isLoading={isLoadingPostsManagement}
+                    errorMessage={postsManagementErrorMessage}
+                />
             </div>
         </div>
     );

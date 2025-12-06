@@ -135,6 +135,15 @@ export interface RoomStats {
     statsInterval: StatsInterval;
 }
 
+export interface RoomAnalytics {
+    rank: number;
+    roomName: string;
+    numberOfMembers: number;
+    weekTrend: number;
+    avgDuration: number;
+    type: string;
+}
+
 export type IntervalMutationPayload = {
     sessionId: string;
     intervalId: string;

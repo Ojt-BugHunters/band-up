@@ -16,75 +16,27 @@ import {
     TableRow,
 } from '@/components/ui/table';
 import { TrendingUp, TrendingDown } from 'lucide-react';
+import { useGetTopRoomsAnalytics } from '@/lib/service/room';
 
-const topRooms = [
-    {
-        rank: 1,
-        name: 'Focus Hour',
-        members: 2432,
-        trend: 18,
-        avgDuration: '28m',
-        type: 'Public',
-    },
-    {
-        rank: 2,
-        name: 'Study Sprint',
-        members: 1824,
-        trend: 12,
-        avgDuration: '23m',
-        type: 'Public',
-    },
-    {
-        rank: 3,
-        name: 'Deep Work',
-        members: 1245,
-        trend: 8,
-        avgDuration: '35m',
-        type: 'Public',
-    },
-    {
-        rank: 4,
-        name: 'Code Marathon',
-        members: 956,
-        trend: -3,
-        avgDuration: '42m',
-        type: 'Private',
-    },
-    {
-        rank: 5,
-        name: 'Silent Reading',
-        members: 842,
-        trend: 5,
-        avgDuration: '31m',
-        type: 'Public',
-    },
-    {
-        rank: 6,
-        name: 'Creative Zone',
-        members: 724,
-        trend: 2,
-        avgDuration: '26m',
-        type: 'Private',
-    },
-    {
-        rank: 7,
-        name: 'Language Lab',
-        members: 612,
-        trend: 14,
-        avgDuration: '19m',
-        type: 'Public',
-    },
-    {
-        rank: 8,
-        name: 'Music Focus',
-        members: 548,
-        trend: -2,
-        avgDuration: '24m',
-        type: 'Private',
-    },
-];
+const numberFormatter = new Intl.NumberFormat('en-US');
+
+const formatRoomType = (type: string | undefined) => {
+    if (!type) return 'Unknown';
+    const normalized = type.toLowerCase();
+    return normalized.charAt(0).toUpperCase() + normalized.slice(1);
+};
 
 export function TopRoomsLeaderboard() {
+    const {
+        data: topRooms,
+        isLoading,
+        isFetching,
+        error,
+    } = useGetTopRoomsAnalytics();
+    const isLoadingLeaderboard = isLoading || isFetching;
+    const analytics = topRooms ?? [];
+    const errorMessage = error instanceof Error ? error.message : undefined;
+
     return (
         <Card>
             <CardHeader>
@@ -94,6 +46,11 @@ export function TopRoomsLeaderboard() {
                 </CardDescription>
             </CardHeader>
             <CardContent>
+                {errorMessage && (
+                    <p className="text-destructive mb-3 text-sm">
+                        Không thể tải top rooms: {errorMessage}
+                    </p>
+                )}
                 <div className="rounded-md border">
                     <Table>
                         <TableHeader>
@@ -117,52 +74,77 @@ export function TopRoomsLeaderboard() {
                             </TableRow>
                         </TableHeader>
                         <TableBody>
-                            {topRooms.map((room) => (
-                                <TableRow key={room.rank}>
-                                    <TableCell className="text-center font-semibold">
-                                        {room.rank}
-                                    </TableCell>
-                                    <TableCell className="font-medium">
-                                        {room.name}
-                                    </TableCell>
-                                    <TableCell className="text-right">
-                                        {room.members.toLocaleString()}
-                                    </TableCell>
-                                    <TableCell>
-                                        <div className="flex items-center justify-center gap-1">
-                                            {room.trend >= 0 ? (
-                                                <TrendingUp className="h-4 w-4 text-green-500" />
-                                            ) : (
-                                                <TrendingDown className="h-4 w-4 text-red-500" />
-                                            )}
-                                            <span
-                                                className={
-                                                    room.trend >= 0
-                                                        ? 'font-medium text-green-500'
-                                                        : 'font-medium text-red-500'
-                                                }
-                                            >
-                                                {room.trend > 0 ? '+' : ''}
-                                                {room.trend}%
-                                            </span>
-                                        </div>
-                                    </TableCell>
-                                    <TableCell className="text-center">
-                                        {room.avgDuration}
-                                    </TableCell>
-                                    <TableCell className="text-center">
-                                        <span
-                                            className={`rounded px-2 py-1 text-xs font-semibold ${
-                                                room.type === 'Public'
-                                                    ? 'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200'
-                                                    : 'bg-purple-100 text-purple-800 dark:bg-purple-900 dark:text-purple-200'
-                                            }`}
-                                        >
-                                            {room.type}
-                                        </span>
+                            {isLoadingLeaderboard ? (
+                                <TableRow>
+                                    <TableCell
+                                        colSpan={6}
+                                        className="text-center text-sm text-muted-foreground"
+                                    >
+                                        Đang tải danh sách top rooms...
                                     </TableCell>
                                 </TableRow>
-                            ))}
+                            ) : analytics.length > 0 ? (
+                                analytics.map((room) => (
+                                    <TableRow key={room.rank}>
+                                        <TableCell className="text-center font-semibold">
+                                            {room.rank}
+                                        </TableCell>
+                                        <TableCell className="font-medium">
+                                            {room.roomName}
+                                        </TableCell>
+                                        <TableCell className="text-right">
+                                            {numberFormatter.format(
+                                                room.numberOfMembers,
+                                            )}
+                                        </TableCell>
+                                        <TableCell>
+                                            <div className="flex items-center justify-center gap-1">
+                                                {room.weekTrend >= 0 ? (
+                                                    <TrendingUp className="h-4 w-4 text-green-500" />
+                                                ) : (
+                                                    <TrendingDown className="h-4 w-4 text-red-500" />
+                                                )}
+                                                <span
+                                                    className={
+                                                        room.weekTrend >= 0
+                                                            ? 'font-medium text-green-500'
+                                                            : 'font-medium text-red-500'
+                                                    }
+                                                >
+                                                    {room.weekTrend > 0
+                                                        ? '+'
+                                                        : ''}
+                                                    {room.weekTrend}%
+                                                </span>
+                                            </div>
+                                        </TableCell>
+                                        <TableCell className="text-center">
+                                            {room.avgDuration}m
+                                        </TableCell>
+                                        <TableCell className="text-center">
+                                            <span
+                                                className={`rounded px-2 py-1 text-xs font-semibold ${
+                                                    room.type?.toLowerCase() ===
+                                                    'public'
+                                                        ? 'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200'
+                                                        : 'bg-purple-100 text-purple-800 dark:bg-purple-900 dark:text-purple-200'
+                                                }`}
+                                            >
+                                                {formatRoomType(room.type)}
+                                            </span>
+                                        </TableCell>
+                                    </TableRow>
+                                ))
+                            ) : (
+                                <TableRow>
+                                    <TableCell
+                                        colSpan={6}
+                                        className="text-center text-sm text-muted-foreground"
+                                    >
+                                        Không có dữ liệu top rooms.
+                                    </TableCell>
+                                </TableRow>
+                            )}
                         </TableBody>
                     </Table>
                 </div>
