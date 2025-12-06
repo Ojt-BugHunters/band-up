@@ -111,7 +111,7 @@ export function useUpdateBlog(blogId: string | null | undefined) {
                 throw new Error('Missing blog id');
             }
 
-            const response = await fetchWrapper(`/blog/${blogId}/update`, {
+            const response = await fetchWrapper(`/blog/${blogId}`, {
                 method: 'PUT',
                 headers: {
                     Accept: 'application/json',
@@ -144,6 +144,29 @@ export function useUpdateBlog(blogId: string | null | undefined) {
     });
 
     return { form, mutation };
+}
+
+export function useDeleteBlog() {
+    const queryClient = useQueryClient();
+    return useMutation({
+        mutationFn: async (blogId: string) => {
+            const response = await fetchWrapper(`/blog/${blogId}`, {
+                method: 'DELETE',
+                headers: {
+                    Accept: 'application/json',
+                },
+            });
+            await throwIfError(response);
+        },
+        onError: (error: Error) => {
+            toast.error(error.message ?? 'Failed to delete blog');
+        },
+        onSuccess: () => {
+            toast.success('Blog deleted successfully');
+            queryClient.invalidateQueries({ queryKey: ['blog'] });
+            queryClient.invalidateQueries({ queryKey: ['blog-content'] });
+        },
+    });
 }
 
 // create new blog

@@ -34,6 +34,7 @@ import {
 import React from 'react';
 import { toast } from 'sonner';
 import { usePresignUpload } from '@/lib/service/s3-upload';
+import { useRouter } from 'next/navigation';
 
 type BlogFormMode = 'create' | 'update';
 
@@ -137,6 +138,7 @@ export default function BlogForm({
 
     const pending = mutation.isPending;
     const presignMutation = usePresignUpload();
+    const router = useRouter();
 
     const handleValueChange = React.useCallback(
         async (newFiles: File[]) => {
@@ -196,6 +198,14 @@ export default function BlogForm({
                             </p>
                         </div>
                         <div className="flex gap-2">
+                            <Button
+                                type="button"
+                                variant="outline"
+                                disabled={pending}
+                                onClick={() => router.back()}
+                            >
+                                Cancel
+                            </Button>
                             <Button
                                 type="submit"
                                 disabled={pending}
