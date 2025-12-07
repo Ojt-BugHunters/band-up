@@ -1,6 +1,6 @@
 import { ReadingTest } from './reading-test';
 import { SpeakingTest } from '@/components/speaking-test';
-import { WritingTest } from '@/components/writing-test';
+import { WritingTest } from './writing-test';
 import { ListeningTest } from './listening-test';
 import { NotFound } from '@/components/not-found';
 
