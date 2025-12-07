@@ -2,13 +2,9 @@ package com.project.Band_Up.services.attemptSection;
 
 import com.project.Band_Up.dtos.attemptSection.AttemptSectionCreateRequest;
 import com.project.Band_Up.dtos.attemptSection.AttemptSectionResponse;
-import com.project.Band_Up.entities.Attempt;
-import com.project.Band_Up.entities.AttemptSection;
-import com.project.Band_Up.entities.Section;
+import com.project.Band_Up.entities.*;
 import com.project.Band_Up.enums.Status;
-import com.project.Band_Up.repositories.AttemptRepository;
-import com.project.Band_Up.repositories.AttemptSectionRepository;
-import com.project.Band_Up.repositories.SectionRepository;
+import com.project.Band_Up.repositories.*;
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Service;
