@@ -11,18 +11,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { RoomTrendsChart } from './room-trends-chart';
 import { RoomTypesChart } from './room-types-chart';
 import { TopRoomsLeaderboard } from './top-rooms-leaderboard';
-import {
-    BarChart3,
-    Users,
-    Lock,
-    Unlock,
-    TrendingUp,
-    Zap,
-    Clock,
-    CheckCircle2,
-    MessageSquare,
-    Target,
-} from 'lucide-react';
+import { BarChart3, Users, Lock, Unlock, TrendingUp, Zap } from 'lucide-react';
 import { StatCard } from '@/components/admin-stats-card';
 import { SessionDurationChart } from './session-duration-chart';
 import { FocusVsBreakChart } from './focus-vs-break-chart';
@@ -80,49 +69,6 @@ export default function RoomsAnalyticsPage() {
                             icon={Users}
                             isPositive
                         />
-                    </div>
-
-                    <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-                        <StatCard
-                            title="Total Focus Time"
-                            value="124.5k"
-                            change="18.6%"
-                            icon={Clock}
-                            isPositive
-                        >
-                            <div className="text-muted-foreground mt-2 text-xs">
-                                3,612 hours this month
-                            </div>
-                        </StatCard>
-                        <StatCard
-                            title="Active Sessions"
-                            value="1,247"
-                            change="22.4%"
-                            icon={Target}
-                            isPositive
-                        >
-                            <div className="text-muted-foreground mt-2 text-xs">
-                                Currently running
-                            </div>
-                        </StatCard>
-                        <StatCard
-                            title="Task Completion"
-                            value="85.2%"
-                            change="6.3%"
-                            icon={CheckCircle2}
-                            isPositive
-                        />
-                        <StatCard
-                            title="Message Activity"
-                            value="45.8k"
-                            change="31.7%"
-                            icon={MessageSquare}
-                            isPositive
-                        >
-                            <div className="text-muted-foreground mt-2 text-xs">
-                                Messages this week
-                            </div>
-                        </StatCard>
                     </div>
 
                     {/* Performance Overview and Fill Rate */}

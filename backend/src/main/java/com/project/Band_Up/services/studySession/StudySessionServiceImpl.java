@@ -3,6 +3,7 @@ package com.project.Band_Up.services.studySession;
 import com.project.Band_Up.dtos.studyInterval.StudyIntervalResponse;
 import com.project.Band_Up.dtos.studySession.StudySessionCreateRequest;
 import com.project.Band_Up.dtos.studySession.StudySessionResponse;
+import com.project.Band_Up.dtos.studySession.TopUserStudyTimeDto;
 import com.project.Band_Up.dtos.studySessionInterval.StudySessionIntervalUpdateRequest;
 import com.project.Band_Up.entities.Account;
 import com.project.Band_Up.entities.Room;
@@ -10,10 +11,12 @@ import com.project.Band_Up.entities.StudyInterval;
 import com.project.Band_Up.entities.StudySession;
 import com.project.Band_Up.enums.SessionMode;
 import com.project.Band_Up.enums.Status;
+import com.project.Band_Up.enums.StatsInterval;
 import com.project.Band_Up.repositories.AccountRepository;
 import com.project.Band_Up.repositories.RoomRepository;
 import com.project.Band_Up.repositories.StudyIntervalRepository;
 import com.project.Band_Up.repositories.StudySessionRepository;
+import com.project.Band_Up.services.awsService.S3Service;
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Service;
@@ -21,6 +24,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigInteger;
 import java.time.Duration;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -35,6 +39,7 @@ public class StudySessionServiceImpl implements StudySessionService {
     private final StudyIntervalRepository studyIntervalRepository;
     private final RoomRepository roomRepository;
     private final ModelMapper modelMapper;
+    private final S3Service s3Service;
 
     @Override
     public StudySessionResponse createStudySession(StudySessionCreateRequest request, UUID userId, UUID roomId) {
@@ -196,9 +201,54 @@ public class StudySessionServiceImpl implements StudySessionService {
                 .toList();
     }
 
+    @Override
+    public List<TopUserStudyTimeDto> getTopUsersByStudyTime(StatsInterval interval, LocalDate date) {
+        LocalDateTime start;
+        LocalDateTime end;
 
+        switch (interval) {
+            case DAILY:
+                start = date.atStartOfDay();
+                end = date.plusDays(1).atStartOfDay();
+                break;
+            case WEEKLY:
+                start = date.atStartOfDay();
+                end = date.plusWeeks(1).atStartOfDay();
+                break;
+            case MONTHLY:
+                start = date.withDayOfMonth(1).atStartOfDay();
+                end = date.withDayOfMonth(1).plusMonths(1).atStartOfDay();
+                break;
+            default:
+                throw new IllegalArgumentException("Invalid interval. Use DAILY, WEEKLY, or MONTHLY");
+        }
 
+        List<Object[]> results = studySessionRepository.findTop10UsersByTotalStudyTime(start, end);
 
+        List<TopUserStudyTimeDto> topUsers = new ArrayList<>();
+        int rank = 1;
+
+        for (Object[] result : results) {
+            if (rank > 10) break;
+
+            UUID userId = (UUID) result[0];
+            String userName = (String) result[1];
+            String avatarKey = (String) result[2];
+            BigInteger totalTime = (BigInteger) result[3];
+
+            TopUserStudyTimeDto dto = TopUserStudyTimeDto.builder()
+                    .rank(rank++)
+                    .userId(userId)
+                    .name(userName)
+                    .avatar(s3Service.createCloudFrontSignedUrl(avatarKey))
+                    .totalTime(totalTime != null ? totalTime.longValue() : 0L)
+                    .build();
+
+            topUsers.add(dto);
+        }
+
+        return topUsers;
+    }
 
     private Account getAccount(UUID userId) {
         if (userId == null)

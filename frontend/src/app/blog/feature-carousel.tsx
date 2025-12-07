@@ -92,7 +92,9 @@ export function FeaturedCarousel() {
                                         <span className="inline-flex items-center gap-2">
                                             <Users className="h-4 w-4" />
                                             {Number(
-                                                post.numberOfReaders ?? 0,
+                                                post.numberOfReaders ??
+                                                    post.numberOfReader ??
+                                                    0,
                                             ).toLocaleString('en-US')}
                                         </span>
                                     </div>

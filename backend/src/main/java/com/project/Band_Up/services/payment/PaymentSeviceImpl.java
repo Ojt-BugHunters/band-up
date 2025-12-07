@@ -57,7 +57,7 @@ public class PaymentSeviceImpl implements PaymentService{
         PayOS payOS = new PayOS(PAYOS_CLIENT_ID, PAYOS_API_KEY, PAYOS_CHECKSUM_KEY);
         CreatePaymentLinkRequest paymentRequest = CreatePaymentLinkRequest.builder()
                 .orderCode(System.currentTimeMillis() / 1000)
-                .amount(2000L)
+                .amount(isLifeTime ?  2600000L : 395000L)
                 .description("Thanh toán đơn hàng")
                 .cancelUrl(FRONTEND_URL + "/payment/cancel")
                 .returnUrl(FRONTEND_URL + "/payment/success")
