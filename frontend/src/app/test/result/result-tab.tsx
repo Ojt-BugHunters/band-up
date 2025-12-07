@@ -136,7 +136,6 @@ export default function ResultsTab({
                 </Card>
             </div>
 
-            {/* Performance Progress Bar */}
             <Card className="border-0 shadow-lg">
                 <CardHeader>
                     <CardTitle className="text-lg">Your Performance</CardTitle>
