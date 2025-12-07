@@ -9,12 +9,14 @@ import { Clock, Headphones } from 'lucide-react';
 import ProgressDialog, { Question } from '@/components/progress-dialog';
 import QuestionPanel from '@/components/question-panel';
 import AudioPlayer from '@/components/audio-player';
-import { NotFound } from './not-found';
+import { NotFound } from '@/components/not-found';
 import {
     ListeningQuestion,
     useGetListeningWithQuestions,
 } from '@/lib/service/test/question';
-import LiquidLoading from './ui/liquid-loader';
+import LiquidLoading from '@/components/ui/liquid-loader';
+import { useSubmitAnswers } from '@/lib/service/attempt';
+import { useRouter } from 'next/navigation';
 
 type ListeningTestProps = {
     mode?: string;
@@ -42,6 +44,8 @@ export function ListeningTest({
     const [timeRemaining, setTimeRemaining] = useState(0);
     const [isTestStarted, setIsTestStarted] = useState(false);
     const [answers, setAnswers] = useState<Record<string, string>>({});
+    const router = useRouter();
+    const { mutate: submitAnswers } = useSubmitAnswers();
 
     useEffect(() => {
         if (availableSections && availableSections.length > 0) {
@@ -83,6 +87,42 @@ export function ListeningTest({
 
     const handleAnswerChange = (questionId: string, answer: string) => {
         setAnswers((prev) => ({ ...prev, [questionId]: answer }));
+    };
+
+    const handleSubmit = () => {
+        const answerArray = Object.keys(answers).map((questionId) => {
+            const question = availableSections
+                ?.flatMap((section) => section.questions)
+                .find((q) => q.id === questionId);
+
+            return {
+                questionNumber: question?.content.questionNumber || 0,
+                answerContent: answers[questionId] || '',
+            };
+        });
+
+        const attemptId = localStorage.getItem('currentAttemptId');
+
+        if (!attemptId) {
+            console.error('No attemptId found in localStorage');
+            return;
+        }
+
+        submitAnswers(
+            {
+                attemptId,
+                answerArray,
+            },
+            {
+                onSuccess: (data) => {
+                    localStorage.setItem(
+                        'latestTestResult',
+                        JSON.stringify(data),
+                    );
+                    router.push('/test/result');
+                },
+            },
+        );
     };
 
     const normalizeListeningQuestion = (
@@ -166,6 +206,7 @@ export function ListeningTest({
                                 totalQuestions={totalQuestions}
                                 answeredQuestions={answeredQuestions}
                                 unansweredQuestions={getUnansweredQuestions()}
+                                onSubmit={handleSubmit}
                             />
 
                             {!isTestStarted ? (

@@ -2,6 +2,7 @@ import { useQuery } from '@tanstack/react-query';
 import { deserialize, fetchWrapper } from '../..';
 import { TestSection } from '../section';
 import {
+    ListeningQuestion,
     ListeningSectionsQuestion,
     PassageQuestion,
     ReadingQuestion,
@@ -73,7 +74,7 @@ export const useGetListeningWithQuestions = (sectionIds: string[]) => {
                         `/sections/${id}/questions`,
                     );
                     const questions =
-                        await deserialize<ListeningSectionsQuestion[]>(
+                        await deserialize<ListeningQuestion[]>(
                             questionsResponse,
                         );
 
