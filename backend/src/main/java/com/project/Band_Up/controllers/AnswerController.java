@@ -5,6 +5,7 @@ import com.project.Band_Up.dtos.answer.DictationAnswerResponse;
 import com.project.Band_Up.dtos.answer.IeltsAnswerResponse;
 import com.project.Band_Up.dtos.attempt.TestResultResponseDTO;
 //import com.project.Band_Up.services.answer.DictationAnswerServiceImpl;
+import com.project.Band_Up.entities.Account;
 import com.project.Band_Up.services.answer.AbstractAnswerServiceImpl;
 import com.project.Band_Up.services.answer.IeltsAnswerServiceImpl;
 import com.project.Band_Up.utils.JwtUserDetails;
@@ -17,6 +18,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -139,5 +141,14 @@ public class    AnswerController {
         abstractAnswerService.deleteAnswer(attemptSectionId, questionId);
         return ResponseEntity.noContent().build();
     }
+    @GetMapping("/attempts/{attemptId}/answers")
+    public ResponseEntity<TestResultResponseDTO> getAttemptAnswers(
+            @PathVariable UUID attemptId,
+            @AuthenticationPrincipal JwtUserDetails userDetails
+    ) {
+        TestResultResponseDTO result = ieltsAnswerService.getAttemptAnswers(attemptId, userDetails.getAccountId());
+        return ResponseEntity.ok(result);
+    }
+
 }
 
