@@ -10,7 +10,7 @@ import ProgressDialog from '@/components/progress-dialog';
 import { Separator } from '@/components/ui/separator';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Alert, AlertDescription } from '@/components/ui/alert';
-import { VoiceInput } from './voice-input';
+import { VoiceInput } from '@/components/voice-input';
 import { toast } from 'sonner';
 import {
     FileUpload,
@@ -24,12 +24,12 @@ import {
     type FileUploadProps,
     FileUploadTrigger,
 } from '@/components/ui/file-upload';
-import { NotFound } from './not-found';
+import { NotFound } from '@/components/not-found';
 import {
     SpeakingQuestion,
     useGetSpeakingWithQuestions,
 } from '@/lib/service/test/question';
-import LiquidLoading from './ui/liquid-loader';
+import LiquidLoading from '@/components/ui/liquid-loader';
 
 type SpeakingTestProps = {
     mode?: string;
@@ -141,6 +141,8 @@ export function SpeakingTest({
         const secs = seconds % 60;
         return `${minutes.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
     };
+
+    const handleSubmit = () => {};
 
     const onUpload: NonNullable<FileUploadProps['onUpload']> = useCallback(
         async (files, { onProgress, onSuccess, onError }) => {
@@ -268,6 +270,7 @@ export function SpeakingTest({
                                 totalQuestions={getTotalParts()}
                                 answeredQuestions={getAnsweredParts()}
                                 unansweredQuestions={getUnansweredQuestions()}
+                                onSubmit={handleSubmit}
                             />
 
                             {!isTestStarted ? (

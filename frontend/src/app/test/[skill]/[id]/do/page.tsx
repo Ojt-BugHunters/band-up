@@ -1,5 +1,5 @@
 import { ReadingTest } from './reading-test';
-import { SpeakingTest } from '@/components/speaking-test';
+import { SpeakingTest } from './speaking-test';
 import { WritingTest } from './writing-test';
 import { ListeningTest } from './listening-test';
 import { NotFound } from '@/components/not-found';
