@@ -1,6 +1,7 @@
 package com.project.Band_Up.controllers;
 
 import com.project.Band_Up.dtos.attempt.AttemptCreateRequest;
+import com.project.Band_Up.dtos.attempt.AttemptDetailResponse;
 import com.project.Band_Up.dtos.attempt.AttemptResponse;
 import com.project.Band_Up.dtos.attempt.AttemptUpdateRequest;
 import com.project.Band_Up.enums.Status;
@@ -168,5 +169,14 @@ public class AttemptController {
 
         attemptService.deleteAttempt(id, userDetails.getAccountId());
         return ResponseEntity.noContent().build();
+    }
+    @GetMapping("/{attemptId}/detail")
+    public ResponseEntity<AttemptDetailResponse> getAttemptDetail(
+            @PathVariable UUID attemptId,
+            @AuthenticationPrincipal JwtUserDetails userDetails
+    ) {
+        AttemptDetailResponse response = attemptService.getAttemptDetail(attemptId, userDetails.getAccountId());
+
+        return ResponseEntity.ok(response);
     }
 }

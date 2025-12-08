@@ -1,5 +1,6 @@
 package com.project.Band_Up.services.attemptSection;
 
+import com.project.Band_Up.dtos.attempt.AttemptDetailResponse;
 import com.project.Band_Up.dtos.attemptSection.AttemptSectionCreateRequest;
 import com.project.Band_Up.dtos.attemptSection.AttemptSectionResponse;
 import com.project.Band_Up.enums.Status;

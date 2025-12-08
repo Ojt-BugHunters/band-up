@@ -3,6 +3,7 @@ package com.project.Band_Up.services.authentication;
 import com.project.Band_Up.dtos.authentication.AccountDto;
 import com.project.Band_Up.dtos.authentication.AccountDtoResponse;
 import com.project.Band_Up.dtos.notification.EmailDetailsDto;
+import com.project.Band_Up.dtos.subscription.SubscriptionDtoResponse;
 import com.project.Band_Up.entities.Account;
 import com.project.Band_Up.enums.Role;
 import com.project.Band_Up.exceptions.AuthenticationFailedException;
@@ -11,16 +12,16 @@ import com.project.Band_Up.exceptions.ResourceNotFoundException;
 import com.project.Band_Up.repositories.AccountRepository;
 import com.project.Band_Up.services.notification.EmailService;
 import com.project.Band_Up.utils.JwtUserDetails;
-import com.project.Band_Up.utils.JwtUtil;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
-import javax.security.auth.login.AccountNotFoundException;
 import java.time.Duration;
-import java.util.Objects;
+import java.time.LocalDate;
 import java.util.Random;
 import java.util.UUID;
 
@@ -58,7 +59,9 @@ public class AccountServiceImpl implements AccountService {
             emailService.sendOtpEmail(emailDetailsDto);
             accountRedisTemplate.opsForValue().set("signup:user:"+account.getEmail().toLowerCase(),
                     account, Duration.ofMinutes(15));
-            return modelMapper.map(account, AccountDtoResponse.class);
+            AccountDtoResponse response = modelMapper.map(account, AccountDtoResponse.class);
+            response.setSubscription(getTopActiveSubscription(account));
+            return response;
         } else throw new EmailAlreadyExistedException(accountDto.getEmail());
     }
 
@@ -68,7 +71,9 @@ public class AccountServiceImpl implements AccountService {
             accountDto.setEmail(accountDto.getEmail().toLowerCase());
             Account account = accountRepository.findByEmail(accountDto.getEmail());
             if (passwordEncoder.matches(accountDto.getPassword(), account.getPassword())) {
-                return modelMapper.map(account, AccountDtoResponse.class);
+                AccountDtoResponse response = modelMapper.map(account, AccountDtoResponse.class);
+                response.setSubscription(getTopActiveSubscription(account));
+                return response;
             } else {
                 throw new AuthenticationFailedException("Invalid email or password");
             }
@@ -91,7 +96,9 @@ public class AccountServiceImpl implements AccountService {
             Account account = accountRedisTemplate.opsForValue().getAndDelete("signup:user:"+email.toLowerCase());
             if(account != null) {
                 account = accountRepository.save(account);
-                return modelMapper.map(account, AccountDtoResponse.class);
+                AccountDtoResponse response = modelMapper.map(account, AccountDtoResponse.class);
+                response.setSubscription(getTopActiveSubscription(account));
+                return response;
             }
         } else throw new AuthenticationFailedException("Invalid OTP");
         return null;
@@ -124,7 +131,44 @@ public class AccountServiceImpl implements AccountService {
         if (account != null) {
             account.setPassword(passwordEncoder.encode(accountDto.getPassword()));
             accountRepository.save(account);
-            return modelMapper.map(account, AccountDtoResponse.class);
+            AccountDtoResponse response = modelMapper.map(account, AccountDtoResponse.class);
+            response.setSubscription(getTopActiveSubscription(account));
+            return response;
         } else throw new ResourceNotFoundException(accountDto.getEmail());
     }
+
+    @Override
+    public Page<AccountDtoResponse> getAccounts(Pageable pageable) {
+        Page<Account> accountPage = accountRepository.findAll(pageable);
+        return accountPage.map(account -> {
+            AccountDtoResponse response = modelMapper.map(account, AccountDtoResponse.class);
+            // Convert all non-admin roles to Member
+            if (response.getRole() != Role.Admin) {
+                response.setRole(Role.Member);
+            }
+            response.setSubscription(getTopActiveSubscription(account));
+            return response;
+        });
+    }
+
+    /**
+     * Get the top active subscription for an account
+     * Returns the subscription that is still valid (not expired) or lifetime
+     * Ordered by creation date descending (most recent first)
+     */
+    private SubscriptionDtoResponse getTopActiveSubscription(Account account) {
+        if (account.getSubscriptions() == null || account.getSubscriptions().isEmpty()) {
+            return null;
+        }
+
+        LocalDate today = LocalDate.now();
+
+        return account.getSubscriptions().stream()
+                .filter(sub -> sub.isLifeTime() || (sub.getEndDate() != null && !sub.getEndDate().isBefore(today)))
+                .sorted((s1, s2) -> s2.getCreatedAt().compareTo(s1.getCreatedAt()))
+                .findFirst()
+                .map(subscription -> modelMapper.map(subscription, SubscriptionDtoResponse.class))
+                .orElse(null);
+    }
 }
+

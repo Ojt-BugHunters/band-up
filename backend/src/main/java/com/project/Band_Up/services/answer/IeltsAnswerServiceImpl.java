@@ -101,18 +101,17 @@ public class IeltsAnswerServiceImpl extends AbstractAnswerServiceImpl {
             List<QuestionResponse> questions = questionService.getAllQuestionsBySectionId(sectionId);
             System.out.println("Total questions in section: " + questions.size());
 
-            // Lặp qua tất cả các câu hỏi của mỗi section
+            // ✅ THAY ĐỔI CHÍNH: Lặp qua TẤT CẢ câu hỏi, không chỉ câu có answer
             for (QuestionResponse question : questions) {
 
                 Object questionNumberObj = question.getContent().get("questionNumber");
                 System.out.println("\nQuestion ID: " + question.getId());
                 System.out.println("Question Number from DB: " + questionNumberObj +
                         " (Type: " + (questionNumberObj != null ? questionNumberObj.getClass().getName() : "null") + ")");
-                System.out.println("Question Content: " + question.getContent());
 
                 String questionNumberStr = questionNumberObj != null ? String.valueOf(questionNumberObj) : null;
 
-                // Tìm câu trả lời
+                // Tìm câu trả lời của user (nếu có)
                 AnswerDetail answerDetail = request.getAnswers().stream()
                         .filter(a -> {
                             if (a.getQuestionNumber() == null || questionNumberStr == null) {
@@ -128,25 +127,32 @@ public class IeltsAnswerServiceImpl extends AbstractAnswerServiceImpl {
 
                 System.out.println("Answer found: " + (answerDetail != null));
 
-                if (answerDetail != null) {
-                    System.out.println("Processing answer for question " + questionNumberStr);
+                // ✅ Lấy correctAnswer từ question
+                Map<String, Object> questionContentMap = question.getContent();
+                String correctAnswer = (String) questionContentMap.get("correctAnswer");
+                String normalizedCorrectAnswer = normalizeText(correctAnswer);
 
-                    Map<String, Object> questionContentMap = question.getContent();
-                    String correctAnswer = (String) questionContentMap.get("correctAnswer");
-                    String normalizedAnswerContent = normalizeText(answerDetail.getAnswerContent());
-                    String normalizedCorrectAnswer = normalizeText(correctAnswer);
+                // ✅ Xử lý answer content và tính điểm
+                String normalizedAnswerContent = null;
+                Boolean isCorrect = null;
+                Answer savedAnswer = null;
+
+                if (answerDetail != null) {
+                    // User đã trả lời câu này
+                    normalizedAnswerContent = normalizeText(answerDetail.getAnswerContent());
 
                     System.out.println("User answer (normalized): '" + normalizedAnswerContent + "'");
                     System.out.println("Correct answer (normalized): '" + normalizedCorrectAnswer + "'");
 
                     // So sánh sau khi đã normalize cả 2
-                    boolean isCorrect = normalizedAnswerContent.equals(normalizedCorrectAnswer);
+                    isCorrect = normalizedAnswerContent.equals(normalizedCorrectAnswer);
                     System.out.println("Is correct: " + isCorrect);
 
                     if (isCorrect) {
                         correctAnswers++;
                     }
 
+                    // Lưu answer vào DB
                     Answer answer = Answer.builder()
                             .attemptSection(attemptSection)
                             .question(questionRepository.findById(question.getId())
@@ -156,24 +162,40 @@ public class IeltsAnswerServiceImpl extends AbstractAnswerServiceImpl {
                             .createAt(LocalDateTime.now())
                             .build();
 
-                    // Lưu Answer vào DB
-                    Answer savedAnswer = answerRepository.save(answer);
+                    savedAnswer = answerRepository.save(answer);
                     System.out.println("Saved answer with ID: " + savedAnswer.getId());
+                } else {
+                    // User KHÔNG trả lời câu này
+                    System.out.println("⚠️ NO ANSWER PROVIDED for question " + questionNumberStr);
 
-                    IeltsAnswerResponse response = IeltsAnswerResponse.builder()
-                            .id(savedAnswer.getId())
-                            .attemptSectionId(attemptSection.getId())
-                            .questionId(question.getId())
-                            .answerContent(normalizedAnswerContent)
-                            .correctAnswer(normalizedCorrectAnswer)
-                            .isCorrect(isCorrect)
+                    // Vẫn lưu vào DB nhưng với answerContent = null, isCorrect = false
+                    Answer answer = Answer.builder()
+                            .attemptSection(attemptSection)
+                            .question(questionRepository.findById(question.getId())
+                                    .orElseThrow(() -> new RuntimeException("Question not found")))
+                            .answerContent(null)
+                            .isCorrect(false)
                             .createAt(LocalDateTime.now())
                             .build();
 
-                    allResponses.add(response);
-                } else {
-                    System.out.println("⚠️ NO ANSWER FOUND for question " + questionNumberStr);
+                    savedAnswer = answerRepository.save(answer);
+                    System.out.println("Saved empty answer with ID: " + savedAnswer.getId());
+
+                    isCorrect = false;
                 }
+
+                // ✅ LUÔN tạo response cho MỌI câu hỏi (có answer hay không)
+                IeltsAnswerResponse response = IeltsAnswerResponse.builder()
+                        .id(savedAnswer.getId())
+                        .attemptSectionId(attemptSection.getId())
+                        .questionId(question.getId())
+                        .answerContent(normalizedAnswerContent) // null nếu user không trả lời
+                        .correctAnswer(normalizedCorrectAnswer) // luôn hiển thị đáp án đúng
+                        .isCorrect(isCorrect)
+                        .createAt(LocalDateTime.now())
+                        .build();
+
+                allResponses.add(response);
             }
         }
 
@@ -202,6 +224,112 @@ public class IeltsAnswerServiceImpl extends AbstractAnswerServiceImpl {
                 .responses(allResponses)
                 .build();
     }
+    public TestResultResponseDTO getAttemptAnswers(UUID attemptId, UUID userId) {
+        System.out.println("========== GET ATTEMPT ANSWERS START ==========");
+        System.out.println("Attempt ID: " + attemptId);
+        System.out.println("User ID: " + userId);
+
+        // Lấy Attempt từ database
+        Attempt attempt = attemptRepository.findById(attemptId)
+                .orElseThrow(() -> new RuntimeException("Attempt not found"));
+
+        // Kiểm tra quyền sở hữu
+        if (!attempt.getUser().getId().equals(userId)) {
+            throw new RuntimeException("You are not the owner of this attempt");
+        }
+
+        // Kiểm tra attempt đã submit chưa
+        if (attempt.getStatus() != Status.ENDED) {
+            throw new RuntimeException("Attempt has not been submitted yet");
+        }
+
+        System.out.println("Attempt status: " + attempt.getStatus());
+        System.out.println("Total score: " + attempt.getScore());
+        System.out.println("Band score: " + attempt.getOverallBand());
+
+        // Lấy tất cả attemptSection của attempt này
+        List<AttemptSection> attemptSections = attemptSectionRepository.findByAttemptId(attemptId);
+        System.out.println("Total attemptSections: " + attemptSections.size());
+
+        List<IeltsAnswerResponse> allResponses = new ArrayList<>();
+
+        // Lặp qua từng section mà user đã chọn làm
+        for (AttemptSection attemptSection : attemptSections) {
+            UUID sectionId = attemptSection.getSection().getId();
+            System.out.println("\n--- Processing Section: " + sectionId + " ---");
+
+            // Lấy tất cả câu hỏi của section
+            List<QuestionResponse> questions = questionService.getAllQuestionsBySectionId(sectionId);
+            System.out.println("Total questions in section: " + questions.size());
+
+            // Lấy tất cả answers của attemptSection này từ DB
+            List<Answer> savedAnswers = answerRepository.findByAttemptSectionId(attemptSection.getId());
+            System.out.println("Total saved answers: " + savedAnswers.size());
+
+            // Lặp qua tất cả câu hỏi
+            for (QuestionResponse question : questions) {
+                System.out.println("\nProcessing Question ID: " + question.getId());
+
+                // Tìm answer tương ứng với question này
+                Answer answer = savedAnswers.stream()
+                        .filter(a -> a.getQuestion().getId().equals(question.getId()))
+                        .findFirst()
+                        .orElse(null);
+
+                // Lấy correctAnswer từ question
+                Map<String, Object> questionContentMap = question.getContent();
+                String correctAnswer = (String) questionContentMap.get("correctAnswer");
+                String normalizedCorrectAnswer = normalizeText(correctAnswer);
+
+                if (answer != null) {
+                    System.out.println("Found answer - ID: " + answer.getId());
+                    System.out.println("Answer content: " + answer.getAnswerContent());
+                    System.out.println("Is correct: " + answer.isCorrect());
+
+                    // Tạo response từ answer đã lưu
+                    IeltsAnswerResponse response = IeltsAnswerResponse.builder()
+                            .id(answer.getId())
+                            .attemptSectionId(attemptSection.getId())
+                            .questionId(question.getId())
+                            .answerContent(answer.getAnswerContent()) // có thể null nếu user không trả lời
+                            .correctAnswer(normalizedCorrectAnswer)
+                            .isCorrect(answer.isCorrect())
+                            .createAt(answer.getCreateAt())
+                            .build();
+
+                    allResponses.add(response);
+                } else {
+                    // Trường hợp không tìm thấy answer (có thể do data inconsistency)
+                    System.out.println("⚠️ WARNING: No answer found for question " + question.getId());
+
+                    // Vẫn tạo response nhưng với thông tin rỗng
+                    IeltsAnswerResponse response = IeltsAnswerResponse.builder()
+                            .id(null)
+                            .attemptSectionId(attemptSection.getId())
+                            .questionId(question.getId())
+                            .answerContent(null)
+                            .correctAnswer(normalizedCorrectAnswer)
+                            .isCorrect(false)
+                            .createAt(LocalDateTime.now())
+                            .build();
+
+                    allResponses.add(response);
+                }
+            }
+        }
+
+        System.out.println("\n========== SUMMARY ==========");
+        System.out.println("Total responses: " + allResponses.size());
+        System.out.println("========== GET ATTEMPT ANSWERS END ==========\n");
+
+        // Trả về kết quả giống như khi chấm điểm
+        return TestResultResponseDTO.builder()
+                .testId(attempt.getTest().getId())
+                .totalScore(attempt.getScore())
+                .bandScore(attempt.getOverallBand() != null ? attempt.getOverallBand() : 1.0)
+                .responses(allResponses)
+                .build();
+    }
 
     // XÓA method updateAttempt trùng lặp - chỉ giữ lại 1 method này
     private void updateAttempt(UUID attemptId, int score, Double bandScore) {
@@ -222,23 +350,24 @@ public class IeltsAnswerServiceImpl extends AbstractAnswerServiceImpl {
 
     // Method to calculate IELTS band score based on correct answers
     private double calculateBandScore(int score, UUID testId) {
-        double bandScore = 0.0;
-
-        // Adjust these ranges as necessary based on your scoring system
-        if (score >= 39) bandScore = 9;
-        else if (score >= 37) bandScore = 8.5;
-        else if (score >= 35) bandScore = 8;
-        else if (score >= 33) bandScore = 7.5;
-        else if (score >= 30) bandScore = 7;
-        else if (score >= 27) bandScore = 6.5;
-        else if (score >= 23) bandScore = 6;
-        else if (score >= 19) bandScore = 5.5;
-        else if (score >= 15) bandScore = 5;
-        else if (score >= 10) bandScore = 4.5;
-        else bandScore = 4;
-
-        return bandScore;
+        if (score >= 39) return 9.0;
+        else if (score >= 37) return 8.5;
+        else if (score >= 35) return 8.0;
+        else if (score >= 32) return 7.5;
+        else if (score >= 30) return 7.0;
+        else if (score >= 26) return 6.5;
+        else if (score >= 23) return 6.0;
+        else if (score >= 18) return 5.5;
+        else if (score >= 16) return 5.0;
+        else if (score >= 13) return 4.5;
+        else if (score >= 10) return 4.0;
+        else if (score >= 7)  return 3.5;
+        else if (score >= 5)  return 3.0;
+        else if (score >= 3)  return 2.5;
+        else if (score >= 1)  return 2.0;
+        else return 1.0; // score == 0
     }
+
 
 
 
