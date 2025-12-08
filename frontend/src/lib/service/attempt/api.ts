@@ -3,6 +3,7 @@ import { deserialize, fetchWrapper, throwIfError } from '..';
 import { toast } from 'sonner';
 import {
     Attempt,
+    AttemptDetail,
     AttemptHistoryItem,
     AttemptTest,
     BandScoreResponse,
@@ -162,5 +163,17 @@ export const useGetAttemptHistory = (userId: string) => {
 
             return history;
         },
+    });
+};
+
+export const useGetAttemptDetail = (id: string) => {
+    return useQuery({
+        queryKey: ['history', id],
+        queryFn: async () => {
+            const response = await fetchWrapper(`/attempts/${id}/detail`);
+            return await deserialize<AttemptDetail>(response);
+        },
+        staleTime: Infinity,
+        refetchOnWindowFocus: true,
     });
 };

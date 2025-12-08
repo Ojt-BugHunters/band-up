@@ -78,3 +78,34 @@ export type AttemptHistoryItem = {
     attempt: Attempt;
     test: AttemptTest;
 };
+
+export type AttemptAnswer = {
+    questionNumber: number;
+    answerContent: string;
+    correctAnswer: string;
+    correct: boolean;
+    answerId: string;
+};
+
+export type Section = {
+    title: string;
+    orderIndex: number;
+    timeLimitSeconds: number;
+    metadata: string;
+    cloudfrontUrl: string | null;
+    answers: AttemptAnswer[];
+    sectionId: string;
+};
+
+export type AttemptSections = {
+    attemptSectionId: string;
+    sections: Section[];
+};
+
+export type AttemptDetail = {
+    attemptId: string;
+    testId: string;
+    testTitle: string;
+    testSkillName: string;
+    attemptSections: AttemptSections[];
+};
