@@ -86,6 +86,7 @@ export default function ReadingPassage({
 
     return (
         <div className="relative flex h-full flex-col">
+            {/* Header */}
             <div className="m-4 ml-6 flex items-center justify-between gap-2">
                 <h2 className="text-2xl font-bold text-balance">{title}</h2>
 
@@ -103,8 +104,10 @@ export default function ReadingPassage({
                 </button>
             </div>
 
-            <div className="grid h-[calc(30%-80px)] grid-cols-2 p-0">
-                <ScrollArea className="custom-scrollbar h-full overflow-scroll">
+            {/* Nội dung passage + questions */}
+            <div className="grid min-h-0 flex-1 grid-cols-2 overflow-hidden p-0">
+                {/* Passage */}
+                <ScrollArea className="custom-scrollbar h-full overflow-x-hidden overflow-y-auto">
                     <div className="col-span-1 space-y-4 p-6 select-none">
                         {paragraphsTokens.map((tokens, pIndex) => (
                             <p
@@ -157,20 +160,20 @@ export default function ReadingPassage({
                         ))}
                     </div>
                 </ScrollArea>
-                <div className="col-span-1">
+
+                {/* Questions bên phải */}
+                <div className="col-span-1 h-full overflow-hidden border-l p-0">
                     {questionsHtml && (
-                        <div className="h-full border-l p-0">
-                            <ScrollArea className="custom-scrollbar h-full overflow-scroll">
-                                <div className="space-y-4 p-6">
-                                    <div
-                                        className="questions-section"
-                                        dangerouslySetInnerHTML={{
-                                            __html: questionsHtml,
-                                        }}
-                                    />
-                                </div>
-                            </ScrollArea>
-                        </div>
+                        <ScrollArea className="custom-scrollbar h-full overflow-x-hidden overflow-y-auto">
+                            <div className="space-y-4 p-6">
+                                <div
+                                    className="questions-section"
+                                    dangerouslySetInnerHTML={{
+                                        __html: questionsHtml,
+                                    }}
+                                />
+                            </div>
+                        </ScrollArea>
                     )}
                 </div>
             </div>

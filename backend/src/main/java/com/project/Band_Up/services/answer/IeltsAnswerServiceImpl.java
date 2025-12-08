@@ -1,11 +1,9 @@
 package com.project.Band_Up.services.answer;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.project.Band_Up.dtos.answer.AnswerCreateRequest;
-import com.project.Band_Up.dtos.answer.AnswerDetail;
-import com.project.Band_Up.dtos.answer.DictationAnswerResponse;
-import com.project.Band_Up.dtos.answer.IeltsAnswerResponse;
+import com.project.Band_Up.dtos.answer.*;
 import com.project.Band_Up.dtos.attempt.TestResultResponseDTO;
+import com.project.Band_Up.dtos.media.UploadInfo;
 import com.project.Band_Up.dtos.question.QuestionContent;
 import com.project.Band_Up.dtos.question.QuestionResponse;
 import com.project.Band_Up.dtos.section.SectionResponse;
@@ -13,9 +11,11 @@ import com.project.Band_Up.entities.*;
 import com.project.Band_Up.enums.Status;
 import com.project.Band_Up.repositories.*;
 import com.project.Band_Up.services.attempt.AttemptService;
+import com.project.Band_Up.services.awsService.S3Service;
 import com.project.Band_Up.services.question.QuestionService;
 import com.project.Band_Up.services.section.SectionService;
 import org.modelmapper.ModelMapper;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
@@ -33,6 +33,7 @@ public class IeltsAnswerServiceImpl extends AbstractAnswerServiceImpl {
     protected final AttemptRepository attemptRepository;
     private final AccountRepository accountRepository;
     private final AttemptService attemptService;
+    private final S3Service s3Service;
 
     public IeltsAnswerServiceImpl(
             AnswerRepository answerRepository,
@@ -45,7 +46,8 @@ public class IeltsAnswerServiceImpl extends AbstractAnswerServiceImpl {
             QuestionService questionService,
             AttemptRepository attemptRepository,
             AccountRepository accountRepository,
-            AttemptService attemptService
+            AttemptService attemptService,
+            S3Service s3Service
     ) {
         super(answerRepository, attemptSectionRepository, questionRepository, modelMapper, objectMapper);
         this.testRepository = testRepository;
@@ -54,7 +56,13 @@ public class IeltsAnswerServiceImpl extends AbstractAnswerServiceImpl {
         this.attemptRepository = attemptRepository;
         this.accountRepository = accountRepository;
         this.attemptService = attemptService;
+        this.s3Service = s3Service;
     }
+    @Value("${aws.s3.bucket.speaking.audio}")
+    private String speakingAudioBucket;
+
+    private static final String DEFAULT_AUDIO_CONTENT_TYPE = "audio/mpeg";
+
 
     public TestResultResponseDTO submitIeltsAnswerForTest(UUID attemptId, AnswerCreateRequest request, UUID userId) {
         // Lấy Attempt từ database bằng attemptId
@@ -377,6 +385,231 @@ public class IeltsAnswerServiceImpl extends AbstractAnswerServiceImpl {
         normalizedText = normalizedText.replaceAll("[^a-z0-9\\s]", "");
         normalizedText = normalizedText.trim().replaceAll("\\s+", " ");
         return normalizedText;
+    }
+
+
+    public IeltsAnswerResponse saveWritingAnswer(UUID attemptSectionId, UUID questionId, String answerContent, UUID userId) {
+        System.out.println("========== SAVE WRITING ANSWER START ==========");
+        System.out.println("AttemptSection ID: " + attemptSectionId);
+        System.out.println("Question ID: " + questionId);
+        System.out.println("User ID: " + userId);
+        System.out.println("Answer content length: " + (answerContent != null ? answerContent.length() : 0));
+
+        // 1. Validate AttemptSection exists
+        AttemptSection attemptSection = attemptSectionRepository.findById(attemptSectionId)
+                .orElseThrow(() -> new RuntimeException("AttemptSection not found with ID: " + attemptSectionId));
+
+        // 2. Check if user owns this attempt
+        if (!attemptSection.getAttempt().getUser().getId().equals(userId)) {
+            throw new RuntimeException("You are not the owner of this attempt");
+        }
+
+        // 3. Check if attempt is still in progress (not submitted)
+        if (attemptSection.getAttempt().getStatus() == Status.ENDED) {
+            throw new RuntimeException("Cannot save answer. Attempt has already been submitted.");
+        }
+
+        // 4. Validate Question exists
+        Question question = questionRepository.findById(questionId)
+                .orElseThrow(() -> new RuntimeException("Question not found with ID: " + questionId));
+
+        System.out.println("Question type: " + question.getContent().get("questionType"));
+
+        // 5. Check if answer already exists for this attemptSection and question
+        Answer existingAnswer = answerRepository.findByAttemptSection_IdAndQuestion_Id(attemptSectionId, questionId);
+
+        Answer savedAnswer;
+
+        if (existingAnswer != null) {
+            // Update existing answer
+            System.out.println("Updating existing answer with ID: " + existingAnswer.getId());
+            existingAnswer.setAnswerContent(answerContent);
+            existingAnswer.setCreateAt(LocalDateTime.now());
+            savedAnswer = answerRepository.save(existingAnswer);
+            System.out.println("Updated existing answer");
+        } else {
+            // Create new answer
+            System.out.println("Creating new answer");
+            Answer newAnswer = Answer.builder()
+                    .attemptSection(attemptSection)
+                    .question(question)
+                    .answerContent(answerContent)
+                    .isCorrect(true) // Will be set after AI evaluation
+                    .createAt(LocalDateTime.now())
+                    .build();
+
+            savedAnswer = answerRepository.save(newAnswer);
+            System.out.println("Created new answer with ID: " + savedAnswer.getId());
+        }
+
+        // 6. Build response (without correctAnswer and isCorrect since not evaluated yet)
+        IeltsAnswerResponse response = IeltsAnswerResponse.builder()
+                .id(savedAnswer.getId())
+                .attemptSectionId(attemptSectionId)
+                .questionId(questionId)
+                .answerContent(savedAnswer.getAnswerContent())
+                .correctAnswer(null) // Not evaluated yet
+                .isCorrect(false) // Default to false, will be updated after AI evaluation
+                .createAt(savedAnswer.getCreateAt())
+                .build();
+
+        System.out.println("========== SAVE WRITING ANSWER END ==========\n");
+
+        return response;
+    }
+
+
+
+
+    public S3SpeakingUploadUrl generateSpeakingUploadUrl(
+            SaveSpeakingAnswerRequest request,
+            UUID attemptSectionId,
+            UUID userId) {
+
+        System.out.println("========== GENERATE SPEAKING UPLOAD URL START ==========");
+        System.out.println("AttemptSection ID: " + attemptSectionId);
+        System.out.println("User ID: " + userId);
+        System.out.println("Audio name: " + request.getAudioName());
+
+        try {
+            // 1. Validate AttemptSection exists
+            AttemptSection attemptSection = attemptSectionRepository.findById(attemptSectionId)
+                    .orElseThrow(() -> new RuntimeException("AttemptSection not found with ID: " + attemptSectionId));
+
+            // 2. Check if user owns this attempt
+            if (!attemptSection.getAttempt().getUser().getId().equals(userId)) {
+                throw new RuntimeException("You are not the owner of this attempt");
+            }
+
+            // 3. Check if attempt is still in progress (not submitted)
+            if (attemptSection.getAttempt().getStatus() == Status.ENDED) {
+                throw new RuntimeException("Cannot generate upload URL. Attempt has already been submitted.");
+            }
+
+//            // 4. Validate Question exists
+//            Question question = questionRepository.findById(questionId)
+//                    .orElseThrow(() -> new RuntimeException("Question not found with ID: " + questionId));
+//
+//            System.out.println("Question type: " + question.getContent().get("questionType"));
+
+
+            // 5. Tạo key cho S3: speaking-audios/{userId}/{attemptSectionId}/{uuid}-{audioName}
+            String s3Key = String.format("speaking-audios/%s/%s/%s-%s",
+                    userId.toString(),
+                    attemptSectionId.toString(),
+                    UUID.randomUUID().toString(),
+                    sanitizeFileName(request.getAudioName()));
+
+            System.out.println("Generated S3 key: " + s3Key);
+
+            // 6. Tạo presigned URL
+            UploadInfo uploadInfo = s3Service.createUploadPresignedUrl(s3Key, DEFAULT_AUDIO_CONTENT_TYPE);
+
+            System.out.println("Presigned URL generated successfully");
+            System.out.println("Expires at: " + uploadInfo.getExpiresAt());
+            System.out.println("========== GENERATE SPEAKING UPLOAD URL END ==========\n");
+
+            return S3SpeakingUploadUrl.builder()
+                    .uploadUrl(uploadInfo.getPresignedUrl())
+                    .build();
+
+        } catch (Exception e) {
+            System.err.println("Failed to generate presigned URL: " + e.getMessage());
+            e.printStackTrace();
+            throw new RuntimeException("Failed to generate upload URL for speaking audio", e);
+        }
+    }
+
+    /**
+     * Lưu speaking answer với S3 audio URL vào database
+     */
+    public AnswerSpeakingResponse saveSpeakingAnswer(
+            UUID attemptSectionId,
+            String audioName,
+            UUID userId) {
+
+        try {
+            // 1. Validate AttemptSection exists
+            AttemptSection attemptSection = attemptSectionRepository.findById(attemptSectionId)
+                    .orElseThrow(() -> new RuntimeException("AttemptSection not found with ID: " + attemptSectionId));
+
+            // 2. Check if user owns this attempt
+            if (!attemptSection.getAttempt().getUser().getId().equals(userId)) {
+                throw new RuntimeException("You are not the owner of this attempt");
+            }
+
+            // 3. Check if attempt is still in progress (not submitted)
+            if (attemptSection.getAttempt().getStatus() == Status.ENDED) {
+                throw new RuntimeException("Cannot save answer. Attempt has already been submitted.");
+            }
+
+//            // 4. Validate Question exists
+//            Question question = questionRepository.findById(questionId)
+//                    .orElseThrow(() -> new RuntimeException("Question not found with ID: " + questionId));
+
+
+            // 5. Check if answer already exists for this attemptSection and question
+            Answer existingAnswer = answerRepository.findByAttemptSection_Id(attemptSectionId);
+
+            Answer savedAnswer;
+
+            String cleanKey = audioName.startsWith("/") ? audioName.substring(1) : audioName;
+            String s3Uri = String.format("s3://%s/%s", speakingAudioBucket, cleanKey);
+            System.out.println("Formatted S3 URI to save: " + s3Uri);
+
+            if (existingAnswer != null) {
+                // Update existing answer
+                System.out.println("Updating existing answer with ID: " + existingAnswer.getId());
+                existingAnswer.setS3AudioUrl(s3Uri);
+                existingAnswer.setCreateAt(LocalDateTime.now());
+                savedAnswer = answerRepository.save(existingAnswer);
+                System.out.println("Updated existing answer");
+            } else {
+                // Create new answer
+                System.out.println("Creating new answer");
+                Answer newAnswer = Answer.builder()
+                        .attemptSection(attemptSection)
+                        .answerContent(null) // Speaking answer không có text content
+                        .s3AudioUrl(s3Uri)
+                        .isCorrect(true) // Sẽ được set sau khi AI evaluation
+                        .createAt(LocalDateTime.now())
+                        .build();
+
+                savedAnswer = answerRepository.save(newAnswer);
+                System.out.println("Created new answer with ID: " + savedAnswer.getId());
+            }
+
+            // 6. Build response
+//            String questionContent = (String) question.getContent().get("questionContent");
+
+            AnswerSpeakingResponse response = AnswerSpeakingResponse.builder()
+                    .AnswerId(savedAnswer.getId())
+                    .questionContent(null)
+                    .answerContent(null) // Speaking không có text content
+                    .s3Key(savedAnswer.getS3AudioUrl())
+                    .build();
+
+            System.out.println("Response created with Answer ID: " + response.getAnswerId());
+            System.out.println("========== SAVE SPEAKING ANSWER END ==========\n");
+
+            return response;
+
+        } catch (Exception e) {
+            System.err.println("Failed to save speaking answer: " + e.getMessage());
+            e.printStackTrace();
+            throw new RuntimeException("Failed to save speaking answer", e);
+        }
+    }
+
+    /**
+     * Helper method: Làm sạch tên file để tránh các ký tự đặc biệt
+     */
+    private String sanitizeFileName(String fileName) {
+        if (fileName == null) {
+            return "audio.mp3";
+        }
+        // Loại bỏ các ký tự đặc biệt, chỉ giữ lại chữ, số, dấu chấm và gạch ngang
+        return fileName.replaceAll("[^a-zA-Z0-9.\\-]", "_");
     }
 }
 
