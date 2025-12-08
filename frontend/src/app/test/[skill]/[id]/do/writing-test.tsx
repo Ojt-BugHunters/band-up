@@ -11,6 +11,8 @@ import WritingEditor from './writing-editor';
 import { NotFound } from '@/components/not-found';
 import { useGetWritingWithQuestions } from '@/lib/service/test/question';
 import LiquidLoading from '@/components/ui/liquid-loader';
+import { toast } from 'sonner';
+import { useSubmitWritingTest } from '@/lib/service/attempt';
 
 type WritingTestProps = {
     mode?: string;
@@ -126,8 +128,57 @@ export function WritingTest({
             answered++;
         return answered;
     };
+    const { mutate: submitTest, isPending: isSubmitting } =
+        useSubmitWritingTest();
 
-    const handleSubmit = () => {};
+    const handleSubmit = () => {
+        const submissionData = availableTasks.map((task) => {
+            const isTask1 = task.title.toLowerCase().includes('task 1');
+            const taskNumber = isTask1 ? 1 : 2;
+
+            const content = isTask1 ? task1Response : task2Response;
+            const questionId = task.questions?.[0]?.id;
+            const attemptSectionId = questionId
+                ? localStorage.getItem(questionId)
+                : null;
+
+            // Lưu mapping lẻ để dùng cho trang Result (như logic cũ của bạn)
+            if (questionId) {
+                localStorage.setItem(`question-${taskNumber}`, questionId);
+            }
+
+            return {
+                taskTitle: task.title,
+                questionId: questionId!,
+                attemptSectionId: attemptSectionId!,
+                content: content, // <--- Đây chính là data người dùng nhập
+            };
+        });
+
+        // --- CÔNG VIỆC 2: Kiểm tra (Logging) ---
+        console.log('📦 Dữ liệu chuẩn bị nộp:', submissionData);
+
+        // --- CÔNG VIỆC 3: Lưu Backup vào LocalStorage (YÊU CẦU MỚI) ---
+        // Lưu nguyên mảng submissionData vào key 'submitted_answers'
+        localStorage.setItem(
+            'submitted_answers',
+            JSON.stringify(submissionData),
+        );
+
+        // --- CÔNG VIỆC 4: Validate (Kiểm tra lỗi) ---
+        // Đảm bảo không gửi đi dữ liệu thiếu ID quan trọng
+        const isMissingIds = submissionData.some(
+            (d) => !d.questionId || !d.attemptSectionId,
+        );
+        if (isMissingIds) {
+            toast.error('Lỗi dữ liệu hệ thống. Vui lòng tải lại trang.');
+            return;
+        }
+
+        // --- CÔNG VIỆC 5: Gọi API (Submit) ---
+        // Gọi Mutation để bắn dữ liệu lên Server
+        submitTest(submissionData);
+    };
 
     const getUnansweredQuestions = () => {
         const unanswered = [];
@@ -177,7 +228,7 @@ export function WritingTest({
     const setCurrentResponse =
         currentTask === 'Writing Task 1' ? setTask1Response : setTask2Response;
 
-    if (isPassageLoading) {
+    if (isPassageLoading || isSubmitting) {
         return (
             <div className="bg-background flex min-h-screen w-full items-center justify-center rounded-lg border p-4">
                 <LiquidLoading />

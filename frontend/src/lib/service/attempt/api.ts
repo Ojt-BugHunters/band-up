@@ -10,7 +10,10 @@ import {
     CreateAttemptResponse,
     CreateAttemptSectionResponse,
     SubmitAnswerParams,
+    SubmitResponse,
+    WritingSubmission,
 } from './type';
+import { useRouter } from 'next/navigation';
 
 export function useCreateAttempt() {
     return useMutation({
@@ -181,3 +184,41 @@ export const useGetAttemptDetail = (id: string) => {
         refetchOnWindowFocus: true,
     });
 };
+
+export function useSubmitWritingTest() {
+    const router = useRouter();
+
+    return useMutation({
+        mutationFn: async (submissions: WritingSubmission[]) => {
+            const promises = submissions.map(async (sub) => {
+                const url = `/answers/writing/${sub.attemptSectionId}/${sub.questionId}/save`;
+
+                const response = await fetchWrapper(url, {
+                    method: 'POST',
+                    headers: {
+                        Accept: 'application/json',
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        answerContent: sub.content,
+                    }),
+                });
+
+                await throwIfError(response);
+                return response.json() as Promise<SubmitResponse>;
+            });
+
+            const results = await Promise.all(promises);
+            return results;
+        },
+        onError: (error) => {
+            console.error(error);
+            toast.error(error?.message ?? 'Fail to submit writing test');
+        },
+        onSuccess: (data) => {
+            toast.success('Submitted successfully!');
+            const ids = data.map((item) => item.id).join(',');
+            router.push(`/writing-result/${ids}`);
+        },
+    });
+}
