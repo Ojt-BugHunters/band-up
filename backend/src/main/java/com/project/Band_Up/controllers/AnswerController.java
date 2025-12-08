@@ -3,6 +3,7 @@ package com.project.Band_Up.controllers;
 import com.project.Band_Up.dtos.answer.AnswerCreateRequest;
 import com.project.Band_Up.dtos.answer.DictationAnswerResponse;
 import com.project.Band_Up.dtos.answer.IeltsAnswerResponse;
+import com.project.Band_Up.dtos.answer.SaveWritingAnswerRequest;
 import com.project.Band_Up.dtos.attempt.TestResultResponseDTO;
 //import com.project.Band_Up.services.answer.DictationAnswerServiceImpl;
 import com.project.Band_Up.entities.Account;
@@ -148,6 +149,43 @@ public class    AnswerController {
     ) {
         TestResultResponseDTO result = ieltsAnswerService.getAttemptAnswers(attemptId, userDetails.getAccountId());
         return ResponseEntity.ok(result);
+    }
+
+    @Operation(
+            summary = "Save writing answer before AI evaluation",
+            description = "Save the user's essay content before submitting for AI scoring. This allows users to save their work in progress.",
+            parameters = {
+                    @Parameter(name = "attemptSectionId", description = "ID of the attempt section", required = true),
+                    @Parameter(name = "questionId", description = "ID of the writing question", required = true)
+            },
+            requestBody = @io.swagger.v3.oas.annotations.parameters.RequestBody(
+                    description = "User's essay content",
+                    required = true,
+                    content = @Content(schema = @Schema(implementation = SaveWritingAnswerRequest.class))
+            ),
+            responses = {
+                    @ApiResponse(responseCode = "200", description = "Answer saved successfully",
+                            content = @Content(mediaType = "application/json",
+                                    schema = @Schema(implementation = IeltsAnswerResponse.class))),
+                    @ApiResponse(responseCode = "400", description = "Invalid data or attempt already submitted"),
+                    @ApiResponse(responseCode = "403", description = "User does not own this attempt"),
+                    @ApiResponse(responseCode = "404", description = "AttemptSection or Question not found")
+            }
+    )
+    @PostMapping("/writing/{attemptSectionId}/{questionId}/save")
+    public ResponseEntity<IeltsAnswerResponse> saveWritingAnswer(
+            @PathVariable UUID attemptSectionId,
+            @PathVariable UUID questionId,
+            @RequestBody SaveWritingAnswerRequest request,
+            @AuthenticationPrincipal JwtUserDetails userDetails
+    ) {
+        IeltsAnswerResponse response = ieltsAnswerService.saveWritingAnswer(
+                attemptSectionId,
+                questionId,
+                request.getAnswerContent(),
+                userDetails.getAccountId()
+        );
+        return ResponseEntity.ok(response);
     }
 
 }
