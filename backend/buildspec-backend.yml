@@ -2,9 +2,9 @@ version: 0.2
 
 env:
   variables:
-    AWS_ACCOUNT_ID: "243826067806"
+    AWS_ACCOUNT_ID: "060351707729"
     AWS_DEFAULT_REGION: "ap-southeast-1"
-    BACKEND_ECR_NAME: "bandup/backend"
+    BACKEND_ECR_NAME: "bandup-backend"
 
 phases:
   pre_build:
@@ -22,7 +22,7 @@ phases:
       - echo Pushing the Docker image...
       - docker push $BACKEND_ECR_REPO:$CODEBUILD_RESOLVED_SOURCE_VERSION
       - cd ..
-      - printf '[{"name":"bandup-backend","imageUri":"%s"}]' "$BACKEND_ECR_REPO:$CODEBUILD_RESOLVED_SOURCE_VERSION" > backend-imagedefinitions.json
+      - printf '[{"name":"bandup-be-container","imageUri":"%s"}]' "$BACKEND_ECR_REPO:$CODEBUILD_RESOLVED_SOURCE_VERSION" > backend-imagedefinitions.json
 
   post_build:
     commands:
