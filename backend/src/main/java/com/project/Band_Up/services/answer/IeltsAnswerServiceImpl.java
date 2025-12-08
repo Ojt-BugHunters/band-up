@@ -464,12 +464,10 @@ public class IeltsAnswerServiceImpl extends AbstractAnswerServiceImpl {
     public S3SpeakingUploadUrl generateSpeakingUploadUrl(
             SaveSpeakingAnswerRequest request,
             UUID attemptSectionId,
-            UUID questionId,
             UUID userId) {
 
         System.out.println("========== GENERATE SPEAKING UPLOAD URL START ==========");
         System.out.println("AttemptSection ID: " + attemptSectionId);
-        System.out.println("Question ID: " + questionId);
         System.out.println("User ID: " + userId);
         System.out.println("Audio name: " + request.getAudioName());
 
@@ -488,18 +486,17 @@ public class IeltsAnswerServiceImpl extends AbstractAnswerServiceImpl {
                 throw new RuntimeException("Cannot generate upload URL. Attempt has already been submitted.");
             }
 
-            // 4. Validate Question exists
-            Question question = questionRepository.findById(questionId)
-                    .orElseThrow(() -> new RuntimeException("Question not found with ID: " + questionId));
+//            // 4. Validate Question exists
+//            Question question = questionRepository.findById(questionId)
+//                    .orElseThrow(() -> new RuntimeException("Question not found with ID: " + questionId));
+//
+//            System.out.println("Question type: " + question.getContent().get("questionType"));
 
-            System.out.println("Question type: " + question.getContent().get("questionType"));
 
-
-            // 5. Tạo key cho S3: speaking-audios/{userId}/{attemptSectionId}/{questionId}/{uuid}-{audioName}
-            String s3Key = String.format("speaking-audios/%s/%s/%s/%s-%s",
+            // 5. Tạo key cho S3: speaking-audios/{userId}/{attemptSectionId}/{uuid}-{audioName}
+            String s3Key = String.format("speaking-audios/%s/%s/%s-%s",
                     userId.toString(),
                     attemptSectionId.toString(),
-                    questionId.toString(),
                     UUID.randomUUID().toString(),
                     sanitizeFileName(request.getAudioName()));
 
@@ -528,7 +525,6 @@ public class IeltsAnswerServiceImpl extends AbstractAnswerServiceImpl {
      */
     public AnswerSpeakingResponse saveSpeakingAnswer(
             UUID attemptSectionId,
-            UUID questionId,
             String audioName,
             UUID userId) {
 
@@ -547,14 +543,13 @@ public class IeltsAnswerServiceImpl extends AbstractAnswerServiceImpl {
                 throw new RuntimeException("Cannot save answer. Attempt has already been submitted.");
             }
 
-            // 4. Validate Question exists
-            Question question = questionRepository.findById(questionId)
-                    .orElseThrow(() -> new RuntimeException("Question not found with ID: " + questionId));
+//            // 4. Validate Question exists
+//            Question question = questionRepository.findById(questionId)
+//                    .orElseThrow(() -> new RuntimeException("Question not found with ID: " + questionId));
 
-            System.out.println("Question type: " + question.getContent().get("questionType"));
 
             // 5. Check if answer already exists for this attemptSection and question
-            Answer existingAnswer = answerRepository.findByAttemptSection_IdAndQuestion_Id(attemptSectionId, questionId);
+            Answer existingAnswer = answerRepository.findByAttemptSection_Id(attemptSectionId);
 
             Answer savedAnswer;
 
@@ -574,7 +569,6 @@ public class IeltsAnswerServiceImpl extends AbstractAnswerServiceImpl {
                 System.out.println("Creating new answer");
                 Answer newAnswer = Answer.builder()
                         .attemptSection(attemptSection)
-                        .question(question)
                         .answerContent(null) // Speaking answer không có text content
                         .s3AudioUrl(s3Uri)
                         .isCorrect(true) // Sẽ được set sau khi AI evaluation
@@ -586,11 +580,11 @@ public class IeltsAnswerServiceImpl extends AbstractAnswerServiceImpl {
             }
 
             // 6. Build response
-            String questionContent = (String) question.getContent().get("questionContent");
+//            String questionContent = (String) question.getContent().get("questionContent");
 
             AnswerSpeakingResponse response = AnswerSpeakingResponse.builder()
                     .AnswerId(savedAnswer.getId())
-                    .questionContent(questionContent)
+                    .questionContent(null)
                     .answerContent(null) // Speaking không có text content
                     .s3Key(savedAnswer.getS3AudioUrl())
                     .build();

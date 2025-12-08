@@ -192,7 +192,6 @@ public class    AnswerController {
             description = "Generates a secure S3 Presigned URL for the frontend to upload the recorded audio file directly to S3.",
             parameters = {
                     @Parameter(name = "attemptSectionId", description = "ID of the attempt section", required = true),
-                    @Parameter(name = "questionId", description = "ID of the speaking question", required = true)
             },
             requestBody = @io.swagger.v3.oas.annotations.parameters.RequestBody(
                     description = "Request containing the audio file name",
@@ -211,14 +210,12 @@ public class    AnswerController {
     @PostMapping("/speaking/{attemptSectionId}/{questionId}/upload-url")
     public ResponseEntity<S3SpeakingUploadUrl> generateSpeakingUploadUrl(
             @PathVariable UUID attemptSectionId,
-            @PathVariable UUID questionId,
             @RequestBody SaveSpeakingAnswerRequest request,
             @AuthenticationPrincipal JwtUserDetails userDetails
     ) {
         S3SpeakingUploadUrl response = ieltsAnswerService.generateSpeakingUploadUrl(
                 request,
                 attemptSectionId,
-                questionId,
                 userDetails.getAccountId()
         );
         return ResponseEntity.ok(response);
@@ -232,7 +229,6 @@ public class    AnswerController {
             description = "After uploading the audio to S3, call this endpoint to save the audio reference (key/url) into the database.",
             parameters = {
                     @Parameter(name = "attemptSectionId", description = "ID of the attempt section", required = true),
-                    @Parameter(name = "questionId", description = "ID of the speaking question", required = true)
             },
             requestBody = @io.swagger.v3.oas.annotations.parameters.RequestBody(
                     description = "Request containing the uploaded audio name/key",
@@ -251,13 +247,11 @@ public class    AnswerController {
     @PostMapping("/speaking/{attemptSectionId}/{questionId}/save")
     public ResponseEntity<AnswerSpeakingResponse> saveSpeakingAnswer(
             @PathVariable UUID attemptSectionId,
-            @PathVariable UUID questionId,
             @RequestBody SaveSpeakingAnswerRequest request,
             @AuthenticationPrincipal JwtUserDetails userDetails
     ) {
         AnswerSpeakingResponse response = ieltsAnswerService.saveSpeakingAnswer(
                 attemptSectionId,
-                questionId,
                 request.getAudioName(), // Truyền audioName (hoặc s3Key) vào service
                 userDetails.getAccountId()
         );
