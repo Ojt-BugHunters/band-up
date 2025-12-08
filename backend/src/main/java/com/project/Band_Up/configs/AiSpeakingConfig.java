@@ -6,9 +6,8 @@ import org.springframework.context.annotation.Configuration;
 
 @Configuration
 @Getter
-public class AiWritingConfig {
-
-    @Value("${ai.writing.api.url}")
+public class AiSpeakingConfig {
+    @Value("${ai.speaking.api.url}")
     private String apiUrl;
 
     @Value("${api.key}")

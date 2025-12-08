@@ -23,8 +23,8 @@
         @GeneratedValue
         @UuidGenerator(style = UuidGenerator.Style.TIME)
         private UUID id;
-        @ManyToOne(fetch = jakarta.persistence.FetchType.LAZY, optional = false)
-        @JoinColumn(name = "question_id", nullable = false,
+        @ManyToOne(fetch = jakarta.persistence.FetchType.LAZY)
+        @JoinColumn(name = "question_id",
                 foreignKey = @ForeignKey(name = "fk_answer_question"))
         private Question question;
         @ManyToOne(fetch = jakarta.persistence.FetchType.LAZY, optional = false)
@@ -36,6 +36,7 @@
         @JdbcTypeCode(SqlTypes.JSON)
         @Column(columnDefinition = "jsonb")
         private List<Map<String, Object>> mistakes;
+        private String s3AudioUrl;
         private double accuracy;
         @CreationTimestamp
         @Column(name = "create_at", nullable = false, updatable = false)

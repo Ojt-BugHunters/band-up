@@ -11,4 +11,5 @@ public interface AnswerRepository extends JpaRepository<Answer, UUID> {
     // Lấy ra answer theo attemptSection và questionId
     Answer findByAttemptSection_IdAndQuestion_Id(UUID attemptSectionId, UUID questionId);
     List<Answer> findByAttemptSectionId(UUID attemptSectionId);
+    Answer findByAttemptSection_Id(UUID attemptSectionId);
 }

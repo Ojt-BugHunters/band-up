@@ -18,7 +18,7 @@ public class AiEvaluationDetailResponse {
     private UUID attemptSectionId;
     private String answerContent;
     private EvalType evalType;
-    private AiWritingResponse aiResponse;
+    private Object  aiResponse;
     private Double overallBand;
     private LocalDateTime createdAt;
 }
