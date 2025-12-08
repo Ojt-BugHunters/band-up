@@ -1,8 +1,6 @@
 package com.project.Band_Up.controllers;
 
-import com.project.Band_Up.dtos.answer.AnswerCreateRequest;
-import com.project.Band_Up.dtos.answer.DictationAnswerResponse;
-import com.project.Band_Up.dtos.answer.IeltsAnswerResponse;
+import com.project.Band_Up.dtos.answer.*;
 import com.project.Band_Up.dtos.attempt.TestResultResponseDTO;
 //import com.project.Band_Up.services.answer.DictationAnswerServiceImpl;
 import com.project.Band_Up.entities.Account;
@@ -150,5 +148,114 @@ public class    AnswerController {
         return ResponseEntity.ok(result);
     }
 
+    @Operation(
+            summary = "Save writing answer before AI evaluation",
+            description = "Save the user's essay content before submitting for AI scoring. This allows users to save their work in progress.",
+            parameters = {
+                    @Parameter(name = "attemptSectionId", description = "ID of the attempt section", required = true),
+                    @Parameter(name = "questionId", description = "ID of the writing question", required = true)
+            },
+            requestBody = @io.swagger.v3.oas.annotations.parameters.RequestBody(
+                    description = "User's essay content",
+                    required = true,
+                    content = @Content(schema = @Schema(implementation = SaveWritingAnswerRequest.class))
+            ),
+            responses = {
+                    @ApiResponse(responseCode = "200", description = "Answer saved successfully",
+                            content = @Content(mediaType = "application/json",
+                                    schema = @Schema(implementation = IeltsAnswerResponse.class))),
+                    @ApiResponse(responseCode = "400", description = "Invalid data or attempt already submitted"),
+                    @ApiResponse(responseCode = "403", description = "User does not own this attempt"),
+                    @ApiResponse(responseCode = "404", description = "AttemptSection or Question not found")
+            }
+    )
+    @PostMapping("/writing/{attemptSectionId}/{questionId}/save")
+    public ResponseEntity<IeltsAnswerResponse> saveWritingAnswer(
+            @PathVariable UUID attemptSectionId,
+            @PathVariable UUID questionId,
+            @RequestBody SaveWritingAnswerRequest request,
+            @AuthenticationPrincipal JwtUserDetails userDetails
+    ) {
+        IeltsAnswerResponse response = ieltsAnswerService.saveWritingAnswer(
+                attemptSectionId,
+                questionId,
+                request.getAnswerContent(),
+                userDetails.getAccountId()
+        );
+        return ResponseEntity.ok(response);
+    }
+    // ==========================================================
+    // 🎤 SPEAKING - 1. Generate Upload URL
+    // ==========================================================
+    @Operation(
+            summary = "Generate Presigned URL for Speaking Audio Upload",
+            description = "Generates a secure S3 Presigned URL for the frontend to upload the recorded audio file directly to S3.",
+            parameters = {
+                    @Parameter(name = "attemptSectionId", description = "ID of the attempt section", required = true),
+            },
+            requestBody = @io.swagger.v3.oas.annotations.parameters.RequestBody(
+                    description = "Request containing the audio file name",
+                    required = true,
+                    content = @Content(schema = @Schema(implementation = SaveSpeakingAnswerRequest.class))
+            ),
+            responses = {
+                    @ApiResponse(responseCode = "200", description = "URL generated successfully",
+                            content = @Content(mediaType = "application/json",
+                                    schema = @Schema(implementation = S3SpeakingUploadUrl.class))),
+                    @ApiResponse(responseCode = "400", description = "Invalid attempt status"),
+                    @ApiResponse(responseCode = "403", description = "User does not own this attempt"),
+                    @ApiResponse(responseCode = "404", description = "AttemptSection or Question not found")
+            }
+    )
+    @PostMapping("/speaking/{attemptSectionId}/{questionId}/upload-url")
+    public ResponseEntity<S3SpeakingUploadUrl> generateSpeakingUploadUrl(
+            @PathVariable UUID attemptSectionId,
+            @RequestBody SaveSpeakingAnswerRequest request,
+            @AuthenticationPrincipal JwtUserDetails userDetails
+    ) {
+        S3SpeakingUploadUrl response = ieltsAnswerService.generateSpeakingUploadUrl(
+                request,
+                attemptSectionId,
+                userDetails.getAccountId()
+        );
+        return ResponseEntity.ok(response);
+    }
+
+    // ==========================================================
+    // 🎤 SPEAKING - 2. Save Answer Info
+    // ==========================================================
+    @Operation(
+            summary = "Save Speaking Answer Metadata",
+            description = "After uploading the audio to S3, call this endpoint to save the audio reference (key/url) into the database.",
+            parameters = {
+                    @Parameter(name = "attemptSectionId", description = "ID of the attempt section", required = true),
+            },
+            requestBody = @io.swagger.v3.oas.annotations.parameters.RequestBody(
+                    description = "Request containing the uploaded audio name/key",
+                    required = true,
+                    content = @Content(schema = @Schema(implementation = SaveSpeakingAnswerRequest.class))
+            ),
+            responses = {
+                    @ApiResponse(responseCode = "200", description = "Answer saved successfully",
+                            content = @Content(mediaType = "application/json",
+                                    schema = @Schema(implementation = AnswerSpeakingResponse.class))),
+                    @ApiResponse(responseCode = "400", description = "Invalid data or attempt already submitted"),
+                    @ApiResponse(responseCode = "403", description = "User does not own this attempt"),
+                    @ApiResponse(responseCode = "404", description = "AttemptSection or Question not found")
+            }
+    )
+    @PostMapping("/speaking/{attemptSectionId}/{questionId}/save")
+    public ResponseEntity<AnswerSpeakingResponse> saveSpeakingAnswer(
+            @PathVariable UUID attemptSectionId,
+            @RequestBody SaveSpeakingAnswerRequest request,
+            @AuthenticationPrincipal JwtUserDetails userDetails
+    ) {
+        AnswerSpeakingResponse response = ieltsAnswerService.saveSpeakingAnswer(
+                attemptSectionId,
+                request.getAudioName(), // Truyền audioName (hoặc s3Key) vào service
+                userDetails.getAccountId()
+        );
+        return ResponseEntity.ok(response);
+    }
 }
 

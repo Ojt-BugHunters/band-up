@@ -8,7 +8,7 @@ import { Badge } from '@/components/ui/badge';
 import { Clock, FileText } from 'lucide-react';
 import ProgressDialog, { Question } from '@/components/progress-dialog';
 import QuestionPanel from '@/components/question-panel';
-import ReadingPassage from './reading-passage';
+import ReadingPassage from '@/components/reading-passage';
 import { NotFound } from '@/components/not-found';
 import { useGetSectionsWithQuestions } from '@/lib/service/test/question/api';
 import LiquidLoading from '@/components/ui/liquid-loader';

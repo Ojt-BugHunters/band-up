@@ -7,10 +7,10 @@ import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Badge } from '@/components/ui/badge';
 import { Clock, PenTool } from 'lucide-react';
 import ProgressDialog from '@/components/progress-dialog';
-import WritingEditor from '@/components/writing-editor';
-import { NotFound } from './not-found';
+import WritingEditor from './writing-editor';
+import { NotFound } from '@/components/not-found';
 import { useGetWritingWithQuestions } from '@/lib/service/test/question';
-import LiquidLoading from './ui/liquid-loader';
+import LiquidLoading from '@/components/ui/liquid-loader';
 
 type WritingTestProps = {
     mode?: string;
@@ -105,6 +105,8 @@ export function WritingTest({
         return answered;
     };
 
+    const handleSubmit = () => {};
+
     const getUnansweredQuestions = () => {
         const unanswered = [];
         if (
@@ -194,6 +196,7 @@ export function WritingTest({
                                 totalQuestions={getTotalQuestions()}
                                 answeredQuestions={getAnsweredQuestions()}
                                 unansweredQuestions={getUnansweredQuestions()}
+                                onSubmit={handleSubmit}
                             />
 
                             {!isTestStarted ? (
