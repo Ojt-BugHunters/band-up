@@ -3,7 +3,6 @@ import { deserialize, fetchWrapper } from '../..';
 import { TestSection } from '../section';
 import {
     ListeningQuestion,
-    ListeningSectionsQuestion,
     PassageQuestion,
     ReadingQuestion,
     SpeakingQuestion,
