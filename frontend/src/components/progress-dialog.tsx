@@ -160,7 +160,6 @@ export default function ProgressDialog({
                             className="flex-1"
                             onClick={() => {
                                 setConfirmType('submit');
-                                onSubmit();
                             }}
                         >
                             Submit Test
@@ -201,7 +200,11 @@ export default function ProgressDialog({
                             }
                             onClick={() => {
                                 setConfirmType(null);
-                                router.push('/test');
+                                if (confirmType === 'submit') {
+                                    onSubmit();
+                                } else {
+                                    router.push('/test');
+                                }
                             }}
                         >
                             {confirmType === 'quit' ? 'Quit' : 'Submit'}
