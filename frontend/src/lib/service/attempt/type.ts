@@ -42,3 +42,39 @@ export type SubmitAnswerParams = {
         answerContent: string;
     }[];
 };
+
+export type AttemptSection = {
+    id: string;
+    attemptId: string;
+    sectionId: string;
+    startAt: string;
+    status: string;
+};
+
+export type Attempt = {
+    id: string;
+    userId: string;
+    testId: string;
+    startAt: string;
+    submitAt: string | null;
+    status: string;
+    score: number | null;
+    overallBand: number | null;
+    attemptSections: AttemptSection[];
+};
+
+export type AttemptTest = {
+    id: string;
+    userId: string;
+    title: string;
+    skillName: string;
+    numberOfPeople: number;
+    durationSeconds: number;
+    difficult: string;
+    createAt: string;
+};
+
+export type AttemptHistoryItem = {
+    attempt: Attempt;
+    test: AttemptTest;
+};

@@ -1,7 +1,10 @@
-import { useMutation } from '@tanstack/react-query';
-import { fetchWrapper, throwIfError } from '..';
+import { useMutation, useQuery } from '@tanstack/react-query';
+import { deserialize, fetchWrapper, throwIfError } from '..';
 import { toast } from 'sonner';
 import {
+    Attempt,
+    AttemptHistoryItem,
+    AttemptTest,
     BandScoreResponse,
     CreateAttemptResponse,
     CreateAttemptSectionResponse,
@@ -110,3 +113,54 @@ export function useSubmitAnswers() {
         },
     });
 }
+
+export const useGetAttemptHistory = (userId: string) => {
+    return useQuery({
+        queryKey: ['attempt-history', userId],
+        enabled: !!userId,
+        staleTime: Infinity,
+        refetchOnWindowFocus: true,
+        queryFn: async (): Promise<AttemptHistoryItem[]> => {
+            const attemptRes = await fetchWrapper(
+                `/attempts/by-user/${userId}`,
+            );
+            const attempts = await deserialize<Attempt[]>(attemptRes);
+
+            const finishedAttempts = attempts.filter(
+                (a) => a.status === 'ENDED',
+            );
+
+            if (finishedAttempts.length === 0) return [];
+
+            const testIds = Array.from(
+                new Set(finishedAttempts.map((a) => a.testId)),
+            );
+
+            const testsMap = new Map<string, AttemptTest>();
+
+            await Promise.all(
+                testIds.map(async (testId) => {
+                    const res = await fetchWrapper(`/tests/${testId}`);
+                    const test = await deserialize<AttemptTest>(res);
+                    testsMap.set(testId, test);
+                }),
+            );
+
+            const history: AttemptHistoryItem[] = finishedAttempts
+                .map((attempt) => {
+                    const test = testsMap.get(attempt.testId);
+                    if (!test) return null;
+                    return { attempt, test };
+                })
+                .filter((item): item is AttemptHistoryItem => item !== null);
+
+            history.sort(
+                (a, b) =>
+                    new Date(b.attempt.startAt).getTime() -
+                    new Date(a.attempt.startAt).getTime(),
+            );
+
+            return history;
+        },
+    });
+};
