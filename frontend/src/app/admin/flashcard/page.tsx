@@ -26,8 +26,224 @@ import {
     Layers,
 } from 'lucide-react';
 import { StatCard } from '@/components/admin-stats-card';
+import {
+    useGetFlashcardCompletionRate,
+    useGetFlashcardStats,
+} from '@/lib/service/flashcard';
+import { useState } from 'react';
+import { StatsInterval } from '@/lib/service/stats';
+import {
+    Select,
+    SelectContent,
+    SelectItem,
+    SelectTrigger,
+    SelectValue,
+} from '@/components/ui/select';
+
+const numberFormatter = new Intl.NumberFormat('en-US');
+
+const formatStatValue = (value?: number, loading?: boolean) => {
+    if (loading) return 'Loading...';
+    if (value === undefined || value === null || Number.isNaN(value)) {
+        return '—';
+    }
+    return numberFormatter.format(value);
+};
+
+const formatStatChange = (difference?: number, loading?: boolean) => {
+    if (loading) return 'Updating...';
+    if (
+        difference === undefined ||
+        difference === null ||
+        Number.isNaN(difference)
+    ) {
+        return 'No change';
+    }
+    if (difference === 0) return 'No change';
+    const formatted = numberFormatter.format(Math.abs(difference));
+    return `${difference > 0 ? '+' : '-'}${formatted}`;
+};
+
+const isPositiveTrend = (difference?: number) => {
+    if (
+        difference === undefined ||
+        difference === null ||
+        Number.isNaN(difference)
+    ) {
+        return true;
+    }
+    if (difference === 0) return true;
+    return difference > 0;
+};
+
+const formatPercentage = (value?: number, loading?: boolean) => {
+    if (loading) return 'Loading...';
+    if (value === undefined || value === null || Number.isNaN(value)) {
+        return '—';
+    }
+    return `${(value * 100).toFixed(1)}%`;
+};
+
+const formatPercentageChange = (value?: number, loading?: boolean) => {
+    if (loading) return 'Updating...';
+    if (value === undefined || value === null || Number.isNaN(value)) {
+        return 'No change';
+    }
+    if (value === 0) return 'No change';
+    const formatted = Math.abs(value * 100).toFixed(1);
+    return `${value > 0 ? '+' : '-'}${formatted}%`;
+};
+
+const getCompletionRatePercent = (value?: number) => {
+    if (value === undefined || value === null || Number.isNaN(value)) {
+        return 0;
+    }
+    return Math.max(0, Math.min(100, Number(value) * 100));
+};
 
 export default function FlashcardPage() {
+    const [statsInterval, setStatsInterval] =
+        useState<StatsInterval>('WEEKLY');
+    const [completionYear, setCompletionYear] = useState(
+        new Date().getFullYear(),
+    );
+    const {
+        data: flashcardStats,
+        isLoading: isLoadingStats,
+        isFetching: isFetchingStats,
+        error: flashcardStatsError,
+    } = useGetFlashcardStats(statsInterval);
+    const {
+        data: completionRateData,
+        isLoading: isLoadingCompletion,
+        isFetching: isFetchingCompletion,
+        error: completionRateError,
+    } = useGetFlashcardCompletionRate(completionYear);
+
+    const isStatsLoading = isLoadingStats || isFetchingStats;
+    const isCompletionLoading =
+        isLoadingCompletion || isFetchingCompletion;
+
+    const statsErrorMessage =
+        flashcardStatsError instanceof Error
+            ? flashcardStatsError.message
+            : undefined;
+    const completionErrorMessage =
+        completionRateError instanceof Error
+            ? completionRateError.message
+            : undefined;
+
+    const totalDecksValue =
+        flashcardStats?.activeDecks ?? flashcardStats?.totalDecks;
+    const completionRatePercent = getCompletionRatePercent(
+        flashcardStats?.completionRate,
+    );
+
+    const overviewCards = [
+        {
+            title: 'Total Learners',
+            value: formatStatValue(
+                flashcardStats?.totalLearners,
+                isStatsLoading,
+            ),
+            change: formatStatChange(
+                flashcardStats?.totalLearnersDifference,
+                isStatsLoading,
+            ),
+            icon: Users,
+            isPositive: isPositiveTrend(
+                flashcardStats?.totalLearnersDifference,
+            ),
+        },
+        {
+            title: 'Total Cards',
+            value: formatStatValue(
+                flashcardStats?.totalCards,
+                isStatsLoading,
+            ),
+            change: formatStatChange(
+                flashcardStats?.totalCardsDifference,
+                isStatsLoading,
+            ),
+            icon: CreditCard,
+            isPositive: isPositiveTrend(
+                flashcardStats?.totalCardsDifference,
+            ),
+        },
+        {
+            title: 'Active Decks',
+            value: formatStatValue(totalDecksValue, isStatsLoading),
+            change: formatStatChange(
+                flashcardStats?.activeDecksDifference,
+                isStatsLoading,
+            ),
+            icon: Brain,
+            isPositive: isPositiveTrend(
+                flashcardStats?.activeDecksDifference,
+            ),
+        },
+        {
+            title: 'Completion Rate',
+            value: formatPercentage(
+                flashcardStats?.completionRate,
+                isStatsLoading,
+            ),
+            change: formatPercentageChange(
+                flashcardStats?.completionRateDifference,
+                isStatsLoading,
+            ),
+            icon: Target,
+            isPositive: isPositiveTrend(
+                flashcardStats?.completionRateDifference,
+            ),
+        },
+    ];
+
+    const todayActivity = [
+        {
+            label: 'Active Learners',
+            value: formatStatValue(
+                flashcardStats?.totalLearners,
+                isStatsLoading,
+            ),
+        },
+        {
+            label: 'Cards Reviewed',
+            value: formatStatValue(
+                flashcardStats?.totalCards,
+                isStatsLoading,
+            ),
+        },
+        {
+            label: 'Decks Available',
+            value: formatStatValue(totalDecksValue, isStatsLoading),
+        },
+    ];
+
+    const weeklyTrends = [
+        {
+            label: 'Completion Rate',
+            value: formatPercentage(
+                flashcardStats?.completionRate,
+                isStatsLoading,
+            ),
+        },
+        {
+            label: 'Learner Delta',
+            value: formatStatChange(
+                flashcardStats?.totalLearnersDifference,
+                isStatsLoading,
+            ),
+        },
+        {
+            label: 'Deck Delta',
+            value: formatStatChange(
+                flashcardStats?.activeDecksDifference,
+                isStatsLoading,
+            ),
+        },
+    ];
+
     return (
         <div className="m-4 mt-2 space-y-6">
             <div>
@@ -49,36 +265,47 @@ export default function FlashcardPage() {
                 </TabsList>
 
                 <TabsContent value="overview" className="space-y-4">
-                    {/* Overview - Stats - Need connect API here */}
+                    <div className="flex flex-wrap items-center justify-between gap-3">
+                        <div className="text-muted-foreground text-sm">
+                            {statsErrorMessage
+                                ? `Failed to refresh stats: ${statsErrorMessage}`
+                                : `Comparing ${statsInterval.toLowerCase()} performance`}
+                        </div>
+                        <div className="flex items-center gap-2">
+                            <span className="text-muted-foreground text-sm">
+                                Interval
+                            </span>
+                            <Select
+                                value={statsInterval}
+                                onValueChange={(value) =>
+                                    setStatsInterval(value as StatsInterval)
+                                }
+                            >
+                                <SelectTrigger className="w-[140px]">
+                                    <SelectValue placeholder="Interval" />
+                                </SelectTrigger>
+                                <SelectContent>
+                                    <SelectItem value="DAILY">
+                                        Daily
+                                    </SelectItem>
+                                    <SelectItem value="WEEKLY">
+                                        Weekly
+                                    </SelectItem>
+                                    <SelectItem value="MONTHLY">
+                                        Monthly
+                                    </SelectItem>
+                                    <SelectItem value="YEARLY">
+                                        Yearly
+                                    </SelectItem>
+                                </SelectContent>
+                            </Select>
+                        </div>
+                    </div>
+
                     <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-                        <StatCard
-                            title="Total Learners"
-                            value="12,456"
-                            change="12.5%"
-                            icon={Users}
-                            isPositive
-                        />
-                        <StatCard
-                            title="Total Cards"
-                            value="12,456"
-                            change="8.2%"
-                            icon={CreditCard}
-                            isPositive
-                        />
-                        <StatCard
-                            title="Active Decks"
-                            value="248"
-                            change="5.7%"
-                            icon={Brain}
-                            isPositive
-                        />
-                        <StatCard
-                            title="Completion Rate"
-                            value="68.4%"
-                            change="3.1%"
-                            icon={Target}
-                            isPositive
-                        />{' '}
+                        {overviewCards.map((card) => (
+                            <StatCard key={card.title} {...card} />
+                        ))}
                     </div>
 
                     <div className="grid gap-4 md:grid-cols-4 lg:grid-cols-6">
@@ -100,30 +327,19 @@ export default function FlashcardPage() {
                                             Today Activity
                                         </div>
                                         <div className="space-y-3">
-                                            <div className="flex items-center justify-between">
-                                                <span className="text-sm">
-                                                    Active Now
-                                                </span>
-                                                <span className="text-xl font-bold">
-                                                    1,234
-                                                </span>
-                                            </div>
-                                            <div className="flex items-center justify-between">
-                                                <span className="text-sm">
-                                                    Cards Reviewed
-                                                </span>
-                                                <span className="text-xl font-bold">
-                                                    8,432
-                                                </span>
-                                            </div>
-                                            <div className="flex items-center justify-between">
-                                                <span className="text-sm">
-                                                    Card Created
-                                                </span>
-                                                <span className="text-xl font-bold">
-                                                    3,456
-                                                </span>
-                                            </div>
+                                            {todayActivity.map((metric) => (
+                                                <div
+                                                    key={metric.label}
+                                                    className="flex items-center justify-between"
+                                                >
+                                                    <span className="text-sm">
+                                                        {metric.label}
+                                                    </span>
+                                                    <span className="text-xl font-bold">
+                                                        {metric.value}
+                                                    </span>
+                                                </div>
+                                            ))}
                                         </div>
                                     </div>
 
@@ -132,30 +348,19 @@ export default function FlashcardPage() {
                                             Weekly Trends
                                         </div>
                                         <div className="space-y-3">
-                                            <div className="flex items-center justify-between">
-                                                <span className="text-sm">
-                                                    Median Session Time
-                                                </span>
-                                                <span className="text-xl font-bold">
-                                                    24m
-                                                </span>
-                                            </div>
-                                            <div className="flex items-center justify-between">
-                                                <span className="text-sm">
-                                                    Total Study Time
-                                                </span>
-                                                <span className="text-xl font-bold">
-                                                    1,840h
-                                                </span>
-                                            </div>
-                                            <div className="flex items-center justify-between">
-                                                <span className="text-sm">
-                                                    Learning Velocity
-                                                </span>
-                                                <span className="text-xl font-bold">
-                                                    100 cards / week
-                                                </span>
-                                            </div>
+                                            {weeklyTrends.map((metric) => (
+                                                <div
+                                                    key={metric.label}
+                                                    className="flex items-center justify-between"
+                                                >
+                                                    <span className="text-sm">
+                                                        {metric.label}
+                                                    </span>
+                                                    <span className="text-xl font-bold">
+                                                        {metric.value}
+                                                    </span>
+                                                </div>
+                                            ))}
                                         </div>
                                     </div>
                                 </div>
@@ -167,45 +372,29 @@ export default function FlashcardPage() {
                                     <div className="space-y-3">
                                         <div>
                                             <div className="mb-2 flex items-center justify-between text-sm">
-                                                <span>Easy</span>
+                                                <span>Completion Rate</span>
                                                 <span className="font-medium">
-                                                    245 cards (37%)
+                                                    {formatPercentage(
+                                                        flashcardStats?.completionRate,
+                                                        isStatsLoading,
+                                                    )}
                                                 </span>
                                             </div>
                                             <div className="bg-secondary h-2 rounded-full">
                                                 <div
-                                                    className="h-2 rounded-full bg-green-500"
-                                                    style={{ width: '37%' }}
+                                                    className="h-2 rounded-full bg-green-500 transition-all"
+                                                    style={{
+                                                        width: `${completionRatePercent}%`,
+                                                    }}
                                                 />
                                             </div>
-                                        </div>
-                                        <div>
-                                            <div className="mb-2 flex items-center justify-between text-sm">
-                                                <span>Medium</span>
-                                                <span className="font-medium">
-                                                    198 cards (30%)
-                                                </span>
-                                            </div>
-                                            <div className="bg-secondary h-2 rounded-full">
-                                                <div
-                                                    className="h-2 rounded-full bg-blue-500"
-                                                    style={{ width: '30%' }}
-                                                />
-                                            </div>
-                                        </div>
-                                        <div>
-                                            <div className="mb-2 flex items-center justify-between text-sm">
-                                                <span>Hard</span>
-                                                <span className="font-medium">
-                                                    219 cards (33%)
-                                                </span>
-                                            </div>
-                                            <div className="bg-secondary h-2 rounded-full">
-                                                <div
-                                                    className="h-2 rounded-full bg-orange-500"
-                                                    style={{ width: '33%' }}
-                                                />
-                                            </div>
+                                            <p className="text-muted-foreground mt-2 text-xs">
+                                                {formatPercentageChange(
+                                                    flashcardStats?.completionRateDifference,
+                                                    isStatsLoading,
+                                                )}{' '}
+                                                vs last period
+                                            </p>
                                         </div>
                                     </div>
                                 </div>
@@ -319,7 +508,13 @@ export default function FlashcardPage() {
                 <TabsContent value="analytics" className="space-y-6">
                     <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-7">
                         <div className="lg:col-span-4">
-                            <CompletionRateChart />
+                            <CompletionRateChart
+                                data={completionRateData ?? []}
+                                isLoading={isCompletionLoading}
+                                year={completionYear}
+                                onYearChange={setCompletionYear}
+                                error={completionErrorMessage}
+                            />
                         </div>
                         <div className="lg:col-span-3">
                             <StudyTimeChart />
