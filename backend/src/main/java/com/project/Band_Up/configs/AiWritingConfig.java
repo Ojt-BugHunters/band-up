@@ -11,6 +11,6 @@ public class AiWritingConfig {
     @Value("${ai.writing.api.url}")
     private String apiUrl;
 
-    @Value("${ai.writing.api.key}")
+    @Value("${api.key}")
     private String apiKey;
 }
