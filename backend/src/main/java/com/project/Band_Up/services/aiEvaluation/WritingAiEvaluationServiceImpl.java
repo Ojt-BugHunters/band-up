@@ -67,7 +67,8 @@ public class WritingAiEvaluationServiceImpl implements WritingAiEvaluationServic
             // 2. Call AI API
             AiWritingResponse aiResponse = callAiWritingApi(request);
             log.info("Successfully received AI evaluation response for answer ID: {}", answerId);
-
+            attemptSection.setStatus(Status.ENDED);
+            attemptSectionRepository.save(attemptSection);
             // 3. Save to database
             saveAiEvaluation(answer, aiResponse);
             log.info("Successfully saved AI evaluation for answer ID: {}", answerId);
