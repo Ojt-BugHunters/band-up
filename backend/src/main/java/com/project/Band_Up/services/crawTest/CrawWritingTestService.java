@@ -39,7 +39,7 @@ public class CrawWritingTestService {
     private final CrawTestConfiguration config;
 
     // Folder path riêng cho Writing tests
-    private static final String WRITING_FOLDER_PATH = "/home/namdang-fdp/Documents/Crawling-test/band-up-feature-crawling/crawler/web_scraping/parsed/writing/practice/";
+    private static final String WRITING_FOLDER_PATH = "D:\\Crawling-test\\band-up-feature-crawling\\crawler\\web_scraping\\parsed\\writing\\practice";
     private static final String WRITING_FILE_PREFIX = "writing_test_";
     private static final String FILE_SUFFIX = ".json";
     private static final int WRITING_TEST_DURATION = 3600; // 60 minutes

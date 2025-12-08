@@ -378,6 +378,77 @@ public class IeltsAnswerServiceImpl extends AbstractAnswerServiceImpl {
         normalizedText = normalizedText.trim().replaceAll("\\s+", " ");
         return normalizedText;
     }
+
+
+    public IeltsAnswerResponse saveWritingAnswer(UUID attemptSectionId, UUID questionId, String answerContent, UUID userId) {
+        System.out.println("========== SAVE WRITING ANSWER START ==========");
+        System.out.println("AttemptSection ID: " + attemptSectionId);
+        System.out.println("Question ID: " + questionId);
+        System.out.println("User ID: " + userId);
+        System.out.println("Answer content length: " + (answerContent != null ? answerContent.length() : 0));
+
+        // 1. Validate AttemptSection exists
+        AttemptSection attemptSection = attemptSectionRepository.findById(attemptSectionId)
+                .orElseThrow(() -> new RuntimeException("AttemptSection not found with ID: " + attemptSectionId));
+
+        // 2. Check if user owns this attempt
+        if (!attemptSection.getAttempt().getUser().getId().equals(userId)) {
+            throw new RuntimeException("You are not the owner of this attempt");
+        }
+
+        // 3. Check if attempt is still in progress (not submitted)
+        if (attemptSection.getAttempt().getStatus() == Status.ENDED) {
+            throw new RuntimeException("Cannot save answer. Attempt has already been submitted.");
+        }
+
+        // 4. Validate Question exists
+        Question question = questionRepository.findById(questionId)
+                .orElseThrow(() -> new RuntimeException("Question not found with ID: " + questionId));
+
+        System.out.println("Question type: " + question.getContent().get("questionType"));
+
+        // 5. Check if answer already exists for this attemptSection and question
+        Answer existingAnswer = answerRepository.findByAttemptSection_IdAndQuestion_Id(attemptSectionId, questionId);
+
+        Answer savedAnswer;
+
+        if (existingAnswer != null) {
+            // Update existing answer
+            System.out.println("Updating existing answer with ID: " + existingAnswer.getId());
+            existingAnswer.setAnswerContent(answerContent);
+            existingAnswer.setCreateAt(LocalDateTime.now());
+            savedAnswer = answerRepository.save(existingAnswer);
+            System.out.println("Updated existing answer");
+        } else {
+            // Create new answer
+            System.out.println("Creating new answer");
+            Answer newAnswer = Answer.builder()
+                    .attemptSection(attemptSection)
+                    .question(question)
+                    .answerContent(answerContent)
+                    .isCorrect(true) // Will be set after AI evaluation
+                    .createAt(LocalDateTime.now())
+                    .build();
+
+            savedAnswer = answerRepository.save(newAnswer);
+            System.out.println("Created new answer with ID: " + savedAnswer.getId());
+        }
+
+        // 6. Build response (without correctAnswer and isCorrect since not evaluated yet)
+        IeltsAnswerResponse response = IeltsAnswerResponse.builder()
+                .id(savedAnswer.getId())
+                .attemptSectionId(attemptSectionId)
+                .questionId(questionId)
+                .answerContent(savedAnswer.getAnswerContent())
+                .correctAnswer(null) // Not evaluated yet
+                .isCorrect(false) // Default to false, will be updated after AI evaluation
+                .createAt(savedAnswer.getCreateAt())
+                .build();
+
+        System.out.println("========== SAVE WRITING ANSWER END ==========\n");
+
+        return response;
+    }
 }
 
 
