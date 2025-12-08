@@ -1,9 +1,11 @@
 package com.project.Band_Up.controllers;
 
+import com.project.Band_Up.dtos.authentication.AccountDtoResponse;
 import com.project.Band_Up.dtos.profile.AvatarCreateRequest;
 import com.project.Band_Up.dtos.profile.AvatarDto;
 import com.project.Band_Up.dtos.profile.AvtName;
 import com.project.Band_Up.dtos.profile.ProfileDto;
+import com.project.Band_Up.services.authentication.AccountService;
 import com.project.Band_Up.services.profile.ProfileService;
 import com.project.Band_Up.utils.JwtUserDetails;
 import com.project.Band_Up.utils.JwtUtil;
@@ -14,6 +16,10 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -31,7 +37,36 @@ public class ProfileController {
     @Autowired
     private ProfileService profileService;
     @Autowired
+    private AccountService accountService;
+    @Autowired
     private JwtUtil jwtUtil;
+
+    // -----------------------------
+    // Lấy danh sách tài khoản có phân trang
+    // -----------------------------
+    @GetMapping("/accounts")
+    @Operation(summary = "Lấy danh sách tài khoản có phân trang",
+            description = "Trả về danh sách tài khoản với phân trang, bao gồm thông tin subscription của từng tài khoản.")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "Thành công"),
+            @ApiResponse(responseCode = "400", description = "Tham số không hợp lệ")
+    })
+    public ResponseEntity<Page<AccountDtoResponse>> getAccounts(
+            @Parameter(description = "Số trang (bắt đầu từ 0)", example = "0")
+            @RequestParam(defaultValue = "0") int page,
+            @Parameter(description = "Kích thước trang", example = "10")
+            @RequestParam(defaultValue = "10") int size,
+            @Parameter(description = "Trường sắp xếp", example = "createdAt")
+            @RequestParam(defaultValue = "createdAt") String sortBy,
+            @Parameter(description = "Hướng sắp xếp (ASC hoặc DESC)", example = "DESC")
+            @RequestParam(defaultValue = "DESC") String direction) {
+
+        Sort.Direction sortDirection = direction.equalsIgnoreCase("ASC") ? Sort.Direction.ASC : Sort.Direction.DESC;
+        Pageable pageable = PageRequest.of(page, size, Sort.by(sortDirection, sortBy));
+
+        Page<AccountDtoResponse> accounts = accountService.getAccounts(pageable);
+        return ResponseEntity.ok(accounts);
+    }
 
     // -----------------------------
     // Cập nhật thông tin cá nhân
@@ -70,6 +105,7 @@ public class ProfileController {
                 userDetails.getAccountId());
         return ResponseEntity.ok(profile);
     }
+
     @GetMapping("/{userId}/avt-info")
     @Operation(summary = "Lấy thông tin avatar của user theo userId",
             description = "Trả về thông tin avatar của user theo userId.")
@@ -158,3 +194,4 @@ public class ProfileController {
         return ResponseEntity.noContent().build();
     }
 }
+
