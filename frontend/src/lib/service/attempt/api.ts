@@ -44,7 +44,7 @@ export function useCreateAttempt() {
         },
     });
 }
-
+let sectionCounter = 1;
 export function useCreateAttemptSection() {
     return useMutation({
         mutationFn: async ({
@@ -77,8 +77,12 @@ export function useCreateAttemptSection() {
         onError: (error) => {
             toast.error(error?.message ?? 'Fail to save attempt');
         },
-        onSuccess: () => {
+        onSuccess: (data) => {
             toast.success('Save attempt successfully. Try your best!');
+            if (data?.id) {
+                localStorage.setItem(`question-${sectionCounter}`, data.id);
+                sectionCounter++;
+            }
         },
     });
 }

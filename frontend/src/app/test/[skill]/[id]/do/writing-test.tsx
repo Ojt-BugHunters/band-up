@@ -26,6 +26,28 @@ export function WritingTest({
         isLoading: isPassageLoading,
         error: isPassageError,
     } = useGetWritingWithQuestions(sections);
+    useEffect(() => {
+        if (writingTasks && writingTasks.length > 0) {
+            writingTasks.forEach((task) => {
+                const match = task.title.match(/(\d+)/);
+                if (match) {
+                    const taskNumber = match[0];
+
+                    const storedAttemptId = localStorage.getItem(
+                        `question-${taskNumber}`,
+                    );
+                    const realQuestionId = task.questions?.[0]?.id;
+
+                    if (storedAttemptId && realQuestionId) {
+                        localStorage.setItem(realQuestionId, storedAttemptId);
+                        console.log(
+                            `Mapped: [Title: ${task.title}] -> [LS Key: question-${taskNumber}] -> [Final: ${realQuestionId} : ${storedAttemptId}]`,
+                        );
+                    }
+                }
+            });
+        }
+    }, [writingTasks]); // Chạy lại khi writingTasks thay đổi (load xong API)
 
     const [htmlContent, setHtmlContent] = useState('');
 
