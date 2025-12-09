@@ -1,99 +1,56 @@
 'use client';
 
-import { useEffect, useState } from 'react';
-import { useSearchParams } from 'next/navigation';
+import React, { useEffect, useState } from 'react';
+import { useParams, useSearchParams } from 'next/navigation';
 import { IELTSFeedbackDisplay } from './ielts-writing-feedback';
 import LiquidLoading from '@/components/ui/liquid-loader';
 import { toast } from 'sonner';
 import { fetchWrapper, throwIfError } from '@/lib/service';
 
-export default function WritingResultPage() {
-    const searchParams = useSearchParams();
-    const idsString = searchParams.get('ids');
+interface SubmittedAnswer {
+    taskTitle: string;
+    questionId: string;
+    attemptSectionId: string;
+    content: string;
+}
 
-    // State quản lý
+export default function WritingResultPage() {
+    const params = useParams();
+    const [ids, setIds] = useState<string[]>([]);
+    const [questionIds, setQuestionIds] = useState<string[]>([]);
     const [results, setResults] = useState<any[]>([]);
     const [isLoading, setIsLoading] = useState(true);
     const [hasError, setHasError] = useState(false);
 
     useEffect(() => {
-        const fetchAndEvaluate = async () => {
-            if (!idsString) {
-                setIsLoading(false);
-                return;
-            }
+        const rawId = params.id;
 
-            const answerIds = idsString.split(',');
-            setIsLoading(true);
+        if (rawId) {
+            const idString = decodeURIComponent(rawId.toString());
+            const idArray = idString.split(',');
 
+            setIds(idArray);
+
+            console.log('Mảng ID:', idArray);
+        }
+    }, [params]);
+
+    useEffect(() => {
+        const storedJson = localStorage.getItem('submitted_answers');
+
+        if (storedJson) {
             try {
-                // Chạy song song tất cả các bài làm (Promise.all)
-                const promises = answerIds.map(async (answerId) => {
-                    // BƯỚC 1: Lấy thông tin bài làm (Answer) để có User Content & QuestionID
-                    const answerRes = await fetchWrapper(
-                        `/api/answers/${answerId}`,
-                    );
-                    await throwIfError(answerRes);
-                    const answerData: AnswerResponse = await answerRes.json();
-
-                    // BƯỚC 2: Lấy thông tin câu hỏi (Question) dựa trên questionId từ Answer
-                    // (Cách này an toàn hơn localStorage vì questionId gắn liền với answer)
-                    const questionRes = await fetchWrapper(
-                        `/questions/${answerData.questionId}`,
-                    ); // Endpoint theo hook useGetWritingSection
-                    await throwIfError(questionRes);
-                    const questionData: WritingQuestion =
-                        await questionRes.json();
-
-                    // BƯỚC 3: Chuẩn bị Payload "ngon lành"
-                    // taskNumber: 1 -> TASK_1, 2 -> TASK_2
-                    const taskType =
-                        questionData.content.taskNumber === 1
-                            ? 'TASK_1'
-                            : 'TASK_2';
-
-                    const payload = {
-                        section_id: HARDCODED_SECTION_ID,
-                        user_id: HARDCODED_USER_ID,
-                        essay_content: answerData.answerContent, // Content user nhập
-                        task_type: taskType, // TASK_1 hoặc TASK_2
-                        prompt: questionData.content.instruction, // Instruction làm prompt
-                        word_count: countWords(answerData.answerContent),
-                    };
-
-                    // BƯỚC 4: Gọi API Evaluate (Cú chốt)
-                    const evaluateRes = await fetchWrapper(
-                        `/api/v1/evaluations/writing/evaluate/${answerId}`,
-                        {
-                            method: 'POST',
-                            headers: {
-                                'Content-Type': 'application/json',
-                            },
-                            body: JSON.stringify(payload),
-                        },
-                    );
-
-                    await throwIfError(evaluateRes);
-                    const rawResult = await evaluateRes.json();
-
-                    // BƯỚC 5: Xử lý data trả về cho khớp UI
-                    return processFeedbackData(rawResult);
-                });
-
-                // Đợi tất cả hoàn thành
-                const data = await Promise.all(promises);
-                setResults(data);
+                const parsedData: SubmittedAnswer[] = JSON.parse(storedJson);
+                if (Array.isArray(parsedData)) {
+                    const qIds = parsedData.map((item) => item.questionId);
+                    setQuestionIds(qIds);
+                    console.log('Question IDs từ LocalStorage:', qIds);
+                }
             } catch (error) {
-                console.error('Evaluation Error:', error);
-                setHasError(true);
-                toast.error('Failed to load evaluation results.');
-            } finally {
-                setIsLoading(false);
+                console.error('Lỗi khi đọc dữ liệu từ localStorage:', error);
             }
-        };
-
-        fetchAndEvaluate();
-    }, [idsString]); // Chỉ chạy lại khi ID thay đổi
+        }
+    }, []);
 
     if (isLoading) {
         return (
