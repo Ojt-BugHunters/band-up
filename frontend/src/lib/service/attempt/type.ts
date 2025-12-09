@@ -243,3 +243,12 @@ export interface QuotedExample {
     issue: string;
     suggestion: string;
 }
+
+export interface EvaluationPayload {
+    section_id: string;
+    user_id: string;
+    essay_content: string;
+    task_type: string;
+    prompt: string;
+    word_count: number;
+}

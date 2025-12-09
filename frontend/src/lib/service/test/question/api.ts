@@ -158,3 +158,20 @@ export const useGetWritingSection = (id: string) => {
         queryKey: ['writing-section'],
     });
 };
+
+export const useGetWritingQuestions = (ids: string[]) => {
+    return useQuery({
+        queryKey: ['writing-questions', ids],
+
+        queryFn: async () => {
+            if (!ids || ids.length === 0) return [];
+            const promises = ids.map(async (id) => {
+                const response = await fetchWrapper(`/questions/${id}`);
+                return await deserialize<WritingQuestion>(response);
+            });
+            return await Promise.all(promises);
+        },
+        enabled: ids.length > 0,
+        staleTime: 10 * 60 * 1000,
+    });
+};
