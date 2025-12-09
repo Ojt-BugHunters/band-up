@@ -65,7 +65,7 @@ public class PaymentSeviceImpl implements PaymentService{
         Account account = accountRepository.findById(accountId)
                 .orElseThrow(() -> new ResourceNotFoundException("Account not found"));
         Subscriptions subscriptions = Subscriptions.builder()
-                .account(account)
+                .account(Account.builder().id(accountId).build())
                 .subscriptionType(subscriptionType)
                 .isLifeTime(isLifeTime)
                 .build();
@@ -84,7 +84,10 @@ public class PaymentSeviceImpl implements PaymentService{
             WebhookData data = payOS.webhooks().verify(webhook);
             Subscriptions subscriptions = subscriptionRedisTemplate.opsForValue().get("payment_order_" + data.getOrderCode());
             if(subscriptions != null) {
-                Account account = subscriptions.getAccount();
+                // Account account = subscriptions.getAccount();
+                UUID accountId = subscriptions.getAccount().getId();
+                Account account = accountRepository.findById(accountId)
+                        .orElseThrow(() -> new EntityNotFoundException("Account not found"));
                 account.getSubscriptions().add(subscriptions);
                 accountRepository.save(account);
             } else {

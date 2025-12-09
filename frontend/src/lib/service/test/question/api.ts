@@ -148,3 +148,13 @@ export const useGetSpeakingWithQuestions = (sectionIds: string[]) => {
         staleTime: 60 * 60 * 1000,
     });
 };
+
+export const useGetWritingSection = (id: string) => {
+    return useQuery({
+        queryFn: async () => {
+            const response = await fetchWrapper(`/questions/${id}`);
+            return await deserialize<WritingQuestion>(response);
+        },
+        queryKey: ['writing-section'],
+    });
+};
