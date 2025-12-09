@@ -23,6 +23,7 @@ export default function ClientLayout({
     );
     const hideLayout =
         pathname.includes('/do') ||
+        pathname.includes('/writing-result') ||
         pathname.includes('/result') ||
         pathname.startsWith('/memorize') ||
         isFlashcardMemorizePage ||

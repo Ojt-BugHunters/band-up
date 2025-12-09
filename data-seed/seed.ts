@@ -17,8 +17,26 @@ const NUM_DECKS = Number(process.env.SEED_DECKS ?? 300);
 
 // ==== BLOG CONFIG (thêm) ====
 const NUM_BLOG_POSTS = Number(process.env.SEED_BLOGS ?? 100);
-const FIXED_TITLE_IMG =
-    'blogs/ed5b066b-1f24-42cb-814a-61682932e470/83be7379-6f0e-4101-8994-424582382f45-eye2.jpg';
+const BLOG_IMAGES = [
+    'avatars/9604f861-b17a-4a06-b9c1-c2f9b7210632/avatar-f545be8a-b67c-4d24-98f0-b055fd423f95-Screenshot_30-Oct_17-08-26_12211.png',
+    'avatars/9604f861-b17a-4a06-b9c1-c2f9b7210632/avatar-11e90c16-7cf1-4cf3-b780-74670d16631f-Screenshot_07-Nov_14-51-31_25697.png',
+    'avatars/9604f861-b17a-4a06-b9c1-c2f9b7210632/avatar-2f8f971d-6371-4341-ab30-3251f7f8c020-Screenshot_03-Nov_15-18-04_13823.png',
+    'avatars/9604f861-b17a-4a06-b9c1-c2f9b7210632/avatar-38757d62-bac0-4e43-80a4-2e089d952681-aws-fcj.jpg',
+    'avatars/9604f861-b17a-4a06-b9c1-c2f9b7210632/avatar-8ae97e6b-4042-40a7-a45f-70f1d38238dd-Screenshot_04-Oct_09-23-26_32219.png',
+    'avatars/9604f861-b17a-4a06-b9c1-c2f9b7210632/avatar-9b482f07-f49d-4fc9-8a0a-f33dfb3ad02c-Screenshot_01-Dec_09-10-55_6416.png',
+    'avatars/9604f861-b17a-4a06-b9c1-c2f9b7210632/avatar-f4aab50f-a0c9-457b-afc3-7253a6ebddd6-Screenshot_01-Nov_20-33-03_2254.png',
+    'avatars/9604f861-b17a-4a06-b9c1-c2f9b7210632/avatar-f545be8a-b67c-4d24-98f0-b055fd423f95-Screenshot_30-Oct_17-08-26_12211.png',
+];
+
+// Hàm lấy ảnh ngẫu nhiên
+export const getRandomBlogImage = () => {
+    const randomIndex = Math.floor(Math.random() * BLOG_IMAGES.length);
+    return BLOG_IMAGES[randomIndex];
+};
+
+// Nếu muốn dùng biến constant như cũ (Random 1 lần khi file được load)
+export const FIXED_TITLE_IMG = getRandomBlogImage();
+
 const DEFAULT_TAGS = [
     'IELTS',
     'IELTS Listening',
@@ -707,7 +725,7 @@ async function main() {
         );
 
         // 7) Thêm study_progress (add-only)
-        await seedStudyProgressAddOnly(client, allAccountIds, allDeckIds);
+        //await seedStudyProgressAddOnly(client, allAccountIds, allDeckIds);
 
         // 8) Thêm blog posts IELTS (~100 bài) — ADD-ONLY
         await seedBlogPostsAddOnly(client, allAccountIds);

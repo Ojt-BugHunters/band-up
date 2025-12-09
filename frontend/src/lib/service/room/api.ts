@@ -78,7 +78,6 @@ export function useCreateRoom() {
             privateRoom: false,
         },
     });
-
     return { form, mutation };
 }
 
