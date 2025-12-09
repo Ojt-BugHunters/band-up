@@ -21,7 +21,7 @@ import { PaginationControl } from '@/components/ui/pagination-control';
 import LiquidLoading from '@/components/ui/liquid-loader';
 import { NotFound } from '@/components/not-found';
 import { TagSelect } from './tag-select';
-import { useDebounce } from '@/lib/utils';
+import { useDebounce } from '@/lib/utils-client';
 
 export default function BlogListPage() {
     const [search, setSearch] = useState('');

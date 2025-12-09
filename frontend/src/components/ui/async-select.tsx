@@ -4,7 +4,7 @@
 import * as React from 'react';
 import { useMemo, useState, useEffect, useCallback } from 'react';
 import { Check, ChevronsUpDown, Loader2 } from 'lucide-react';
-import { useDebounce } from '@/lib/utils';
+import { useDebounce } from '@/lib/utils-client';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
 import {
