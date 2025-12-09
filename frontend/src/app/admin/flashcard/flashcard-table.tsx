@@ -45,7 +45,7 @@ import {
 } from '@/components/ui/table';
 import { Badge } from '@/components/ui/badge';
 import { Deck, useGetDecks } from '@/lib/service/flashcard';
-import { useDebounce } from '@/lib/utils';
+import { useDebounce } from '@/lib/utils-client';
 import {
     Select,
     SelectContent,

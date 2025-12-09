@@ -102,8 +102,8 @@ export default function PricingSection() {
         setIsUpdates(Number.parseInt(value) === 1);
 
     const calculatePrice = () => {
-        if (!isUpdates) return 98;
-        return 200;
+        if (!isUpdates) return 15;
+        return 98;
     };
 
     const calculateOriginalPrice = () => Math.round(calculatePrice() * 1.45);
