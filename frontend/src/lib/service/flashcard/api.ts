@@ -7,6 +7,7 @@ import {
 } from '@/lib/service';
 import {
     baseSchema,
+    CompletionRatePoint,
     CreateDeckFormValues,
     Deck,
     deckPasswordSchema,
@@ -19,15 +20,35 @@ import { toast } from 'sonner';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import z from 'zod';
+import { StatsInterval } from '@/lib/service/stats';
 
 // get stats of flash card
-export const useGetFlashcardStats = () => {
+export const useGetFlashcardStats = (
+    statsInterval: StatsInterval = 'WEEKLY',
+) => {
     return useQuery({
         queryFn: async () => {
-            const response = await fetchWrapper(`/quizlet/stats`);
+            const params = new URLSearchParams({ statsInterval });
+            const response = await fetchWrapper(
+                `/quizlet/stats?${params.toString()}`,
+            );
             return await deserialize<FlashCardData>(response);
         },
-        queryKey: ['quizlet', 'stats'],
+        queryKey: ['quizlet', 'stats', statsInterval],
+    });
+};
+
+export const useGetFlashcardCompletionRate = (year: number) => {
+    return useQuery({
+        queryFn: async () => {
+            const params = new URLSearchParams({ year: String(year) });
+            const response = await fetchWrapper(
+                `/quizlet/stats/completion-rate?${params.toString()}`,
+            );
+            return await deserialize<CompletionRatePoint[]>(response);
+        },
+        queryKey: ['quizlet', 'completion-rate', year],
+        enabled: Boolean(year),
     });
 };
 

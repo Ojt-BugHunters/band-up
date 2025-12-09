@@ -5,7 +5,7 @@ export const AccountOverview = ({ user }: { user: User }) => {
     return (
         <div className="flex items-center gap-3">
             <div className="size-10">
-                <AccountPicture name={user.name} />
+                <AccountPicture name={user.name ?? ''} />
             </div>
             <div>
                 <div className="text-sm font-semibold text-slate-900">

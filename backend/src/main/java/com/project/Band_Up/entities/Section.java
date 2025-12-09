@@ -36,6 +36,7 @@ public class Section {
     private Integer orderIndex;
     private BigInteger timeLimitSeconds;
 
+    @Column(name = "metadata", columnDefinition = "TEXT")
     private String metadata;
 
     @Enumerated(EnumType.STRING)

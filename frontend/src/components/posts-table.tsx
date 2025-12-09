@@ -34,6 +34,8 @@ import {
     TableRow,
 } from '@/components/ui/table';
 import type { BlogPost } from '@/lib/service/blog';
+import { useDeleteBlog } from '@/lib/service/blog';
+import { useRouter } from 'next/navigation';
 
 type TableBlogPost = {
     id: string;
@@ -42,119 +44,6 @@ type TableBlogPost = {
     createdAt: string;
     status: 'published' | 'draft' | 'archived';
 };
-
-export const columns: ColumnDef<TableBlogPost>[] = [
-    {
-        accessorKey: 'title',
-        header: ({ column }) => {
-            return (
-                <Button
-                    variant="ghost"
-                    onClick={() =>
-                        column.toggleSorting(column.getIsSorted() === 'asc')
-                    }
-                >
-                    Title
-                    <ArrowUpDown className="ml-2 h-4 w-4" />
-                </Button>
-            );
-        },
-        cell: ({ row }) => (
-            <div className="font-medium">{row.getValue('title')}</div>
-        ),
-    },
-    {
-        accessorKey: 'author',
-        header: ({ column }) => {
-            return (
-                <Button
-                    variant="ghost"
-                    onClick={() =>
-                        column.toggleSorting(column.getIsSorted() === 'asc')
-                    }
-                >
-                    Author
-                    <ArrowUpDown className="ml-2 h-4 w-4" />
-                </Button>
-            );
-        },
-        cell: ({ row }) => <div>{row.getValue('author')}</div>,
-    },
-    {
-        accessorKey: 'createdAt',
-        header: ({ column }) => {
-            return (
-                <Button
-                    variant="ghost"
-                    onClick={() =>
-                        column.toggleSorting(column.getIsSorted() === 'asc')
-                    }
-                >
-                    Created At
-                    <ArrowUpDown className="ml-2 h-4 w-4" />
-                </Button>
-            );
-        },
-        cell: ({ row }) => {
-            const date = new Date(row.getValue('createdAt'));
-            return <div>{date.toLocaleDateString()}</div>;
-        },
-    },
-    {
-        accessorKey: 'status',
-        header: 'Status',
-        cell: ({ row }) => {
-            const status = row.getValue('status') as string;
-            const statusColors: Record<string, string> = {
-                published: 'bg-green-100 text-green-800',
-                draft: 'bg-yellow-100 text-yellow-800',
-                archived: 'bg-gray-100 text-gray-800',
-            };
-            return (
-                <span
-                    className={`rounded-full px-2 py-1 text-xs font-semibold ${statusColors[status] || ''}`}
-                >
-                    {status.charAt(0).toUpperCase() + status.slice(1)}
-                </span>
-            );
-        },
-    },
-    {
-        id: 'actions',
-        enableHiding: false,
-        cell: ({ row }) => {
-            const post = row.original;
-
-            return (
-                <DropdownMenu>
-                    <DropdownMenuTrigger asChild>
-                        <Button variant="ghost" className="h-8 w-8 p-0">
-                            <span className="sr-only">Open menu</span>
-                            <MoreHorizontal className="h-4 w-4" />
-                        </Button>
-                    </DropdownMenuTrigger>
-                    <DropdownMenuContent align="end">
-                        <DropdownMenuLabel>Actions</DropdownMenuLabel>
-                        <DropdownMenuItem
-                            onClick={() => console.log('Edit', post.id)}
-                        >
-                            <Edit2 className="mr-2 h-4 w-4" />
-                            Edit
-                        </DropdownMenuItem>
-                        <DropdownMenuSeparator />
-                        <DropdownMenuItem
-                            onClick={() => console.log('Delete', post.id)}
-                            className="text-red-600"
-                        >
-                            <Trash2 className="mr-2 h-4 w-4" />
-                            Delete
-                        </DropdownMenuItem>
-                    </DropdownMenuContent>
-                </DropdownMenu>
-            );
-        },
-    },
-];
 
 interface PostsTableProps {
     posts?: BlogPost[];
@@ -168,6 +57,11 @@ export function PostsTable({ posts, isLoading, errorMessage }: PostsTableProps) 
         React.useState<ColumnFiltersState>([]);
     const [columnVisibility, setColumnVisibility] =
         React.useState<VisibilityState>({});
+    const router = useRouter();
+    const deleteBlog = useDeleteBlog();
+    const [pendingDeleteId, setPendingDeleteId] = React.useState<
+        string | null
+    >(null);
 
     const tableData = React.useMemo<TableBlogPost[]>(() => {
         if (!posts) {
@@ -182,6 +76,148 @@ export function PostsTable({ posts, isLoading, errorMessage }: PostsTableProps) 
         }));
     }, [posts]);
 
+    const handleEdit = React.useCallback(
+        (blogId: string) => {
+            router.push(`/blog/${blogId}/edit`);
+        },
+        [router],
+    );
+
+    const handleDelete = React.useCallback(
+        (blogId: string) => {
+            if (
+                !window.confirm(
+                    "Are you sure you want to delete this blog post?",
+                )
+            ) {
+                return;
+            }
+            setPendingDeleteId(blogId);
+            deleteBlog.mutate(blogId, {
+                onSettled: () => setPendingDeleteId((prev) => (prev === blogId ? null : prev)),
+            });
+        },
+        [deleteBlog],
+    );
+
+    const columns = React.useMemo<ColumnDef<TableBlogPost>[]>(() => {
+        return [
+            {
+                accessorKey: 'title',
+                header: ({ column }) => (
+                    <Button
+                        variant="ghost"
+                        onClick={() =>
+                            column.toggleSorting(
+                                column.getIsSorted() === 'asc',
+                            )
+                        }
+                    >
+                        Title
+                        <ArrowUpDown className="ml-2 h-4 w-4" />
+                    </Button>
+                ),
+                cell: ({ row }) => (
+                    <div className="font-medium">{row.getValue('title')}</div>
+                ),
+            },
+            {
+                accessorKey: 'author',
+                header: ({ column }) => (
+                    <Button
+                        variant="ghost"
+                        onClick={() =>
+                            column.toggleSorting(
+                                column.getIsSorted() === 'asc',
+                            )
+                        }
+                    >
+                        Author
+                        <ArrowUpDown className="ml-2 h-4 w-4" />
+                    </Button>
+                ),
+                cell: ({ row }) => <div>{row.getValue('author')}</div>,
+            },
+            {
+                accessorKey: 'createdAt',
+                header: ({ column }) => (
+                    <Button
+                        variant="ghost"
+                        onClick={() =>
+                            column.toggleSorting(
+                                column.getIsSorted() === 'asc',
+                            )
+                        }
+                    >
+                        Created At
+                        <ArrowUpDown className="ml-2 h-4 w-4" />
+                    </Button>
+                ),
+                cell: ({ row }) => {
+                    const date = new Date(row.getValue('createdAt'));
+                    return <div>{date.toLocaleDateString()}</div>;
+                },
+            },
+            {
+                accessorKey: 'status',
+                header: 'Status',
+                cell: ({ row }) => {
+                    const status = row.getValue('status') as string;
+                    const statusColors: Record<string, string> = {
+                        published: 'bg-green-100 text-green-800',
+                        draft: 'bg-yellow-100 text-yellow-800',
+                        archived: 'bg-gray-100 text-gray-800',
+                    };
+                    return (
+                        <span
+                            className={`rounded-full px-2 py-1 text-xs font-semibold ${statusColors[status] || ''}`}
+                        >
+                            {status.charAt(0).toUpperCase() +
+                                status.slice(1)}
+                        </span>
+                    );
+                },
+            },
+            {
+                id: 'actions',
+                enableHiding: false,
+                cell: ({ row }) => {
+                    const post = row.original;
+                    const isDeleting =
+                        pendingDeleteId === post.id && deleteBlog.isPending;
+
+                    return (
+                        <DropdownMenu>
+                            <DropdownMenuTrigger asChild>
+                                <Button variant="ghost" className="h-8 w-8 p-0">
+                                    <span className="sr-only">Open menu</span>
+                                    <MoreHorizontal className="h-4 w-4" />
+                                </Button>
+                            </DropdownMenuTrigger>
+                            <DropdownMenuContent align="end">
+                                <DropdownMenuLabel>Actions</DropdownMenuLabel>
+                                <DropdownMenuItem
+                                    onClick={() => handleEdit(post.id)}
+                                >
+                                    <Edit2 className="mr-2 h-4 w-4" />
+                                    Edit
+                                </DropdownMenuItem>
+                                <DropdownMenuSeparator />
+                                <DropdownMenuItem
+                                    onClick={() => handleDelete(post.id)}
+                                    className="text-red-600"
+                                    disabled={isDeleting}
+                                >
+                                    <Trash2 className="mr-2 h-4 w-4" />
+                                    {isDeleting ? 'Deleting...' : 'Delete'}
+                                </DropdownMenuItem>
+                            </DropdownMenuContent>
+                        </DropdownMenu>
+                    );
+                },
+            },
+        ];
+    }, [deleteBlog.isPending, handleDelete, handleEdit, pendingDeleteId]);
     const table = useReactTable({
         data: tableData,
         columns,

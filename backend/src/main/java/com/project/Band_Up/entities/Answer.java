@@ -31,7 +31,10 @@
         @JoinColumn(name = "attempt_section_id", nullable = false,
                 foreignKey = @ForeignKey(name = "fk_answer_attempt_section"))
         private AttemptSection attemptSection;
+
+        @Column(columnDefinition = "text")
         private String answerContent;
+
         private boolean isCorrect;
         @JdbcTypeCode(SqlTypes.JSON)
         @Column(columnDefinition = "jsonb")

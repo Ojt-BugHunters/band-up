@@ -1,8 +1,8 @@
 'use client';
 
-import { deserialize, fetchWrapper } from '@/lib/service';
+import { buildParams, deserialize, fetchWrapper } from '@/lib/service';
 import { MediaResponse } from '../s3-upload';
-import { User } from './type';
+import { AccountPage, AccountPageQuery, User } from './type';
 import { useEffect } from 'react';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 
@@ -45,3 +45,25 @@ export function useUser() {
 
     return user;
 }
+
+export const useGetAccounts = (query: AccountPageQuery) => {
+    const params = buildParams({
+        page: query.page ?? 0,
+        size: query.size ?? 20,
+        sortBy: query.sortBy ?? 'createdAt',
+        direction: query.direction ?? 'DESC',
+    });
+
+    return useQuery({
+        queryKey: ['admin-accounts', params.toString()],
+        queryFn: async () => {
+            const response = await fetchWrapper(
+                `/profile/accounts?${params.toString()}`,
+            );
+            return await deserialize<AccountPage>(response);
+        },
+        placeholderData: (previousData) => previousData,
+        staleTime: 5 * 60 * 1000,
+        refetchOnWindowFocus: false,
+    });
+};

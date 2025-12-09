@@ -220,7 +220,9 @@ export default function ViewProfilePage() {
                                         </p>
                                         <p className="font-medium">
                                             {user?.birthday
-                                                ? user.birthday.toLocaleDateString()
+                                                ? new Date(
+                                                      user.birthday,
+                                                  ).toLocaleDateString()
                                                 : ''}
                                         </p>
                                     </div>

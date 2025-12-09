@@ -60,6 +60,9 @@ export default function DictationListPage() {
 
     const filteredTests = useMemo(() => {
         return (dictationTests ?? []).filter((t: Dictation) => {
+            // Chỉ lấy những test có skillName là "Dictation"
+            const isDictation = t?.skillName === 'Dictation';
+            
             const matchDifficulty =
                 difficult === 'all'
                     ? true
@@ -67,7 +70,7 @@ export default function DictationListPage() {
 
             const matchSearch = search === '' ? true : t.title.includes(search);
 
-            return matchDifficulty && matchSearch;
+            return isDictation && matchDifficulty && matchSearch;
         });
     }, [dictationTests, search, difficult]);
 
