@@ -35,55 +35,7 @@ const participants = [
         isVideoOn: true,
         isMicOn: false,
     },
-    {
-        id: 5,
-        name: 'Alex Chen',
-        avatar: 'AC',
-        isVideoOn: true,
-        isMicOn: true,
-    },
-    {
-        id: 6,
-        name: 'Sarah Lee',
-        avatar: 'SL',
-        isVideoOn: true,
-        isMicOn: true,
-    },
-    {
-        id: 7,
-        name: 'Nam Dang',
-        avatar: 'ND',
-        isVideoOn: true,
-        isMicOn: true,
-    },
-    {
-        id: 8,
-        name: 'John Doe',
-        avatar: 'JD',
-        isVideoOn: false,
-        isMicOn: true,
-    },
-    {
-        id: 9,
-        name: 'Jane Smith',
-        avatar: 'JS',
-        isVideoOn: true,
-        isMicOn: false,
-    },
-    {
-        id: 10,
-        name: 'Alex Chen',
-        avatar: 'AC',
-        isVideoOn: true,
-        isMicOn: true,
-    },
-    {
-        id: 11,
-        name: 'Sarah Lee',
-        avatar: 'SL',
-        isVideoOn: true,
-        isMicOn: true,
-    },
+   
 ];
 
 const getGridCols = (count: number) => {
