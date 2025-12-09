@@ -29,7 +29,7 @@ const nextConfig: NextConfig = {
                 hostname: 'd3s4wd2jidlo5b.cloudfront.net',
             },
         ],
-        domains: ['d2ay3or9h1yhxx.cloudfront.net', 'api.microlink.io'],
+        domains: ['d3s4wd2jidlo5b.cloudfront.net', 'api.microlink.io'],
     },
 };
 
