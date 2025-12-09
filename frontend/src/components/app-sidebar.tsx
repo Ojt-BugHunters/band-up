@@ -56,20 +56,6 @@ const data = {
             title: 'Dashboard',
             url: '/admin/dashboard',
             icon: LayoutDashboard,
-            items: [
-                {
-                    title: 'General',
-                    url: '/admin/dashboard/general',
-                },
-                {
-                    title: 'Statistics',
-                    url: '/admin/dashboard/statistics',
-                },
-                {
-                    title: 'Report',
-                    url: '/admin/dashboard/report',
-                },
-            ],
         },
         {
             title: 'Users',

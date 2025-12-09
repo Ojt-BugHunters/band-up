@@ -107,21 +107,6 @@ export const cardStatusChartData = [
     { status: 'mastered', count: 187, fill: 'var(--color-mastered)' },
 ];
 
-export const completionData = [
-    { month: 'Jan', rate: 52 },
-    { month: 'Feb', rate: 58 },
-    { month: 'Mar', rate: 61 },
-    { month: 'Apr', rate: 59 },
-    { month: 'May', rate: 65 },
-    { month: 'Jun', rate: 68 },
-    { month: 'July', rate: 52 },
-    { month: 'Aug', rate: 58 },
-    { month: 'Sep', rate: 61 },
-    { month: 'Oct', rate: 59 },
-    { month: 'Nov', rate: 65 },
-    { month: 'Dec', rate: 68 },
-];
-
 export const studyTimeData = [
     { week: 'Week 1', minutes: 1240 },
     { week: 'Week 2', minutes: 1380 },

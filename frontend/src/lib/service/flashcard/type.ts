@@ -29,8 +29,20 @@ export interface DeckCard {
 
 export interface FlashCardData {
     totalCards: number;
-    totalDecks: number;
+    totalDecks?: number;
     totalLearners: number;
+    activeDecks?: number;
+    totalCardsDifference?: number;
+    totalLearnersDifference?: number;
+    activeDecksDifference?: number;
+    completionRate?: number;
+    completionRateDifference?: number;
+    statsInterval?: 'DAILY' | 'WEEKLY' | 'MONTHLY' | 'YEARLY';
+}
+
+export interface CompletionRatePoint {
+    month: string;
+    rate: number;
 }
 
 export interface PaginationInfo {

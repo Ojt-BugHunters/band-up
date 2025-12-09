@@ -31,7 +31,10 @@ import {
     LearningStatsMonth,
     LearningStatsYear,
     SessionOverviewStats,
+    RoomStats,
+    RoomAnalytics,
 } from './type';
+import type { StatsInterval } from '../stats';
 
 export enum StudySessionStatus {
     PENDING = 'PENDING',
@@ -513,5 +516,32 @@ export const useGetSessionOverviewStats = (date: string | undefined) => {
             return await deserialize<SessionOverviewStats>(response);
         },
         staleTime: 10 * 1000,
+    });
+};
+
+export const useGetRoomStats = (
+    statsInterval: StatsInterval = 'WEEKLY',
+) => {
+    const params = buildParams({ statsInterval });
+    return useQuery({
+        queryKey: ['room-stats', statsInterval],
+        queryFn: async () => {
+            const response = await fetchWrapper(
+                `/rooms/stats?${params.toString()}`,
+            );
+            return await deserialize<RoomStats>(response);
+        },
+        staleTime: 5 * 60 * 1000,
+    });
+};
+
+export const useGetTopRoomsAnalytics = () => {
+    return useQuery({
+        queryKey: ['room-analytics'],
+        queryFn: async () => {
+            const response = await fetchWrapper('/rooms/analytics');
+            return await deserialize<RoomAnalytics[]>(response);
+        },
+        staleTime: 5 * 60 * 1000,
     });
 };

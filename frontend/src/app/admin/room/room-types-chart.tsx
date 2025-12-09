@@ -16,12 +16,24 @@ import {
     ResponsiveContainer,
 } from 'recharts';
 
-const data = [
-    { name: 'Public', value: 1842, color: '#3b82f6' },
-    { name: 'Private', value: 644, color: '#8b5cf6' },
-];
+type RoomTypesChartProps = {
+    publicRooms?: number;
+    privateRooms?: number;
+    isLoading?: boolean;
+};
 
-export function RoomTypesChart() {
+export function RoomTypesChart({
+    publicRooms,
+    privateRooms,
+    isLoading,
+}: RoomTypesChartProps) {
+    const data = [
+        { name: 'Public', value: publicRooms ?? 0, color: '#3b82f6' },
+        { name: 'Private', value: privateRooms ?? 0, color: '#8b5cf6' },
+    ];
+    const totalRooms = data.reduce((sum, item) => sum + item.value, 0);
+    const hasData = totalRooms > 0;
+
     return (
         <Card>
             <CardHeader>
@@ -31,31 +43,41 @@ export function RoomTypesChart() {
                 </CardDescription>
             </CardHeader>
             <CardContent>
-                <ResponsiveContainer width="100%" height={300}>
-                    <PieChart>
-                        <Pie
-                            data={data}
-                            cx="50%"
-                            cy="50%"
-                            labelLine={false}
-                            label={({ name, percent }) =>
-                                `${name} ${(percent * 100).toFixed(0)}%`
-                            }
-                            outerRadius={100}
-                            fill="#8884d8"
-                            dataKey="value"
-                        >
-                            {data.map((entry, index) => (
-                                <Cell
-                                    key={`cell-${index}`}
-                                    fill={entry.color}
-                                />
-                            ))}
-                        </Pie>
-                        <Tooltip />
-                        <Legend />
-                    </PieChart>
-                </ResponsiveContainer>
+                {isLoading ? (
+                    <p className="text-muted-foreground text-sm">
+                        Loading room type distribution...
+                    </p>
+                ) : hasData ? (
+                    <ResponsiveContainer width="100%" height={300}>
+                        <PieChart>
+                            <Pie
+                                data={data}
+                                cx="50%"
+                                cy="50%"
+                                labelLine={false}
+                                label={({ name, percent }) =>
+                                    `${name} ${Number.isFinite(percent) ? (percent * 100).toFixed(0) : 0}%`
+                                }
+                                outerRadius={100}
+                                fill="#8884d8"
+                                dataKey="value"
+                            >
+                                {data.map((entry, index) => (
+                                    <Cell
+                                        key={`cell-${index}`}
+                                        fill={entry.color}
+                                    />
+                                ))}
+                            </Pie>
+                            <Tooltip />
+                            <Legend />
+                        </PieChart>
+                    </ResponsiveContainer>
+                ) : (
+                    <p className="text-muted-foreground text-sm">
+                        No room type data available.
+                    </p>
+                )}
             </CardContent>
         </Card>
     );

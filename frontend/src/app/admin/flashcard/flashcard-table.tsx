@@ -7,7 +7,6 @@ import {
     flexRender,
     getCoreRowModel,
     getFilteredRowModel,
-    getPaginationRowModel,
     getSortedRowModel,
     type SortingState,
     useReactTable,
@@ -45,98 +44,16 @@ import {
     TableRow,
 } from '@/components/ui/table';
 import { Badge } from '@/components/ui/badge';
-
-export interface Deck {
-    id: string;
-    title: string;
-    description: string;
-    learnerNumber: number;
-    createdAt: string;
-    authorName: string;
-    public?: boolean;
-}
-
-const data: Deck[] = [
-    {
-        id: 'deck001',
-        title: 'Frontend Basics',
-        description:
-            'Essential concepts for modern frontend development including React, HTML, and CSS',
-        learnerNumber: 1245,
-        createdAt: '2024-01-15',
-        authorName: 'Sarah Johnson',
-        public: true,
-    },
-    {
-        id: 'deck002',
-        title: 'JavaScript Advanced',
-        description:
-            'Deep dive into JavaScript closures, promises, and async patterns',
-        learnerNumber: 892,
-        createdAt: '2024-01-10',
-        authorName: 'Mike Chen',
-        public: true,
-    },
-    {
-        id: 'deck003',
-        title: 'TypeScript Basics',
-        description:
-            'Introduction to TypeScript type system and best practices',
-        learnerNumber: 2156,
-        createdAt: '2024-01-20',
-        authorName: 'Emma Davis',
-        public: true,
-    },
-    {
-        id: 'deck004',
-        title: 'CSS Fundamentals',
-        description:
-            'Master CSS Grid, Flexbox, and responsive design principles',
-        learnerNumber: 678,
-        createdAt: '2024-01-08',
-        authorName: 'John Smith',
-        public: false,
-    },
-    {
-        id: 'deck005',
-        title: 'React Hooks Deep Dive',
-        description:
-            'Advanced patterns with useState, useEffect, and custom hooks',
-        learnerNumber: 1523,
-        createdAt: '2024-01-18',
-        authorName: 'Lisa Wang',
-        public: true,
-    },
-    {
-        id: 'deck006',
-        title: 'Node.js Backend',
-        description:
-            'Building scalable backend applications with Node.js and Express',
-        learnerNumber: 945,
-        createdAt: '2024-01-12',
-        authorName: 'David Brown',
-        public: true,
-    },
-    {
-        id: 'deck007',
-        title: 'Database Design',
-        description: 'SQL fundamentals and database optimization techniques',
-        learnerNumber: 1087,
-        createdAt: '2024-01-14',
-        authorName: 'Rachel Green',
-        public: false,
-    },
-    {
-        id: 'deck008',
-        title: 'Web Performance',
-        description:
-            'Optimize loading times, rendering, and overall web performance',
-        learnerNumber: 534,
-        createdAt: '2024-01-05',
-        authorName: 'Tom Anderson',
-        public: true,
-    },
-];
+import { Deck, useGetDecks } from '@/lib/service/flashcard';
+import { useDebounce } from '@/lib/utils';
+import {
+    Select,
+    SelectContent,
+    SelectItem,
+    SelectTrigger,
+    SelectValue,
+} from '@/components/ui/select';
+import Link from 'next/link';
 
 export const columns: ColumnDef<Deck>[] = [
     {
@@ -305,6 +222,12 @@ export const columns: ColumnDef<Deck>[] = [
 ];
 
 export function FlashcardTable() {
+    const [search, setSearch] = React.useState('');
+    const [visibilityFilter, setVisibilityFilter] =
+        React.useState<'all' | 'public' | 'private'>('all');
+    const [pageIndex, setPageIndex] = React.useState(0);
+    const pageSize = 10;
+    const debouncedSearch = useDebounce(search, 400);
     const [sorting, setSorting] = React.useState<SortingState>([]);
     const [columnFilters, setColumnFilters] =
         React.useState<ColumnFiltersState>([]);
@@ -312,13 +235,51 @@ export function FlashcardTable() {
         React.useState<VisibilityState>({});
     const [rowSelection, setRowSelection] = React.useState({});
 
+    React.useEffect(() => {
+        setPageIndex(0);
+    }, [debouncedSearch, visibilityFilter]);
+
+    const paginationInfo = React.useMemo(
+        () => ({
+            pageNo: pageIndex,
+            pageSize,
+            sortBy: 'createdAt',
+            ascending: false,
+            queryBy: debouncedSearch.trim(),
+            visibility:
+                (visibilityFilter === 'all' ? '' : visibilityFilter) as
+                    | ''
+                    | 'public'
+                    | 'private',
+        }),
+        [pageIndex, pageSize, debouncedSearch, visibilityFilter],
+    );
+
+    const { data, isPending, isFetching, error } = useGetDecks(paginationInfo);
+    const decks = data?.content ?? [];
+    const totalElements = data?.totalElements ?? 0;
+    const totalPages =
+        totalElements > 0 ? Math.ceil(totalElements / pageSize) : 0;
+    const isLoading = isPending || isFetching;
+    const errorMessage = error instanceof Error ? error.message : undefined;
+
+    React.useEffect(() => {
+        if (isLoading) return;
+        if (totalPages === 0 && pageIndex !== 0) {
+            setPageIndex(0);
+            return;
+        }
+        if (totalPages > 0 && pageIndex > totalPages - 1) {
+            setPageIndex(totalPages - 1);
+        }
+    }, [totalPages, pageIndex, isLoading]);
+
     const table = useReactTable({
-        data,
+        data: decks,
         columns,
         onSortingChange: setSorting,
         onColumnFiltersChange: setColumnFilters,
         getCoreRowModel: getCoreRowModel(),
-        getPaginationRowModel: getPaginationRowModel(),
         getSortedRowModel: getSortedRowModel(),
         getFilteredRowModel: getFilteredRowModel(),
         onColumnVisibilityChange: setColumnVisibility,
@@ -333,29 +294,46 @@ export function FlashcardTable() {
 
     return (
         <div className="w-full">
+            {errorMessage && (
+                <div className="text-destructive mb-4 rounded-md border border-destructive/40 bg-destructive/10 p-3 text-sm">
+                    Failed to load flashcards: {errorMessage}
+                </div>
+            )}
             <div className="flex items-center justify-between gap-4 py-4">
                 <Input
                     placeholder="Filter decks by title..."
-                    value={
-                        (table
-                            .getColumn('title')
-                            ?.getFilterValue() as string) ?? ''
-                    }
-                    onChange={(event) =>
-                        table
-                            .getColumn('title')
-                            ?.setFilterValue(event.target.value)
-                    }
+                    value={search}
+                    onChange={(event) => {
+                        const value = event.target.value;
+                        setSearch(value);
+                        table.getColumn('title')?.setFilterValue(value);
+                    }}
                     className="max-w-sm"
                 />
+                <Select
+                    value={visibilityFilter}
+                    onValueChange={(value) =>
+                        setVisibilityFilter(
+                            value as 'all' | 'public' | 'private',
+                        )
+                    }
+                >
+                    <SelectTrigger className="w-[140px]">
+                        <SelectValue placeholder="Visibility" />
+                    </SelectTrigger>
+                    <SelectContent>
+                        <SelectItem value="all">All decks</SelectItem>
+                        <SelectItem value="public">Public</SelectItem>
+                        <SelectItem value="private">Private</SelectItem>
+                    </SelectContent>
+                </Select>
                 <div className="flex items-center gap-2">
-                    <Button
-                        onClick={() => console.log('Create new deck')}
-                        className="bg-primary"
-                    >
-                        <Plus className="mr-2 h-4 w-4" />
-                        Create Deck
-                    </Button>
+                    <Link href="/flashcard/new">
+                        <Button className="bg-primary">
+                            <Plus className="mr-2 h-4 w-4" />
+                            Create Deck
+                        </Button>
+                    </Link>
                     <DropdownMenu>
                         <DropdownMenuTrigger asChild>
                             <Button
@@ -409,7 +387,16 @@ export function FlashcardTable() {
                         ))}
                     </TableHeader>
                     <TableBody>
-                        {table.getRowModel().rows?.length ? (
+                        {isLoading ? (
+                            <TableRow>
+                                <TableCell
+                                    colSpan={columns.length}
+                                    className="h-24 text-center text-sm text-muted-foreground"
+                                >
+                                    Loading flashcards...
+                                </TableCell>
+                            </TableRow>
+                        ) : table.getRowModel().rows?.length ? (
                             table.getRowModel().rows.map((row) => (
                                 <TableRow
                                     key={row.id}
@@ -446,19 +433,35 @@ export function FlashcardTable() {
                     {table.getFilteredRowModel().rows.length} row(s) selected.
                 </div>
                 <div className="space-x-2">
+                    <span className="text-muted-foreground text-sm">
+                        Page {totalPages === 0 ? 0 : pageIndex + 1} of{' '}
+                        {totalPages}
+                    </span>
                     <Button
                         variant="outline"
                         size="sm"
-                        onClick={() => table.previousPage()}
-                        disabled={!table.getCanPreviousPage()}
+                        onClick={() =>
+                            setPageIndex((prev) => Math.max(prev - 1, 0))
+                        }
+                        disabled={pageIndex === 0 || isLoading}
                     >
                         Previous
                     </Button>
                     <Button
                         variant="outline"
                         size="sm"
-                        onClick={() => table.nextPage()}
-                        disabled={!table.getCanNextPage()}
+                        onClick={() =>
+                            setPageIndex((prev) =>
+                                totalPages === 0
+                                    ? prev
+                                    : Math.min(prev + 1, totalPages - 1),
+                            )
+                        }
+                        disabled={
+                            isLoading ||
+                            totalPages === 0 ||
+                            pageIndex >= totalPages - 1
+                        }
                     >
                         Next
                     </Button>

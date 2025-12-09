@@ -1,6 +1,8 @@
 import z from 'zod';
 import { Tag, TagSchema } from '../tag';
 import { Comment } from '../comment';
+import type { StatsInterval } from '../stats';
+export type { StatsInterval } from '../stats';
 
 // ------ Type and Interface----------
 export interface PaginationInfo {
@@ -39,13 +41,6 @@ export interface BlogReact {
     reactAuthor: Author;
     reactType: ReactType;
 }
-
-export type StatsInterval =
-    | 'HOURLY'
-    | 'DAILY'
-    | 'WEEKLY'
-    | 'MONTHLY'
-    | 'YEARLY';
 
 export interface BlogStats {
     totalViews: number;
