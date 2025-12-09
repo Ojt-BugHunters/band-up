@@ -9,11 +9,13 @@ import {
     BandScoreResponse,
     CreateAttemptResponse,
     CreateAttemptSectionResponse,
+    EvaluationPayload,
     SubmitAnswerParams,
     SubmitResponse,
     WritingSubmission,
 } from './type';
 import { useRouter } from 'next/navigation';
+import { FeedbackData } from '@/app/writing-result/[id]/ielts-writing-feedback';
 
 export function useCreateAttempt() {
     return useMutation({
@@ -219,6 +221,50 @@ export function useSubmitWritingTest() {
             toast.success('Submitted successfully!');
             const ids = data.map((item) => item.id).join(',');
             router.push(`/writing-result/${ids}`);
+        },
+    });
+}
+
+interface EvaluateParams {
+    answerIds: string[];
+    payloads: EvaluationPayload[];
+}
+
+export function useEvaluateWriting() {
+    return useMutation({
+        mutationFn: async ({ answerIds, payloads }: EvaluateParams) => {
+            if (answerIds.length !== payloads.length) {
+                throw new Error('Answer IDs and Payloads length mismatch');
+            }
+
+            const promises = answerIds.map(async (answerId, index) => {
+                const payload = payloads[index];
+
+                const url = `/v1/evaluations/writing/evaluate/${answerId}`;
+
+                const response = await fetchWrapper(url, {
+                    method: 'POST',
+                    headers: {
+                        Accept: 'application/json',
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(payload),
+                });
+
+                await throwIfError(response);
+
+                return response.json() as Promise<FeedbackData>;
+            });
+
+            return await Promise.all(promises);
+        },
+        onError: (error) => {
+            console.error('Evaluation Error:', error);
+            toast.error(error?.message ?? 'Failed to evaluate writing');
+        },
+        onSuccess: (data) => {
+            toast.success('Evaluation completed successfully!');
+            console.log('Evaluation Results:', data);
         },
     });
 }

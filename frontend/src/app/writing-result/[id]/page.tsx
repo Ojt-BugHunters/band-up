@@ -1,119 +1,167 @@
 'use client';
 
-import { useEffect, useState } from 'react';
-import { useSearchParams } from 'next/navigation';
+import React, { useEffect, useState, useMemo, useRef } from 'react';
+import { useParams } from 'next/navigation';
 import { IELTSFeedbackDisplay } from './ielts-writing-feedback';
 import LiquidLoading from '@/components/ui/liquid-loader';
+import { useGetWritingQuestions } from '@/lib/service/test/question';
+import { useEvaluateWriting } from '@/lib/service/attempt';
+import type { WritingQuestion } from '@/lib/service/test/question/type';
+import { EvaluationPayload } from '@/lib/service/attempt';
 import { toast } from 'sonner';
-import { fetchWrapper, throwIfError } from '@/lib/service';
+
+interface SubmittedAnswer {
+    taskTitle: string;
+    questionId: string;
+    attemptSectionId: string;
+    content: string;
+}
+
+const buildPayloads = (
+    submittedAnswers: SubmittedAnswer[],
+    questions: WritingQuestion[],
+): EvaluationPayload[] => {
+    const HARDCODED_ID = '3fa85f64-5717-4562-b3fc-2c963f66afa6';
+    return submittedAnswers.map((answer) => {
+        const questionDetail = questions.find(
+            (q) => q.id === answer.questionId,
+        );
+
+        if (!questionDetail) {
+            console.warn(
+                `Missing question detail for ID: ${answer.questionId}`,
+            );
+            return {
+                section_id: HARDCODED_ID,
+                user_id: HARDCODED_ID,
+                essay_content: answer.content,
+                task_type: 'TASK_1',
+                prompt: 'Instruction not found',
+                word_count: 0,
+            };
+        }
+
+        const taskType =
+            questionDetail.content.taskNumber === 1 ? 'TASK_1' : 'TASK_2';
+
+        return {
+            section_id: HARDCODED_ID,
+            user_id: HARDCODED_ID,
+            essay_content: answer.content,
+            task_type: taskType,
+            prompt: questionDetail.content.instruction,
+            word_count: questionDetail.content.minWords,
+        };
+    });
+};
 
 export default function WritingResultPage() {
-    // const searchParams = useSearchParams();
-    // const idsString = searchParams.get('ids');
-    // // State quản lý
-    // const [results, setResults] = useState<any[]>([]);
-    // const [isLoading, setIsLoading] = useState(true);
-    // const [hasError, setHasError] = useState(false);
-    // useEffect(() => {
-    //     const fetchAndEvaluate = async () => {
-    //         if (!idsString) {
-    //             setIsLoading(false);
-    //             return;
-    //         }
-    //         const answerIds = idsString.split(',');
-    //         setIsLoading(true);
-    //         try {
-    //             // Chạy song song tất cả các bài làm (Promise.all)
-    //             const promises = answerIds.map(async (answerId) => {
-    //                 // BƯỚC 1: Lấy thông tin bài làm (Answer) để có User Content & QuestionID
-    //                 const answerRes = await fetchWrapper(
-    //                     `/api/answers/${answerId}`,
-    //                 );
-    //                 await throwIfError(answerRes);
-    //                 const answerData: AnswerResponse = await answerRes.json();
-    //                 // BƯỚC 2: Lấy thông tin câu hỏi (Question) dựa trên questionId từ Answer
-    //                 // (Cách này an toàn hơn localStorage vì questionId gắn liền với answer)
-    //                 const questionRes = await fetchWrapper(
-    //                     `/questions/${answerData.questionId}`,
-    //                 ); // Endpoint theo hook useGetWritingSection
-    //                 await throwIfError(questionRes);
-    //                 const questionData: WritingQuestion =
-    //                     await questionRes.json();
-    //                 // BƯỚC 3: Chuẩn bị Payload "ngon lành"
-    //                 // taskNumber: 1 -> TASK_1, 2 -> TASK_2
-    //                 const taskType =
-    //                     questionData.content.taskNumber === 1
-    //                         ? 'TASK_1'
-    //                         : 'TASK_2';
-    //                 const payload = {
-    //                     section_id: HARDCODED_SECTION_ID,
-    //                     user_id: HARDCODED_USER_ID,
-    //                     essay_content: answerData.answerContent, // Content user nhập
-    //                     task_type: taskType, // TASK_1 hoặc TASK_2
-    //                     prompt: questionData.content.instruction, // Instruction làm prompt
-    //                     word_count: countWords(answerData.answerContent),
-    //                 };
-    //                 // BƯỚC 4: Gọi API Evaluate (Cú chốt)
-    //                 const evaluateRes = await fetchWrapper(
-    //                     `/api/v1/evaluations/writing/evaluate/${answerId}`,
-    //                     {
-    //                         method: 'POST',
-    //                         headers: {
-    //                             'Content-Type': 'application/json',
-    //                         },
-    //                         body: JSON.stringify(payload),
-    //                     },
-    //                 );
-    //                 await throwIfError(evaluateRes);
-    //                 const rawResult = await evaluateRes.json();
-    //                 // BƯỚC 5: Xử lý data trả về cho khớp UI
-    //                 return processFeedbackData(rawResult);
-    //             });
-    //             // Đợi tất cả hoàn thành
-    //             const data = await Promise.all(promises);
-    //             setResults(data);
-    //         } catch (error) {
-    //             console.error('Evaluation Error:', error);
-    //             setHasError(true);
-    //             toast.error('Failed to load evaluation results.');
-    //         } finally {
-    //             setIsLoading(false);
-    //         }
-    //     };
-    //     fetchAndEvaluate();
-    // }, [idsString]); // Chỉ chạy lại khi ID thay đổi
-    // if (isLoading) {
-    //     return (
-    //         <div className="bg-background flex h-screen w-full items-center justify-center">
-    //             <LiquidLoading />
-    //         </div>
-    //     );
-    // }
-    // if (hasError || results.length === 0) {
-    //     return (
-    //         <div className="p-10 text-center">
-    //             <h2 className="text-destructive text-xl font-bold">
-    //                 Unable to load results
-    //             </h2>
-    //             <p className="text-muted-foreground">
-    //                 Please try refreshing the page.
-    //             </p>
-    //         </div>
-    //     );
-    // }
-    // return (
-    //     <div className="from-background via-background to-muted/20 min-h-screen bg-gradient-to-br">
-    //         <div className="container mx-auto px-4 py-8 md:py-12">
-    //             <div className="mb-8 text-center">
-    //                 <h1 className="mb-2 text-4xl font-bold tracking-tight">
-    //                     IELTS Writing Feedback
-    //                 </h1>
-    //                 <p className="text-muted-foreground">
-    //                     Detailed analysis of your writing performance
-    //                 </p>
-    //             </div>
-    //             <IELTSFeedbackDisplay data={results} />
-    //         </div>
-    //     </div>
-    // );
+    const params = useParams();
+
+    const [answerIds, setAnswerIds] = useState<string[]>([]);
+    const [submittedAnswers, setSubmittedAnswers] = useState<SubmittedAnswer[]>(
+        [],
+    );
+    const hasEvaluated = useRef(false);
+
+    const questionIds = useMemo(
+        () => submittedAnswers.map((a) => a.questionId),
+        [submittedAnswers],
+    );
+
+    const { data: questions, isLoading: isLoadingQuestions } =
+        useGetWritingQuestions(questionIds);
+
+    const {
+        mutate: evaluate,
+        data: evaluationResults,
+        isPending: isEvaluating,
+        isError: isEvaluationError,
+    } = useEvaluateWriting();
+
+    useEffect(() => {
+        const rawId = params.id;
+        if (rawId) {
+            const idString = decodeURIComponent(rawId.toString());
+            setAnswerIds(idString.split(','));
+        }
+
+        const storedJson = localStorage.getItem('submitted_answers');
+        if (storedJson) {
+            try {
+                const parsedData: SubmittedAnswer[] = JSON.parse(storedJson);
+                if (Array.isArray(parsedData)) {
+                    setSubmittedAnswers(parsedData);
+                }
+            } catch (error) {
+                console.error('Lỗi đọc LocalStorage:', error);
+                toast.error('Could not load your answers from storage');
+            }
+        }
+    }, [params]);
+
+    useEffect(() => {
+        if (
+            answerIds.length > 0 &&
+            questions &&
+            questions.length > 0 &&
+            submittedAnswers.length > 0 &&
+            !hasEvaluated.current
+        ) {
+            const payloads = buildPayloads(submittedAnswers, questions);
+
+            console.log('Ready to evaluate:', { answerIds, payloads });
+
+            evaluate({ answerIds, payloads });
+
+            hasEvaluated.current = true;
+        }
+    }, [answerIds, questions, submittedAnswers, evaluate]);
+
+    if (isLoadingQuestions || isEvaluating) {
+        return (
+            <div className="bg-background flex h-screen w-full flex-col items-center justify-center gap-4">
+                <LiquidLoading />
+                <p className="text-muted-foreground animate-pulse">
+                    {isLoadingQuestions
+                        ? 'Loading questions...'
+                        : 'AI is analyzing your writing...'}
+                </p>
+            </div>
+        );
+    }
+
+    if (isEvaluationError || (hasEvaluated.current && !evaluationResults)) {
+        return (
+            <div className="flex h-screen flex-col items-center justify-center p-10 text-center">
+                <h2 className="text-destructive mb-2 text-xl font-bold">
+                    Evaluation Failed
+                </h2>
+                <p className="text-muted-foreground">
+                    Unable to evaluate your writing at this time.
+                </p>
+            </div>
+        );
+    }
+
+    if (!evaluationResults) {
+        return null;
+    }
+
+    return (
+        <div className="from-background via-background to-muted/20 min-h-screen bg-gradient-to-br">
+            <div className="container mx-auto px-4 py-8 md:py-12">
+                <div className="mb-8 text-center">
+                    <h1 className="mb-2 text-4xl font-bold tracking-tight">
+                        IELTS Writing Feedback
+                    </h1>
+                    <p className="text-muted-foreground">
+                        Detailed analysis of your writing performance
+                    </p>
+                </div>
+
+                <IELTSFeedbackDisplay data={evaluationResults} />
+            </div>
+        </div>
+    );
 }
