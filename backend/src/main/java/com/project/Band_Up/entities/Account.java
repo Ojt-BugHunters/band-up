@@ -1,5 +1,6 @@
 package com.project.Band_Up.entities;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.project.Band_Up.enums.Gender;
 import com.project.Band_Up.enums.Role;
 import jakarta.persistence.*;
@@ -60,6 +61,7 @@ public class Account {
     private LocalDateTime createdAt;
 
     @OneToMany(fetch = FetchType.LAZY, mappedBy = "account", cascade = CascadeType.ALL)
+    @JsonIgnore
     private List<Deck> decks;
 
     @OneToMany(fetch = FetchType.LAZY, mappedBy = "account", cascade = CascadeType.ALL)
