@@ -24,6 +24,10 @@ const nextConfig: NextConfig = {
                 protocol: 'https',
                 hostname: 'ieltstrainingonline.com',
             },
+            {
+                protocol: 'https',
+                hostname: 'd3s4wd2jidlo5b.cloudfront.net',
+            },
         ],
         domains: ['d3s4wd2jidlo5b.cloudfront.net', 'api.microlink.io'],
     },

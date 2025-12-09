@@ -18,10 +18,14 @@ export default function ClientLayout({
     children: React.ReactNode;
 }) {
     const pathname = usePathname();
+    const isFlashcardMemorizePage = /^\/flashcard\/[^/]+\/memorize/.test(
+        pathname,
+    );
     const hideLayout =
         pathname.includes('/do') ||
         pathname.includes('/result') ||
         pathname.startsWith('/memorize') ||
+        isFlashcardMemorizePage ||
         /^\/flashcard\/[^/]+\/test$/.test(pathname) ||
         pathname.startsWith('/admin') ||
         pathname.startsWith('/dictation/') ||
