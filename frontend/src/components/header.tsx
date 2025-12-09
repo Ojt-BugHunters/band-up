@@ -198,7 +198,7 @@ export function Header() {
                                         <div className="group flex items-center gap-2 rounded-xl px-3 py-2 transition-all duration-200">
                                             <div className="size-8">
                                                 <AccountPicture
-                                                    name={user.name}
+                                                    name={user.name ?? ''}
                                                 />
                                             </div>
                                             <ChevronDown className="h-3 w-3 text-slate-500 transition-colors duration-200 group-hover:text-slate-700" />
@@ -336,7 +336,9 @@ export function Header() {
                                 <DropdownMenuTrigger asChild>
                                     <div className="group flex items-center gap-2 rounded-xl px-3 py-2 transition-all duration-200">
                                         <div className="size-8">
-                                            <AccountPicture name={user.name} />
+                                            <AccountPicture
+                                                name={user.name ?? ''}
+                                            />
                                         </div>
                                         <ChevronDown className="h-3 w-3 text-slate-500 transition-colors duration-200 group-hover:text-slate-700" />
                                     </div>

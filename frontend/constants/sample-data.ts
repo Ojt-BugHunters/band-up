@@ -320,7 +320,7 @@ export const user: User = {
     name: 'Nam Dang',
     gender: 'Male',
     address: '123 street, Viet Nam',
-    birthday: new Date(),
+    birthday: '29-6-2005',
     isActive: true,
 };
 

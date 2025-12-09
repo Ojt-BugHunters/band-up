@@ -7,18 +7,12 @@ import { useGetBlogDetail } from '@/lib/service/blog';
 export default function EditBlogPage() {
     const params = useParams<{ id: string }>();
     const blogId = params?.id;
-    const {
-        data: blog,
-        isLoading,
-        error,
-    } = useGetBlogDetail(blogId ?? '');
+    const { data: blog, isLoading, error } = useGetBlogDetail(blogId ?? '');
 
     if (!blogId) {
         return (
             <div className="p-6">
-                <p className="text-destructive text-sm">
-                    Blog ID is missing.
-                </p>
+                <p className="text-destructive text-sm">Blog ID is missing.</p>
             </div>
         );
     }
@@ -37,7 +31,8 @@ export default function EditBlogPage() {
         return (
             <div className="p-6">
                 <p className="text-destructive text-sm">
-                    Failed to load blog: {error instanceof Error ? error.message : 'Unknown error'}
+                    Failed to load blog:{' '}
+                    {error instanceof Error ? error.message : 'Unknown error'}
                 </p>
             </div>
         );
@@ -46,25 +41,14 @@ export default function EditBlogPage() {
     if (!blog) {
         return (
             <div className="p-6">
-                <p className="text-destructive text-sm">
-                    Blog not found.
-                </p>
+                <p className="text-destructive text-sm">Blog not found.</p>
             </div>
         );
     }
 
     return (
         <div className="mx-auto mt-14 p-8">
-            <BlogForm
-                mode="update"
-                initialValues={{
-                    id: blog.id,
-                    title: blog.title,
-                    description: blog.content ?? '',
-                    topics: blog.tags ?? [],
-                }}
-                submitText="Update Blog"
-            />
+            <BlogForm mode="update" submitText="Update Blog" />
         </div>
     );
 }

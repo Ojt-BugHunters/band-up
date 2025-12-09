@@ -39,10 +39,12 @@ const formatDate = (value?: string | null) => {
     });
 };
 
-const formatPlan = (user: User) =>
-    user.subscription?.subscriptionType ?? null;
+const formatPlan = (user: User) => user.subscription?.subscriptionType ?? null;
 
-const statusStyle: Record<'active' | 'inactive', { label: string; variant: string }> = {
+const statusStyle: Record<
+    'active' | 'inactive',
+    { label: string; variant: string }
+> = {
     active: { label: 'Active', variant: 'bg-emerald-100 text-emerald-800' },
     inactive: { label: 'Inactive', variant: 'bg-slate-100 text-slate-800' },
 };
@@ -59,12 +61,7 @@ export default function AdminUsersPage() {
         [page],
     );
 
-    const {
-        data,
-        isLoading,
-        isFetching,
-        error,
-    } = useGetAccounts(query);
+    const { data, isLoading, isFetching, error } = useGetAccounts(query);
 
     useEffect(() => {
         if (data && data.totalPages > 0 && page > data.totalPages - 1) {
@@ -72,7 +69,7 @@ export default function AdminUsersPage() {
         }
     }, [data, page]);
 
-    const users = data?.content ?? [];
+    const users = useMemo(() => data?.content ?? [], [data]);
     const totalUsers = data?.totalElements ?? 0;
     const totalPages = data?.totalPages ?? 1;
     const isBusy = isLoading || isFetching;
@@ -90,8 +87,7 @@ export default function AdminUsersPage() {
         let premium = 0;
         let inactive = 0;
         users.forEach((account) => {
-            const isActive =
-                account.isActive ?? account.active ?? false;
+            const isActive = account.isActive ?? account.active ?? false;
             if (isActive) {
                 active += 1;
             } else {
@@ -222,7 +218,10 @@ export default function AdminUsersPage() {
                             <TableBody>
                                 {users.length === 0 ? (
                                     <TableRow>
-                                        <TableCell colSpan={8} className="py-8 text-center text-sm text-muted-foreground">
+                                        <TableCell
+                                            colSpan={8}
+                                            className="text-muted-foreground py-8 text-center text-sm"
+                                        >
                                             {isBusy ? (
                                                 <div className="flex items-center justify-center gap-2">
                                                     <Loader2 className="h-5 w-5 animate-spin" />
@@ -254,10 +253,16 @@ export default function AdminUsersPage() {
                                                         {user.email}
                                                     </div>
                                                 </TableCell>
-                                                <TableCell>{user.role}</TableCell>
+                                                <TableCell>
+                                                    {user.role}
+                                                </TableCell>
                                                 <TableCell>{plan}</TableCell>
-                                                <TableCell>{user.phone}</TableCell>
-                                                <TableCell>{user.address}</TableCell>
+                                                <TableCell>
+                                                    {user.phone}
+                                                </TableCell>
+                                                <TableCell>
+                                                    {user.address}
+                                                </TableCell>
                                                 <TableCell>
                                                     {formatDate(user.birthday)}
                                                 </TableCell>
@@ -285,7 +290,7 @@ export default function AdminUsersPage() {
                         </Table>
                     </div>
 
-                    <div className="flex flex-col gap-3 pt-2 text-sm text-muted-foreground md:flex-row md:items-center md:justify-between">
+                    <div className="text-muted-foreground flex flex-col gap-3 pt-2 text-sm md:flex-row md:items-center md:justify-between">
                         <p>
                             {totalUsers
                                 ? `Showing ${pageStart}-${pageEnd} of ${numberFormatter.format(totalUsers)} users`
