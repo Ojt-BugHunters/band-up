@@ -30,6 +30,7 @@ import {
     useGetSpeakingWithQuestions,
 } from '@/lib/service/test/question';
 import LiquidLoading from '@/components/ui/liquid-loader';
+import { useRouter } from 'next/navigation';
 
 type SpeakingTestProps = {
     mode?: string;
@@ -60,7 +61,7 @@ export function SpeakingTest({
             0,
         );
     }, [availableParts]);
-
+    const router = useRouter();
     const [currentPart, setCurrentPart] = useState('');
     const [isTestStarted, setIsTestStarted] = useState(false);
     const [isRecording, setIsRecording] = useState(false);
@@ -142,7 +143,9 @@ export function SpeakingTest({
         return `${minutes.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
     };
 
-    const handleSubmit = () => {};
+    const handleSubmit = () => {
+        router.push('/speaking-result');
+    };
 
     const onUpload: NonNullable<FileUploadProps['onUpload']> = useCallback(
         async (files, { onProgress, onSuccess, onError }) => {
