@@ -5,7 +5,7 @@ import { Footer } from '@/components/footer';
 import { Toaster } from '@/components/ui/sonner';
 import { useRefreshToken } from '@/lib/service/auth';
 import { useEffect } from 'react';
-import { initDeckAutoClear } from '@/lib/utils';
+import { initDeckAutoClear } from '@/lib/utils-client';
 
 function AutoRefeshToken() {
     useRefreshToken();
