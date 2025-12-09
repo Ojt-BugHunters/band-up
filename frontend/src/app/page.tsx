@@ -11,7 +11,7 @@ import { motion } from 'framer-motion';
 import { ArrowRight, ChevronRight } from 'lucide-react';
 import Image from 'next/image';
 import Link from 'next/link';
-import { features, testimonials, informationData } from './page.data';
+import { features, testimonials } from './page.data';
 import { TestimonialsColumn } from '@/components/ui/testimonials-columns-1';
 import PricingSection from '@/components/ui/pricing-section';
 import { Timeline } from '@/components/ui/timeline';
@@ -140,7 +140,7 @@ export default function HomePage() {
                 </p>
             </div>
             <div className="relative w-full overflow-clip">
-                <Timeline data={informationData} />
+                <Timeline />
             </div>
             <div className="relative z-10 mx-auto mt-20 grid max-w-7xl grid-cols-1 py-10 md:grid-cols-2 lg:grid-cols-4">
                 {features.map((feature, index) => (
