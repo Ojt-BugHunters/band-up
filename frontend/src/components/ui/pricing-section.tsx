@@ -4,6 +4,13 @@ import NumberFlow from '@number-flow/react';
 import { CheckCheck, Zap } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { useId, useState } from 'react';
+import { toast } from 'sonner';
+import {
+    useCreatePaymentLink,
+    type SubscriptionType,
+} from '@/lib/service/payment';
+import { useRouter } from 'next/navigation';
+import { useUser } from '@/lib/service/account';
 
 const PricingSwitch = ({
     button1,
@@ -87,6 +94,9 @@ const PricingSwitch = ({
 
 export default function PricingSection() {
     const [isUpdates, setIsUpdates] = useState(false);
+    const createPaymentLink = useCreatePaymentLink();
+    const router = useRouter();
+    const user = useUser();
 
     const toggleUpdates = (value: string) =>
         setIsUpdates(Number.parseInt(value) === 1);
@@ -100,6 +110,7 @@ export default function PricingSection() {
 
     const currentPrice = calculatePrice();
     const originalPrice = calculateOriginalPrice();
+    const subscriptionType: SubscriptionType = 'PREMIUM';
 
     const features = [
         'Unlimited using AI to writing test',
@@ -110,6 +121,32 @@ export default function PricingSection() {
         'Access to full of test storage',
         'Friendly support',
     ];
+
+    const handlePurchase = () => {
+        if (!user) {
+            toast.error('Please log in to purchase a subscription.');
+            router.push('/auth/login');
+            return;
+        }
+
+        createPaymentLink.mutate(
+            {
+                subscriptionType,
+                isLifeTime: isUpdates,
+            },
+            {
+                onSuccess: (data) => {
+                    if (data?.checkoutUrl) {
+                        window.location.href = data.checkoutUrl;
+                    } else {
+                        toast.error(
+                            'Payment link missing checkout URL. Please try again.',
+                        );
+                    }
+                },
+            },
+        );
+    };
 
     return (
         <div className="relative mx-auto min-h-screen w-full bg-white px-4 pt-10 dark:bg-gray-950">
@@ -230,9 +267,13 @@ export default function PricingSection() {
                                 transition={{ duration: 0.5, delay: 1.2 }}
                                 whileHover={{ scale: 1.05 }}
                                 whileTap={{ scale: 0.95 }}
+                                onClick={handlePurchase}
+                                disabled={createPaymentLink.isPending}
                                 className="h-12 w-full rounded-full bg-gradient-to-r from-pink-500 via-purple-500 to-blue-500 text-lg font-semibold text-white shadow-md transition-all hover:shadow-lg sm:h-16 dark:from-pink-600 dark:via-purple-600 dark:to-blue-600 dark:shadow-purple-500/30 dark:hover:shadow-purple-500/50"
                             >
-                                Purchase
+                                {createPaymentLink.isPending
+                                    ? 'Redirecting...'
+                                    : 'Purchase'}
                             </motion.button>
                         </motion.div>
                     </div>
