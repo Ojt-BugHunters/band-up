@@ -207,7 +207,7 @@ public class    AnswerController {
                     @ApiResponse(responseCode = "404", description = "AttemptSection or Question not found")
             }
     )
-    @PostMapping("/speaking/{attemptSectionId}/{questionId}/upload-url")
+    @PostMapping("/speaking/{attemptSectionId}/upload-url")
     public ResponseEntity<S3SpeakingUploadUrl> generateSpeakingUploadUrl(
             @PathVariable UUID attemptSectionId,
             @RequestBody SaveSpeakingAnswerRequest request,
@@ -244,7 +244,7 @@ public class    AnswerController {
                     @ApiResponse(responseCode = "404", description = "AttemptSection or Question not found")
             }
     )
-    @PostMapping("/speaking/{attemptSectionId}/{questionId}/save")
+    @PostMapping("/speaking/{attemptSectionId}/save")
     public ResponseEntity<AnswerSpeakingResponse> saveSpeakingAnswer(
             @PathVariable UUID attemptSectionId,
             @RequestBody SaveSpeakingAnswerRequest request,
