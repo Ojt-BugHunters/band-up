@@ -128,9 +128,7 @@ export default function HomePage() {
                         pointerClassName="text-yellow-500 h-3 w-3"
                         containerClassName="inline-block ml-1"
                     >
-                        <span className="relative z-10">
-                            everything you need
-                        </span>
+                        <span className="relative z-10"></span>
                     </PointerHighlight>
                 </h2>
                 <p className="mx-auto mt-4 max-w-2xl text-lg text-neutral-600 dark:text-neutral-400">
