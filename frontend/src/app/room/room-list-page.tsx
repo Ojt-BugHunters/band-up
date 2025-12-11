@@ -14,7 +14,7 @@ import Link from 'next/link';
 
 import { Client, type IMessage } from '@stomp/stompjs';
 import SockJS from 'sockjs-client';
-import { getWebSocketUrl } from '@/lib/service/api-url';
+import { getWsApi } from '@/lib/service';
 
 type PublicRoomEventType =
     | 'ROOM_CREATED'
@@ -28,6 +28,7 @@ type PublicRoomEvent = {
 };
 
 export default function RoomListPage() {
+    const [wsUrl, setWsUrl] = useState<string | null>(null);
     const [searchQuery, setSearchQuery] = useState('');
     const [joinCodeDialogOpen, setJoinCodeDialogOpen] = useState(false);
     const [confirmJoinDialogOpen, setConfirmJoinDialogOpen] = useState(false);
@@ -46,16 +47,23 @@ export default function RoomListPage() {
         }
     }, [roomList]);
 
+    useEffect(() => {
+        const loadWsUrl = async () => {
+            const url = await getWsApi();
+            setWsUrl(url);
+        };
+        loadWsUrl();
+    }, []);
+
     // WebSocket: /topic/rooms/public
     useEffect(() => {
-        // nếu chưa có WS_URL thì thôi
-        if (!WS_URL) return;
+        if (!wsUrl) return;
+        console.log(wsUrl);
 
         const client = new Client({
-            webSocketFactory: () => new SockJS(WS_URL),
+            webSocketFactory: () => new SockJS(wsUrl),
             reconnectDelay: 5000,
             debug: () => {
-                // tắt log, cần thì mở ra
                 // console.log('[STOMP]', str);
             },
             onConnect: () => {
@@ -108,7 +116,7 @@ export default function RoomListPage() {
             client.deactivate();
         };
         // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [WS_URL, roomList]);
+    }, [wsUrl, roomList]);
 
     const roomsPerPage = 10;
 

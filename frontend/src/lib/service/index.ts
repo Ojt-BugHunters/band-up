@@ -1,4 +1,5 @@
 import { getApiUrl } from './api-url';
+import { getWebSocketUrl } from './api-url';
 
 export class ApiError extends Error {
     details: Record<string, string>;
@@ -20,6 +21,10 @@ export const deserialize = async <T>(response: Response): Promise<T> => {
 
     const data: T = await response.json();
     return data;
+};
+
+export const getWsApi = async () => {
+    return getWebSocketUrl();
 };
 
 export const fetchWrapper = async (
