@@ -380,6 +380,11 @@ export function useSubmitSpeakingTest() {
         },
         onSuccess: (data) => {
             toast.success('Speaking test submitted successfully!');
+            data.forEach((item) => {
+                if (item.answerId && item.s3Key) {
+                    localStorage.setItem(item.answerId, item.s3Key);
+                }
+            });
             const ids = data.map((item) => item.answerId).join(',');
             router.push(`/speaking-result/${ids}`);
         },
