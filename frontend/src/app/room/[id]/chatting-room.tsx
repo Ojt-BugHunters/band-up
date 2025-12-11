@@ -11,6 +11,7 @@ import { Client, IMessage } from '@stomp/stompjs';
 import SockJS from 'sockjs-client';
 import { toast } from 'sonner';
 import { useGetAvatar, useUser } from '@/lib/service/account';
+import { getWsApi } from '@/lib/service';
 
 interface ChattingRoomProps {
     roomId: string;
@@ -76,7 +77,7 @@ const WS_URL = process.env.WS_URL ?? 'http://localhost:8080/ws';
 export function ChattingRoomDisplay({ roomId }: ChattingRoomProps) {
     const user = useUser();
     const { data: avatarResponse } = useGetAvatar();
-
+    const [wsUrl, setWsUrl] = useState<string | null>(null);
     const [roomMessage, setRoomMessage] = useState('');
     const [messages, setMessages] = useState<Message[]>([]);
     const [members, setMembers] = useState<Member[]>([]);
@@ -103,11 +104,20 @@ export function ChattingRoomDisplay({ roomId }: ChattingRoomProps) {
     }, [messages]);
 
     useEffect(() => {
+        const loadWsUrl = async () => {
+            const url = await getWsApi();
+            setWsUrl(url);
+        };
+        loadWsUrl();
+    }, []);
+
+    useEffect(() => {
         if (!user?.id || !roomId) return;
-        console.log(WS_URL);
+        if (!wsUrl) return;
+        console.log(wsUrl);
 
         const client = new Client({
-            webSocketFactory: () => new SockJS(WS_URL),
+            webSocketFactory: () => new SockJS(wsUrl),
             reconnectDelay: 5000,
             onConnect: () => {
                 setIsConnected(true);
