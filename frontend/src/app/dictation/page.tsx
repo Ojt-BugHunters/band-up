@@ -60,9 +60,8 @@ export default function DictationListPage() {
 
     const filteredTests = useMemo(() => {
         return (dictationTests ?? []).filter((t: Dictation) => {
-            // Chỉ lấy những test có skillName là "Dictation"
             const isDictation = t?.skillName === 'Dictation';
-            
+
             const matchDifficulty =
                 difficult === 'all'
                     ? true
@@ -199,7 +198,7 @@ export default function DictationListPage() {
             <div className="mx-auto max-w-7xl">
                 <PaginationControl
                     className="mt-6"
-                    itemCount={dictationTests?.length ?? 0}
+                    itemCount={filteredTests?.length ?? 0}
                     pagination={pagination}
                     setPagination={setPagination}
                 />

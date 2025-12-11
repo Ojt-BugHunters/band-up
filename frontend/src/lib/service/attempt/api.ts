@@ -10,12 +10,16 @@ import {
     CreateAttemptResponse,
     CreateAttemptSectionResponse,
     EvaluationPayload,
+    GetSpeakingUrlPayload,
+    GradingPayload,
+    SpeakingEvaluationResponse,
     SubmitAnswerParams,
     SubmitResponse,
     WritingSubmission,
 } from './type';
 import { useRouter } from 'next/navigation';
 import { FeedbackData } from '@/app/writing-result/[id]/ielts-writing-feedback';
+import { putFileToS3WithProgress } from '../s3-upload';
 
 export function useCreateAttempt() {
     return useMutation({
@@ -261,6 +265,159 @@ export function useEvaluateWriting() {
         onError: (error) => {
             console.error('Evaluation Error:', error);
             toast.error(error?.message ?? 'Failed to evaluate writing');
+        },
+        onSuccess: (data) => {
+            toast.success('Evaluation completed successfully!');
+            console.log('Evaluation Results:', data);
+        },
+    });
+}
+
+export function useGetSpeakingUploadUrl() {
+    return useMutation({
+        mutationFn: async ({
+            attemptSectionId,
+            audioName,
+        }: GetSpeakingUrlPayload) => {
+            const response = await fetchWrapper(
+                `/answers/speaking/${attemptSectionId}/upload-url`,
+                {
+                    method: 'POST',
+                    headers: {
+                        Accept: 'application/json',
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        audioName: audioName,
+                    }),
+                },
+            );
+
+            await throwIfError(response);
+            return response.json();
+        },
+        onError: (error) => {
+            toast.error(error?.message ?? 'Fail to get speaking upload url');
+        },
+        onSuccess: () => {
+            toast.success('Speaking upload url retrieved successfully!');
+        },
+    });
+}
+
+export type SpeakingSubmission = {
+    attemptSectionId: string;
+    file: File;
+};
+
+export type SaveSpeakingResponse = {
+    questionContent: string;
+    answerContent: string;
+    s3Key: string;
+    answerId: string;
+};
+
+export function useSubmitSpeakingTest() {
+    const router = useRouter();
+
+    return useMutation({
+        mutationFn: async (submissions: SpeakingSubmission[]) => {
+            const promises = submissions.map(async (sub) => {
+                const getUrlEndpoint = `/answers/speaking/${sub.attemptSectionId}/upload-url`;
+
+                const urlResponse = await fetchWrapper(getUrlEndpoint, {
+                    method: 'POST',
+                    headers: {
+                        Accept: 'application/json',
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        audioName: sub.file.name,
+                    }),
+                });
+
+                await throwIfError(urlResponse);
+                const { uploadUrl } = await urlResponse.json();
+
+                await putFileToS3WithProgress({
+                    url: uploadUrl,
+                    file: sub.file,
+                    contentType: sub.file.type,
+                    expectedStatuses: [200, 201, 204],
+                });
+
+                const saveEndpoint = `/answers/speaking/${sub.attemptSectionId}/save`;
+
+                const saveResponse = await fetchWrapper(saveEndpoint, {
+                    method: 'POST',
+                    headers: {
+                        Accept: 'application/json',
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        audioName: sub.file.name,
+                    }),
+                });
+
+                await throwIfError(saveResponse);
+
+                return (await saveResponse.json()) as SaveSpeakingResponse;
+            });
+
+            return Promise.all(promises);
+        },
+        onError: (error) => {
+            console.error('Speaking submission error:', error);
+            toast.error(
+                error instanceof Error
+                    ? error.message
+                    : 'Fail to submit speaking test',
+            );
+        },
+        onSuccess: (data) => {
+            toast.success('Speaking test submitted successfully!');
+            data.forEach((item) => {
+                if (item.answerId && item.s3Key) {
+                    localStorage.setItem(item.answerId, item.s3Key);
+                }
+            });
+            const ids = data.map((item) => item.answerId).join(',');
+            router.push(`/speaking-result/${ids}`);
+        },
+    });
+}
+
+export function useEvaluateSpeaking() {
+    return useMutation({
+        mutationFn: async (payloads: GradingPayload[]) => {
+            const promises = payloads.map(async (item) => {
+                const { answerId, ...bodyPayload } = item;
+
+                const url = `/v1/evaluations/speaking/evaluate/${answerId}`;
+
+                const response = await fetchWrapper(url, {
+                    method: 'POST',
+                    headers: {
+                        Accept: 'application/json',
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(bodyPayload),
+                });
+
+                await throwIfError(response);
+
+                return response.json() as Promise<SpeakingEvaluationResponse>;
+            });
+
+            return await Promise.all(promises);
+        },
+        onError: (error) => {
+            console.error('Evaluation Error:', error);
+            toast.error(
+                error instanceof Error
+                    ? error.message
+                    : 'Failed to evaluate speaking test',
+            );
         },
         onSuccess: (data) => {
             toast.success('Evaluation completed successfully!');
