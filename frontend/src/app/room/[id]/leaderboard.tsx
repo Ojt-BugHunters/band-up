@@ -117,7 +117,6 @@ export function LeaderBoard({
                                     </span>
                                     <span></span>
                                 </div>
-
                                 {mockLeaderboardData.map((user, index) => (
                                     <motion.div
                                         key={user.rank}

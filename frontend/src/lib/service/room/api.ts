@@ -108,9 +108,9 @@ export const useLeftRoom = () => {
         onError: (error) => {
             toast.error(error?.message ?? 'Left room fail');
         },
-        onSuccess: () => {
+        onSuccess: async () => {
             toast.success('Left room successfully');
-            queryClient.invalidateQueries({
+            await queryClient.invalidateQueries({
                 queryKey: ['room', 'room-member'],
             });
             router.push('/room');
@@ -518,9 +518,7 @@ export const useGetSessionOverviewStats = (date: string | undefined) => {
     });
 };
 
-export const useGetRoomStats = (
-    statsInterval: StatsInterval = 'WEEKLY',
-) => {
+export const useGetRoomStats = (statsInterval: StatsInterval = 'WEEKLY') => {
     const params = buildParams({ statsInterval });
     return useQuery({
         queryKey: ['room-stats', statsInterval],
