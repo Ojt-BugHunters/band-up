@@ -90,8 +90,8 @@ public class StudySessionController {
             @PathVariable UUID sessionId,
             @PathVariable UUID intervalId
     ) {
-        studySessionService.pauseInterval(sessionId, intervalId);
-        return ResponseEntity.ok().build();
+        StudySessionResponse response = studySessionService.pauseInterval(sessionId, intervalId);
+        return ResponseEntity.ok(response);
     }
 
     @Operation(summary = "Tiếp tục interval",
@@ -105,8 +105,8 @@ public class StudySessionController {
             @PathVariable UUID sessionId,
             @PathVariable UUID intervalId
     ) {
-       studySessionService.endPauseInterval(sessionId, intervalId);
-       return ResponseEntity.ok().build();
+        StudySessionResponse response = studySessionService.endPauseInterval(sessionId, intervalId);
+        return ResponseEntity.ok(response);
     }
 
     @Operation(summary = "Kết thúc interval",

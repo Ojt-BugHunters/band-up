@@ -145,7 +145,7 @@ public class StudySessionServiceImpl implements StudySessionService {
     }
 
     @Override
-    public void pauseInterval(UUID sessionId, UUID intervalId) {
+    public StudySessionResponse pauseInterval(UUID sessionId, UUID intervalId) {
         StudySession session = getSession(sessionId);
         StudyInterval interval = getInterval(intervalId);
 
@@ -155,15 +155,19 @@ public class StudySessionServiceImpl implements StudySessionService {
 
         interval.setStatus(Status.PAUSED);
         interval.setPauseAt(LocalDateTime.now());
-        studyIntervalRepository.save(interval);
+
+        return saveAndReturn(session, interval);
     }
+
     @Override
-    public void endPauseInterval(UUID sessionId, UUID intervalId) {
+    public StudySessionResponse endPauseInterval(UUID sessionId, UUID intervalId) {
         StudySession session = getSession(sessionId);
         StudyInterval interval = getInterval(intervalId);
+
         if (interval.getStatus() != Status.PAUSED) {
             throw new IllegalArgumentException("Only paused intervals can end pause");
         }
+
         LocalDateTime now = LocalDateTime.now();
         if (interval.getPauseAt() != null) {
             long pausedSeconds = Duration.between(interval.getPauseAt(), now).getSeconds();
@@ -172,9 +176,11 @@ public class StudySessionServiceImpl implements StudySessionService {
             BigInteger newTotalPaused = currentTotalPaused.add(BigInteger.valueOf(pausedSeconds));
             interval.setTotalPauseSeconds(newTotalPaused);
         }
+
         interval.setStatus(Status.ONGOING);
         interval.setPauseAt(null);
-        studyIntervalRepository.save(interval);
+
+        return saveAndReturn(session, interval);
     }
 
     private BigInteger calculateEffectiveDuration(StudyInterval interval, LocalDateTime now) {
