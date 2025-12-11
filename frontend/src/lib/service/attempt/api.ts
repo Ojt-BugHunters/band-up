@@ -381,7 +381,7 @@ export function useSubmitSpeakingTest() {
         onSuccess: (data) => {
             toast.success('Speaking test submitted successfully!');
             const ids = data.map((item) => item.answerId).join(',');
-            router.push(`/speaking-result?ids=${ids}`);
+            router.push(`/speaking-result/${ids}`);
         },
     });
 }
