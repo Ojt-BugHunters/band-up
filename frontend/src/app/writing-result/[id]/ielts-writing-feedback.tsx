@@ -86,20 +86,17 @@ export function IELTSFeedbackDisplay({ data }: { data: FeedbackData[] }) {
 
 function FeedbackCard({ feedback }: { feedback: FeedbackData }) {
     const getBandColor = (band: number) => {
-        if (band >= 7) return 'text-emerald-600 dark:text-emerald-400';
-        if (band >= 6) return 'text-blue-600 dark:text-blue-400';
-        if (band >= 5) return 'text-amber-600 dark:text-amber-400';
-        return 'text-red-600 dark:text-red-400';
+        if (band >= 7) return 'text-zinc-800';
+        if (band >= 6) return 'text-zinc-700';
+        if (band >= 5) return 'text-zinc-600';
+        return 'text-zinc-500';
     };
 
     const getBandBgColor = (band: number) => {
-        if (band >= 7)
-            return 'bg-emerald-50 dark:bg-emerald-950/30 border-emerald-200 dark:border-emerald-800';
-        if (band >= 6)
-            return 'bg-blue-50 dark:bg-blue-950/30 border-blue-200 dark:border-blue-800';
-        if (band >= 5)
-            return 'bg-amber-50 dark:bg-amber-950/30 border-amber-200 dark:border-amber-800';
-        return 'bg-red-50 dark:bg-red-950/30 border-red-200 dark:border-red-800';
+        if (band >= 7) return 'bg-zinc-100 border-zinc-300';
+        if (band >= 6) return 'bg-zinc-50 border-zinc-200';
+        if (band >= 5) return 'bg-zinc-50 border-zinc-200';
+        return 'bg-zinc-50 border-zinc-200';
     };
 
     return (
@@ -146,9 +143,9 @@ function FeedbackCard({ feedback }: { feedback: FeedbackData }) {
             </div>
 
             <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
-                <Card className="border-2 border-emerald-200 shadow-md transition-shadow duration-300 hover:shadow-lg dark:border-emerald-800">
+                <Card className="border-2 border-zinc-200 shadow-md transition-shadow duration-300 hover:shadow-lg">
                     <CardHeader>
-                        <CardTitle className="flex items-center gap-2 text-emerald-700 dark:text-emerald-400">
+                        <CardTitle className="flex items-center gap-2 text-zinc-700">
                             <CheckCircle2 className="h-5 w-5" />
                             Strengths
                         </CardTitle>
@@ -161,7 +158,7 @@ function FeedbackCard({ feedback }: { feedback: FeedbackData }) {
                                         key={idx}
                                         className="flex gap-2 text-sm"
                                     >
-                                        <span className="mt-1 text-emerald-500">
+                                        <span className="mt-1 text-zinc-500">
                                             •
                                         </span>
                                         <span>{strength}</span>
@@ -172,9 +169,9 @@ function FeedbackCard({ feedback }: { feedback: FeedbackData }) {
                     </CardContent>
                 </Card>
 
-                <Card className="border-2 border-red-200 shadow-md transition-shadow duration-300 hover:shadow-lg dark:border-red-800">
+                <Card className="border-2 border-zinc-300 shadow-md transition-shadow duration-300 hover:shadow-lg">
                     <CardHeader>
-                        <CardTitle className="flex items-center gap-2 text-red-700 dark:text-red-400">
+                        <CardTitle className="flex items-center gap-2 text-zinc-700">
                             <XCircle className="h-5 w-5" />
                             Weaknesses
                         </CardTitle>
@@ -187,7 +184,7 @@ function FeedbackCard({ feedback }: { feedback: FeedbackData }) {
                                         key={idx}
                                         className="flex gap-2 text-sm"
                                     >
-                                        <span className="mt-1 text-red-500">
+                                        <span className="mt-1 text-zinc-500">
                                             •
                                         </span>
                                         <span>{weakness}</span>
@@ -235,9 +232,9 @@ function FeedbackCard({ feedback }: { feedback: FeedbackData }) {
 
             {feedback.feedback.quoted_examples &&
                 feedback.feedback.quoted_examples.length > 0 && (
-                    <Card className="border-2 border-purple-200 shadow-md dark:border-purple-800">
+                    <Card className="border-2 border-zinc-200 shadow-md">
                         <CardHeader>
-                            <CardTitle className="flex items-center gap-2 text-purple-700 dark:text-purple-400">
+                            <CardTitle className="flex items-center gap-2 text-zinc-700">
                                 <MessageSquare className="h-5 w-5" />
                                 Specific Examples
                             </CardTitle>
@@ -258,7 +255,7 @@ function FeedbackCard({ feedback }: { feedback: FeedbackData }) {
                                             </p>
                                         </div>
                                         <div className="space-y-1">
-                                            <p className="text-sm font-semibold text-red-600 dark:text-red-400">
+                                            <p className="text-sm font-semibold text-zinc-600">
                                                 Issue:
                                             </p>
                                             <p className="text-sm">
@@ -266,7 +263,7 @@ function FeedbackCard({ feedback }: { feedback: FeedbackData }) {
                                             </p>
                                         </div>
                                         <div className="space-y-1">
-                                            <p className="text-sm font-semibold text-emerald-600 dark:text-emerald-400">
+                                            <p className="text-sm font-semibold text-zinc-700">
                                                 Suggestion:
                                             </p>
                                             <p className="text-sm">
@@ -280,10 +277,9 @@ function FeedbackCard({ feedback }: { feedback: FeedbackData }) {
                     </Card>
                 )}
 
-            {/* Recommendations */}
-            <Card className="border-2 border-blue-200 shadow-md dark:border-blue-800">
+            <Card className="border-2 border-zinc-200 shadow-md">
                 <CardHeader>
-                    <CardTitle className="flex items-center gap-2 text-blue-700 dark:text-blue-400">
+                    <CardTitle className="flex items-center gap-2 text-zinc-700">
                         <Lightbulb className="h-5 w-5" />
                         Recommendations
                     </CardTitle>
@@ -293,7 +289,7 @@ function FeedbackCard({ feedback }: { feedback: FeedbackData }) {
                         {feedback.feedback.recommendations.map(
                             (recommendation, idx) => (
                                 <li key={idx} className="flex gap-2 text-sm">
-                                    <span className="mt-1 text-blue-500">
+                                    <span className="mt-1 text-zinc-500">
                                         •
                                     </span>
                                     <span>{recommendation}</span>
@@ -357,14 +353,14 @@ function CriterionSection({
             </p>
 
             {criterion.improvements && criterion.improvements.length > 0 && (
-                <div className="mt-3 rounded-lg border border-blue-200 bg-blue-50 p-3 dark:border-blue-800 dark:bg-blue-950/20">
-                    <p className="mb-2 text-sm font-semibold text-blue-700 dark:text-blue-400">
+                <div className="mt-3 rounded-lg border border-zinc-200 bg-zinc-50 p-3">
+                    <p className="mb-2 text-sm font-semibold text-zinc-700">
                         How to improve:
                     </p>
                     <ul className="space-y-1">
                         {criterion.improvements.map((improvement, idx) => (
                             <li key={idx} className="flex gap-2 text-sm">
-                                <span className="text-blue-500">→</span>
+                                <span className="text-zinc-500">→</span>
                                 <span>{improvement}</span>
                             </li>
                         ))}

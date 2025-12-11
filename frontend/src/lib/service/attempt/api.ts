@@ -46,10 +46,10 @@ export function useCreateAttempt() {
             return data as CreateAttemptResponse;
         },
         onError: (error) => {
-            toast.error(error?.message ?? 'Join Test Fail');
+            // toast.error(error?.message ?? 'Join Test Fail');
         },
         onSuccess: () => {
-            toast.success('Join Test Successfully');
+            // toast.success('Join Test Successfully');
         },
     });
 }
@@ -84,10 +84,10 @@ export function useCreateAttemptSection() {
             return data as CreateAttemptSectionResponse;
         },
         onError: (error) => {
-            toast.error(error?.message ?? 'Fail to save attempt');
+            // toast.error(error?.message ?? 'Fail to save attempt');
         },
         onSuccess: (data) => {
-            toast.success('Save attempt successfully. Try your best!');
+            // toast.success('Save attempt successfully. Try your best!');
             if (data?.id) {
                 localStorage.setItem(`question-${sectionCounter}`, data.id);
                 sectionCounter++;
@@ -118,12 +118,12 @@ export function useSubmitAnswers() {
             return data as BandScoreResponse;
         },
         onError: (error) => {
-            toast.error(error?.message ?? 'Fail to submit answers');
+            // toast.error(error?.message ?? 'Fail to submit answers');
         },
         onSuccess: (data) => {
-            toast.success(
-                'Test submitted successfully! Your score: ' + data.bandScore,
-            );
+            // toast.success(
+            //     'Test submitted successfully! Your score: ' + data.bandScore,
+            // );
         },
     });
 }
@@ -219,10 +219,10 @@ export function useSubmitWritingTest() {
         },
         onError: (error) => {
             console.error(error);
-            toast.error(error?.message ?? 'Fail to submit writing test');
+            // toast.error(error?.message ?? 'Fail to submit writing test');
         },
         onSuccess: (data) => {
-            toast.success('Submitted successfully!');
+            // toast.success('Submitted successfully!');
             const ids = data.map((item) => item.id).join(',');
             router.push(`/writing-result/${ids}`);
         },
@@ -264,10 +264,10 @@ export function useEvaluateWriting() {
         },
         onError: (error) => {
             console.error('Evaluation Error:', error);
-            toast.error(error?.message ?? 'Failed to evaluate writing');
+            // toast.error(error?.message ?? 'Failed to evaluate writing');
         },
         onSuccess: (data) => {
-            toast.success('Evaluation completed successfully!');
+            // toast.success('Evaluation completed successfully!');
             console.log('Evaluation Results:', data);
         },
     });
@@ -297,10 +297,10 @@ export function useGetSpeakingUploadUrl() {
             return response.json();
         },
         onError: (error) => {
-            toast.error(error?.message ?? 'Fail to get speaking upload url');
+            // toast.error(error?.message ?? 'Fail to get speaking upload url');
         },
         onSuccess: () => {
-            toast.success('Speaking upload url retrieved successfully!');
+            // toast.success('Speaking upload url retrieved successfully!');
         },
     });
 }
@@ -368,14 +368,14 @@ export function useSubmitSpeakingTest() {
         },
         onError: (error) => {
             console.error('Speaking submission error:', error);
-            toast.error(
-                error instanceof Error
-                    ? error.message
-                    : 'Fail to submit speaking test',
-            );
+            // toast.error(
+            //     error instanceof Error
+            //         ? error.message
+            //         : 'Fail to submit speaking test',
+            // );
         },
         onSuccess: (data) => {
-            toast.success('Speaking test submitted successfully!');
+            // toast.success('Speaking test submitted successfully!');
             data.forEach((item) => {
                 if (item.answerId && item.s3Key) {
                     localStorage.setItem(item.answerId, item.s3Key);
@@ -413,14 +413,14 @@ export function useEvaluateSpeaking() {
         },
         onError: (error) => {
             console.error('Evaluation Error:', error);
-            toast.error(
-                error instanceof Error
-                    ? error.message
-                    : 'Failed to evaluate speaking test',
-            );
+            // toast.error(
+            //     error instanceof Error
+            //         ? error.message
+            //         : 'Failed to evaluate speaking test',
+            // );
         },
         onSuccess: (data) => {
-            toast.success('Evaluation completed successfully!');
+            // toast.success('Evaluation completed successfully!');
             console.log('Evaluation Results:', data);
         },
     });

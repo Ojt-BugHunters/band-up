@@ -437,6 +437,7 @@ export default function RoomPage() {
         const status = currentInterval.status;
 
         if (!isActive) {
+            console.log(status);
             if (status === 'PENDING') {
                 startIntervalMutation.mutate({
                     sessionId: currentSession.id,
@@ -458,6 +459,7 @@ export default function RoomPage() {
             return;
         }
         if (isActive) {
+            console.log(status);
             pauseIntervalMutation.mutate({
                 sessionId: currentSession.id,
                 intervalId: currentInterval.id,

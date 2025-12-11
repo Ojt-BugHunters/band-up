@@ -2,7 +2,7 @@
 import { useState, useEffect } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import SpeakingResultDisplay, {
-    SpeakingEvaluationResponse,
+    type SpeakingEvaluationResponse,
 } from './speaking-result-display';
 import { ChatbotLoading } from '@/components/chatbot-loading';
 import { useEvaluateSpeaking } from '@/lib/service/attempt';
@@ -70,8 +70,8 @@ export default function Page() {
         const partKeys = allKeys
             .filter((key) => key.startsWith('Part '))
             .sort((a, b) => {
-                const numA = parseInt(a.replace('Part ', ''));
-                const numB = parseInt(b.replace('Part ', ''));
+                const numA = Number.parseInt(a.replace('Part ', ''));
+                const numB = Number.parseInt(b.replace('Part ', ''));
                 return numA - numB;
             });
 
@@ -148,7 +148,7 @@ export default function Page() {
 
     if (isEvaluating || (!results && payloads.length > 0)) {
         return (
-            <main className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50">
+            <main className="min-h-screen bg-gradient-to-br from-zinc-50 via-zinc-100/50 to-zinc-50">
                 <div className="container mx-auto max-w-6xl px-4 py-8">
                     <div className="rounded-2xl border-0 bg-white p-6 shadow-xl md:p-8">
                         <div className="flex h-96 flex-col items-center justify-center">
@@ -164,14 +164,14 @@ export default function Page() {
     }
 
     return (
-        <main className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50">
+        <main className="min-h-screen bg-gradient-to-br from-zinc-50 via-zinc-100/50 to-zinc-50">
             <div className="container mx-auto max-w-6xl px-4 py-8">
                 <div className="rounded-2xl border-0 bg-white p-6 shadow-xl md:p-8">
                     <div className="mb-6">
-                        <h1 className="mb-2 bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-3xl font-bold tracking-tight text-transparent">
+                        <h1 className="mb-2 text-3xl font-bold tracking-tight text-zinc-800">
                             IELTS Speaking Results
                         </h1>
-                        <p className="text-base text-slate-600">
+                        <p className="text-base text-zinc-600">
                             AI-Powered Performance Analysis
                         </p>
                     </div>
@@ -197,14 +197,14 @@ export default function Page() {
                             <div className="mt-6 flex gap-3">
                                 <Button
                                     variant="outline"
-                                    className="flex-1 gap-2 border-2 border-slate-300 bg-transparent hover:bg-slate-50"
+                                    className="flex-1 gap-2 border-2 border-zinc-300 bg-transparent hover:bg-zinc-50"
                                     onClick={() => setQuitDialogOpen(true)}
                                 >
                                     Quit test
                                 </Button>
 
                                 <Button
-                                    className="flex-1 gap-2 bg-gradient-to-r from-blue-500 to-indigo-500 text-white shadow-lg hover:from-blue-600 hover:to-indigo-600"
+                                    className="flex-1 gap-2 bg-zinc-800 text-white shadow-lg hover:bg-zinc-900"
                                     onClick={handleRetakeTryAgain}
                                 >
                                     <RotateCcw className="h-4 w-4" />
@@ -215,7 +215,7 @@ export default function Page() {
                     )}
 
                     {!isEvaluating && !results && payloads.length === 0 && (
-                        <div className="flex h-64 flex-col items-center justify-center text-slate-400">
+                        <div className="flex h-64 flex-col items-center justify-center text-zinc-400">
                             No test data found
                         </div>
                     )}

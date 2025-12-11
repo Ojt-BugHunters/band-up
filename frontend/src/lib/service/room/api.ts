@@ -61,10 +61,10 @@ export function useCreateRoom() {
             return response.json();
         },
         onError: (error) => {
-            toast.error(error?.message ?? 'Create room failed');
+            // toast.error(error?.message ?? 'Create room failed');
         },
         onSuccess: (data: Room) => {
-            toast.success('Room created successfully');
+            // toast.success('Room created successfully');
             queryClient.setQueryData(['room', data.id], data);
             router.push(`/room/${data.id}`);
         },
@@ -106,10 +106,10 @@ export const useLeftRoom = () => {
             return response.json();
         },
         onError: (error) => {
-            toast.error(error?.message ?? 'Left room fail');
+            // toast.error(error?.message ?? 'Left room fail');
         },
         onSuccess: async () => {
-            toast.success('Left room successfully');
+            // toast.success('Left room successfully');
             await queryClient.invalidateQueries({
                 queryKey: ['room'],
             });
@@ -135,10 +135,10 @@ export function useJoinRoom() {
             return response.json();
         },
         onError: (error) => {
-            toast.error(error?.message ?? 'Join room failed');
+            // toast.error(error?.message ?? 'Join room failed');
         },
         onSuccess: (data: Room) => {
-            toast.success('Joined room successfully');
+            // toast.success('Joined room successfully');
             queryClient.setQueryData(['room', data.id], data);
             router.push(`/room/${data.id}`);
         },
@@ -152,7 +152,7 @@ export const useGetRoomByCode = (roomCode: string | undefined) => {
         queryKey: ['room', roomCode],
         queryFn: async () => {
             if (!roomCode) {
-                toast.error('Missing room code');
+                // toast.error('Missing room code');
                 throw new Error('Missing room code');
             }
             const response = await fetchWrapper(`/rooms/code/${roomCode}`);
@@ -288,10 +288,10 @@ export const useCreateTimerSetting = (roomId: string) => {
             return response.json();
         },
         onError: (error) => {
-            toast.error(error?.message ?? 'Create TimerSessions fail');
+            // toast.error(error?.message ?? 'Create TimerSessions fail');
         },
         onSuccess: () => {
-            toast.success('Create sessions successfully');
+            // toast.success('Create sessions successfully');
             queryClient.invalidateQueries({ queryKey: ['study-sessions'] });
         },
     });
@@ -333,7 +333,7 @@ export function useStartInterval() {
             return response.json();
         },
         onError: (error) => {
-            toast.error(error?.message ?? 'Start interval failed');
+            // toast.error(error?.message ?? 'Start interval failed');
         },
         onSuccess: () => {
             queryClient.invalidateQueries({ queryKey: ['study-sessions'] });
@@ -360,10 +360,10 @@ export function usePingInterval() {
             return response.json();
         },
         onError: (error) => {
-            toast.error(error?.message ?? 'Ping interval fail');
+            // toast.error(error?.message ?? 'Ping interval fail');
         },
         onSuccess: () => {
-            toast.success('Ping interval successfully');
+            // toast.success('Ping interval successfully');
         },
     });
 }
@@ -390,7 +390,7 @@ export function usePauseInterval() {
             return response.json();
         },
         onError: (error) => {
-            toast.error(error?.message ?? 'Pause interval failed');
+            // toast.error(error?.message ?? 'Pause interval failed');
         },
         onSuccess: () => {
             queryClient.invalidateQueries({ queryKey: ['study-sessions'] });
@@ -420,7 +420,7 @@ export function useEndInterval() {
             return response.json();
         },
         onError: (error) => {
-            toast.error(error?.message ?? 'End interval failed');
+            // toast.error(error?.message ?? 'End interval failed');
         },
         onSuccess: () => {
             queryClient.invalidateQueries({ queryKey: ['study-sessions'] });
@@ -447,10 +447,10 @@ export function useResumeInterval() {
             return response.json();
         },
         onError: (error) => {
-            toast.error(error?.message ?? 'Resume interval fail');
+            // toast.error(error?.message ?? 'Resume interval fail');
         },
         onSuccess: () => {
-            toast.success('Resume interval successfully');
+            // toast.success('Resume interval successfully');
         },
     });
 }

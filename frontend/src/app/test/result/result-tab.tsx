@@ -11,7 +11,7 @@ import {
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { CheckCircle2, XCircle, RotateCcw } from 'lucide-react';
-import { BandScoreResponse } from '@/lib/service/attempt/type';
+import type { BandScoreResponse } from '@/lib/service/attempt/type';
 import { ConfirmDialog } from '@/components/confirm-dialog';
 import { useRouter } from 'next/navigation';
 import { clearTestLocalStorage } from '@/lib/utils';
@@ -77,7 +77,7 @@ export default function ResultsTab({
         <div className="space-y-6">
             <div className="grid gap-4 md:grid-cols-3">
                 <Card className="relative overflow-hidden border-0 shadow-lg transition-all duration-300 hover:scale-105 hover:shadow-xl">
-                    <div className="absolute inset-0 -z-10 bg-gradient-to-br from-blue-500/20 to-purple-500/20" />
+                    <div className="absolute inset-0 -z-10 bg-gradient-to-br from-zinc-100 to-zinc-200/50" />
                     <CardHeader className="pb-3">
                         <CardTitle className="text-muted-foreground text-sm font-medium">
                             Band Score
@@ -86,7 +86,7 @@ export default function ResultsTab({
                     <CardContent>
                         <div className="flex items-end justify-between">
                             <div className="space-y-1">
-                                <p className="bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-4xl font-bold text-transparent">
+                                <p className="text-4xl font-bold text-zinc-800">
                                     {bandScore}
                                 </p>
                                 <p className="text-muted-foreground text-xs">
@@ -98,7 +98,7 @@ export default function ResultsTab({
                 </Card>
 
                 <Card className="relative overflow-hidden border-0 shadow-lg transition-all duration-300 hover:scale-105 hover:shadow-xl">
-                    <div className="absolute inset-0 -z-10 bg-gradient-to-br from-green-500/20 to-emerald-500/20" />
+                    <div className="absolute inset-0 -z-10 bg-gradient-to-br from-zinc-100 to-zinc-200/50" />
                     <CardHeader className="pb-3">
                         <CardTitle className="text-muted-foreground text-sm font-medium">
                             Correct Answers
@@ -107,7 +107,7 @@ export default function ResultsTab({
                     <CardContent>
                         <div className="flex items-end justify-between">
                             <div className="space-y-1">
-                                <p className="bg-gradient-to-r from-green-600 to-emerald-600 bg-clip-text text-4xl font-bold text-transparent">
+                                <p className="text-4xl font-bold text-zinc-800">
                                     {correctAnswers}
                                 </p>
                                 <p className="text-muted-foreground text-xs">
@@ -119,7 +119,7 @@ export default function ResultsTab({
                 </Card>
 
                 <Card className="relative overflow-hidden border-0 shadow-lg transition-all duration-300 hover:scale-105 hover:shadow-xl">
-                    <div className="absolute inset-0 -z-10 bg-gradient-to-br from-amber-500/20 to-orange-500/20" />
+                    <div className="absolute inset-0 -z-10 bg-gradient-to-br from-zinc-100 to-zinc-200/50" />
                     <CardHeader className="pb-3">
                         <CardTitle className="text-muted-foreground text-sm font-medium">
                             Success Rate
@@ -128,7 +128,7 @@ export default function ResultsTab({
                     <CardContent>
                         <div className="flex items-end justify-between">
                             <div className="space-y-1">
-                                <p className="bg-gradient-to-r from-amber-600 to-orange-600 bg-clip-text text-4xl font-bold text-transparent">
+                                <p className="text-4xl font-bold text-zinc-800">
                                     {percentage}%
                                 </p>
                                 <p className="text-muted-foreground text-xs">
@@ -148,7 +148,7 @@ export default function ResultsTab({
                     <div className="space-y-3">
                         <div className="bg-muted flex h-3 overflow-hidden rounded-full">
                             <div
-                                className="bg-gradient-to-r from-blue-500 to-purple-500 transition-all duration-500 ease-out"
+                                className="bg-zinc-800 transition-all duration-500 ease-out"
                                 style={{ width: `${percentage}%` }}
                             />
                         </div>
@@ -218,7 +218,7 @@ export default function ResultsTab({
                                 placeholder="Search answer content..."
                                 value={searchQuery}
                                 onChange={(e) => setSearchQuery(e.target.value)}
-                                className="border-border bg-background text-foreground placeholder-muted-foreground w-full rounded-lg border px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:outline-none"
+                                className="border-border bg-background text-foreground placeholder-muted-foreground w-full rounded-lg border px-3 py-2 focus:ring-2 focus:ring-zinc-500 focus:outline-none"
                             />
                         </div>
                     </div>
@@ -239,12 +239,12 @@ export default function ResultsTab({
                                     <div className="flex items-start gap-3 px-4 py-3">
                                         <div className="flex-shrink-0 pt-1">
                                             {response.correct ? (
-                                                <div className="flex h-8 w-8 items-center justify-center rounded-full bg-green-500/20">
-                                                    <CheckCircle2 className="h-5 w-5 text-green-600" />
+                                                <div className="flex h-8 w-8 items-center justify-center rounded-full bg-zinc-200">
+                                                    <CheckCircle2 className="h-5 w-5 text-zinc-700" />
                                                 </div>
                                             ) : (
-                                                <div className="flex h-8 w-8 items-center justify-center rounded-full bg-red-500/20">
-                                                    <XCircle className="h-5 w-5 text-red-600" />
+                                                <div className="flex h-8 w-8 items-center justify-center rounded-full bg-zinc-300">
+                                                    <XCircle className="h-5 w-5 text-zinc-600" />
                                                 </div>
                                             )}
                                         </div>
@@ -258,7 +258,7 @@ export default function ResultsTab({
                                                     Q{index + 1}
                                                 </Badge>
                                                 <span
-                                                    className={`text-xs font-semibold ${response.correct ? 'text-green-600' : 'text-red-600'}`}
+                                                    className={`text-xs font-semibold ${response.correct ? 'text-zinc-700' : 'text-zinc-600'}`}
                                                 >
                                                     {response.correct
                                                         ? 'Correct'
@@ -267,7 +267,7 @@ export default function ResultsTab({
                                             </div>
 
                                             <div className="grid grid-cols-2 gap-2 text-sm">
-                                                <div className="rounded-lg border border-blue-500/30 bg-blue-500/10 p-2">
+                                                <div className="rounded-lg border border-zinc-300 bg-zinc-100/50 p-2">
                                                     <p className="text-muted-foreground mb-1 text-xs font-semibold">
                                                         Your Answer
                                                     </p>
@@ -275,13 +275,7 @@ export default function ResultsTab({
                                                         {response.answerContent}
                                                     </p>
                                                 </div>
-                                                <div
-                                                    className={`rounded-lg border p-2 ${
-                                                        response.correct
-                                                            ? 'border-green-500/30 bg-green-500/10'
-                                                            : 'border-amber-500/30 bg-amber-500/10'
-                                                    }`}
-                                                >
+                                                <div className="rounded-lg border border-zinc-400 bg-zinc-200/50 p-2">
                                                     <p className="text-muted-foreground mb-1 text-xs font-semibold">
                                                         Correct Answer
                                                     </p>
@@ -309,7 +303,7 @@ export default function ResultsTab({
                 </Button>
 
                 <Button
-                    className="flex-1 gap-2 bg-gradient-to-r from-blue-500 to-purple-500 text-white shadow-lg hover:from-blue-600 hover:to-purple-600"
+                    className="flex-1 gap-2 bg-zinc-800 text-white shadow-lg hover:bg-zinc-900"
                     onClick={() => handleRetakeTryAgain}
                 >
                     <RotateCcw className="h-4 w-4" />

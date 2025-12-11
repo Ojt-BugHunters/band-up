@@ -1,12 +1,12 @@
 'use client';
 
-import React, { useEffect, useState, useMemo, useRef } from 'react';
+import { useEffect, useState, useMemo, useRef } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import { IELTSFeedbackDisplay } from './ielts-writing-feedback';
 import { useGetWritingQuestions } from '@/lib/service/test/question';
 import { useEvaluateWriting } from '@/lib/service/attempt';
 import type { WritingQuestion } from '@/lib/service/test/question/type';
-import { EvaluationPayload } from '@/lib/service/attempt';
+import type { EvaluationPayload } from '@/lib/service/attempt';
 import { toast } from 'sonner';
 import ChatbotLoading from '@/components/chatbot-loading';
 import { Button } from '@/components/ui/button';
@@ -170,7 +170,7 @@ export default function WritingResultPage() {
     }
 
     return (
-        <div className="from-background via-background to-muted/20 min-h-screen bg-gradient-to-br">
+        <div className="from-background via-background min-h-screen bg-gradient-to-br to-zinc-100/20">
             <div className="container mx-auto px-4 py-8 md:py-12">
                 <div className="mb-8 text-center">
                     <h1 className="mb-2 text-4xl font-bold tracking-tight">
@@ -186,14 +186,14 @@ export default function WritingResultPage() {
                 <div className="mt-6 flex gap-3">
                     <Button
                         variant="outline"
-                        className="flex-1 gap-2 border-2 border-slate-300 bg-transparent hover:bg-slate-50"
+                        className="flex-1 gap-2 border-2 border-zinc-300 bg-transparent hover:bg-zinc-50"
                         onClick={() => setQuitDialogOpen(true)}
                     >
                         Quit test
                     </Button>
 
                     <Button
-                        className="flex-1 gap-2 bg-gradient-to-r from-blue-500 to-indigo-500 text-white shadow-lg hover:from-blue-600 hover:to-indigo-600"
+                        className="flex-1 gap-2 bg-zinc-800 text-white shadow-lg hover:bg-zinc-900"
                         onClick={handleRetakeTryAgain}
                     >
                         <RotateCcw className="h-4 w-4" />

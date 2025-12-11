@@ -69,12 +69,12 @@ export default function SpeakingResultDisplay({ results }: DisplayProps) {
         <div className="w-full">
             <Tabs defaultValue="part-0" className="w-full">
                 <div className="mb-6 flex justify-center">
-                    <TabsList className="bg-slate-100">
+                    <TabsList className="bg-zinc-100">
                         {results.map((_, index) => (
                             <TabsTrigger
                                 key={`trigger-${index}`}
                                 value={`part-${index}`}
-                                className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-blue-500 data-[state=active]:to-indigo-500 data-[state=active]:text-white"
+                                className="data-[state=active]:bg-zinc-800 data-[state=active]:text-white"
                             >
                                 Part {index + 1}
                             </TabsTrigger>
@@ -101,34 +101,31 @@ interface ResponseProps {
 
 export function SpeakingIeltsResponse({ data }: ResponseProps) {
     const getBandColor = (band: number) => {
-        if (band >= 8) return 'text-emerald-600';
-        if (band >= 7) return 'text-blue-600';
-        if (band >= 6) return 'text-indigo-600';
-        return 'text-slate-600';
+        if (band >= 8) return 'text-zinc-800';
+        if (band >= 7) return 'text-zinc-700';
+        if (band >= 6) return 'text-zinc-600';
+        return 'text-zinc-500';
     };
 
     const getBandBgColor = (band: number) => {
-        if (band >= 8) return 'bg-emerald-50 border-emerald-200';
-        if (band >= 7) return 'bg-blue-50 border-blue-200';
-        if (band >= 6) return 'bg-indigo-50 border-indigo-200';
-        return 'bg-slate-50 border-slate-200';
+        if (band >= 8) return 'bg-zinc-100 border-zinc-300';
+        if (band >= 7) return 'bg-zinc-50 border-zinc-200';
+        if (band >= 6) return 'bg-zinc-50 border-zinc-200';
+        return 'bg-zinc-50 border-zinc-200';
     };
 
     const getProgressColor = (band: number) => {
-        if (band >= 8)
-            return '[&>div]:bg-gradient-to-r [&>div]:from-emerald-500 [&>div]:to-emerald-600';
-        if (band >= 7)
-            return '[&>div]:bg-gradient-to-r [&>div]:from-blue-500 [&>div]:to-blue-600';
-        if (band >= 6)
-            return '[&>div]:bg-gradient-to-r [&>div]:from-indigo-500 [&>div]:to-indigo-600';
-        return '[&>div]:bg-gradient-to-r [&>div]:from-slate-400 [&>div]:to-slate-500';
+        if (band >= 8) return '[&>div]:bg-zinc-800';
+        if (band >= 7) return '[&>div]:bg-zinc-700';
+        if (band >= 6) return '[&>div]:bg-zinc-600';
+        return '[&>div]:bg-zinc-500';
     };
 
     const getIconBgColor = (band: number) => {
-        if (band >= 8) return 'bg-emerald-100 text-emerald-600';
-        if (band >= 7) return 'bg-blue-100 text-blue-600';
-        if (band >= 6) return 'bg-indigo-100 text-indigo-600';
-        return 'bg-slate-100 text-slate-600';
+        if (band >= 8) return 'bg-zinc-200 text-zinc-800';
+        if (band >= 7) return 'bg-zinc-100 text-zinc-700';
+        if (band >= 6) return 'bg-zinc-100 text-zinc-600';
+        return 'bg-zinc-100 text-zinc-500';
     };
 
     const categories = [
@@ -165,43 +162,43 @@ export function SpeakingIeltsResponse({ data }: ResponseProps) {
     return (
         <div className="animate-in fade-in space-y-5 duration-500">
             <Card className="relative overflow-hidden border-0 shadow-lg">
-                <div className="absolute inset-0 bg-gradient-to-br from-blue-500/10 via-indigo-500/10 to-purple-500/10" />
+                <div className="absolute inset-0 bg-gradient-to-br from-zinc-100/50 via-zinc-50/30 to-zinc-100/50" />
                 <CardHeader className="relative pb-3">
                     <div className="flex items-center justify-between">
                         <div>
-                            <CardTitle className="text-lg font-bold text-slate-900">
+                            <CardTitle className="text-lg font-bold text-zinc-900">
                                 Overall Band Score
                             </CardTitle>
-                            <CardDescription className="mt-1 text-sm text-slate-600">
+                            <CardDescription className="mt-1 text-sm text-zinc-600">
                                 Your IELTS Speaking Performance
                             </CardDescription>
                         </div>
-                        <div className="rounded-xl bg-gradient-to-br from-blue-500 to-indigo-500 p-2.5">
+                        <div className="rounded-xl bg-zinc-800 p-2.5">
                             <Award className="h-5 w-5 text-white" />
                         </div>
                     </div>
                 </CardHeader>
                 <CardContent className="relative pb-4">
                     <div className="flex items-center gap-4">
-                        <div className="bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-5xl font-black text-transparent">
+                        <div className="text-5xl font-black text-zinc-800">
                             {data.overall_band.toFixed(1)}
                         </div>
                         <div className="grid flex-1 grid-cols-2 gap-2">
-                            <div className="space-y-1 rounded-lg border border-slate-200 bg-white/80 p-2.5 backdrop-blur">
-                                <p className="flex items-center gap-1.5 text-xs font-medium text-slate-600">
+                            <div className="space-y-1 rounded-lg border border-zinc-200 bg-white/80 p-2.5 backdrop-blur">
+                                <p className="flex items-center gap-1.5 text-xs font-medium text-zinc-600">
                                     <Clock className="h-3.5 w-3.5" />
                                     Duration
                                 </p>
-                                <p className="text-base font-bold text-slate-900">
+                                <p className="text-base font-bold text-zinc-900">
                                     {data.duration}s
                                 </p>
                             </div>
-                            <div className="space-y-1 rounded-lg border border-slate-200 bg-white/80 p-2.5 backdrop-blur">
-                                <p className="flex items-center gap-1.5 text-xs font-medium text-slate-600">
+                            <div className="space-y-1 rounded-lg border border-zinc-200 bg-white/80 p-2.5 backdrop-blur">
+                                <p className="flex items-center gap-1.5 text-xs font-medium text-zinc-600">
                                     <FileText className="h-3.5 w-3.5" />
                                     Words
                                 </p>
-                                <p className="text-base font-bold text-slate-900">
+                                <p className="text-base font-bold text-zinc-900">
                                     {data.word_count}
                                 </p>
                             </div>
@@ -234,7 +231,7 @@ export function SpeakingIeltsResponse({ data }: ResponseProps) {
                                     {category.band}
                                 </Badge>
                             </div>
-                            <CardTitle className="text-xs leading-tight font-semibold text-slate-900">
+                            <CardTitle className="text-xs leading-tight font-semibold text-zinc-900">
                                 {category.label}
                             </CardTitle>
                         </CardHeader>
@@ -248,18 +245,18 @@ export function SpeakingIeltsResponse({ data }: ResponseProps) {
                 ))}
             </div>
 
-            <Card className="border-slate-200 bg-gradient-to-br from-slate-50 to-blue-50/30 shadow-sm">
+            <Card className="border-zinc-200 bg-gradient-to-br from-zinc-50 to-zinc-100/30 shadow-sm">
                 <CardHeader className="pb-3">
-                    <CardTitle className="flex items-center gap-2 text-base text-slate-900">
-                        <div className="rounded-lg bg-blue-100 p-1.5 text-blue-600">
+                    <CardTitle className="flex items-center gap-2 text-base text-zinc-900">
+                        <div className="rounded-lg bg-zinc-200 p-1.5 text-zinc-700">
                             <MessageSquare className="h-4 w-4" />
                         </div>
                         Your Response
                     </CardTitle>
                 </CardHeader>
                 <CardContent className="pb-4">
-                    <div className="rounded-lg border border-slate-200 bg-white p-3.5">
-                        <p className="text-sm leading-relaxed text-slate-700">
+                    <div className="rounded-lg border border-zinc-200 bg-white p-3.5">
+                        <p className="text-sm leading-relaxed text-zinc-700">
                             &ldquo;{data.transcript}&rdquo;
                         </p>
                     </div>
@@ -270,7 +267,7 @@ export function SpeakingIeltsResponse({ data }: ResponseProps) {
                 {categories.map((category) => (
                     <Card
                         key={category.key}
-                        className="overflow-hidden border-slate-200 shadow-sm"
+                        className="overflow-hidden border-zinc-200 shadow-sm"
                     >
                         <CardHeader
                             className={`border-b pt-3 pb-3 ${getBandBgColor(category.band)}`}
@@ -282,7 +279,7 @@ export function SpeakingIeltsResponse({ data }: ResponseProps) {
                                     <category.icon className="h-4 w-4" />
                                 </div>
                                 <div className="flex-1">
-                                    <CardTitle className="text-sm font-bold text-slate-900">
+                                    <CardTitle className="text-sm font-bold text-zinc-900">
                                         {category.label}
                                     </CardTitle>
                                     <CardDescription className="mt-0.5 text-xs">
@@ -297,8 +294,8 @@ export function SpeakingIeltsResponse({ data }: ResponseProps) {
                             </div>
                         </CardHeader>
                         <CardContent className="space-y-3 pt-4 pb-4">
-                            <div className="rounded-lg border border-slate-200 bg-slate-50 p-3">
-                                <p className="text-xs leading-relaxed text-slate-700">
+                            <div className="rounded-lg border border-zinc-200 bg-zinc-50 p-3">
+                                <p className="text-xs leading-relaxed text-zinc-700">
                                     {category.data.feedback}
                                 </p>
                             </div>
@@ -306,8 +303,8 @@ export function SpeakingIeltsResponse({ data }: ResponseProps) {
                             <Separator className="my-2" />
 
                             <div className="space-y-2.5">
-                                <div className="rounded-lg border border-emerald-200 bg-emerald-50/50 p-3">
-                                    <h4 className="mb-2 flex items-center gap-1.5 text-xs font-bold text-emerald-700">
+                                <div className="rounded-lg border border-zinc-200 bg-zinc-50/50 p-3">
+                                    <h4 className="mb-2 flex items-center gap-1.5 text-xs font-bold text-zinc-700">
                                         <CheckCircle2 className="h-3.5 w-3.5" />
                                         Strengths
                                     </h4>
@@ -318,10 +315,10 @@ export function SpeakingIeltsResponse({ data }: ResponseProps) {
                                                     key={idx}
                                                     className="flex items-start gap-2 text-xs"
                                                 >
-                                                    <span className="mt-0.5 text-xs font-bold text-emerald-600">
+                                                    <span className="mt-0.5 text-xs font-bold text-zinc-600">
                                                         ✓
                                                     </span>
-                                                    <span className="leading-relaxed text-slate-700">
+                                                    <span className="leading-relaxed text-zinc-700">
                                                         {strength}
                                                     </span>
                                                 </li>
@@ -330,8 +327,8 @@ export function SpeakingIeltsResponse({ data }: ResponseProps) {
                                     </ul>
                                 </div>
 
-                                <div className="rounded-lg border border-orange-200 bg-orange-50/50 p-3">
-                                    <h4 className="mb-2 flex items-center gap-1.5 text-xs font-bold text-orange-700">
+                                <div className="rounded-lg border border-zinc-300 bg-zinc-100/50 p-3">
+                                    <h4 className="mb-2 flex items-center gap-1.5 text-xs font-bold text-zinc-700">
                                         <AlertCircle className="h-3.5 w-3.5" />
                                         Areas for Improvement
                                     </h4>
@@ -342,10 +339,10 @@ export function SpeakingIeltsResponse({ data }: ResponseProps) {
                                                     key={idx}
                                                     className="flex items-start gap-2 text-xs"
                                                 >
-                                                    <span className="mt-0.5 text-xs font-bold text-orange-600">
+                                                    <span className="mt-0.5 text-xs font-bold text-zinc-600">
                                                         !
                                                     </span>
-                                                    <span className="leading-relaxed text-slate-700">
+                                                    <span className="leading-relaxed text-zinc-700">
                                                         {weakness}
                                                     </span>
                                                 </li>
@@ -354,8 +351,8 @@ export function SpeakingIeltsResponse({ data }: ResponseProps) {
                                     </ul>
                                 </div>
 
-                                <div className="rounded-lg border border-blue-200 bg-blue-50/50 p-3">
-                                    <h4 className="mb-2 flex items-center gap-1.5 text-xs font-bold text-blue-700">
+                                <div className="rounded-lg border border-zinc-200 bg-zinc-50/50 p-3">
+                                    <h4 className="mb-2 flex items-center gap-1.5 text-xs font-bold text-zinc-700">
                                         <TrendingUp className="h-3.5 w-3.5" />
                                         Recommendations
                                     </h4>
@@ -366,10 +363,10 @@ export function SpeakingIeltsResponse({ data }: ResponseProps) {
                                                     key={idx}
                                                     className="flex items-start gap-2 text-xs"
                                                 >
-                                                    <span className="mt-0.5 text-xs font-bold text-blue-600">
+                                                    <span className="mt-0.5 text-xs font-bold text-zinc-600">
                                                         →
                                                     </span>
-                                                    <span className="leading-relaxed text-slate-700">
+                                                    <span className="leading-relaxed text-zinc-700">
                                                         {improvement}
                                                     </span>
                                                 </li>

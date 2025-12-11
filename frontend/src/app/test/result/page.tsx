@@ -2,7 +2,10 @@
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import ResultsTab from './result-tab';
 import CertificateTab from './certificate-tab';
-import { BandScoreResponse, ScoredAnswer } from '@/lib/service/attempt/type';
+import type {
+    BandScoreResponse,
+    ScoredAnswer,
+} from '@/lib/service/attempt/type';
 import { useEffect, useState } from 'react';
 
 interface ResultsPageProps {
@@ -17,11 +20,11 @@ export function ResultsPage({ testData }: ResultsPageProps) {
     const percentage = Math.round((correctAnswers / totalQuestions) * 100);
 
     return (
-        <div className="from-background via-background to-accent/5 min-h-screen bg-gradient-to-br">
+        <div className="from-background via-background min-h-screen bg-gradient-to-br to-zinc-100/30">
             <div className="container mx-auto px-4 py-8 md:py-12">
                 <div className="mb-8 text-center">
-                    <div className="mb-4 inline-flex items-center justify-center rounded-full bg-gradient-to-r from-blue-500/20 to-purple-500/20 px-4 py-2">
-                        <span className="bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-sm font-semibold text-transparent">
+                    <div className="mb-4 inline-flex items-center justify-center rounded-full bg-zinc-100 px-4 py-2">
+                        <span className="text-sm font-semibold text-zinc-700">
                             BandUp IELTS
                         </span>
                     </div>
@@ -37,13 +40,13 @@ export function ResultsPage({ testData }: ResultsPageProps) {
                     <TabsList className="bg-muted mb-8 grid w-full grid-cols-2 rounded-full p-1">
                         <TabsTrigger
                             value="results"
-                            className="rounded-full data-[state=active]:bg-gradient-to-r data-[state=active]:from-blue-500 data-[state=active]:to-purple-500 data-[state=active]:text-white"
+                            className="rounded-full data-[state=active]:bg-zinc-800 data-[state=active]:text-white"
                         >
                             Results & Analysis
                         </TabsTrigger>
                         <TabsTrigger
                             value="certificate"
-                            className="rounded-full data-[state=active]:bg-gradient-to-r data-[state=active]:from-blue-500 data-[state=active]:to-purple-500 data-[state=active]:text-white"
+                            className="rounded-full data-[state=active]:bg-zinc-800 data-[state=active]:text-white"
                         >
                             Certificate
                         </TabsTrigger>

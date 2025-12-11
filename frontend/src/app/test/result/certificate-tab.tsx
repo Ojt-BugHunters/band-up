@@ -68,11 +68,10 @@ export default function CertificateTab({
         return 'Keep Practicing';
     };
 
-    // Hàm xử lý Quit
     const handleQuitConfirm = async () => {
         try {
             setQuitLoading(true);
-            clearTestLocalStorage(); // Dọn dẹp storage
+            clearTestLocalStorage();
             router.push('/test');
         } finally {
             setQuitLoading(false);
@@ -80,9 +79,8 @@ export default function CertificateTab({
         }
     };
 
-    // Hàm xử lý Retake
     const handleRetake = () => {
-        clearTestLocalStorage(); // Dọn dẹp storage để làm bài mới
+        clearTestLocalStorage();
         router.push('/test');
     };
 
@@ -95,18 +93,18 @@ export default function CertificateTab({
                     style={{ fontFamily: 'Inter, Arial, sans-serif' }}
                 >
                     <div className="relative overflow-hidden px-8 py-12 md:px-12 md:py-16">
-                        <div className="absolute top-0 left-0 h-32 w-32 -translate-x-1/2 -translate-y-1/2 rounded-full bg-gradient-to-br from-blue-500/10 to-purple-500/10" />
-                        <div className="absolute right-0 bottom-0 h-40 w-40 translate-x-1/4 translate-y-1/4 rounded-full bg-gradient-to-tl from-blue-500/10 to-purple-500/10" />
+                        <div className="absolute top-0 left-0 h-32 w-32 -translate-x-1/2 -translate-y-1/2 rounded-full bg-zinc-100/50" />
+                        <div className="absolute right-0 bottom-0 h-40 w-40 translate-x-1/4 translate-y-1/4 rounded-full bg-zinc-100/50" />
 
                         <div className="relative z-10">
                             <div className="mb-8">
                                 <p className="mb-2 text-sm font-semibold tracking-widest text-gray-500 uppercase">
                                     Certificate of Achievement
                                 </p>
-                                <h2 className="mb-2 bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-4xl font-bold text-transparent">
+                                <h2 className="mb-2 text-4xl font-bold text-zinc-800">
                                     BandUp IELTS
                                 </h2>
-                                <div className="mx-auto h-1 w-24 bg-gradient-to-r from-blue-500 to-purple-500" />
+                                <div className="mx-auto h-1 w-24 bg-zinc-600" />
                             </div>
 
                             <p className="mb-8 text-lg text-gray-600">
@@ -129,7 +127,7 @@ export default function CertificateTab({
 
                                 <div className="flex items-center justify-center gap-8">
                                     <div className="text-center">
-                                        <div className="mb-2 bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-6xl font-bold text-transparent">
+                                        <div className="mb-2 text-6xl font-bold text-zinc-800">
                                             {bandScore.toFixed(1)}
                                         </div>
                                         <p className="text-sm font-medium text-gray-600">
@@ -179,7 +177,7 @@ export default function CertificateTab({
                 </div>
             </div>
 
-            <Card className="border-0 bg-gradient-to-r from-blue-500/10 to-purple-500/10 shadow-lg">
+            <Card className="border-0 bg-zinc-100/50 shadow-lg">
                 <CardContent className="pt-6">
                     <div className="space-y-4">
                         <div className="text-center">
@@ -195,7 +193,7 @@ export default function CertificateTab({
                             <Button
                                 onClick={downloadCertificate}
                                 disabled={isDownloading}
-                                className="flex-1 gap-2 bg-gradient-to-r from-blue-500 to-purple-500 text-white shadow-lg hover:from-blue-600 hover:to-purple-600"
+                                className="flex-1 gap-2 bg-zinc-800 text-white shadow-lg hover:bg-zinc-900"
                             >
                                 <Download className="h-4 w-4" />
                                 {isDownloading
@@ -235,12 +233,12 @@ export default function CertificateTab({
                 <CardContent className="pt-6">
                     <div className="space-y-4">
                         <h4 className="text-foreground flex items-center gap-2 font-semibold">
-                            <Target className="h-5 w-5 text-blue-600" />
+                            <Target className="h-5 w-5 text-zinc-600" />
                             Next Steps:
                         </h4>
                         <div className="space-y-3">
                             <div className="bg-muted/50 hover:bg-muted flex items-start gap-3 rounded-lg p-3 transition-colors">
-                                <Share2 className="mt-0.5 h-5 w-5 flex-shrink-0 text-purple-600" />
+                                <Share2 className="mt-0.5 h-5 w-5 flex-shrink-0 text-zinc-600" />
                                 <div>
                                     <p className="text-foreground text-sm font-medium">
                                         Share your achievement
@@ -251,7 +249,7 @@ export default function CertificateTab({
                                 </div>
                             </div>
                             <div className="bg-muted/50 hover:bg-muted flex items-start gap-3 rounded-lg p-3 transition-colors">
-                                <Linkedin className="mt-0.5 h-5 w-5 flex-shrink-0 text-blue-600" />
+                                <Linkedin className="mt-0.5 h-5 w-5 flex-shrink-0 text-zinc-600" />
                                 <div>
                                     <p className="text-foreground text-sm font-medium">
                                         Update LinkedIn profile
@@ -263,7 +261,7 @@ export default function CertificateTab({
                                 </div>
                             </div>
                             <div className="bg-muted/50 hover:bg-muted flex items-start gap-3 rounded-lg p-3 transition-colors">
-                                <Target className="mt-0.5 h-5 w-5 flex-shrink-0 text-orange-600" />
+                                <Target className="mt-0.5 h-5 w-5 flex-shrink-0 text-zinc-600" />
                                 <div>
                                     <p className="text-foreground text-sm font-medium">
                                         Keep practicing
@@ -288,7 +286,7 @@ export default function CertificateTab({
                 </Button>
 
                 <Button
-                    className="flex-1 gap-2 bg-gradient-to-r from-blue-500 to-purple-500 text-white shadow-lg hover:from-blue-600 hover:to-purple-600"
+                    className="flex-1 gap-2 bg-zinc-800 text-white shadow-lg hover:bg-zinc-900"
                     onClick={handleRetake}
                 >
                     <RotateCcw className="h-4 w-4" />
