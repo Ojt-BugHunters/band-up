@@ -85,9 +85,11 @@ public class FlashCardGenServiceImpl implements FlashCardGenService {
             log.info("Presigned URL generated successfully for bucket: {}", documentBucket);
             log.info("Expires at: {}", uploadInfo.getExpiresAt());
             log.info("========== GENERATE DOCUMENT UPLOAD URL END ==========\n");
-
+            String cleanKey = s3Key.startsWith("/") ? s3Key.substring(1) : s3Key;
+            String s3Uri = String.format("s3://%s/%s", documentBucket, cleanKey);
             return FlashCardS3UploadResponse.builder()
                     .uploadUrl(uploadInfo.getPresignedUrl())
+                    .s3Key(s3Uri)
                     .build();
 
         } catch (Exception e) {
