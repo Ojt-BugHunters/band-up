@@ -1,4 +1,3 @@
-// seed.all.ts
 import pkg from 'pg';
 import { faker } from '@faker-js/faker';
 import dayjs from 'dayjs';
@@ -7,7 +6,6 @@ import bcrypt from 'bcrypt';
 
 const { Client } = pkg;
 
-// ==== CONFIG (giữ nguyên của bạn) ====
 const DATABASE_URL =
     process.env.DATABASE_URL ||
     'postgres://postgres:123456@localhost:5432/band_up';
@@ -15,7 +13,6 @@ const DATABASE_URL =
 const NUM_ACCOUNTS = Number(process.env.SEED_ACCOUNTS ?? 20);
 const NUM_DECKS = Number(process.env.SEED_DECKS ?? 300);
 
-// ==== BLOG CONFIG (thêm) ====
 const NUM_BLOG_POSTS = Number(process.env.SEED_BLOGS ?? 100);
 const BLOG_IMAGES = [
     'avatars/9604f861-b17a-4a06-b9c1-c2f9b7210632/avatar-f545be8a-b67c-4d24-98f0-b055fd423f95-Screenshot_30-Oct_17-08-26_12211.png',
@@ -28,13 +25,11 @@ const BLOG_IMAGES = [
     'avatars/9604f861-b17a-4a06-b9c1-c2f9b7210632/avatar-f545be8a-b67c-4d24-98f0-b055fd423f95-Screenshot_30-Oct_17-08-26_12211.png',
 ];
 
-// Hàm lấy ảnh ngẫu nhiên
 export const getRandomBlogImage = () => {
     const randomIndex = Math.floor(Math.random() * BLOG_IMAGES.length);
     return BLOG_IMAGES[randomIndex];
 };
 
-// Nếu muốn dùng biến constant như cũ (Random 1 lần khi file được load)
 export const FIXED_TITLE_IMG = getRandomBlogImage();
 
 const DEFAULT_TAGS = [
@@ -55,8 +50,7 @@ const DEFAULT_TAGS = [
     'General Training',
 ];
 
-// Cho phép override cột join qua ENV, nếu không có sẽ tự dò
-const ENV_JOIN_TABLE = process.env.JOIN_TABLE; // ví dụ: blog_post_tags
+const ENV_JOIN_TABLE = process.env.JOIN_TABLE;
 const ENV_JOIN_TAGS_COLUMN = process.env.JOIN_TAGS_COLUMN; // ví dụ: tags_id | tag_id
 
 const ROLES = ['Admin', 'Member'] as const;
@@ -480,26 +474,52 @@ function buildIeltsHtml(topic: string): string {
     ).join('\n');
 
     return `
-<article>
-  <h1>${topic}: Tips & Strategies for a Higher IELTS Band</h1>
-  <p><em>Chủ đề: ${topic}. Bài viết tập trung mẹo thi, quản lý thời gian và mẫu trả lời thực chiến.</em></p>
-  ${p(2)}
-  <h2>Key Tips</h2>
-  <ul>${tips}</ul>
-  ${p(1)}
-  <h2>Sample Answers</h2>
-  ${sampleQAs}
-  <h2>Mini Practice</h2>
-  <ol>
-    <li>${faker.lorem.sentence()}?</li>
-    <li>${faker.lorem.sentence()}?</li>
-    <li>${faker.lorem.sentence()}?</li>
-  </ol>
-  ${p(2)}
-  <blockquote>Gợi ý: luyện tập mỗi ngày 25–45 phút theo đúng format đề để tăng sức bền khi vào phòng thi.</blockquote>
-  <h3>Further Reading</h3>
-  <p>${faker.lorem.paragraph()}</p>
-</article>`.trim();
+
+        <article>
+          <h1>${topic}: Tips & Strategies for a Higher IELTS Band</h1>
+          <p><em>Chủ đề: ${topic}. Bài viết này sẽ chia sẻ mẹo thi, chiến lược quản lý thời gian và các mẫu trả lời thực tế để giúp bạn đạt được band điểm cao trong kỳ thi IELTS.</em></p>
+
+          ${p(2)}
+
+          <h2>Key Tips for a Higher Band Score</h2>
+          <p>Để đạt điểm cao trong kỳ thi IELTS, bạn cần nắm vững các chiến lược thi cử hiệu quả. Dưới đây là một số mẹo quan trọng giúp bạn cải thiện khả năng làm bài:</p>
+          <ul>
+            <li><strong>Quản lý thời gian chặt chẽ:</strong> Mỗi phần thi đều có thời gian giới hạn. Đảm bảo rằng bạn biết rõ thời gian dành cho mỗi câu hỏi và bài thi. Hãy luyện tập để hoàn thành bài thi trong thời gian cho phép.</li>
+            <li><strong>Không bỏ qua câu hỏi dễ:</strong> Trong các phần thi như Listening và Reading, luôn luôn đảm bảo bạn hoàn thành những câu hỏi dễ trước, để tiết kiệm thời gian cho những câu khó hơn.</li>
+            <li><strong>Thực hành viết bài luận:</strong> Trong phần thi Writing, đặc biệt là Task 2, việc viết bài luận có cấu trúc rõ ràng là rất quan trọng. Bạn cần phải biết cách phát triển các ý tưởng một cách logic và sử dụng từ vựng phong phú.</li>
+            <li><strong>Nghe và đọc đa dạng:</strong> Hãy tập luyện với nhiều dạng tài liệu khác nhau để cải thiện khả năng nghe và đọc hiểu. Đặc biệt là luyện tập với các chủ đề khó, điều này sẽ giúp bạn dễ dàng hơn khi gặp các câu hỏi tương tự trong bài thi.</li>
+          </ul>
+
+          ${p(1)}
+
+          <h2>Sample Answers to Common IELTS Questions</h2>
+          <p>Để giúp bạn hiểu rõ hơn về cách trả lời các câu hỏi trong IELTS, dưới đây là một số ví dụ về câu hỏi và câu trả lời mẫu. Những câu trả lời này sẽ giúp bạn nhận ra các yếu tố quan trọng cần có trong một câu trả lời hoàn chỉnh.</p>
+
+          ${sampleQAs}
+
+          <h2>Mini Practice: Try It Yourself!</h2>
+          <p>Đây là những câu hỏi bạn có thể luyện tập ngay hôm nay. Hãy ghi lại câu trả lời của bạn và kiểm tra với các tiêu chí dưới đây:</p>
+          <ol>
+            <li>Describe an experience you had while traveling abroad.</li>
+            <li>What are the advantages and disadvantages of living in a big city?</li>
+            <li>Do you think it's important for people to learn more than one language? Why?</li>
+          </ol>
+
+          ${p(2)}
+
+          <blockquote>Gợi ý: luyện tập mỗi ngày 25–45 phút theo đúng format đề để tăng sức bền khi vào phòng thi. Bạn nên tập trung vào những chủ đề khó và xây dựng chiến lược trả lời câu hỏi một cách hiệu quả.</blockquote>
+
+          <h3>Further Reading and Resources</h3>
+          <p>Để tiếp tục cải thiện điểm số của bạn, bạn có thể tham khảo thêm các tài liệu sau:</p>
+          <ul>
+            <li><a href="https://www.ielts.org" target="_blank">Trang chủ IELTS</a> - Các tài liệu luyện thi chính thức và đề thi mẫu.</li>
+            <li><a href="https://www.ieltsliz.com" target="_blank">IELTS Liz</a> - Một trang web với rất nhiều mẹo và bài luyện thi miễn phí.</li>
+            <li><a href="https://www.youtube.com/user/IELTSofficial" target="_blank">IELTS Official YouTube Channel</a> - Các video hướng dẫn và tips trực tiếp từ các chuyên gia IELTS.</li>
+          </ul>
+
+          <p>Hãy nhớ rằng sự chuẩn bị kỹ càng là chìa khóa để thành công trong kỳ thi IELTS. Chúc bạn đạt được band điểm cao và thực hiện ước mơ học tập của mình!</p>
+        </article>
+`.trim();
 }
 
 function buildRandomTitle(topic: string): string {
@@ -707,22 +727,22 @@ async function main() {
             await loadExistingAccounts(client);
 
         // 2) Thêm accounts mới (ngoại trừ hoang@gmail.com)
-        const newAccountIds = await seedAccountsAddOnly(client, existingEmails);
+        // const newAccountIds = await seedAccountsAddOnly(client, existingEmails);
 
         // 3) Toàn bộ account để dùng cho deck: account cũ + account vừa thêm
         const allAccountIds = [...existingAccountIds, ...newAccountIds];
 
         // 4) Thêm deck mới (gán vào all accounts)
-        const newDeckIds = await seedDecksAddOnly(client, allAccountIds);
+        // const newDeckIds = await seedDecksAddOnly(client, allAccountIds);
 
         // 5) Thêm cards cho các deck mới
-        const deckIdsWithCards = await seedCardsAddOnly(client, newDeckIds);
+        // const deckIdsWithCards = await seedCardsAddOnly(client, newDeckIds);
 
         // 6) Lấy toàn bộ deck id (cũ + mới) để tạo study_progress
-        const existingDeckIds = await loadExistingDeckIds(client);
-        const allDeckIds = Array.from(
-            new Set([...existingDeckIds, ...deckIdsWithCards])
-        );
+        // const existingDeckIds = await loadExistingDeckIds(client);
+        // const allDeckIds = Array.from(
+        //     new Set([...existingDeckIds, ...deckIdsWithCards])
+        // );
 
         // 7) Thêm study_progress (add-only)
         //await seedStudyProgressAddOnly(client, allAccountIds, allDeckIds);
