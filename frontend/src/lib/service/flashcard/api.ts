@@ -70,6 +70,27 @@ export const useGetDecks = (paginationInfo: PaginationInfo) => {
     });
 };
 
+export const useGetTopDecks = () => {
+    const params = buildParams({
+        pageNo: 0,
+        pageSize: 10,
+        sortBy: 'learnerNumber',
+        ascending: false,
+    });
+
+    return useQuery({
+        queryFn: async () => {
+            const response = await fetchWrapper(
+                `/quizlet/deck?${params.toString()}`,
+            );
+            return await deserialize<Pagination<Deck>>(response);
+        },
+        staleTime: 60_000,
+        refetchOnWindowFocus: false,
+        queryKey: ['flash-card', 'top-decks'],
+    });
+};
+
 // update card in specific deck
 export const useUpdateDeckCard = (deckId: string) => {
     const router = useRouter();
