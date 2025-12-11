@@ -191,4 +191,37 @@ public class S3ServiceImpl implements S3Service {
             throw new RuntimeException("Invalid CloudFront private key PEM", e);
         }
     }
+    @Override
+    public UploadInfo createUploadPresignedUrlWithBucket(String bucket, String key, String contentType) {
+        try {
+            Duration ttl = Duration.ofSeconds(presignTtlSeconds);
+
+            PutObjectRequest por = PutObjectRequest.builder()
+                    .bucket(bucket)  // <<<< SỬ DỤNG BUCKET TRUYỀN VÀO
+                    .key(key)
+                    .contentType(contentType)
+                    .build();
+
+            PutObjectPresignRequest presignReq = PutObjectPresignRequest.builder()
+                    .putObjectRequest(por)
+                    .signatureDuration(ttl)
+                    .build();
+
+            URL url = s3Presigner.presignPutObject(presignReq).url();
+            Instant expiresAt = Instant.now().plus(ttl);
+
+            log.info("[S3] Generated presigned upload URL for bucket={}, key={} (expires at {})",
+                    bucket, key, expiresAt);
+
+            return new UploadInfo(key, url.toString(), expiresAt);
+        } catch (S3Exception e) {
+            log.error("[S3] Failed to generate presigned URL for bucket={}, key={} — {}",
+                    bucket, key, e.awsErrorDetails().errorMessage(), e);
+            throw e;
+        } catch (Exception e) {
+            log.error("[S3] Unexpected error generating presigned URL for bucket={}, key={}: {}",
+                    bucket, key, e.getMessage(), e);
+            throw new RuntimeException("Failed to generate presigned URL", e);
+        }
+    }
 }
