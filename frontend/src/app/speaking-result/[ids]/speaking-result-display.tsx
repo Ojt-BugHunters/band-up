@@ -10,6 +10,7 @@ import {
 import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
 import { Separator } from '@/components/ui/separator';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import {
     CheckCircle2,
     AlertCircle,
@@ -20,7 +21,16 @@ import {
     FileText,
 } from 'lucide-react';
 
-interface IeltsData {
+// 1. Định nghĩa Type chuẩn khớp với dữ liệu Hook trả về
+export interface CategoryFeedback {
+    band: number;
+    feedback: string;
+    strengths: string[];
+    weaknesses: string[];
+    improvements: string[];
+}
+
+export interface SpeakingEvaluationResponse {
     session_id: string;
     transcript: string;
     duration: number;
@@ -45,19 +55,55 @@ interface IeltsData {
     };
 }
 
-interface CategoryFeedback {
-    band: number;
-    feedback: string;
-    strengths: string[];
-    weaknesses: string[];
-    improvements: string[];
+// 2. Component Wrapper: Xử lý Tabs (Dùng cái này trong Page cha)
+interface DisplayProps {
+    results?: SpeakingEvaluationResponse[];
 }
 
-interface Props {
-    data: IeltsData;
+export default function SpeakingResultDisplay({ results }: DisplayProps) {
+    if (!results || results.length === 0) return null;
+
+    // Nếu chỉ có 1 kết quả -> Render trực tiếp component con
+    if (results.length === 1) {
+        return <SpeakingIeltsResponse data={results[0]} />;
+    }
+
+    // Nếu có nhiều kết quả -> Render Tabs
+    return (
+        <div className="w-full">
+            <Tabs defaultValue="part-0" className="w-full">
+                <div className="mb-6 flex justify-center">
+                    <TabsList>
+                        {results.map((_, index) => (
+                            <TabsTrigger
+                                key={`trigger-${index}`}
+                                value={`part-${index}`}
+                            >
+                                Part {index + 1}
+                            </TabsTrigger>
+                        ))}
+                    </TabsList>
+                </div>
+
+                {results.map((result, index) => (
+                    <TabsContent
+                        key={`content-${index}`}
+                        value={`part-${index}`}
+                    >
+                        <SpeakingIeltsResponse data={result} />
+                    </TabsContent>
+                ))}
+            </Tabs>
+        </div>
+    );
 }
 
-export function SpeakingIeltsResponse({ data }: Props) {
+// 3. Component Con: Hiển thị chi tiết (Code cũ của bạn)
+interface ResponseProps {
+    data: SpeakingEvaluationResponse;
+}
+
+export function SpeakingIeltsResponse({ data }: ResponseProps) {
     const getBandColor = (band: number) => {
         if (band >= 8) return 'text-emerald-700';
         if (band >= 7) return 'text-blue-700';
@@ -118,7 +164,7 @@ export function SpeakingIeltsResponse({ data }: Props) {
     ];
 
     return (
-        <div className="space-y-5">
+        <div className="animate-in fade-in space-y-5 duration-500">
             {/* Overall Score Card */}
             <Card className="border-2 border-purple-300 bg-purple-50 shadow-md">
                 <CardHeader className="pb-3">

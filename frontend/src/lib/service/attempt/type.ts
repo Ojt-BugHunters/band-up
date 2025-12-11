@@ -257,3 +257,56 @@ export interface GetSpeakingUrlPayload {
     attemptSectionId: string;
     audioName: string;
 }
+
+export type FeedbackDetail = {
+    band: number;
+    feedback: string;
+    strengths: string[];
+    weaknesses: string[];
+    improvements: string[];
+};
+
+export type SpeakingFeedback = {
+    overall: string;
+    fluency: FeedbackDetail;
+    lexical: FeedbackDetail;
+    grammar: FeedbackDetail;
+    pronunciation: FeedbackDetail;
+};
+
+export type TokenUsage = {
+    input_tokens: number;
+    output_tokens: number;
+    total_tokens: number;
+};
+
+export type SpeakingEvaluationResponse = {
+    session_id: string;
+    transcript: string;
+    duration: number;
+    word_count: number;
+    overall_band: number;
+    fluency_band: number;
+    lexical_band: number;
+    grammar_band: number;
+    pronunciation_band: number;
+    feedback: SpeakingFeedback;
+    confidence_score: number;
+    model_used: string;
+    model_version: string;
+    fallback_occurred: boolean;
+    estimated_cost: number;
+    token_usage: TokenUsage;
+    latency_ms: number;
+    evaluated_at: number;
+};
+
+export type GradingPayload = {
+    answerId: string;
+    session_id: string;
+    user_id: string;
+    audio_url: string;
+    task_type: string;
+    prompt: string;
+    duration_seconds: number;
+};
