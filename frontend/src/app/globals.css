@@ -149,6 +149,25 @@
     background: oklch(0.45 0.01 240);
 }
 
+.price-line-through {
+    position: relative;
+    display: inline-flex;
+    align-items: baseline;
+    gap: 0.25rem;
+}
+
+.price-line-through::after {
+    content: '';
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: 50%;
+    border-top: 2px solid #000;
+    opacity: 2;
+    transform: translateY(-50%);
+    pointer-events: none;
+}
+
 @keyframes aura-burst {
     0% {
         box-shadow:
