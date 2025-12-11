@@ -488,8 +488,7 @@ public class IeltsAnswerServiceImpl extends AbstractAnswerServiceImpl {
             }
 
             // 4. Tạo key ĐƠN GIẢN - CHỈ TÊN FILE, KHÔNG CÓ FOLDER
-            String s3Key = String.format("%s-%s",
-                    UUID.randomUUID().toString(),
+            String s3Key = String.format("%s",
                     sanitizeFileName(request.getAudioName()));
 
             System.out.println("Generated S3 key: " + s3Key);
