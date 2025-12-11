@@ -10,6 +10,7 @@ import {
     CreateAttemptResponse,
     CreateAttemptSectionResponse,
     EvaluationPayload,
+    GetSpeakingUrlPayload,
     SubmitAnswerParams,
     SubmitResponse,
     WritingSubmission,
@@ -265,6 +266,38 @@ export function useEvaluateWriting() {
         onSuccess: (data) => {
             toast.success('Evaluation completed successfully!');
             console.log('Evaluation Results:', data);
+        },
+    });
+}
+
+export function useGetSpeakingUploadUrl() {
+    return useMutation({
+        mutationFn: async ({
+            attemptSectionId,
+            audioName,
+        }: GetSpeakingUrlPayload) => {
+            const response = await fetchWrapper(
+                `/answers/speaking/${attemptSectionId}/upload-url`,
+                {
+                    method: 'POST',
+                    headers: {
+                        Accept: 'application/json',
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        audioName: audioName,
+                    }),
+                },
+            );
+
+            await throwIfError(response);
+            return response.json();
+        },
+        onError: (error) => {
+            toast.error(error?.message ?? 'Fail to get speaking upload url');
+        },
+        onSuccess: () => {
+            toast.success('Speaking upload url retrieved successfully!');
         },
     });
 }

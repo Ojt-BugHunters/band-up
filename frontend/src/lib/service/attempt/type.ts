@@ -252,3 +252,8 @@ export interface EvaluationPayload {
     prompt: string;
     word_count: number;
 }
+
+export interface GetSpeakingUrlPayload {
+    attemptSectionId: string;
+    audioName: string;
+}

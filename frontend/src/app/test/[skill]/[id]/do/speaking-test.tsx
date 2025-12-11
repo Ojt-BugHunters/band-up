@@ -32,6 +32,10 @@ import {
 import LiquidLoading from '@/components/ui/liquid-loader';
 import { useRouter } from 'next/navigation';
 
+type PartSubmission = {
+    mode: 'voice' | 'upload';
+    files: File[];
+};
 type SpeakingTestProps = {
     mode?: string;
     sections?: string[];
@@ -46,7 +50,6 @@ export function SpeakingTest({
         isLoading: isSpeakingQuestionsLoading,
         error: isSpeakingQuestionsError,
     } = useGetSpeakingWithQuestions(sections);
-
     const availableParts = useMemo(() => {
         return mode === 'full'
             ? (speakingQuestions ?? [])
@@ -62,6 +65,9 @@ export function SpeakingTest({
         );
     }, [availableParts]);
     const router = useRouter();
+    const [submissions, setSubmissions] = useState<
+        Record<string, PartSubmission>
+    >({});
     const [currentPart, setCurrentPart] = useState('');
     const [isTestStarted, setIsTestStarted] = useState(false);
     const [isRecording, setIsRecording] = useState(false);
@@ -137,6 +143,15 @@ export function SpeakingTest({
         return () => clearInterval(timer);
     }, [isPreparing, isRecording, currentPartData]);
 
+    useEffect(() => {
+        const currentSubmission = submissions[currentPart];
+        if (currentSubmission && currentSubmission.mode === 'upload') {
+            setFiles(currentSubmission.files);
+        } else {
+            setFiles([]);
+        }
+    }, [currentPart, submissions]);
+
     const formatTime = (seconds: number) => {
         const minutes = Math.floor(seconds / 60);
         const secs = seconds % 60;
@@ -144,7 +159,39 @@ export function SpeakingTest({
     };
 
     const handleSubmit = () => {
-        router.push('/speaking-result');
+        const dataToSubmit = availableParts.map((part) => {
+            const submission = submissions[part.id];
+            return {
+                sectionId: part.id,
+                mode: submission.mode,
+                fileNames: submission.files.map((f) => f.name),
+                files: submission.files,
+            };
+        });
+
+        console.log('Danh sách file chuẩn bị nộp:', dataToSubmit);
+
+        const finalMapping: Record<string, string> = {};
+
+        dataToSubmit.forEach((item, index) => {
+            if (!item) return;
+
+            const storageKey = `question-${index + 1}`;
+            const attemptSectionId = localStorage.getItem(storageKey);
+
+            const fileName = item.fileNames[0];
+
+            if (attemptSectionId && fileName) {
+                const cleanId = attemptSectionId.replace(/['"]+/g, '');
+                finalMapping[cleanId] = fileName;
+            } else {
+                console.warn(
+                    `Không tìm thấy attemptId cho ${storageKey} hoặc thiếu file`,
+                );
+            }
+        });
+        console.log(finalMapping);
+        toast.success('Check console for mapping result');
     };
 
     const onUpload: NonNullable<FileUploadProps['onUpload']> = useCallback(
@@ -231,7 +278,6 @@ export function SpeakingTest({
         }));
     };
 
-    // CHECK LOADING SAU KHI ĐÃ GỌI TẤT CẢ HOOKS
     if (isSpeakingQuestionsLoading) {
         return (
             <div className="bg-background flex min-h-screen w-full items-center justify-center rounded-lg border p-4">
@@ -564,6 +610,7 @@ export function SpeakingTest({
                                             <div className="item-start grid grid-cols-1 gap-6 md:grid-cols-2">
                                                 <div className="flex flex-col items-center gap-4">
                                                     <VoiceInput
+                                                        key={currentPart}
                                                         onStart={() => {
                                                             setPartAnswers(
                                                                 (prev) => ({
@@ -584,11 +631,17 @@ export function SpeakingTest({
                                                                         file.name,
                                                                 }),
                                                             );
-                                                            console.log(
-                                                                'Recorded file:',
-                                                                file,
-                                                                'Duration:',
-                                                                duration,
+                                                            setSubmissions(
+                                                                (prev) => ({
+                                                                    ...prev,
+                                                                    [currentPart]:
+                                                                        {
+                                                                            mode: 'voice',
+                                                                            files: [
+                                                                                file,
+                                                                            ],
+                                                                        },
+                                                                }),
                                                             );
                                                         }}
                                                     />
@@ -596,7 +649,55 @@ export function SpeakingTest({
                                                 <div className="flex flex-col items-center gap-4">
                                                     <FileUpload
                                                         value={files}
-                                                        onValueChange={setFiles}
+                                                        onValueChange={(
+                                                            newFiles,
+                                                        ) => {
+                                                            setFiles(newFiles);
+                                                            if (
+                                                                newFiles.length >
+                                                                0
+                                                            ) {
+                                                                setSubmissions(
+                                                                    (prev) => ({
+                                                                        ...prev,
+                                                                        [currentPart]:
+                                                                            {
+                                                                                mode: 'upload',
+                                                                                files: newFiles,
+                                                                            },
+                                                                    }),
+                                                                );
+                                                                setPartAnswers(
+                                                                    (prev) => ({
+                                                                        ...prev,
+                                                                        [currentPart]:
+                                                                            'uploaded',
+                                                                    }),
+                                                                );
+                                                            } else {
+                                                                const newSubmissions =
+                                                                    {
+                                                                        ...submissions,
+                                                                    };
+                                                                delete newSubmissions[
+                                                                    currentPart
+                                                                ];
+                                                                setSubmissions(
+                                                                    newSubmissions,
+                                                                );
+
+                                                                const newPartAnswers =
+                                                                    {
+                                                                        ...partAnswers,
+                                                                    };
+                                                                delete newPartAnswers[
+                                                                    currentPart
+                                                                ];
+                                                                setPartAnswers(
+                                                                    newPartAnswers,
+                                                                );
+                                                            }
+                                                        }}
                                                         onUpload={onUpload}
                                                         onFileReject={
                                                             onFileReject
