@@ -1,11 +1,21 @@
 'use client';
 
 import { useRef, useState } from 'react';
+import { useRouter } from 'next/navigation';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Download, Printer, Share2, Linkedin, Target } from 'lucide-react';
+import {
+    Download,
+    Printer,
+    Share2,
+    Linkedin,
+    Target,
+    RotateCcw,
+} from 'lucide-react';
 import { useUser } from '@/lib/service/account';
 import { toPng } from 'html-to-image';
+import { ConfirmDialog } from '@/components/confirm-dialog';
+import { clearTestLocalStorage } from '@/lib/utils';
 
 interface CertificateTabProps {
     testData: { testId: string };
@@ -21,7 +31,12 @@ export default function CertificateTab({
 }: CertificateTabProps) {
     const certificateRef = useRef<HTMLDivElement>(null);
     const [isDownloading, setIsDownloading] = useState(false);
+
+    const [quitDialogOpen, setQuitDialogOpen] = useState(false);
+    const [quitLoading, setQuitLoading] = useState(false);
+
     const user = useUser();
+    const router = useRouter();
 
     const downloadCertificate = async () => {
         if (!certificateRef.current) return;
@@ -51,6 +66,24 @@ export default function CertificateTab({
         if (score >= 6) return 'Solid Achievement';
         if (score >= 5) return 'Good Effort';
         return 'Keep Practicing';
+    };
+
+    // Hàm xử lý Quit
+    const handleQuitConfirm = async () => {
+        try {
+            setQuitLoading(true);
+            clearTestLocalStorage(); // Dọn dẹp storage
+            router.push('/test');
+        } finally {
+            setQuitLoading(false);
+            setQuitDialogOpen(false);
+        }
+    };
+
+    // Hàm xử lý Retake
+    const handleRetake = () => {
+        clearTestLocalStorage(); // Dọn dẹp storage để làm bài mới
+        router.push('/test');
     };
 
     return (
@@ -244,6 +277,35 @@ export default function CertificateTab({
                     </div>
                 </CardContent>
             </Card>
+
+            <div className="flex gap-3 pt-4">
+                <Button
+                    variant="outline"
+                    className="border-border/50 hover:bg-muted/50 flex-1 gap-2 border-2 bg-transparent"
+                    onClick={() => setQuitDialogOpen(true)}
+                >
+                    Quit test
+                </Button>
+
+                <Button
+                    className="flex-1 gap-2 bg-gradient-to-r from-blue-500 to-purple-500 text-white shadow-lg hover:from-blue-600 hover:to-purple-600"
+                    onClick={handleRetake}
+                >
+                    <RotateCcw className="h-4 w-4" />
+                    Try again
+                </Button>
+            </div>
+            <ConfirmDialog
+                open={quitDialogOpen}
+                onOpenChange={setQuitDialogOpen}
+                title="Quit the test ?"
+                description="If you quit, you just can view your result in the history tab"
+                confirmText="Confirm"
+                cancelText="Cancel"
+                destructive
+                loading={quitLoading}
+                onConfirm={handleQuitConfirm}
+            />
         </div>
     );
 }

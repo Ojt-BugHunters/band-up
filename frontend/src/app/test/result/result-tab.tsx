@@ -14,6 +14,7 @@ import { CheckCircle2, XCircle, RotateCcw } from 'lucide-react';
 import { BandScoreResponse } from '@/lib/service/attempt/type';
 import { ConfirmDialog } from '@/components/confirm-dialog';
 import { useRouter } from 'next/navigation';
+import { clearTestLocalStorage } from '@/lib/utils';
 
 interface ResultsTabProps {
     testData: BandScoreResponse;
@@ -59,15 +60,17 @@ export default function ResultsTab({
     const handleQuitConfirm = async () => {
         try {
             setQuitLoading(true);
-            if (typeof window !== 'undefined') {
-                localStorage.removeItem('currentAttemptId');
-                localStorage.removeItem('latestTestResult');
-            }
+            clearTestLocalStorage();
             router.push('/test');
         } finally {
             setQuitLoading(false);
             setQuitDialogOpen(false);
         }
+    };
+
+    const handleRetakeTryAgain = () => {
+        clearTestLocalStorage();
+        router.push('/test');
     };
 
     return (
@@ -307,7 +310,7 @@ export default function ResultsTab({
 
                 <Button
                     className="flex-1 gap-2 bg-gradient-to-r from-blue-500 to-purple-500 text-white shadow-lg hover:from-blue-600 hover:to-purple-600"
-                    onClick={() => router.push('/test')}
+                    onClick={() => handleRetakeTryAgain}
                 >
                     <RotateCcw className="h-4 w-4" />
                     Try again
