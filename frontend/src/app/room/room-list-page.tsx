@@ -14,8 +14,7 @@ import Link from 'next/link';
 
 import { Client, type IMessage } from '@stomp/stompjs';
 import SockJS from 'sockjs-client';
-
-const WS_URL = process.env.NEXT_PUBLIC_WS_URL ?? 'http://localhost:8080/ws';
+import { getWebSocketUrl } from '@/lib/service/api-url';
 
 type PublicRoomEventType =
     | 'ROOM_CREATED'
@@ -40,7 +39,6 @@ export default function RoomListPage() {
 
     // danh sách room đã apply realtime (nếu null thì dùng roomList từ REST)
     const [wsRooms, setWsRooms] = useState<Room[] | null>(null);
-
     // khi roomList từ REST về lần đầu (hoặc refetch) → sync vào wsRooms (server truth)
     useEffect(() => {
         if (roomList) {

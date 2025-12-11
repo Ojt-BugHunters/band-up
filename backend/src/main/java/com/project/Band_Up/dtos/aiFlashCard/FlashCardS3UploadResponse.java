@@ -11,4 +11,5 @@ import lombok.NoArgsConstructor;
 @Builder
 public class FlashCardS3UploadResponse {
     private String uploadUrl;
+    private String s3Key;
 }
