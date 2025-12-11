@@ -1,6 +1,6 @@
 'use client';
 import { useMemo, useState } from 'react';
-import StatCard from '@/components/stat-card';
+import { StatCard } from '@/components/admin-stats-card';
 import PostsManagementCard from '@/components/posts-management-card';
 import {
     Select,
@@ -11,6 +11,7 @@ import {
 } from '@/components/ui/select';
 import { useGetBlogStats, useGetBlogs } from '@/lib/service/blog';
 import type { StatsInterval } from '@/lib/service/blog';
+import { Eye, FileText, MessageCircle, Timer } from 'lucide-react';
 
 const compactNumberFormatter = new Intl.NumberFormat('en-US', {
     notation: 'compact',
@@ -64,31 +65,37 @@ const formatMetricValue = (
     return suffix ? `${formatted} ${suffix}` : formatted;
 };
 
-const formatChangeText = (
+const formatTrendValue = (
     value: number | undefined,
-    periodLabel: string,
     {
         decimals = 0,
-        unit = '',
+        suffix = '',
         loading = false,
     }: {
         decimals?: number;
-        unit?: string;
+        suffix?: string;
         loading?: boolean;
     } = {},
 ) => {
+    if (loading) return 'Updating...';
     if (value === undefined || value === null || Number.isNaN(value)) {
-        return loading ? 'Updating…' : `vs last ${periodLabel} —`;
+        return 'No change';
     }
+    if (value === 0) return 'No change';
 
-    const formatted = value.toLocaleString('en-US', {
+    const formatted = Math.abs(value).toLocaleString('en-US', {
         minimumFractionDigits: decimals,
         maximumFractionDigits: decimals,
     });
+    return `${value > 0 ? '+' : '-'}${formatted}${suffix}`;
+};
 
-    const prefix = value > 0 ? '+' : value < 0 ? '' : '';
-    const unitText = unit ? ` ${unit}` : '';
-    return `${prefix}${formatted}${unitText} vs last ${periodLabel}`;
+const isPositiveTrend = (value?: number) => {
+    if (value === undefined || value === null || Number.isNaN(value)) {
+        return true;
+    }
+    if (value === 0) return true;
+    return value > 0;
 };
 
 export default function AdminBlogPage() {
@@ -118,9 +125,6 @@ export default function AdminBlogPage() {
             return isNaN(bTime) || isNaN(aTime) ? 0 : bTime - aTime;
         });
     }, [postsManagementData?.content]);
-    const statsPeriodLabel =
-        STATS_INTERVAL_OPTIONS.find((option) => option.value === statsInterval)
-            ?.periodLabel ?? 'period';
     const isStatsLoading = isLoadingStats || isFetchingStats;
     const statsErrorMessage =
         statsError && statsError instanceof Error
@@ -130,6 +134,63 @@ export default function AdminBlogPage() {
         postsManagementError && postsManagementError instanceof Error
             ? postsManagementError.message
             : undefined;
+    const overviewCards = [
+        {
+            title: 'Total Views',
+            value: formatMetricValue(blogStats?.totalViews, {
+                compact: true,
+                loading: isStatsLoading,
+            }),
+            change: formatTrendValue(blogStats?.totalViewsDifference, {
+                loading: isStatsLoading,
+            }),
+            icon: Eye,
+            isPositive: isPositiveTrend(blogStats?.totalViewsDifference),
+        },
+        {
+            title: 'Total Posts',
+            value: formatMetricValue(blogStats?.totalBlogs, {
+                loading: isStatsLoading,
+            }),
+            change: formatTrendValue(blogStats?.totalBlogsDifference, {
+                loading: isStatsLoading,
+                suffix: ' posts',
+            }),
+            icon: FileText,
+            isPositive: isPositiveTrend(blogStats?.totalBlogsDifference),
+        },
+        {
+            title: 'Avg. Engagement',
+            value: formatMetricValue(blogStats?.avgEngagement, {
+                decimals: 1,
+                suffix: 'per post',
+                loading: isStatsLoading,
+                stripTrailingZeros: true,
+            }),
+            change: formatTrendValue(blogStats?.avgEngagementDifference, {
+                loading: isStatsLoading,
+                decimals: 1,
+                suffix: ' per post',
+            }),
+            icon: MessageCircle,
+            isPositive: isPositiveTrend(blogStats?.avgEngagementDifference),
+        },
+        {
+            title: 'Avg. Read Time',
+            value: formatMetricValue(blogStats?.avgReadTime, {
+                decimals: 1,
+                suffix: 'min',
+                loading: isStatsLoading,
+            }),
+            change: formatTrendValue(blogStats?.avgReadTimeDifference, {
+                loading: isStatsLoading,
+                decimals: 1,
+                suffix: ' min',
+            }),
+            icon: Timer,
+            isPositive: isPositiveTrend(blogStats?.avgReadTimeDifference),
+        },
+    ];
 
     return (
         <div className="bg-background min-h-screen p-6 md:p-8">
@@ -180,71 +241,9 @@ export default function AdminBlogPage() {
 
                 {/* KPI Cards */}
                 <div className="mb-8 grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-4">
-                    <StatCard
-                        title="Total Views"
-                        value={formatMetricValue(blogStats?.totalViews, {
-                            compact: true,
-                            loading: isStatsLoading,
-                        })}
-                        change={formatChangeText(
-                            blogStats?.totalViewsDifference,
-                            statsPeriodLabel,
-                            { loading: isStatsLoading },
-                        )}
-                        icon="📊"
-                    />
-                    <StatCard
-                        title="Total Posts"
-                        value={formatMetricValue(blogStats?.totalBlogs, {
-                            loading: isStatsLoading,
-                        })}
-                        change={formatChangeText(
-                            blogStats?.totalBlogsDifference,
-                            statsPeriodLabel,
-                            {
-                                loading: isStatsLoading,
-                                unit: 'posts',
-                            },
-                        )}
-                        icon="📝"
-                    />
-                    <StatCard
-                        title="Avg. Engagement"
-                        value={formatMetricValue(blogStats?.avgEngagement, {
-                            decimals: 1,
-                            suffix: 'per post',
-                            loading: isStatsLoading,
-                            stripTrailingZeros: true,
-                        })}
-                        change={formatChangeText(
-                            blogStats?.avgEngagementDifference,
-                            statsPeriodLabel,
-                            {
-                                decimals: 1,
-                                unit: 'per post',
-                                loading: isStatsLoading,
-                            },
-                        )}
-                        icon="💬"
-                    />
-                    <StatCard
-                        title="Avg. Read Time"
-                        value={formatMetricValue(blogStats?.avgReadTime, {
-                            decimals: 1,
-                            suffix: 'min',
-                            loading: isStatsLoading,
-                        })}
-                        change={formatChangeText(
-                            blogStats?.avgReadTimeDifference,
-                            statsPeriodLabel,
-                            {
-                                decimals: 1,
-                                unit: 'min',
-                                loading: isStatsLoading,
-                            },
-                        )}
-                        icon="⏱️"
-                    />
+                    {overviewCards.map((card) => (
+                        <StatCard key={card.title} {...card} />
+                    ))}
                 </div>
 
                 <PostsManagementCard

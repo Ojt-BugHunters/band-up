@@ -49,7 +49,7 @@ const data = {
     user: {
         name: 'Admin BandUp',
         email: 'admin@bandup.com',
-        avatar: '/band-up-logo.png',
+        avatar: '/logo-dark.png',
     },
     navMain: [
         {

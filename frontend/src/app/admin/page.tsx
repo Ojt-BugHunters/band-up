@@ -65,27 +65,6 @@ const formatPercentage = (value?: number, loading?: boolean) => {
     return `${value.toFixed(1)}%`;
 };
 
-const actionItems = [
-    {
-        title: 'Launch Pomodoro Sprint campaign',
-        description: 'Activate public rooms for July cohorts',
-        status: 'Live',
-        owner: 'Marketing',
-    },
-    {
-        title: 'Publish Speaking band 7+ blog',
-        description: 'Finalize outline and hero illustrations',
-        status: 'In prep',
-        owner: 'Content',
-    },
-    {
-        title: 'Curate new flashcard deck',
-        description: 'Select 50 high-frequency collocations',
-        status: '60% done',
-        owner: 'Flashcard',
-    },
-];
-
 export default function AdminHomePage() {
     const {
         data: roomStats,
@@ -212,12 +191,61 @@ export default function AdminHomePage() {
             gradient: 'from-sky-500 via-indigo-500 to-purple-500',
         },
         {
-            title: 'Decks Published',
-            metric: formatStatValue(flashcardStats?.totalDecks, isFlashLoading),
-            helper: 'decks serving learners',
-            trend: 'Syncing soon',
-            positive: true,
+            title: 'Learner Momentum',
+            metric: formatStatValue(
+                flashcardStats?.totalLearners,
+                isFlashLoading,
+            ),
+            helper: 'active learners studying decks',
+            trend: formatStatChange(
+                flashcardStats?.totalLearnersDifference,
+                isFlashLoading,
+            ),
+            positive: isPositiveTrend(
+                flashcardStats?.totalLearnersDifference,
+            ),
             gradient: 'from-emerald-500 via-teal-500 to-cyan-500',
+        },
+    ];
+
+    const prioritySignals = [
+        {
+            title: 'Room activity',
+            description: 'rooms facilitating live study sessions',
+            metric: formatStatValue(roomStats?.totalRooms, isRoomLoading),
+            trend: formatStatChange(
+                roomStats?.totalRoomsDifference,
+                isRoomLoading,
+            ),
+            owner: 'Rooms squad',
+            positive: isPositiveTrend(roomStats?.totalRoomsDifference),
+        },
+        {
+            title: 'Blog reach',
+            description: 'readers engaged with new posts',
+            metric: formatStatValue(blogStats?.totalViews, isBlogLoading),
+            trend: formatStatChange(
+                blogStats?.totalViewsDifference,
+                isBlogLoading,
+            ),
+            owner: 'Content team',
+            positive: isPositiveTrend(blogStats?.totalViewsDifference),
+        },
+        {
+            title: 'Learner adoption',
+            description: 'active flashcard learners this period',
+            metric: formatStatValue(
+                flashcardStats?.totalLearners,
+                isFlashLoading,
+            ),
+            trend: formatStatChange(
+                flashcardStats?.totalLearnersDifference,
+                isFlashLoading,
+            ),
+            owner: 'Flashcard squad',
+            positive: isPositiveTrend(
+                flashcardStats?.totalLearnersDifference,
+            ),
         },
     ];
 
@@ -344,7 +372,7 @@ export default function AdminHomePage() {
                         <Users className="text-muted-foreground h-5 w-5" />
                     </div>
                     <div className="mt-6 space-y-5">
-                        {actionItems.map((item) => (
+                        {prioritySignals.map((item) => (
                             <div
                                 key={item.title}
                                 className="border-border/40 rounded-2xl border p-4"
@@ -354,12 +382,21 @@ export default function AdminHomePage() {
                                         <p className="text-sm font-semibold">
                                             {item.title}
                                         </p>
+                                        <p className="text-2xl font-bold">
+                                            {item.metric}
+                                        </p>
                                         <p className="text-muted-foreground text-sm">
                                             {item.description}
                                         </p>
                                     </div>
-                                    <span className="bg-primary/10 text-primary rounded-full px-3 py-1 text-xs font-medium">
-                                        {item.status}
+                                    <span
+                                        className={`rounded-full px-3 py-1 text-xs font-semibold ${
+                                            item.positive
+                                                ? 'bg-emerald-100 text-emerald-700'
+                                                : 'bg-rose-100 text-rose-700'
+                                        }`}
+                                    >
+                                        {item.trend} vs last period
                                     </span>
                                 </div>
                                 <p className="text-muted-foreground mt-3 text-xs tracking-wide uppercase">
