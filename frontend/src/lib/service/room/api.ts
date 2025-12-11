@@ -111,7 +111,7 @@ export const useLeftRoom = () => {
         onSuccess: async () => {
             toast.success('Left room successfully');
             await queryClient.invalidateQueries({
-                queryKey: ['room', 'room-member'],
+                queryKey: ['room'],
             });
             router.push('/room');
         },
