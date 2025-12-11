@@ -8,4 +8,6 @@ public interface S3Service {
     public boolean exists(String key);
     void deleteObject(String key);
     void uploadFile(String key, byte[] data, String contentType);
+    // Method mới - cho phép chỉ định bucket
+    UploadInfo createUploadPresignedUrlWithBucket(String bucket, String key, String contentType);
 }
