@@ -27,6 +27,7 @@ import {
 import { NotFound } from '@/components/not-found';
 import {
     SpeakingQuestion,
+    SpeakingSection,
     useGetSpeakingWithQuestions,
 } from '@/lib/service/test/question';
 import LiquidLoading from '@/components/ui/liquid-loader';
@@ -45,6 +46,40 @@ type SpeakingTestProps = {
     sections?: string[];
 };
 
+export type AISpeakingPayload = {
+    task_type: string;
+    prompt: string;
+    duration_seconds: number;
+};
+
+export const processAndSaveSpeakingPayloads = (parts: SpeakingSection[]) => {
+    if (!parts || parts.length === 0) return;
+
+    parts.forEach((part) => {
+        const partMatch = part.title.match(/Part\s+(\d+)/i);
+        const partNumber = partMatch ? partMatch[1] : '1';
+        const taskType = `PART_${partNumber}`;
+
+        const prompt = part.questions
+            ?.map((q) => q.content?.question || '')
+            .filter((text) => text.trim() !== '')
+            .join(', ');
+
+        const durationSeconds = part.timeLimitSeconds || 0;
+
+        const payload = {
+            task_type: taskType,
+            prompt: prompt || '',
+            duration_seconds: durationSeconds,
+        };
+
+        const storageKey = `Part ${partNumber}`;
+        localStorage.setItem(storageKey, JSON.stringify(payload));
+
+        console.log(`Đã lưu payload cho ${storageKey}:`, payload);
+    });
+};
+
 export function SpeakingTest({
     mode = 'full',
     sections = [],
@@ -54,6 +89,7 @@ export function SpeakingTest({
         isLoading: isSpeakingQuestionsLoading,
         error: isSpeakingQuestionsError,
     } = useGetSpeakingWithQuestions(sections);
+
     const availableParts = useMemo(() => {
         return mode === 'full'
             ? (speakingQuestions ?? [])
@@ -61,6 +97,11 @@ export function SpeakingTest({
                   sections.includes(part.id),
               );
     }, [mode, speakingQuestions, sections]);
+    useEffect(() => {
+        if (availableParts && availableParts.length > 0) {
+            processAndSaveSpeakingPayloads(availableParts);
+        }
+    }, [availableParts]);
 
     const totalDuration = useMemo(() => {
         return availableParts.reduce(

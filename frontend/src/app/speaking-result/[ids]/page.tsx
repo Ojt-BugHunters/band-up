@@ -1,3 +1,6 @@
+'use client';
+import { useState, useEffect } from 'react';
+import { useParams } from 'next/navigation';
 import { SpeakingIeltsResponse } from './speaking-result-display';
 
 // Mock data from the backend
@@ -92,7 +95,38 @@ const mockData = {
     evaluated_at: 111482,
 };
 
+type SpeakingResultData = {
+    answerId: string;
+    s3Key: string | null;
+};
+
 export default function Page() {
+    const params = useParams();
+    const [results, setResults] = useState<SpeakingResultData[]>([]);
+
+    useEffect(() => {
+        const rawIds = params.ids;
+        if (rawIds) {
+            const idString = decodeURIComponent(
+                Array.isArray(rawIds) ? rawIds[0] : rawIds,
+            );
+
+            const idList = idString.split(',');
+
+            const mappedData: SpeakingResultData[] = idList.map((id) => {
+                const s3Key = localStorage.getItem(id);
+
+                return {
+                    answerId: id,
+                    s3Key: s3Key,
+                };
+            });
+
+            setResults(mappedData);
+
+            console.log('Restored Speaking Data:', mappedData);
+        }
+    }, [params]);
     return (
         <main className="min-h-screen bg-gradient-to-br from-slate-200 via-blue-100 to-orange-100">
             <div className="container mx-auto max-w-6xl px-4 py-8">
