@@ -212,11 +212,19 @@ export default function AdminDashboardGeneral() {
             gradient: 'from-sky-500 via-indigo-500 to-purple-500',
         },
         {
-            title: 'Decks Published',
-            metric: formatStatValue(flashcardStats?.totalDecks, isFlashLoading),
-            helper: 'decks serving learners',
-            trend: 'Syncing soon',
-            positive: true,
+            title: 'Learner Momentum',
+            metric: formatStatValue(
+                flashcardStats?.totalLearners,
+                isFlashLoading,
+            ),
+            helper: 'active learners studying decks',
+            trend: formatStatChange(
+                flashcardStats?.totalLearnersDifference,
+                isFlashLoading,
+            ),
+            positive: isPositiveTrend(
+                flashcardStats?.totalLearnersDifference,
+            ),
             gradient: 'from-emerald-500 via-teal-500 to-cyan-500',
         },
     ];
