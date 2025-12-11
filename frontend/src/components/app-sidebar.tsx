@@ -78,15 +78,9 @@ const data = {
             icon: MessagesSquare,
         },
         {
-            title: 'Test',
-            url: '/admin/test',
+            title: 'Dictation',
+            url: '/admin/dictation',
             icon: FileText,
-            items: [
-                {
-                    title: 'Dictation',
-                    url: '/admin/test/dictation',
-                },
-            ],
         },
     ],
 };
@@ -321,27 +315,6 @@ export function useBreadcrumb() {
             if (navItem) {
                 breadcrumbs.push({ title: navItem.title, url: fullPath });
                 return;
-            }
-
-            for (const item of data.navMain) {
-                if (item.items) {
-                    const subItem = item.items.find(
-                        (sub) => sub.url === fullPath,
-                    );
-                    if (subItem) {
-                        if (!breadcrumbs.find((b) => b.url === item.url)) {
-                            breadcrumbs.push({
-                                title: item.title,
-                                url: item.url,
-                            });
-                        }
-                        breadcrumbs.push({
-                            title: subItem.title,
-                            url: fullPath,
-                        });
-                        return;
-                    }
-                }
             }
 
             const title = segment.charAt(0).toUpperCase() + segment.slice(1);
