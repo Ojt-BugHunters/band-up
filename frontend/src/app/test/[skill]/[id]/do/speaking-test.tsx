@@ -31,6 +31,10 @@ import {
 } from '@/lib/service/test/question';
 import LiquidLoading from '@/components/ui/liquid-loader';
 import { useRouter } from 'next/navigation';
+import {
+    SpeakingSubmission,
+    useSubmitSpeakingTest,
+} from '@/lib/service/attempt';
 
 type PartSubmission = {
     mode: 'voice' | 'upload';
@@ -78,7 +82,8 @@ export function SpeakingTest({
     const [showReview, setShowReview] = useState(false);
     const [files, setFiles] = useState<File[]>([]);
     const [timeRemaining, setTimeRemaining] = useState(0);
-
+    const { mutate: submitTest, isPending: isSubmitting } =
+        useSubmitSpeakingTest();
     useEffect(() => {
         if (availableParts.length > 0 && !currentPart) {
             setCurrentPart(availableParts[0].id);
@@ -191,7 +196,38 @@ export function SpeakingTest({
             }
         });
         console.log(finalMapping);
-        toast.success('Check console for mapping result');
+        const fileLookup: Record<string, File> = {};
+        dataToSubmit.forEach((item) => {
+            if (item && item.files.length > 0) {
+                fileLookup[item.fileNames[0]] = item.files[0];
+            }
+        });
+
+        const payload: SpeakingSubmission[] = [];
+
+        Object.entries(finalMapping).forEach(([attemptId, fileName]) => {
+            const fileObject = fileLookup[fileName];
+
+            if (fileObject) {
+                payload.push({
+                    attemptSectionId: attemptId,
+                    file: fileObject,
+                });
+            } else {
+                console.error(
+                    `Không tìm thấy File object cho tên file: ${fileName}`,
+                );
+            }
+        });
+
+        if (payload.length === 0) {
+            toast.error('Không tìm thấy dữ liệu hợp lệ để nộp bài.');
+            return;
+        }
+
+        console.log('Payload cuối cùng gửi API:', payload);
+
+        submitTest(payload);
     };
 
     const onUpload: NonNullable<FileUploadProps['onUpload']> = useCallback(

@@ -301,3 +301,87 @@ export function useGetSpeakingUploadUrl() {
         },
     });
 }
+
+export type SpeakingSubmission = {
+    attemptSectionId: string;
+    file: File;
+};
+
+export type SaveSpeakingResponse = {
+    questionContent: string;
+    answerContent: string;
+    s3Key: string;
+    answerId: string;
+};
+
+export function useSubmitSpeakingTest() {
+    const router = useRouter();
+
+    return useMutation({
+        mutationFn: async (submissions: SpeakingSubmission[]) => {
+            const promises = submissions.map(async (sub) => {
+                const getUrlEndpoint = `/answers/speaking/${sub.attemptSectionId}/upload-url`;
+
+                const urlResponse = await fetchWrapper(getUrlEndpoint, {
+                    method: 'POST',
+                    headers: {
+                        Accept: 'application/json',
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        audioName: sub.file.name,
+                    }),
+                });
+
+                await throwIfError(urlResponse);
+                const { uploadUrl } = await urlResponse.json();
+
+                const uploadToS3Response = await fetch(uploadUrl, {
+                    method: 'PUT',
+                    body: sub.file,
+                    headers: {
+                        'Content-Type': sub.file.type,
+                    },
+                });
+
+                if (!uploadToS3Response.ok) {
+                    throw new Error(
+                        `Failed to upload file ${sub.file.name} to storage.`,
+                    );
+                }
+
+                const saveEndpoint = `/answers/speaking/${sub.attemptSectionId}/save`;
+
+                const saveResponse = await fetchWrapper(saveEndpoint, {
+                    method: 'POST',
+                    headers: {
+                        Accept: 'application/json',
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        audioName: sub.file.name,
+                    }),
+                });
+
+                await throwIfError(saveResponse);
+
+                return (await saveResponse.json()) as SaveSpeakingResponse;
+            });
+
+            return Promise.all(promises);
+        },
+        onError: (error) => {
+            console.error('Speaking submission error:', error);
+            toast.error(
+                error instanceof Error
+                    ? error.message
+                    : 'Fail to submit speaking test',
+            );
+        },
+        onSuccess: (data) => {
+            toast.success('Speaking test submitted successfully!');
+            const ids = data.map((item) => item.answerId).join(',');
+            router.push(`/speaking-result?ids=${ids}`);
+        },
+    });
+}
