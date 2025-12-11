@@ -288,7 +288,14 @@ export function ChattingRoomDisplay({ roomId }: ChattingRoomProps) {
             client.deactivate();
             stompClientRef.current = null;
         };
-    }, [roomId, currentUserId, currentUserName, user?.id, currentUserAvatar]);
+    }, [
+        roomId,
+        currentUserId,
+        currentUserName,
+        user?.id,
+        currentUserAvatar,
+        wsUrl,
+    ]);
 
     const sendMessage = () => {
         const text = roomMessage.trim();
