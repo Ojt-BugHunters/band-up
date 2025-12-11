@@ -1,4 +1,6 @@
-import React, { useEffect, useState, useMemo } from 'react';
+'use client';
+
+import { useEffect, useState, useMemo } from 'react';
 import { ScrollArea } from '@/components/ui/scroll-area';
 
 interface ReadingPassageProps {
@@ -32,7 +34,7 @@ function cleanMetadata(metadata: string): {
 
         return { passageHtml: metadata, questionsHtml: '' };
     } catch (e) {
-        console.error(e);
+        console.error('Metadata parse error:', e);
         return { passageHtml: metadata, questionsHtml: '' };
     }
 }
@@ -85,7 +87,7 @@ export default function ReadingPassage({
     const isWordToken = (token: string) => /\p{L}/u.test(token);
 
     return (
-        <div className="relative flex h-full flex-col">
+        <div className="relative flex h-screen flex-col">
             {/* Header */}
             <div className="m-4 ml-6 flex items-center justify-between gap-2">
                 <h2 className="text-2xl font-bold text-balance">{title}</h2>
@@ -105,66 +107,74 @@ export default function ReadingPassage({
             </div>
 
             {/* Nội dung passage + questions */}
-            <div className="grid min-h-0 flex-1 grid-cols-2 overflow-hidden p-0">
-                {/* Passage */}
-                <ScrollArea className="custom-scrollbar h-full overflow-x-hidden overflow-y-auto">
-                    <div className="col-span-1 space-y-4 p-6 select-none">
-                        {paragraphsTokens.map((tokens, pIndex) => (
-                            <p
-                                key={pIndex}
-                                className="mb-4 text-lg leading-relaxed text-pretty"
-                            >
-                                {tokens.map((token, tIndex) => {
-                                    const id = `${pIndex}-${tIndex}`;
-                                    const isWord = isWordToken(token);
-                                    const isHighlighted = highlighted.has(id);
+            <div className="flex min-h-0 flex-1 gap-6 px-6">
+                {/* Passage - Independent scroll area */}
+                <div className="flex min-h-0 flex-1 flex-col">
+                    <h3 className="mb-3 font-semibold text-gray-700">
+                        Reading Passage
+                    </h3>
+                    <ScrollArea className="custom-scrollbar min-h-0 flex-1 rounded-md border">
+                        <div className="space-y-4 p-6 select-none">
+                            {paragraphsTokens.map((tokens, pIndex) => (
+                                <p
+                                    key={pIndex}
+                                    className="mb-4 text-lg leading-relaxed text-pretty"
+                                >
+                                    {tokens.map((token, tIndex) => {
+                                        const id = `${pIndex}-${tIndex}`;
+                                        const isWord = isWordToken(token);
+                                        const isHighlighted =
+                                            highlighted.has(id);
 
-                                    return (
-                                        <span
-                                            key={id}
-                                            onMouseDown={(e) => {
-                                                if (!highlightMode || !isWord)
-                                                    return;
-                                                setSelecting(true);
-                                                toggleToken(id);
-                                                e.preventDefault();
-                                            }}
-                                            onMouseEnter={() => {
-                                                if (
-                                                    !highlightMode ||
-                                                    !selecting ||
-                                                    !isWord
-                                                )
-                                                    return;
-                                                toggleToken(id);
-                                            }}
-                                            onMouseUp={() => {
-                                                if (selecting)
-                                                    setSelecting(false);
-                                            }}
-                                            className={`inline ${
-                                                isWord && highlightMode
-                                                    ? 'cursor-pointer'
-                                                    : ''
-                                            } ${
-                                                isHighlighted
-                                                    ? 'rounded bg-yellow-300 px-[2px]'
-                                                    : ''
-                                            }`}
-                                        >
-                                            {token}
-                                        </span>
-                                    );
-                                })}
-                            </p>
-                        ))}
-                    </div>
-                </ScrollArea>
+                                        return (
+                                            <span
+                                                key={id}
+                                                onMouseDown={(e) => {
+                                                    if (
+                                                        !highlightMode ||
+                                                        !isWord
+                                                    )
+                                                        return;
+                                                    setSelecting(true);
+                                                    toggleToken(id);
+                                                    e.preventDefault();
+                                                }}
+                                                onMouseEnter={() => {
+                                                    if (
+                                                        !highlightMode ||
+                                                        !selecting ||
+                                                        !isWord
+                                                    )
+                                                        return;
+                                                    toggleToken(id);
+                                                }}
+                                                onMouseUp={() => {
+                                                    if (selecting)
+                                                        setSelecting(false);
+                                                }}
+                                                className={`inline ${isWord && highlightMode ? 'cursor-pointer' : ''} ${
+                                                    isHighlighted
+                                                        ? 'rounded bg-yellow-300 px-[2px]'
+                                                        : ''
+                                                }`}
+                                            >
+                                                {token}
+                                            </span>
+                                        );
+                                    })}
+                                </p>
+                            ))}
+                        </div>
+                    </ScrollArea>
+                </div>
 
-                {/* Questions bên phải */}
-                <div className="col-span-1 h-full overflow-hidden border-l p-0">
+                {/* Questions - Independent scroll area */}
+                <div className="flex min-h-0 flex-1 flex-col">
+                    <h3 className="mb-3 font-semibold text-gray-700">
+                        Questions
+                    </h3>
                     {questionsHtml && (
-                        <ScrollArea className="custom-scrollbar h-full overflow-x-hidden overflow-y-auto">
+                        <ScrollArea className="custom-scrollbar min-h-0 flex-1 rounded-md border">
                             <div className="space-y-4 p-6">
                                 <div
                                     className="questions-section"
