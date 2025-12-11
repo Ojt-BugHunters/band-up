@@ -64,7 +64,9 @@ export default function BlogListPage() {
     }, [data, sortOrder]);
 
     if (isPending) {
-        return <LiquidLoading />;
+        <div className="bg-background flex min-h-screen w-full items-center justify-center rounded-lg border p-4">
+            <LiquidLoading />
+        </div>;
     }
 
     if (isError) {

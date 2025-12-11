@@ -210,3 +210,127 @@
     --normal-text: var(--destructive);
     --normal-border: var(--destructive);
 }
+
+@layer utilities {
+    @keyframes float-rotate {
+        0%,
+        100% {
+            transform: translateY(0px) rotate(0deg);
+        }
+        50% {
+            transform: translateY(-8px) rotate(2deg);
+        }
+    }
+
+    @keyframes breathe {
+        0%,
+        100% {
+            transform: scale(1);
+        }
+        50% {
+            transform: scale(1.05);
+        }
+    }
+
+    @keyframes glow-pulse {
+        0%,
+        100% {
+            filter: drop-shadow(0 0 8px rgba(255, 158, 100, 0.4));
+        }
+        50% {
+            filter: drop-shadow(0 0 16px rgba(255, 158, 100, 0.6));
+        }
+    }
+
+    @keyframes pulse-ring {
+        0% {
+            transform: scale(1);
+            opacity: 1;
+        }
+        100% {
+            transform: scale(1.5);
+            opacity: 0;
+        }
+    }
+
+    @keyframes wave-bounce {
+        0%,
+        100% {
+            transform: translateY(0) scale(1);
+        }
+        50% {
+            transform: translateY(-8px) scale(1.2);
+        }
+    }
+
+    @keyframes particle-float {
+        0% {
+            transform: translate(-50%, -50%) translateY(0) translateX(0);
+            opacity: 0;
+        }
+        20% {
+            opacity: 1;
+        }
+        80% {
+            opacity: 1;
+        }
+        100% {
+            transform: translate(-50%, -50%) translateY(-40px)
+                translateX(var(--particle-x));
+            opacity: 0;
+        }
+    }
+
+    @keyframes sparkle {
+        0%,
+        100% {
+            opacity: 0;
+            transform: scale(0) rotate(0deg);
+        }
+        50% {
+            opacity: 1;
+            transform: scale(1) rotate(180deg);
+        }
+    }
+
+    @keyframes shimmer {
+        0% {
+            transform: translateX(-100%);
+        }
+        100% {
+            transform: translateX(100%);
+        }
+    }
+
+    .animate-float-rotate {
+        animation: float-rotate 4s ease-in-out infinite;
+    }
+
+    .animate-breathe {
+        animation: breathe 3s ease-in-out infinite;
+    }
+
+    .animate-glow-pulse {
+        animation: glow-pulse 2s ease-in-out infinite;
+    }
+
+    .animate-pulse-ring {
+        animation: pulse-ring 2s cubic-bezier(0, 0, 0.2, 1) infinite;
+    }
+
+    .animate-wave-bounce {
+        animation: wave-bounce 1s ease-in-out infinite;
+    }
+
+    .animate-particle-float {
+        animation: particle-float 3s ease-in-out infinite;
+    }
+
+    .animate-sparkle {
+        animation: sparkle 2s ease-in-out infinite;
+    }
+
+    .animate-shimmer {
+        animation: shimmer 2s linear infinite;
+    }
+}

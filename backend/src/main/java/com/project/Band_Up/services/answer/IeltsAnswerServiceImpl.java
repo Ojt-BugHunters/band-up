@@ -470,6 +470,7 @@ public class IeltsAnswerServiceImpl extends AbstractAnswerServiceImpl {
         System.out.println("AttemptSection ID: " + attemptSectionId);
         System.out.println("User ID: " + userId);
         System.out.println("Audio name: " + request.getAudioName());
+        System.out.println("Speaking bucket: " + speakingAudioBucket); // Log bucket
 
         try {
             // 1. Validate AttemptSection exists
@@ -486,26 +487,21 @@ public class IeltsAnswerServiceImpl extends AbstractAnswerServiceImpl {
                 throw new RuntimeException("Cannot generate upload URL. Attempt has already been submitted.");
             }
 
-//            // 4. Validate Question exists
-//            Question question = questionRepository.findById(questionId)
-//                    .orElseThrow(() -> new RuntimeException("Question not found with ID: " + questionId));
-//
-//            System.out.println("Question type: " + question.getContent().get("questionType"));
-
-
-            // 5. Tạo key cho S3: speaking-audios/{userId}/{attemptSectionId}/{uuid}-{audioName}
-            String s3Key = String.format("speaking-audios/%s/%s/%s-%s",
-                    userId.toString(),
-                    attemptSectionId.toString(),
-                    UUID.randomUUID().toString(),
+            // 4. Tạo key ĐƠN GIẢN - CHỈ TÊN FILE, KHÔNG CÓ FOLDER
+            String s3Key = String.format("%s",
                     sanitizeFileName(request.getAudioName()));
 
             System.out.println("Generated S3 key: " + s3Key);
 
-            // 6. Tạo presigned URL
-            UploadInfo uploadInfo = s3Service.createUploadPresignedUrl(s3Key, DEFAULT_AUDIO_CONTENT_TYPE);
+            // 5. Tạo presigned URL - SỬ DỤNG METHOD MỚI VỚI BUCKET SPEAKING
+            UploadInfo uploadInfo = s3Service.createUploadPresignedUrlWithBucket(
+                    speakingAudioBucket,  // <<<< BUCKET SPEAKING
+                    s3Key,                 // <<<< CHỈ TÊN FILE
+                    DEFAULT_AUDIO_CONTENT_TYPE
+            );
 
-            System.out.println("Presigned URL generated successfully");
+            System.out.println("Presigned URL generated successfully for bucket: " + speakingAudioBucket);
+            System.out.println("Full S3 key: " + s3Key);
             System.out.println("Expires at: " + uploadInfo.getExpiresAt());
             System.out.println("========== GENERATE SPEAKING UPLOAD URL END ==========\n");
 

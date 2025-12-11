@@ -104,7 +104,6 @@ function FeedbackCard({ feedback }: { feedback: FeedbackData }) {
 
     return (
         <div className="space-y-6">
-            {/* Overall Score Card */}
             <Card
                 className={`border-2 ${getBandBgColor(feedback.overall_band)} shadow-lg transition-shadow duration-300 hover:shadow-xl`}
             >
@@ -123,7 +122,6 @@ function FeedbackCard({ feedback }: { feedback: FeedbackData }) {
                 </CardHeader>
             </Card>
 
-            {/* Band Scores Grid */}
             <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-4">
                 <BandScoreCard
                     title="Task Achievement"
@@ -147,7 +145,6 @@ function FeedbackCard({ feedback }: { feedback: FeedbackData }) {
                 />
             </div>
 
-            {/* Strengths & Weaknesses */}
             <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
                 <Card className="border-2 border-emerald-200 shadow-md transition-shadow duration-300 hover:shadow-lg dark:border-emerald-800">
                     <CardHeader>
@@ -202,7 +199,6 @@ function FeedbackCard({ feedback }: { feedback: FeedbackData }) {
                 </Card>
             </div>
 
-            {/* Detailed Criteria */}
             <Card className="border-2 shadow-md">
                 <CardHeader>
                     <CardTitle className="flex items-center gap-2">
@@ -237,7 +233,6 @@ function FeedbackCard({ feedback }: { feedback: FeedbackData }) {
                 </CardContent>
             </Card>
 
-            {/* Quoted Examples */}
             {feedback.feedback.quoted_examples &&
                 feedback.feedback.quoted_examples.length > 0 && (
                     <Card className="border-2 border-purple-200 shadow-md dark:border-purple-800">
@@ -364,7 +359,7 @@ function CriterionSection({
             {criterion.improvements && criterion.improvements.length > 0 && (
                 <div className="mt-3 rounded-lg border border-blue-200 bg-blue-50 p-3 dark:border-blue-800 dark:bg-blue-950/20">
                     <p className="mb-2 text-sm font-semibold text-blue-700 dark:text-blue-400">
-                        💡 How to improve:
+                        How to improve:
                     </p>
                     <ul className="space-y-1">
                         {criterion.improvements.map((improvement, idx) => (

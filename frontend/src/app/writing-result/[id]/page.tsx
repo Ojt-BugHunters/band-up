@@ -1,14 +1,18 @@
 'use client';
 
 import React, { useEffect, useState, useMemo, useRef } from 'react';
-import { useParams } from 'next/navigation';
+import { useParams, useRouter } from 'next/navigation';
 import { IELTSFeedbackDisplay } from './ielts-writing-feedback';
-import LiquidLoading from '@/components/ui/liquid-loader';
 import { useGetWritingQuestions } from '@/lib/service/test/question';
 import { useEvaluateWriting } from '@/lib/service/attempt';
 import type { WritingQuestion } from '@/lib/service/test/question/type';
 import { EvaluationPayload } from '@/lib/service/attempt';
 import { toast } from 'sonner';
+import ChatbotLoading from '@/components/chatbot-loading';
+import { Button } from '@/components/ui/button';
+import { ConfirmDialog } from '@/components/confirm-dialog';
+import { RotateCcw } from 'lucide-react';
+import { clearTestLocalStorage } from '@/lib/utils';
 
 interface SubmittedAnswer {
     taskTitle: string;
@@ -57,11 +61,14 @@ const buildPayloads = (
 
 export default function WritingResultPage() {
     const params = useParams();
+    const router = useRouter();
 
     const [answerIds, setAnswerIds] = useState<string[]>([]);
     const [submittedAnswers, setSubmittedAnswers] = useState<SubmittedAnswer[]>(
         [],
     );
+    const [quitDialogOpen, setQuitDialogOpen] = useState(false);
+    const [quitLoading, setQuitLoading] = useState(false);
     const hasEvaluated = useRef(false);
 
     const questionIds = useMemo(
@@ -118,15 +125,29 @@ export default function WritingResultPage() {
         }
     }, [answerIds, questions, submittedAnswers, evaluate]);
 
+    const handleQuitConfirm = async () => {
+        try {
+            setQuitLoading(true);
+            clearTestLocalStorage();
+            router.push('/test');
+        } finally {
+            setQuitLoading(false);
+            setQuitDialogOpen(false);
+        }
+    };
+
+    const handleRetakeTryAgain = () => {
+        clearTestLocalStorage();
+        router.push('/test');
+    };
+
     if (isLoadingQuestions || isEvaluating) {
         return (
             <div className="bg-background flex h-screen w-full flex-col items-center justify-center gap-4">
-                <LiquidLoading />
-                <p className="text-muted-foreground animate-pulse">
-                    {isLoadingQuestions
-                        ? 'Loading questions...'
-                        : 'AI is analyzing your writing...'}
-                </p>
+                <ChatbotLoading
+                    size="lg"
+                    message="AI is evaluating your writing test, please wait..."
+                />
             </div>
         );
     }
@@ -161,7 +182,37 @@ export default function WritingResultPage() {
                 </div>
 
                 <IELTSFeedbackDisplay data={evaluationResults} />
+
+                <div className="mt-6 flex gap-3">
+                    <Button
+                        variant="outline"
+                        className="flex-1 gap-2 border-2 border-slate-300 bg-transparent hover:bg-slate-50"
+                        onClick={() => setQuitDialogOpen(true)}
+                    >
+                        Quit test
+                    </Button>
+
+                    <Button
+                        className="flex-1 gap-2 bg-gradient-to-r from-blue-500 to-indigo-500 text-white shadow-lg hover:from-blue-600 hover:to-indigo-600"
+                        onClick={handleRetakeTryAgain}
+                    >
+                        <RotateCcw className="h-4 w-4" />
+                        Try again
+                    </Button>
+                </div>
             </div>
+
+            <ConfirmDialog
+                open={quitDialogOpen}
+                onOpenChange={setQuitDialogOpen}
+                title="Quit the test?"
+                description="If you quit, you can view your result in the history tab"
+                confirmText="Confirm"
+                cancelText="Cancel"
+                destructive
+                loading={quitLoading}
+                onConfirm={handleQuitConfirm}
+            />
         </div>
     );
 }

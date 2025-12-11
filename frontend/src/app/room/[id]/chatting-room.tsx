@@ -72,7 +72,7 @@ type Member = {
     role?: string;
     name?: string;
 };
-
+const WS_URL = process.env.NEXT_PUBLIC_WS_URL ?? 'http://localhost:8080/ws';
 export function ChattingRoomDisplay({ roomId }: ChattingRoomProps) {
     const user = useUser();
     const { data: avatarResponse } = useGetAvatar();
@@ -106,7 +106,7 @@ export function ChattingRoomDisplay({ roomId }: ChattingRoomProps) {
         if (!user?.id || !roomId) return;
 
         const client = new Client({
-            webSocketFactory: () => new SockJS('http://localhost:8080/ws'),
+            webSocketFactory: () => new SockJS(WS_URL),
             reconnectDelay: 5000,
             onConnect: () => {
                 setIsConnected(true);
