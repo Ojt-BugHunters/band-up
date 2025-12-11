@@ -30,8 +30,7 @@ export default function CreateFlashcardDialog() {
 
     const { uploadFiles, cancel, cancelAll, isUploading, progressMap, errors } =
         useS3Upload({
-            presignEndpoint: '/api/s3/presign', // Adjust this endpoint
-            entityType: 'flashcard',
+            presignEndpoint: '/v1/flashcards/Document-upload-url',
         });
 
     const handleManualCreate = () => {
@@ -55,7 +54,6 @@ export default function CreateFlashcardDialog() {
     const handleStartUpload = async () => {
         if (!files.length) return;
         await uploadFiles(files);
-        // Handle post-upload logic here
         setOpen(false);
         setMode('select');
         setFiles([]);

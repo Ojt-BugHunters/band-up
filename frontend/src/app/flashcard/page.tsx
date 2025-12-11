@@ -17,7 +17,6 @@ import {
     StatsLabel,
     StatsValue,
 } from '@/components/stats';
-import { Button } from '@/components/ui/button';
 import { EmptyState } from '@/components/ui/empty-state';
 import { Input } from '@/components/ui/input';
 import LiquidLoading from '@/components/ui/liquid-loader';
@@ -41,7 +40,6 @@ import {
     Search,
     User,
 } from 'lucide-react';
-import Link from 'next/link';
 import { useEffect, useMemo, useState } from 'react';
 import { useDebounce } from '@/lib/utils-client';
 import CreateFlashcardDialog from './create-flashcard-dialog';

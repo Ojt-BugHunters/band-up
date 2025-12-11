@@ -104,6 +104,7 @@ export function ChattingRoomDisplay({ roomId }: ChattingRoomProps) {
 
     useEffect(() => {
         if (!user?.id || !roomId) return;
+        console.log(WS_URL);
 
         const client = new Client({
             webSocketFactory: () => new SockJS(WS_URL),
