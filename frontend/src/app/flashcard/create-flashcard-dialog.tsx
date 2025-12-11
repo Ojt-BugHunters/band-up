@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Plus, FileUp, PenLine, Upload, X } from 'lucide-react';
+import { Plus, FileUp, PenLine, Upload, X, Loader2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import {
     Dialog,
@@ -19,19 +19,19 @@ import {
     FileUploadList,
     FileUploadTrigger,
 } from '@/components/ui/file-upload';
-import { useS3Upload, fileIdOf } from '@/lib/service/s3-upload';
+import { fileIdOf } from '@/lib/service/s3-upload';
 import { useRouter } from 'next/navigation';
+import { fetchWrapper } from '@/lib/service';
 
 export default function CreateFlashcardDialog() {
     const [open, setOpen] = useState(false);
     const [mode, setMode] = useState<'select' | 'import'>('select');
     const [files, setFiles] = useState<File[]>([]);
+    const [isUploading, setIsUploading] = useState(false);
+    const [isGenerating, setIsGenerating] = useState(false);
+    const [progressMap, setProgressMap] = useState<Record<string, number>>({});
+    const [errors, setErrors] = useState<Record<string, string>>({});
     const router = useRouter();
-
-    const { uploadFiles, cancel, cancelAll, isUploading, progressMap, errors } =
-        useS3Upload({
-            presignEndpoint: '/v1/flashcards/Document-upload-url',
-        });
 
     const handleManualCreate = () => {
         router.push('/flashcard/new');
@@ -45,18 +45,146 @@ export default function CreateFlashcardDialog() {
     const handleBack = () => {
         setMode('select');
         setFiles([]);
+        setProgressMap({});
+        setErrors({});
     };
 
     const handleValueChange = (next: File[]) => {
         setFiles(next);
     };
 
+    const uploadFileToS3 = async (file: File): Promise<string | null> => {
+        const id = fileIdOf(file);
+
+        try {
+            // Step 1: Get presigned URL
+            const presignResponse = await fetchWrapper(
+                '/v1/flashcards/Document-upload-url',
+                {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        fileName: file.name,
+                        contentType: file.type || 'application/octet-stream',
+                    }),
+                },
+            );
+
+            if (!presignResponse.ok) {
+                throw new Error('Failed to get upload URL');
+            }
+
+            const presignData = await presignResponse.json();
+
+            if (!presignData.uploadUrl || !presignData.s3Key) {
+                throw new Error('Invalid presign response');
+            }
+
+            // Step 2: Upload file to S3
+            setProgressMap((m) => ({ ...m, [id]: 0 }));
+
+            const uploadResponse = await fetch(presignData.uploadUrl, {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': file.type || 'application/octet-stream',
+                },
+                body: file,
+            });
+
+            if (!uploadResponse.ok) {
+                throw new Error('Failed to upload file');
+            }
+
+            setProgressMap((m) => ({ ...m, [id]: 100 }));
+
+            return presignData.s3Key;
+        } catch (error) {
+            const message =
+                error instanceof Error ? error.message : 'Upload failed';
+            setErrors((e) => ({ ...e, [id]: message }));
+            return null;
+        }
+    };
+
     const handleStartUpload = async () => {
         if (!files.length) return;
-        await uploadFiles(files);
-        setOpen(false);
-        setMode('select');
-        setFiles([]);
+
+        try {
+            setIsUploading(true);
+
+            // Upload first file
+            const s3Key = await uploadFileToS3(files[0]);
+
+            if (!s3Key) {
+                throw new Error('Failed to upload file');
+            }
+
+            setIsUploading(false);
+            setIsGenerating(true);
+
+            // Generate flashcards from uploaded document
+            const response = await fetchWrapper(
+                '/v1/flashcards/FlashCard-generate',
+                {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        set_id: 'string',
+                        user_id: 'string',
+                        document_id: 'string',
+                        pdf_url: s3Key,
+                        num_cards: 10,
+                        difficulty: 'MEDIUM',
+                    }),
+                },
+            );
+
+            if (!response.ok) {
+                throw new Error('Failed to generate flashcards');
+            }
+
+            const data = await response.json();
+
+            if (data.id) {
+                localStorage.setItem(`deck:${data.id}`, JSON.stringify(data));
+                router.push(`/flashcard/${data.id}`);
+                setOpen(false);
+            } else {
+                throw new Error('No deck ID returned');
+            }
+        } catch (error) {
+            console.error('Error generating flashcards:', error);
+            alert(error instanceof Error ? error.message : 'An error occurred');
+        } finally {
+            setIsGenerating(false);
+            setIsUploading(false);
+            setMode('select');
+            setFiles([]);
+            setProgressMap({});
+            setErrors({});
+        }
+    };
+
+    const handleRemoveFile = (index: number) => {
+        const newFiles = files.filter((_, i) => i !== index);
+        setFiles(newFiles);
+
+        // Clear progress and errors for removed file
+        if (files[index]) {
+            const id = fileIdOf(files[index]);
+            setProgressMap((m) => {
+                const { [id]: _, ...rest } = m;
+                return rest;
+            });
+            setErrors((e) => {
+                const { [id]: _, ...rest } = e;
+                return rest;
+            });
+        }
     };
 
     return (
@@ -120,7 +248,7 @@ export default function CreateFlashcardDialog() {
                         <DialogHeader>
                             <DialogTitle>Import Document</DialogTitle>
                             <DialogDescription>
-                                Upload your documents to generate flashcards
+                                Upload your document to generate flashcards
                                 automatically
                             </DialogDescription>
                         </DialogHeader>
@@ -128,10 +256,10 @@ export default function CreateFlashcardDialog() {
                             <FileUpload
                                 value={files}
                                 onValueChange={handleValueChange}
-                                accept="image/*,audio/*,video/*,.pdf,.doc,.docx"
-                                maxFiles={2}
+                                accept=".pdf,.doc,.docx"
+                                maxFiles={1}
                                 className="w-full"
-                                multiple={true}
+                                multiple={false}
                             >
                                 <FileUploadDropzone>
                                     <div className="flex flex-col items-center gap-1 text-center">
@@ -139,10 +267,10 @@ export default function CreateFlashcardDialog() {
                                             <Upload className="text-muted-foreground size-6" />
                                         </div>
                                         <p className="text-sm font-medium">
-                                            Drag & drop files here
+                                            Drag & drop file here
                                         </p>
                                         <p className="text-muted-foreground text-xs">
-                                            Or click to browse (max 2 files)
+                                            Or click to browse (PDF, DOC, DOCX)
                                         </p>
                                     </div>
                                     <FileUploadTrigger asChild>
@@ -181,9 +309,13 @@ export default function CreateFlashcardDialog() {
                                                             size="icon"
                                                             className="size-7"
                                                             disabled={
-                                                                isUploading &&
-                                                                pct > 0 &&
-                                                                pct < 100
+                                                                isUploading ||
+                                                                isGenerating
+                                                            }
+                                                            onClick={() =>
+                                                                handleRemoveFile(
+                                                                    index,
+                                                                )
                                                             }
                                                         >
                                                             <X />
@@ -193,7 +325,7 @@ export default function CreateFlashcardDialog() {
 
                                                 <div className="bg-muted h-1 w-full rounded">
                                                     <div
-                                                        className="bg-primary h-1 rounded"
+                                                        className="bg-primary h-1 rounded transition-all"
                                                         style={{
                                                             width: `${pct}%`,
                                                         }}
@@ -208,25 +340,12 @@ export default function CreateFlashcardDialog() {
                                                     ) : (
                                                         <span className="text-muted-foreground text-xs">
                                                             {pct === 100
-                                                                ? 'Done'
+                                                                ? 'Uploaded'
                                                                 : isUploading
                                                                   ? 'Uploading…'
                                                                   : 'Ready'}
                                                         </span>
                                                     )}
-
-                                                    {pct > 0 && pct < 100 ? (
-                                                        <Button
-                                                            variant="ghost"
-                                                            size="sm"
-                                                            className="h-7 px-2 text-xs"
-                                                            onClick={() =>
-                                                                cancel(id)
-                                                            }
-                                                        >
-                                                            Cancel
-                                                        </Button>
-                                                    ) : null}
                                                 </div>
                                             </FileUploadItem>
                                         );
@@ -238,19 +357,33 @@ export default function CreateFlashcardDialog() {
                                 <Button
                                     variant="outline"
                                     onClick={handleBack}
-                                    disabled={isUploading}
+                                    disabled={isUploading || isGenerating}
                                     className="flex-1"
                                 >
                                     Back
                                 </Button>
                                 <Button
                                     onClick={handleStartUpload}
-                                    disabled={!files.length || isUploading}
+                                    disabled={
+                                        !files.length ||
+                                        isUploading ||
+                                        isGenerating
+                                    }
                                     className="flex-1"
                                 >
-                                    {isUploading
-                                        ? 'Uploading…'
-                                        : 'Upload & Generate'}
+                                    {isGenerating ? (
+                                        <>
+                                            <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                                            Generating...
+                                        </>
+                                    ) : isUploading ? (
+                                        <>
+                                            <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                                            Uploading…
+                                        </>
+                                    ) : (
+                                        'Upload & Generate'
+                                    )}
                                 </Button>
                             </div>
                         </div>
