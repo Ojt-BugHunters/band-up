@@ -10,6 +10,7 @@ import {
 import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
 import { Separator } from '@/components/ui/separator';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import {
     CheckCircle2,
     AlertCircle,
@@ -20,7 +21,15 @@ import {
     FileText,
 } from 'lucide-react';
 
-interface IeltsData {
+export interface CategoryFeedback {
+    band: number;
+    feedback: string;
+    strengths: string[];
+    weaknesses: string[];
+    improvements: string[];
+}
+
+export interface SpeakingEvaluationResponse {
     session_id: string;
     transcript: string;
     duration: number;
@@ -45,45 +54,81 @@ interface IeltsData {
     };
 }
 
-interface CategoryFeedback {
-    band: number;
-    feedback: string;
-    strengths: string[];
-    weaknesses: string[];
-    improvements: string[];
+interface DisplayProps {
+    results?: SpeakingEvaluationResponse[];
 }
 
-interface Props {
-    data: IeltsData;
+export default function SpeakingResultDisplay({ results }: DisplayProps) {
+    if (!results || results.length === 0) return null;
+
+    if (results.length === 1) {
+        return <SpeakingIeltsResponse data={results[0]} />;
+    }
+
+    return (
+        <div className="w-full">
+            <Tabs defaultValue="part-0" className="w-full">
+                <div className="mb-6 flex justify-center">
+                    <TabsList className="bg-slate-100">
+                        {results.map((_, index) => (
+                            <TabsTrigger
+                                key={`trigger-${index}`}
+                                value={`part-${index}`}
+                                className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-blue-500 data-[state=active]:to-indigo-500 data-[state=active]:text-white"
+                            >
+                                Part {index + 1}
+                            </TabsTrigger>
+                        ))}
+                    </TabsList>
+                </div>
+
+                {results.map((result, index) => (
+                    <TabsContent
+                        key={`content-${index}`}
+                        value={`part-${index}`}
+                    >
+                        <SpeakingIeltsResponse data={result} />
+                    </TabsContent>
+                ))}
+            </Tabs>
+        </div>
+    );
 }
 
-export function SpeakingIeltsResponse({ data }: Props) {
+interface ResponseProps {
+    data: SpeakingEvaluationResponse;
+}
+
+export function SpeakingIeltsResponse({ data }: ResponseProps) {
     const getBandColor = (band: number) => {
-        if (band >= 8) return 'text-emerald-700';
-        if (band >= 7) return 'text-blue-700';
-        if (band >= 6) return 'text-amber-700';
-        return 'text-orange-700';
+        if (band >= 8) return 'text-emerald-600';
+        if (band >= 7) return 'text-blue-600';
+        if (band >= 6) return 'text-indigo-600';
+        return 'text-slate-600';
     };
 
     const getBandBgColor = (band: number) => {
-        if (band >= 8) return 'bg-emerald-50 border-emerald-300';
-        if (band >= 7) return 'bg-blue-50 border-blue-300';
-        if (band >= 6) return 'bg-amber-50 border-amber-300';
-        return 'bg-orange-50 border-orange-300';
+        if (band >= 8) return 'bg-emerald-50 border-emerald-200';
+        if (band >= 7) return 'bg-blue-50 border-blue-200';
+        if (band >= 6) return 'bg-indigo-50 border-indigo-200';
+        return 'bg-slate-50 border-slate-200';
     };
 
     const getProgressColor = (band: number) => {
-        if (band >= 8) return '[&>div]:bg-emerald-500';
-        if (band >= 7) return '[&>div]:bg-blue-500';
-        if (band >= 6) return '[&>div]:bg-amber-500';
-        return '[&>div]:bg-orange-500';
+        if (band >= 8)
+            return '[&>div]:bg-gradient-to-r [&>div]:from-emerald-500 [&>div]:to-emerald-600';
+        if (band >= 7)
+            return '[&>div]:bg-gradient-to-r [&>div]:from-blue-500 [&>div]:to-blue-600';
+        if (band >= 6)
+            return '[&>div]:bg-gradient-to-r [&>div]:from-indigo-500 [&>div]:to-indigo-600';
+        return '[&>div]:bg-gradient-to-r [&>div]:from-slate-400 [&>div]:to-slate-500';
     };
 
     const getIconBgColor = (band: number) => {
-        if (band >= 8) return 'bg-emerald-100';
-        if (band >= 7) return 'bg-blue-100';
-        if (band >= 6) return 'bg-amber-100';
-        return 'bg-orange-100';
+        if (band >= 8) return 'bg-emerald-100 text-emerald-600';
+        if (band >= 7) return 'bg-blue-100 text-blue-600';
+        if (band >= 6) return 'bg-indigo-100 text-indigo-600';
+        return 'bg-slate-100 text-slate-600';
     };
 
     const categories = [
@@ -118,44 +163,42 @@ export function SpeakingIeltsResponse({ data }: Props) {
     ];
 
     return (
-        <div className="space-y-5">
-            {/* Overall Score Card */}
-            <Card className="border-2 border-purple-300 bg-purple-50 shadow-md">
-                <CardHeader className="pb-3">
+        <div className="animate-in fade-in space-y-5 duration-500">
+            <Card className="relative overflow-hidden border-0 shadow-lg">
+                <div className="absolute inset-0 bg-gradient-to-br from-blue-500/10 via-indigo-500/10 to-purple-500/10" />
+                <CardHeader className="relative pb-3">
                     <div className="flex items-center justify-between">
                         <div>
-                            <CardTitle className="text-lg font-bold text-purple-900">
+                            <CardTitle className="text-lg font-bold text-slate-900">
                                 Overall Band Score
                             </CardTitle>
-                            <CardDescription className="mt-0.5 text-sm text-purple-700">
+                            <CardDescription className="mt-1 text-sm text-slate-600">
                                 Your IELTS Speaking Performance
                             </CardDescription>
                         </div>
-                        <div className="rounded-xl bg-purple-100 p-2">
-                            <Award className="h-5 w-5 text-purple-700" />
+                        <div className="rounded-xl bg-gradient-to-br from-blue-500 to-indigo-500 p-2.5">
+                            <Award className="h-5 w-5 text-white" />
                         </div>
                     </div>
                 </CardHeader>
-                <CardContent className="pb-3">
+                <CardContent className="relative pb-4">
                     <div className="flex items-center gap-4">
-                        <div
-                            className={`text-4xl font-black ${getBandColor(data.overall_band)}`}
-                        >
+                        <div className="bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-5xl font-black text-transparent">
                             {data.overall_band.toFixed(1)}
                         </div>
                         <div className="grid flex-1 grid-cols-2 gap-2">
-                            <div className="space-y-0.5 rounded-lg border border-slate-300 bg-white p-2.5">
-                                <p className="flex items-center gap-1 text-xs font-medium text-slate-600">
-                                    <Clock className="h-3 w-3" />
+                            <div className="space-y-1 rounded-lg border border-slate-200 bg-white/80 p-2.5 backdrop-blur">
+                                <p className="flex items-center gap-1.5 text-xs font-medium text-slate-600">
+                                    <Clock className="h-3.5 w-3.5" />
                                     Duration
                                 </p>
                                 <p className="text-base font-bold text-slate-900">
                                     {data.duration}s
                                 </p>
                             </div>
-                            <div className="space-y-0.5 rounded-lg border border-slate-300 bg-white p-2.5">
-                                <p className="flex items-center gap-1 text-xs font-medium text-slate-600">
-                                    <FileText className="h-3 w-3" />
+                            <div className="space-y-1 rounded-lg border border-slate-200 bg-white/80 p-2.5 backdrop-blur">
+                                <p className="flex items-center gap-1.5 text-xs font-medium text-slate-600">
+                                    <FileText className="h-3.5 w-3.5" />
                                     Words
                                 </p>
                                 <p className="text-base font-bold text-slate-900">
@@ -166,28 +209,27 @@ export function SpeakingIeltsResponse({ data }: Props) {
                     </div>
                     <Progress
                         value={data.overall_band * 11.11}
-                        className={`mt-3 h-2 ${getProgressColor(data.overall_band)}`}
+                        className={`mt-4 h-2.5 ${getProgressColor(data.overall_band)}`}
                     />
                 </CardContent>
             </Card>
 
-            {/* Band Scores Grid */}
             <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">
                 {categories.map((category) => (
                     <Card
                         key={category.key}
-                        className={`border-2 shadow-sm transition-shadow hover:shadow-md ${getBandBgColor(category.band)}`}
+                        className={`border transition-all duration-200 hover:scale-105 hover:shadow-md ${getBandBgColor(category.band)}`}
                     >
                         <CardHeader className="px-3 pt-3 pb-2">
-                            <div className="mb-1 flex items-center justify-between">
+                            <div className="mb-1.5 flex items-center justify-between">
                                 <div
                                     className={`rounded-lg p-1.5 ${getIconBgColor(category.band)}`}
                                 >
-                                    <category.icon className="h-3.5 w-3.5" />
+                                    <category.icon className="h-4 w-4" />
                                 </div>
                                 <Badge
                                     variant="secondary"
-                                    className={`${getBandColor(category.band)} border border-current bg-white px-2 py-0 text-sm font-bold`}
+                                    className={`${getBandColor(category.band)} border border-current bg-white px-2 py-0.5 text-sm font-bold`}
                                 >
                                     {category.band}
                                 </Badge>
@@ -206,18 +248,17 @@ export function SpeakingIeltsResponse({ data }: Props) {
                 ))}
             </div>
 
-            {/* Transcript Card */}
-            <Card className="border-2 border-teal-300 bg-teal-50 shadow-sm">
-                <CardHeader className="pb-2">
-                    <CardTitle className="flex items-center gap-2 text-base text-teal-900">
-                        <div className="rounded-lg bg-teal-100 p-1.5">
+            <Card className="border-slate-200 bg-gradient-to-br from-slate-50 to-blue-50/30 shadow-sm">
+                <CardHeader className="pb-3">
+                    <CardTitle className="flex items-center gap-2 text-base text-slate-900">
+                        <div className="rounded-lg bg-blue-100 p-1.5 text-blue-600">
                             <MessageSquare className="h-4 w-4" />
                         </div>
                         Your Response
                     </CardTitle>
                 </CardHeader>
-                <CardContent className="pb-3">
-                    <div className="rounded-lg border border-teal-200 bg-white p-3">
+                <CardContent className="pb-4">
+                    <div className="rounded-lg border border-slate-200 bg-white p-3.5">
                         <p className="text-sm leading-relaxed text-slate-700">
                             &ldquo;{data.transcript}&rdquo;
                         </p>
@@ -225,15 +266,14 @@ export function SpeakingIeltsResponse({ data }: Props) {
                 </CardContent>
             </Card>
 
-            {/* Detailed Feedback */}
             <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
                 {categories.map((category) => (
                     <Card
                         key={category.key}
-                        className="overflow-hidden border-2 border-slate-300 shadow-sm"
+                        className="overflow-hidden border-slate-200 shadow-sm"
                     >
                         <CardHeader
-                            className={`${getBandBgColor(category.band)} border-b-2 border-current pt-3 pb-2.5`}
+                            className={`border-b pt-3 pb-3 ${getBandBgColor(category.band)}`}
                         >
                             <div className="flex items-center gap-2.5">
                                 <div
@@ -256,28 +296,27 @@ export function SpeakingIeltsResponse({ data }: Props) {
                                 </div>
                             </div>
                         </CardHeader>
-                        <CardContent className="space-y-3 pt-3 pb-3">
-                            <div className="rounded-lg border border-slate-300 bg-slate-50 p-2.5">
+                        <CardContent className="space-y-3 pt-4 pb-4">
+                            <div className="rounded-lg border border-slate-200 bg-slate-50 p-3">
                                 <p className="text-xs leading-relaxed text-slate-700">
                                     {category.data.feedback}
                                 </p>
                             </div>
 
-                            <Separator className="my-1" />
+                            <Separator className="my-2" />
 
                             <div className="space-y-2.5">
-                                {/* Strengths section */}
-                                <div className="rounded-lg border border-emerald-300 bg-emerald-50 p-2.5">
-                                    <h4 className="mb-1.5 flex items-center gap-1.5 text-xs font-bold text-emerald-700">
-                                        <CheckCircle2 className="h-3 w-3" />
+                                <div className="rounded-lg border border-emerald-200 bg-emerald-50/50 p-3">
+                                    <h4 className="mb-2 flex items-center gap-1.5 text-xs font-bold text-emerald-700">
+                                        <CheckCircle2 className="h-3.5 w-3.5" />
                                         Strengths
                                     </h4>
-                                    <ul className="space-y-1">
+                                    <ul className="space-y-1.5">
                                         {category.data.strengths.map(
                                             (strength, idx) => (
                                                 <li
                                                     key={idx}
-                                                    className="flex items-start gap-1.5 text-xs"
+                                                    className="flex items-start gap-2 text-xs"
                                                 >
                                                     <span className="mt-0.5 text-xs font-bold text-emerald-600">
                                                         ✓
@@ -291,18 +330,17 @@ export function SpeakingIeltsResponse({ data }: Props) {
                                     </ul>
                                 </div>
 
-                                {/* Weaknesses section */}
-                                <div className="rounded-lg border border-orange-300 bg-orange-50 p-2.5">
-                                    <h4 className="mb-1.5 flex items-center gap-1.5 text-xs font-bold text-orange-700">
-                                        <AlertCircle className="h-3 w-3" />
+                                <div className="rounded-lg border border-orange-200 bg-orange-50/50 p-3">
+                                    <h4 className="mb-2 flex items-center gap-1.5 text-xs font-bold text-orange-700">
+                                        <AlertCircle className="h-3.5 w-3.5" />
                                         Areas for Improvement
                                     </h4>
-                                    <ul className="space-y-1">
+                                    <ul className="space-y-1.5">
                                         {category.data.weaknesses.map(
                                             (weakness, idx) => (
                                                 <li
                                                     key={idx}
-                                                    className="flex items-start gap-1.5 text-xs"
+                                                    className="flex items-start gap-2 text-xs"
                                                 >
                                                     <span className="mt-0.5 text-xs font-bold text-orange-600">
                                                         !
@@ -316,18 +354,17 @@ export function SpeakingIeltsResponse({ data }: Props) {
                                     </ul>
                                 </div>
 
-                                {/* Recommendations section */}
-                                <div className="rounded-lg border border-blue-300 bg-blue-50 p-2.5">
-                                    <h4 className="mb-1.5 flex items-center gap-1.5 text-xs font-bold text-blue-700">
-                                        <TrendingUp className="h-3 w-3" />
+                                <div className="rounded-lg border border-blue-200 bg-blue-50/50 p-3">
+                                    <h4 className="mb-2 flex items-center gap-1.5 text-xs font-bold text-blue-700">
+                                        <TrendingUp className="h-3.5 w-3.5" />
                                         Recommendations
                                     </h4>
-                                    <ul className="space-y-1">
+                                    <ul className="space-y-1.5">
                                         {category.data.improvements.map(
                                             (improvement, idx) => (
                                                 <li
                                                     key={idx}
-                                                    className="flex items-start gap-1.5 text-xs"
+                                                    className="flex items-start gap-2 text-xs"
                                                 >
                                                     <span className="mt-0.5 text-xs font-bold text-blue-600">
                                                         →

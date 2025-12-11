@@ -1,17 +1,18 @@
 'use client';
 
-import { Room } from '@/lib/service/room';
+import type { Room } from '@/lib/service/room';
 import { useState, useEffect, useMemo } from 'react';
 import { motion } from 'framer-motion';
-import { ChevronLeft, ChevronRight, Search, Users } from 'lucide-react';
+import { ChevronLeft, ChevronRight, Search, Users, Home } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { CreateRoomDialog } from './create-room-dialog';
 import { useGetPublicRooms } from '@/lib/service/room';
 import { JoinRoomDialog } from './join-room-dialog';
 import { JoinRoomByCodeDialog } from './join-room-by-code';
+import Link from 'next/link';
 
-import { Client, IMessage } from '@stomp/stompjs';
+import { Client, type IMessage } from '@stomp/stompjs';
 import SockJS from 'sockjs-client';
 
 const WS_URL = process.env.NEXT_PUBLIC_WS_URL ?? 'http://localhost:8080/ws';
@@ -158,14 +159,25 @@ export default function RoomListPage() {
 
                     <div className="relative px-8 py-3">
                         <div className="flex items-center justify-between">
-                            <div>
-                                <h1 className="text-2xl font-bold text-white drop-shadow-lg">
-                                    Study Rooms
-                                </h1>
-                                <p className="mt-0.5 text-xs font-medium text-white/80 drop-shadow">
-                                    Join a room and start your focused learning
-                                    session
-                                </p>
+                            <div className="flex items-center gap-3">
+                                <Link href="/">
+                                    <Button
+                                        size="sm"
+                                        variant="ghost"
+                                        className="border border-white/20 bg-white/10 text-white backdrop-blur-md transition-all hover:scale-105 hover:bg-white/20"
+                                    >
+                                        <Home className="h-4 w-4" />
+                                    </Button>
+                                </Link>
+                                <div>
+                                    <h1 className="text-2xl font-bold text-white drop-shadow-lg">
+                                        Study Rooms
+                                    </h1>
+                                    <p className="mt-0.5 text-xs font-medium text-white/80 drop-shadow">
+                                        Join a room and start your focused
+                                        learning session
+                                    </p>
+                                </div>
                             </div>
 
                             <div className="flex items-center gap-2">
