@@ -246,14 +246,14 @@ export default function PricingSection() {
                             className="grid grid-cols-2 items-center gap-2 px-2 text-center"
                         >
                             <div className="mb-4 flex items-center">
-                                <span className="bg-gradient-to-r from-pink-500 via-purple-500 to-blue-500 bg-clip-text text-5xl font-semibold text-transparent dark:from-pink-400 dark:via-purple-400 dark:to-blue-400">
-                                    $
+                                <span className="text-5xl font-semibold text-pink-500">
+                                    <span>$</span>
                                     <NumberFlow
                                         value={currentPrice}
-                                        className="text-5xl font-semibold"
+                                        className="text-5xl font-semibold text-pink-500"
                                     />
                                 </span>
-                                <span className="relative ml-2 text-xl text-gray-500 line-through dark:text-gray-400">
+                                <span className="price-line-through ml-2 text-xl font-semibold">
                                     $
                                     <NumberFlow
                                         value={originalPrice}
