@@ -44,6 +44,7 @@ import {
 import Link from 'next/link';
 import { useEffect, useMemo, useState } from 'react';
 import { useDebounce } from '@/lib/utils-client';
+import CreateFlashcardDialog from './flash-card-dialog';
 
 export default function FlashcardPage() {
     const [search, setSearch] = useState('');
@@ -203,12 +204,7 @@ export default function FlashcardPage() {
                             </SelectContent>
                         </Select>
                     )}
-                    <Link href="/flashcard/new">
-                        <Button className="cursor-pointer rounded-xl bg-blue-600 font-medium text-white shadow-lg shadow-blue-600/25 hover:bg-blue-700">
-                            <Plus className="mr-2 h-4 w-4" />
-                            Create New Deck
-                        </Button>
-                    </Link>
+                   <CreateFlashcardDialog />
                 </div>
             </div>
 
