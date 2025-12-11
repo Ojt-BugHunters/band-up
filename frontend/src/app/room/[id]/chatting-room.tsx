@@ -72,7 +72,7 @@ type Member = {
     role?: string;
     name?: string;
 };
-const WS_URL = process.env.NEXT_PUBLIC_WS_URL ?? 'http://localhost:8080/ws';
+const WS_URL = process.env.WS_URL ?? 'http://localhost:8080/ws';
 export function ChattingRoomDisplay({ roomId }: ChattingRoomProps) {
     const user = useUser();
     const { data: avatarResponse } = useGetAvatar();
